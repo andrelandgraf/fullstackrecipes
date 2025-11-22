@@ -2,19 +2,18 @@
 
 import { useChat } from "@ai-sdk/react";
 import { WorkflowChatTransport } from "@workflow/ai";
-import { createResumableTransport } from "@/lib/agent-chat/transport";
 import { useState } from "react";
 import type { UIMessage } from "@ai-sdk/react";
 
 interface ChatProps {
   chatId: string;
-  initialMessages: UIMessage[];
+  messageHistory: UIMessage[];
   initialStreamingMessageId: string | null;
 }
 
 export function Chat({
   chatId,
-  initialMessages,
+  messageHistory,
   initialStreamingMessageId,
 }: ChatProps) {
   // Initialize streamingMessageId - if the last message has a streamId, it's still streaming
@@ -26,10 +25,10 @@ export function Chat({
     id: chatId,
     // Resume if we're reconnecting to a pending AI response
     resume: Boolean(
-      initialMessages.at(-1)?.id &&
-        initialMessages.at(-1)?.id === streamingMessageId,
+      messageHistory.at(-1)?.id &&
+        messageHistory.at(-1)?.id === streamingMessageId,
     ),
-    messages: initialMessages,
+    messages: messageHistory,
     transport: new WorkflowChatTransport({
       onChatSendMessage: (response, options) => {
         // Save chat history to localStorage

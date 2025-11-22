@@ -5,19 +5,10 @@ import {
   messageTexts,
   messageReasoning,
   messageTools,
-  messageFiles,
-  messageSourceUrls,
   type Message,
   type MessageText,
   type MessageReasoning,
   type MessageTool,
-  type MessageFile,
-  type MessageSourceUrl,
-  type NewMessageText,
-  type NewMessageReasoning,
-  type NewMessageTool,
-  type NewMessageFile,
-  type NewMessageSourceUrl,
 } from "./schema";
 
 /**
@@ -27,9 +18,7 @@ import {
 type MessagePart =
   | ({ type: "text" } & MessageText)
   | ({ type: "reasoning" } & MessageReasoning)
-  | ({ type: "tool" } & MessageTool)
-  | ({ type: "file" } & MessageFile)
-  | ({ type: "source-url" } & MessageSourceUrl);
+  | ({ type: "tool" } & MessageTool);
 
 /**
  * A message with its parts assembled
@@ -51,34 +40,23 @@ export async function getChatMessages(
   chatId: string,
 ): Promise<MessageWithParts[]> {
   // Execute all queries in parallel - each is ~1-2ms
-  const [
-    messagesData,
-    textsData,
-    reasoningData,
-    toolsData,
-    filesData,
-    sourceUrlsData,
-  ] = await Promise.all([
-    db.query.messages.findMany({
-      where: eq(messages.chatId, chatId),
-      orderBy: (messages, { asc }) => [asc(messages.createdAt)],
-    }),
-    db.query.messageTexts.findMany({
-      where: eq(messageTexts.chatId, chatId),
-    }),
-    db.query.messageReasoning.findMany({
-      where: eq(messageReasoning.chatId, chatId),
-    }),
-    db.query.messageTools.findMany({
-      where: eq(messageTools.chatId, chatId),
-    }),
-    db.query.messageFiles.findMany({
-      where: eq(messageFiles.chatId, chatId),
-    }),
-    db.query.messageSourceUrls.findMany({
-      where: eq(messageSourceUrls.chatId, chatId),
-    }),
-  ]);
+  const [messagesData, textsData, reasoningData, toolsData] = await Promise.all(
+    [
+      db.query.messages.findMany({
+        where: eq(messages.chatId, chatId),
+        orderBy: (messages, { asc }) => [asc(messages.createdAt)],
+      }),
+      db.query.messageTexts.findMany({
+        where: eq(messageTexts.chatId, chatId),
+      }),
+      db.query.messageReasoning.findMany({
+        where: eq(messageReasoning.chatId, chatId),
+      }),
+      db.query.messageTools.findMany({
+        where: eq(messageTools.chatId, chatId),
+      }),
+    ],
+  );
 
   // Create a map of message ID to parts for fast assembly
   const partsMap = new Map<string, MessagePart[]>();
@@ -98,8 +76,6 @@ export async function getChatMessages(
   addParts(textsData, "text");
   addParts(reasoningData, "reasoning");
   addParts(toolsData, "tool");
-  addParts(filesData, "file");
-  addParts(sourceUrlsData, "source-url");
 
   // Assemble messages with their parts sorted by UUID v7 ID (time-ordered)
   return messagesData.map((message) => {
@@ -120,14 +96,7 @@ export async function getChatMessages(
 export async function getMessage(
   messageId: string,
 ): Promise<MessageWithParts | null> {
-  const [
-    message,
-    textsData,
-    reasoningData,
-    toolsData,
-    filesData,
-    sourceUrlsData,
-  ] = await Promise.all([
+  const [message, textsData, reasoningData, toolsData] = await Promise.all([
     db.query.messages.findFirst({
       where: eq(messages.id, messageId),
     }),
@@ -140,12 +109,6 @@ export async function getMessage(
     db.query.messageTools.findMany({
       where: eq(messageTools.messageId, messageId),
     }),
-    db.query.messageFiles.findMany({
-      where: eq(messageFiles.messageId, messageId),
-    }),
-    db.query.messageSourceUrls.findMany({
-      where: eq(messageSourceUrls.messageId, messageId),
-    }),
   ]);
 
   if (!message) return null;
@@ -155,8 +118,6 @@ export async function getMessage(
     ...textsData.map((p) => ({ ...p, type: "text" as const })),
     ...reasoningData.map((p) => ({ ...p, type: "reasoning" as const })),
     ...toolsData.map((p) => ({ ...p, type: "tool" as const })),
-    ...filesData.map((p) => ({ ...p, type: "file" as const })),
-    ...sourceUrlsData.map((p) => ({ ...p, type: "source-url" as const })),
   ].sort((a, b) => a.id.localeCompare(b.id));
 
   return {
@@ -174,20 +135,20 @@ export async function saveMessageParts({
   messageId,
   chatId,
   text,
+  textState,
   reasoning,
+  reasoningState,
   toolCalls,
   toolResults,
-  files,
-  sources,
 }: {
   messageId: string;
   chatId: string;
   text?: string;
-  reasoning?: Array<{ text: string }>;
+  textState?: "done";
+  reasoning?: Array<{ text: string; state?: "done" }>;
+  reasoningState?: "done";
   toolCalls?: Array<any>;
   toolResults?: Array<any>;
-  files?: Array<any>;
-  sources?: Array<any>;
 }) {
   // Prepare inserts for each part type
   const insertPromises = [];
@@ -199,6 +160,7 @@ export async function saveMessageParts({
         messageId,
         chatId,
         text,
+        state: textState || "done",
       }),
     );
   }
@@ -211,6 +173,7 @@ export async function saveMessageParts({
           messageId,
           chatId,
           text: r.text,
+          state: r.state || reasoningState || "done",
         })),
       ),
     );
@@ -226,6 +189,11 @@ export async function saveMessageParts({
       ]) || [],
     );
 
+    // Create a map of states by toolCallId
+    const statesMap = new Map(
+      toolResults?.map((r) => [r.toolCallId, r.state]) || [],
+    );
+
     insertPromises.push(
       db.insert(messageTools).values(
         toolCalls.map((call) => ({
@@ -233,55 +201,22 @@ export async function saveMessageParts({
           chatId,
           toolName: call.toolName,
           toolCallId: call.toolCallId,
+          state:
+            call.state ||
+            statesMap.get(call.toolCallId) ||
+            (resultsMap.has(call.toolCallId)
+              ? "output-available"
+              : "call"),
           data: {
-            args:
+            input:
               "args" in call
                 ? call.args
                 : "input" in call
                   ? call.input
                   : undefined,
-            result: resultsMap.get(call.toolCallId),
+            output: resultsMap.get(call.toolCallId),
           },
         })),
-      ),
-    );
-  }
-
-  // Save file parts (from GeneratedFile - base64 encoded)
-  if (files && files.length > 0) {
-    insertPromises.push(
-      db.insert(messageFiles).values(
-        files.map((file) => {
-          // GeneratedFile has base64, not url
-          const url = file.base64
-            ? `data:${file.mediaType};base64,${file.base64}`
-            : file.url || "";
-
-          return {
-            messageId,
-            chatId,
-            url,
-            mediaType: file.mediaType,
-            filename: file.filename,
-          };
-        }),
-      ),
-    );
-  }
-
-  // Save source URLs (from LanguageModelV2Source)
-  if (sources && sources.length > 0) {
-    insertPromises.push(
-      db.insert(messageSourceUrls).values(
-        sources
-          .filter((source) => source.sourceType === "url")
-          .map((source) => ({
-            messageId,
-            chatId,
-            sourceId: source.id,
-            url: source.url,
-            title: source.title,
-          })),
       ),
     );
   }

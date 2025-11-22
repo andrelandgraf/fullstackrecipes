@@ -50,8 +50,7 @@ export async function persistChatAgentResponse({
   //     reasoning: result.reasoning,
   //     toolCalls: result.toolCalls,
   //     toolResults: result.toolResults,
-  //     files: result.files,
-  //     sources: result.sources,
+
   //   });
 
   //   // Clear the streamId to indicate streaming is complete
