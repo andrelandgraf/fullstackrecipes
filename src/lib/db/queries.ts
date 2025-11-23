@@ -204,9 +204,7 @@ export async function saveMessageParts({
           state:
             call.state ||
             statesMap.get(call.toolCallId) ||
-            (resultsMap.has(call.toolCallId)
-              ? "output-available"
-              : "call"),
+            (resultsMap.has(call.toolCallId) ? "output-available" : "call"),
           data: {
             input:
               "args" in call

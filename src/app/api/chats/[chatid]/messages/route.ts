@@ -6,7 +6,10 @@ import { start } from "workflow/api";
 import { v7 as uuidv7 } from "uuid";
 import { createAgentUIStreamResponse, createUIMessageStreamResponse } from "ai";
 import { chatAgent, ChatAgentUIMessage } from "@/lib/agent-chat/agent";
-import { convertDbMessagesToUIMessages, persistMessages } from "@/lib/agent-chat/utils";
+import {
+  convertDbMessagesToUIMessages,
+  persistMessages,
+} from "@/lib/agent-chat/utils";
 import { config } from "@/lib/config";
 import { assert } from "console";
 import { getChatMessages } from "@/lib/db/queries";
@@ -51,7 +54,7 @@ export async function POST(request: Request) {
     messages: [message],
   });
 
-  if(!config.flags.enableWorkflowChat) {
+  if (!config.flags.enableWorkflowChat) {
     const history = await getChatMessages(chatId);
     const uiMessages = convertDbMessagesToUIMessages(history);
     return createAgentUIStreamResponse({

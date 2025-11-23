@@ -155,7 +155,7 @@ export function SimpleChat({
     id: chatId,
     generateId: () => uuidv7(),
   });
-  console.log("messages", messages);
+  console.log("messages", JSON.stringify(messages, null, 2));
 
   return (
     <div className="flex h-screen flex-col">

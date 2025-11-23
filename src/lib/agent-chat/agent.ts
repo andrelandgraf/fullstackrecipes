@@ -10,7 +10,7 @@ import { countCharactersTool } from "./tools";
 // });
 
 export const chatAgent = new ToolLoopAgent({
-  model: 'anthropic/claude-haiku-4-5',
+  model: "openai/o1",
   stopWhen: stepCountIs(20),
   tools: {
     countCharacters: countCharactersTool,

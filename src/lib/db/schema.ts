@@ -60,7 +60,9 @@ export const messageTexts = pgTable("message_texts", {
     .notNull()
     .references(() => chats.id, { onDelete: "cascade" }),
   text: text("text").notNull(),
-  state: text("state", { enum: ["done"] }).notNull().default("done"),
+  state: text("state", { enum: ["done"] })
+    .notNull()
+    .default("done"),
   providerMetadata: jsonb("provider_metadata"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -80,7 +82,9 @@ export const messageReasoning = pgTable("message_reasoning", {
     .notNull()
     .references(() => chats.id, { onDelete: "cascade" }),
   text: text("text").notNull(),
-  state: text("state", { enum: ["done"] }).notNull().default("done"),
+  state: text("state", { enum: ["done"] })
+    .notNull()
+    .default("done"),
   providerMetadata: jsonb("provider_metadata"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

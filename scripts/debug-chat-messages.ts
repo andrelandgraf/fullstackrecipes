@@ -2,10 +2,10 @@
 
 /**
  * Debug script to fetch and log chat messages for a given chatId
- * 
+ *
  * Usage:
  *   bun scripts/debug-chat-messages.ts <chatId>
- * 
+ *
  * Example:
  *   bun scripts/debug-chat-messages.ts abc123
  */
@@ -36,7 +36,7 @@ async function main() {
     }
 
     console.log(`✅ Found ${messages.length} message(s)\n`);
-    console.log("=" .repeat(80));
+    console.log("=".repeat(80));
 
     // Log each message with its parts
     messages.forEach((message, index) => {
@@ -50,18 +50,28 @@ async function main() {
         console.log("\n   Parts:");
         message.parts.forEach((part, partIndex) => {
           console.log(`\n   ${partIndex + 1}. Type: ${part.type}`);
-          
+
           switch (part.type) {
             case "text":
-              console.log(`      Text: ${part.text.substring(0, 100)}${part.text.length > 100 ? "..." : ""}`);
+              console.log(
+                `      Text: ${part.text.substring(0, 100)}${part.text.length > 100 ? "..." : ""}`,
+              );
               break;
             case "reasoning":
-              console.log(`      Reasoning: ${part.text.substring(0, 100)}${part.text.length > 100 ? "..." : ""}`);
+              console.log(
+                `      Reasoning: ${part.text.substring(0, 100)}${part.text.length > 100 ? "..." : ""}`,
+              );
               break;
             case "tool":
               console.log(`      Tool: ${part.toolName}`);
               console.log(`      Tool Call ID: ${part.toolCallId}`);
-              console.log(`      Data:`, JSON.stringify(part.data, null, 2).split('\n').map(line => `      ${line}`).join('\n'));
+              console.log(
+                `      Data:`,
+                JSON.stringify(part.data, null, 2)
+                  .split("\n")
+                  .map((line) => `      ${line}`)
+                  .join("\n"),
+              );
               break;
           }
         });
@@ -73,7 +83,6 @@ async function main() {
     console.log("\n✨ Complete message data (JSON):\n");
     console.log(JSON.stringify(messages, null, 2));
     console.log("\n" + "=".repeat(80) + "\n");
-
   } catch (error) {
     console.error("❌ Error fetching messages:", error);
     if (error instanceof Error) {
@@ -84,4 +93,3 @@ async function main() {
 }
 
 main();
-
