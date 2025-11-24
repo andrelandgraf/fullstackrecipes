@@ -15,6 +15,7 @@ export const chats = pgTable("chats", {
   id: uuid("id")
     .primaryKey()
     .default(sql`uuid_generate_v7()`),
+  title: text("title").notNull().default("New chat"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -60,9 +61,6 @@ export const messageTexts = pgTable("message_texts", {
     .notNull()
     .references(() => chats.id, { onDelete: "cascade" }),
   text: text("text").notNull(),
-  state: text("state", { enum: ["done"] })
-    .notNull()
-    .default("done"),
   providerMetadata: jsonb("provider_metadata"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -82,9 +80,6 @@ export const messageReasoning = pgTable("message_reasoning", {
     .notNull()
     .references(() => chats.id, { onDelete: "cascade" }),
   text: text("text").notNull(),
-  state: text("state", { enum: ["done"] })
-    .notNull()
-    .default("done"),
   providerMetadata: jsonb("provider_metadata"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -103,23 +98,44 @@ export const messageTools = pgTable("message_tools", {
   chatId: uuid("chat_id")
     .notNull()
     .references(() => chats.id, { onDelete: "cascade" }),
-  toolName: text("tool_name").notNull(),
-  toolCallId: text("tool_call_id").notNull(),
   title: text("title"),
+  toolCallId: text("tool_call_id").notNull(),
+  providerExecuted: boolean("provider_executed").notNull().default(false),
+  errorText: text("error_text"),
+  input: jsonb("input").notNull(),
+  output: jsonb("output"),
+  toolType: text("tool_type", {
+    enum: ["tool-googleSearch", "tool-urlContext"],
+  }).notNull(),
   state: text("state", {
-    enum: [
-      "partial-call",
-      "call",
-      "input-streaming",
-      "output-available",
-      "output-error",
-    ],
+    enum: ["output-available", "output-error", "output-denied"],
   })
     .notNull()
-    .default("call"),
-  providerExecuted: boolean("provider_executed"),
-  // Store input (args) and output (result) in data field
-  data: jsonb("data"),
+    .default("output-available"),
+  callProviderMetadata: jsonb("call_provider_metadata"),
+  approvalId: text("approval_id"),
+  approvalReason: text("approval_reason"),
+  approved: boolean("approved"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/**
+ * Source URL parts - for citing external sources
+ */
+export const messageSourceUrls = pgTable("message_source_urls", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuid_generate_v7()`),
+  messageId: uuid("message_id")
+    .notNull()
+    .references(() => messages.id, { onDelete: "cascade" }),
+  chatId: uuid("chat_id")
+    .notNull()
+    .references(() => chats.id, { onDelete: "cascade" }),
+  sourceId: text("source_id").notNull(),
+  url: text("url").notNull(),
+  title: text("title"),
   providerMetadata: jsonb("provider_metadata"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -128,10 +144,13 @@ export const messageTools = pgTable("message_tools", {
 /**
  * Parts not implemented:
  * - file (messageFiles)
- * - source-url (messageSourceUrls)
  * - source-document (messageSourceDocuments)
  * - data (messageData)
- * - step-start (messageStepStarts)
+ */
+
+/**
+ * Parts not persisted:
+ * - step-start
  */
 
 // Type exports
@@ -146,3 +165,5 @@ export type MessageReasoning = typeof messageReasoning.$inferSelect;
 export type NewMessageReasoning = typeof messageReasoning.$inferInsert;
 export type MessageTool = typeof messageTools.$inferSelect;
 export type NewMessageTool = typeof messageTools.$inferInsert;
+export type MessageSourceUrl = typeof messageSourceUrls.$inferSelect;
+export type NewMessageSourceUrl = typeof messageSourceUrls.$inferInsert;

@@ -24,6 +24,12 @@ import {
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
 import {
+  Source,
+  Sources,
+  SourcesContent,
+  SourcesTrigger,
+} from "@/components/ai-elements/sources";
+import {
   Tool,
   ToolContent,
   ToolHeader,
@@ -36,6 +42,7 @@ import {
   CountCharactersToolPart,
   TextPart as TextPartType,
   ReasoningPart as ReasoningPartType,
+  SourceUrlPart as SourceUrlPartType,
   ToolPart as ToolPartType,
 } from "@/lib/agent-chat/agent";
 import { useChat } from "@ai-sdk/react";
@@ -68,67 +75,129 @@ function ReasoningPart({ part }: { part: ReasoningPartType }) {
   );
 }
 
-function ToolCountCharacters({ part }: { part: CountCharactersToolPart }) {
-  const output = part.output as
-    | { characterCount?: number; characterCountWithoutSpaces?: number }
-    | undefined;
+function SourcesPart({ parts }: { parts: SourceUrlPartType[] }) {
+  if (parts.length === 0) return null;
 
   return (
+    <Sources>
+      <SourcesTrigger count={parts.length} />
+      <SourcesContent>
+        {parts.map((source, index) => (
+          <Source
+            key={index}
+            href={source.url}
+            title={source.title || source.url}
+          />
+        ))}
+      </SourcesContent>
+    </Sources>
+  );
+}
+
+// function ToolCountCharacters({ part }: { part: CountCharactersToolPart }) {
+//   const output = part.output;
+
+//   return (
+//     <Tool>
+//       <ToolHeader
+//         type={part.type}
+//         state={part.state}
+//         title="Count Characters"
+//       />
+//       <ToolContent>
+//         <div className="max-w-full overflow-hidden">
+//           {part.input !== undefined && (
+//             <div className="max-h-48 overflow-auto">
+//               <ToolInput input={part.input} />
+//             </div>
+//           )}
+//           {output && (
+//             <div className="space-y-2 p-4">
+//               <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
+//                 Result
+//               </h4>
+//               <div className="space-y-3 rounded-md bg-muted/50 p-4">
+//                 <div className="flex items-center justify-between">
+//                   <span className="text-sm text-muted-foreground">
+//                     Total Characters:
+//                   </span>
+//                   <span className="font-mono text-lg font-semibold">
+//                     {output.characterCount}
+//                   </span>
+//                 </div>
+//                 {output.characterCountWithoutSpaces !== undefined && (
+//                   <div className="flex items-center justify-between">
+//                     <span className="text-sm text-muted-foreground">
+//                       Without Spaces:
+//                     </span>
+//                     <span className="font-mono text-lg font-semibold">
+//                       {output.characterCountWithoutSpaces}
+//                     </span>
+//                   </div>
+//                 )}
+//               </div>
+//             </div>
+//           )}
+//         </div>
+//       </ToolContent>
+//     </Tool>
+//   );
+// }
+
+function ToolPart({ part }: { part: ToolPartType }) {
+  // if (part.type === "tool-countCharacters") {
+  //   return <ToolCountCharacters part={part as CountCharactersToolPart} />;
+  // }
+
+  // Generic tool rendering for other tools
+  return (
     <Tool>
-      <ToolHeader
-        type={part.type}
-        state={part.state}
-        title="Count Characters"
-      />
+      <ToolHeader type={part.type} state={part.state} />
       <ToolContent>
-        {part.input !== undefined && <ToolInput input={part.input} />}
-        {output && (
-          <div className="space-y-2 p-4">
-            <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
-              Result
-            </h4>
-            <div className="space-y-3 rounded-md bg-muted/50 p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">
-                  Total Characters:
-                </span>
-                <span className="font-mono text-lg font-semibold">
-                  {output.characterCount}
-                </span>
-              </div>
-              {output.characterCountWithoutSpaces !== undefined && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Without Spaces:
-                  </span>
-                  <span className="font-mono text-lg font-semibold">
-                    {output.characterCountWithoutSpaces}
-                  </span>
-                </div>
-              )}
+        <div className="max-w-full overflow-hidden">
+          {part.input !== undefined && (
+            <div className="max-h-48 overflow-auto">
+              <ToolInput input={part.input} />
             </div>
-          </div>
-        )}
+          )}
+          {(part.output !== undefined || part.errorText !== undefined) && (
+            <div className="max-h-96 overflow-auto">
+              <ToolOutput output={part.output} errorText={part.errorText} />
+            </div>
+          )}
+        </div>
       </ToolContent>
     </Tool>
   );
 }
 
-function ToolPart({ part }: { part: ToolPartType }) {
-  if (part.type === "tool-countCharacters") {
-    return <ToolCountCharacters part={part} />;
-  }
+function MessageWithParts({ message }: { message: ChatAgentUIMessage }) {
+  // Collect all sources from the message
+  const sources = message.parts.filter(
+    (part): part is SourceUrlPartType => part.type === "source-url",
+  );
 
   return (
-    <Tool>
-      <ToolHeader type={part.type} state={part.state} />
-      <ToolContent>
-        {part.input !== undefined && <ToolInput input={part.input} />}
-        {(part.output !== undefined || part.errorText !== undefined) && (
-          <ToolOutput output={part.output} errorText={part.errorText} />
-        )}
-      </ToolContent>
-    </Tool>
+    <Message from={message.role}>
+      <MessageContent>
+        {message.parts.map((part, index) => {
+          if (part.type === "text") {
+            return <TextPart key={index} part={part} />;
+          }
+          if (part.type === "reasoning") {
+            return <ReasoningPart key={index} part={part} />;
+          }
+          if (part.type === "source-url") {
+            return null;
+          }
+          if (isToolPart(part)) {
+            return <ToolPart key={index} part={part} />;
+          }
+          return null;
+        })}
+        {sources.length > 0 && <SourcesPart parts={sources} />}
+      </MessageContent>
+    </Message>
   );
 }
 
@@ -155,29 +224,14 @@ export function SimpleChat({
     id: chatId,
     generateId: () => uuidv7(),
   });
-  console.log("messages", JSON.stringify(messages, null, 2));
+  console.log("messages", messages);
 
   return (
     <div className="flex h-screen flex-col">
       <Conversation>
         <ConversationContent>
           {messages.map((message) => (
-            <Message key={message.id} from={message.role}>
-              <MessageContent>
-                {message.parts.map((part, index) => {
-                  if (part.type === "text") {
-                    return <TextPart key={index} part={part} />;
-                  }
-                  if (part.type === "reasoning") {
-                    return <ReasoningPart key={index} part={part} />;
-                  }
-                  if (isToolPart(part)) {
-                    return <ToolPart key={index} part={part} />;
-                  }
-                  return null;
-                })}
-              </MessageContent>
-            </Message>
+            <MessageWithParts key={message.id} message={message} />
           ))}
 
           {error && (

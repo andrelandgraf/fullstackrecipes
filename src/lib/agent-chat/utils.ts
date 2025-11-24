@@ -1,8 +1,19 @@
 import type { MessageWithParts } from "@/lib/db/queries";
-import { saveMessageParts } from "@/lib/db/queries";
 import type { ChatAgentUIMessage } from "./agent";
 import { db } from "@/lib/db/client";
-import { messages } from "@/lib/db/schema";
+import {
+  messages,
+  messageTexts,
+  messageReasoning,
+  messageTools,
+  messageSourceUrls,
+  type NewMessageText,
+  type NewMessageReasoning,
+  type NewMessageTool,
+  type NewMessageSourceUrl,
+} from "@/lib/db/schema";
+import { v7 as uuidv7 } from "uuid";
+import assert from "../common/assert";
 
 /**
  * Convert database messages with parts to ChatAgentUIMessage format
@@ -11,145 +22,227 @@ export function convertDbMessagesToUIMessages(
   messageHistory: MessageWithParts[],
 ): ChatAgentUIMessage[] {
   return messageHistory.map((msg) => {
-    // Map database parts to UI message parts
-    const uiParts = msg.parts.map((part) => {
+    const uiParts: ChatAgentUIMessage["parts"] = [];
+    // Add step-start part to the beginning of every message
+    uiParts.push({
+      type: "step-start",
+    });
+
+    // Map persisted database parts to UI message parts
+    for (const part of msg.parts) {
+      let uiPart: ChatAgentUIMessage["parts"][0];
       switch (part.type) {
         case "text":
-          return {
-            type: "text" as const,
+          uiPart = {
+            type: "text",
             text: part.text,
-            state: part.state,
+            state: "done",
           };
+          break;
         case "tool":
-          // Map to tool-specific type (e.g., "tool-countCharacters")
-          const toolPart: any = {
-            type: `tool-${part.toolName}` as const,
-            toolCallId: part.toolCallId,
-            state: part.state,
-          };
-
-          // Add input/output from data field
-          const data = part.data as any;
-          if (data?.input) {
-            toolPart.input = data.input;
+          if (part.state === "output-available") {
+            uiPart = {
+              type: part.toolType,
+              toolCallId: part.toolCallId,
+              state: "output-available",
+              input: part.input,
+              output: part.output,
+            };
+          } else if (part.state === "output-error") {
+            assert(part.errorText !== null, "Error text is required");
+            uiPart = {
+              type: part.toolType,
+              toolCallId: part.toolCallId,
+              state: "output-error",
+              errorText: part.errorText ?? "",
+              input: part.input,
+            };
+          } else if (part.state === "output-denied") {
+            assert(part.approvalId !== null, "Approval ID is required");
+            uiPart = {
+              type: part.toolType,
+              toolCallId: part.toolCallId,
+              state: "output-denied",
+              approval: {
+                id: part.approvalId,
+                approved: false,
+                reason: part.approvalReason || "",
+              },
+              input: part.input,
+            };
+          } else {
+            throw new Error(`Unknown part state ${part.state}`);
           }
-          if (data?.output) {
-            toolPart.output = data.output;
-          }
-
-          return toolPart;
+          break;
         case "reasoning":
-          return {
-            type: "reasoning" as const,
+          uiPart = {
+            type: "reasoning",
             text: part.text,
-            state: part.state,
           };
+          break;
+        case "source-url":
+          uiPart = {
+            type: "source-url",
+            sourceId: part.sourceId,
+            url: part.url,
+            title: part.title ?? undefined,
+          };
+          break;
         default:
-          return {
-            type: "text" as const,
-            text: "",
-            state: "done" as const,
-          };
+          throw new Error(`Unknown part ${JSON.stringify(part)}`);
       }
-    });
+      uiParts.push(uiPart);
+    }
 
     return {
       id: msg.id,
-      role: msg.role as "user" | "assistant",
+      role: msg.role,
       parts: uiParts,
-    } as ChatAgentUIMessage;
+    };
   });
 }
 
 /**
- * Persist UI messages to the database
- * Takes ChatAgentUIMessage array and saves them with their parts
+ * Persist a single UI message to the database
+ * Takes a ChatAgentUIMessage and saves it with its parts
+ * Pre-generates UUID v7 IDs for parts in order to maintain sequence
  */
-export async function persistMessages({
+export async function persistMessage({
   chatId,
-  messages: uiMessages,
+  message: uiMessage,
   runId,
 }: {
   chatId: string;
-  messages: ChatAgentUIMessage[];
+  message: ChatAgentUIMessage;
   runId?: string | null;
 }) {
-  for (const uiMessage of uiMessages) {
-    // Insert the message record
-    // Only include id if it's a valid non-empty string, otherwise let DB generate it
-    const [{ messageId }] = await db
-      .insert(messages)
-      .values({
-        ...(uiMessage.id ? { id: uiMessage.id } : {}),
-        chatId,
-        role: uiMessage.role,
-        runId: runId || null,
-      })
-      .returning({ messageId: messages.id });
+  // Insert the message record
+  // Only include id if it's a valid non-empty string, otherwise let DB generate it
+  const [{ messageId }] = await db
+    .insert(messages)
+    .values({
+      id: uiMessage.id || undefined,
+      chatId,
+      role: uiMessage.role,
+      runId: runId || null,
+    })
+    .returning({ messageId: messages.id });
 
-    // Extract parts from UI message
-    const textParts: string[] = [];
-    let textState: "done" | undefined = undefined;
-    const reasoningParts: Array<{ text: string; state?: "done" }> = [];
-    const toolCalls: Array<any> = [];
-    const toolResults: Array<any> = [];
+  // Process parts in order and pre-generate UUIDs to maintain sequence
+  // Group inserts by table for efficient bulk insertion
+  const textInserts: Array<NewMessageText> = [];
+  const reasoningInserts: Array<NewMessageReasoning> = [];
+  const toolInserts: Array<NewMessageTool> = [];
+  const sourceUrlInserts: Array<NewMessageSourceUrl> = [];
 
-    for (const part of uiMessage.parts) {
-      if (part.type === "text" && "text" in part && part.text.trim()) {
-        textParts.push(part.text);
-        if ("state" in part && part.state === "done") {
-          textState = "done";
-        }
-      } else if (
-        part.type === "reasoning" &&
-        "text" in part &&
-        part.text.trim()
-      ) {
-        reasoningParts.push({
-          text: part.text,
-          state: "state" in part && part.state === "done" ? "done" : undefined,
-        });
-      } else if (part.type.startsWith("tool-") && "toolCallId" in part) {
-        // Extract tool name from type (e.g., "tool-countCharacters" -> "countCharacters")
-        const toolName = part.type.replace("tool-", "");
-
-        // Extract input - could be named "input" or "args"
-        const partAsAny = part as any;
-        const input = partAsAny.input ?? partAsAny.args;
-
-        toolCalls.push({
-          toolName,
-          toolCallId: part.toolCallId,
-          input,
-          state: partAsAny.state,
-        });
-
-        // Add result/output if present
-        if (partAsAny.output !== undefined) {
-          toolResults.push({
-            toolCallId: part.toolCallId,
-            output: partAsAny.output,
-            state: partAsAny.state ?? "output-available",
-          });
-        } else if (partAsAny.result !== undefined) {
-          toolResults.push({
-            toolCallId: part.toolCallId,
-            result: partAsAny.result,
-            state: partAsAny.state ?? "output-available",
-          });
-        }
-      }
+  // Process each part in order, generating UUID v7 IDs sequentially
+  for (const part of uiMessage.parts) {
+    // Skip step-start and other non-persistable parts
+    if (part.type === "step-start") {
+      continue;
     }
 
-    // Use the shared saveMessageParts function
-    await saveMessageParts({
-      messageId,
-      chatId,
-      text: textParts.join("\n"),
-      textState,
-      reasoning: reasoningParts.length > 0 ? reasoningParts : undefined,
-      toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
-      toolResults: toolResults.length > 0 ? toolResults : undefined,
-    });
+    if (part.type === "text" && "text" in part && part.text.trim()) {
+      textInserts.push({
+        id: uuidv7(),
+        messageId,
+        chatId,
+        text: part.text,
+        providerMetadata: part.providerMetadata,
+      });
+    } else if (
+      part.type === "reasoning" &&
+      "text" in part &&
+      part.text.trim()
+    ) {
+      reasoningInserts.push({
+        id: uuidv7(),
+        messageId,
+        chatId,
+        text: part.text,
+        providerMetadata: part.providerMetadata,
+      });
+    } else if (part.type.startsWith("tool-")) {
+      assert(
+        part.type === "tool-googleSearch" || part.type === "tool-urlContext",
+        "Invalid tool type",
+      );
+      if (part.state === "output-available") {
+        toolInserts.push({
+          id: uuidv7(),
+          messageId,
+          chatId,
+          input: part.input,
+          toolCallId: part.toolCallId,
+          toolType: part.type,
+          callProviderMetadata: part.callProviderMetadata,
+          title: part.title,
+          providerExecuted: part.providerExecuted,
+          output: part.output,
+          state: "output-available",
+        });
+      } else if (part.state === "output-error") {
+        toolInserts.push({
+          id: uuidv7(),
+          messageId,
+          chatId,
+          input: part.input,
+          toolCallId: part.toolCallId,
+          toolType: part.type,
+          callProviderMetadata: part.callProviderMetadata,
+          title: part.title,
+          providerExecuted: part.providerExecuted,
+          errorText: part.errorText,
+          state: "output-error",
+        });
+      } else if (part.state === "output-denied") {
+        assert(!!part.approval?.id, "Approval ID is required");
+        toolInserts.push({
+          id: uuidv7(),
+          messageId,
+          chatId,
+          input: part.input,
+          toolCallId: part.toolCallId,
+          toolType: part.type,
+          callProviderMetadata: part.callProviderMetadata,
+          title: part.title,
+          providerExecuted: part.providerExecuted,
+          state: "output-denied",
+          approvalId: part.approval?.id,
+          approvalReason: part.approval?.reason,
+          approved: false,
+        });
+      }
+    } else if (part.type === "source-url") {
+      sourceUrlInserts.push({
+        id: uuidv7(),
+        messageId,
+        chatId,
+        sourceId: part.sourceId,
+        url: part.url,
+        title: part.title,
+        providerMetadata: part.providerMetadata,
+      });
+    }
+  }
+
+  // Execute all inserts in parallel (order preserved by pre-generated UUIDs)
+  const insertPromises = [];
+
+  if (textInserts.length > 0) {
+    insertPromises.push(db.insert(messageTexts).values(textInserts));
+  }
+  if (reasoningInserts.length > 0) {
+    insertPromises.push(db.insert(messageReasoning).values(reasoningInserts));
+  }
+  if (toolInserts.length > 0) {
+    insertPromises.push(db.insert(messageTools).values(toolInserts));
+  }
+  if (sourceUrlInserts.length > 0) {
+    insertPromises.push(db.insert(messageSourceUrls).values(sourceUrlInserts));
+  }
+
+  if (insertPromises.length > 0) {
+    await Promise.all(insertPromises);
   }
 }

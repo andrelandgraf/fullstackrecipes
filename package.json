@@ -13,7 +13,8 @@
     "fmt": "prettier --write ."
   },
   "dependencies": {
-    "@ai-sdk/openai": "^3.0.0-beta.61",
+    "@ai-sdk/google": "^2.0.42",
+    "@ai-sdk/perplexity": "^2.0.20",
     "@ai-sdk/react": "^3.0.0-beta.102",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",

@@ -15,6 +15,41 @@
       "when": 1763843935568,
       "tag": "0001_bumpy_imperial_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1763929417960,
+      "tag": "0002_soft_xorn",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1763975152816,
+      "tag": "0003_violet_the_initiative",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1763985790752,
+      "tag": "0004_friendly_whistler",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1763986896473,
+      "tag": "0005_clean_master_mold",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1763987332412,
+      "tag": "0006_magical_zuras",
+      "breakpoints": true
     }
   ]
 }
