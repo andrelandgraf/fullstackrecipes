@@ -39,11 +39,11 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   ChatAgentUIMessage,
-  CountCharactersToolPart,
-  TextPart as TextPartType,
-  ReasoningPart as ReasoningPartType,
-  SourceUrlPart as SourceUrlPartType,
-  ToolPart as ToolPartType,
+  ChatTextPart,
+  ChatReasoningPart,
+  ChatSourceUrlPart,
+  ChatToolPart,
+  ChatDataProgressPart,
 } from "@/lib/agent-chat/agent";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
@@ -53,11 +53,11 @@ import { v7 as uuidv7 } from "uuid";
 // Type guard to check if a part is a tool part
 function isToolPart(
   part: ChatAgentUIMessage["parts"][0],
-): part is ToolPartType {
+): part is ChatToolPart {
   return part.type.startsWith("tool-");
 }
 
-function TextPart({ part }: { part: TextPartType }) {
+function TextPart({ part }: { part: ChatTextPart }) {
   if (part.text === "" && part.state === "streaming") {
     return <Loader size={16} />;
   }
@@ -65,7 +65,7 @@ function TextPart({ part }: { part: TextPartType }) {
   return <MessageResponse>{part.text}</MessageResponse>;
 }
 
-function ReasoningPart({ part }: { part: ReasoningPartType }) {
+function ReasoningPart({ part }: { part: ChatReasoningPart }) {
   const isStreaming = part.state === "streaming";
   return (
     <Reasoning isStreaming={isStreaming}>
@@ -75,7 +75,7 @@ function ReasoningPart({ part }: { part: ReasoningPartType }) {
   );
 }
 
-function SourcesPart({ parts }: { parts: SourceUrlPartType[] }) {
+function SourcesPart({ parts }: { parts: ChatSourceUrlPart[] }) {
   if (parts.length === 0) return null;
 
   return (
@@ -94,57 +94,15 @@ function SourcesPart({ parts }: { parts: SourceUrlPartType[] }) {
   );
 }
 
-// function ToolCountCharacters({ part }: { part: CountCharactersToolPart }) {
-//   const output = part.output;
+function DataProgressPart({ text }: { text: string }) {
+  return (
+    <div className="mb-2 rounded-md bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground">
+      {text}
+    </div>
+  );
+}
 
-//   return (
-//     <Tool>
-//       <ToolHeader
-//         type={part.type}
-//         state={part.state}
-//         title="Count Characters"
-//       />
-//       <ToolContent>
-//         <div className="max-w-full overflow-hidden">
-//           {part.input !== undefined && (
-//             <div className="max-h-48 overflow-auto">
-//               <ToolInput input={part.input} />
-//             </div>
-//           )}
-//           {output && (
-//             <div className="space-y-2 p-4">
-//               <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
-//                 Result
-//               </h4>
-//               <div className="space-y-3 rounded-md bg-muted/50 p-4">
-//                 <div className="flex items-center justify-between">
-//                   <span className="text-sm text-muted-foreground">
-//                     Total Characters:
-//                   </span>
-//                   <span className="font-mono text-lg font-semibold">
-//                     {output.characterCount}
-//                   </span>
-//                 </div>
-//                 {output.characterCountWithoutSpaces !== undefined && (
-//                   <div className="flex items-center justify-between">
-//                     <span className="text-sm text-muted-foreground">
-//                       Without Spaces:
-//                     </span>
-//                     <span className="font-mono text-lg font-semibold">
-//                       {output.characterCountWithoutSpaces}
-//                     </span>
-//                   </div>
-//                 )}
-//               </div>
-//             </div>
-//           )}
-//         </div>
-//       </ToolContent>
-//     </Tool>
-//   );
-// }
-
-function ToolPart({ part }: { part: ToolPartType }) {
+function ToolPart({ part }: { part: ChatToolPart }) {
   // if (part.type === "tool-countCharacters") {
   //   return <ToolCountCharacters part={part as CountCharactersToolPart} />;
   // }
@@ -174,12 +132,21 @@ function ToolPart({ part }: { part: ToolPartType }) {
 function MessageWithParts({ message }: { message: ChatAgentUIMessage }) {
   // Collect all sources from the message
   const sources = message.parts.filter(
-    (part): part is SourceUrlPartType => part.type === "source-url",
+    (part): part is ChatSourceUrlPart => part.type === "source-url",
   );
+
+  // Collect all data-progress parts and get the latest one
+  const dataProgressParts = message.parts.filter(
+    (part): part is ChatDataProgressPart => part.type === "data-progress",
+  );
+  const latestDataProgress = dataProgressParts[dataProgressParts.length - 1];
 
   return (
     <Message from={message.role}>
       <MessageContent>
+        {latestDataProgress && (
+          <DataProgressPart text={latestDataProgress.data.text} />
+        )}
         {message.parts.map((part, index) => {
           if (part.type === "text") {
             return <TextPart key={index} part={part} />;
@@ -189,6 +156,9 @@ function MessageWithParts({ message }: { message: ChatAgentUIMessage }) {
           }
           if (part.type === "source-url") {
             return null;
+          }
+          if (part.type === "data-progress") {
+            return null; // Already displayed above
           }
           if (isToolPart(part)) {
             return <ToolPart key={index} part={part} />;

@@ -7,10 +7,12 @@ import {
   messageReasoning,
   messageTools,
   messageSourceUrls,
+  messageData,
   type NewMessageText,
   type NewMessageReasoning,
   type NewMessageTool,
   type NewMessageSourceUrl,
+  type NewMessageData,
 } from "@/lib/db/schema";
 import { v7 as uuidv7 } from "uuid";
 import assert from "../common/assert";
@@ -88,6 +90,13 @@ export function convertDbMessagesToUIMessages(
             title: part.title ?? undefined,
           };
           break;
+        case "data": {
+          uiPart = {
+            type: part.dataType as `data-${string}`,
+            data: part.data,
+          } as ChatAgentUIMessage["parts"][0];
+          break;
+        }
         default:
           throw new Error(`Unknown part ${JSON.stringify(part)}`);
       }
@@ -134,6 +143,7 @@ export async function persistMessage({
   const reasoningInserts: Array<NewMessageReasoning> = [];
   const toolInserts: Array<NewMessageTool> = [];
   const sourceUrlInserts: Array<NewMessageSourceUrl> = [];
+  const dataInserts: Array<NewMessageData> = [];
 
   // Process each part in order, generating UUID v7 IDs sequentially
   for (const part of uiMessage.parts) {
@@ -223,6 +233,19 @@ export async function persistMessage({
         title: part.title,
         providerMetadata: part.providerMetadata,
       });
+    } else if (part.type.startsWith("data-")) {
+      // Store the full type name in the database as dataType
+      if (part.type === "data-progress") {
+        dataInserts.push({
+          id: uuidv7(),
+          messageId,
+          chatId,
+          dataType: part.type,
+          data: part.data,
+        });
+      } else {
+        throw new Error(`Unknown data type ${part.type}`);
+      }
     }
   }
 
@@ -240,6 +263,9 @@ export async function persistMessage({
   }
   if (sourceUrlInserts.length > 0) {
     insertPromises.push(db.insert(messageSourceUrls).values(sourceUrlInserts));
+  }
+  if (dataInserts.length > 0) {
+    insertPromises.push(db.insert(messageData).values(dataInserts));
   }
 
   if (insertPromises.length > 0) {

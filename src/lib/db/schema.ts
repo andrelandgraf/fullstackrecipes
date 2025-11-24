@@ -141,11 +141,26 @@ export const messageSourceUrls = pgTable("message_source_urls", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const messageData = pgTable("message_data", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuid_generate_v7()`),
+  messageId: uuid("message_id")
+    .notNull()
+    .references(() => messages.id, { onDelete: "cascade" }),
+  chatId: uuid("chat_id")
+    .notNull()
+    .references(() => chats.id, { onDelete: "cascade" }),
+  dataType: text("data_type").notNull(), // data-weather, data-news, etc.
+  data: jsonb("data").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 /**
  * Parts not implemented:
  * - file (messageFiles)
  * - source-document (messageSourceDocuments)
- * - data (messageData)
  */
 
 /**
@@ -167,3 +182,5 @@ export type MessageTool = typeof messageTools.$inferSelect;
 export type NewMessageTool = typeof messageTools.$inferInsert;
 export type MessageSourceUrl = typeof messageSourceUrls.$inferSelect;
 export type NewMessageSourceUrl = typeof messageSourceUrls.$inferInsert;
+export type MessageData = typeof messageData.$inferSelect;
+export type NewMessageData = typeof messageData.$inferInsert;

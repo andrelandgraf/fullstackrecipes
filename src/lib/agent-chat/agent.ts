@@ -1,32 +1,65 @@
-import { InferAgentUIMessage, ToolLoopAgent, stepCountIs } from "ai";
+import { stepCountIs, ToolSet, streamText, convertToModelMessages } from "ai";
 import { google, GoogleGenerativeAIProviderOptions } from "@ai-sdk/google";
-import { DurableAgent } from "@workflow/ai/agent";
-import { countCharactersTool } from "./tools";
+import { InferUITools, JSONValue, UIMessage, UIMessagePart } from "ai";
+import z from "zod";
 
-// export const chatAgent = new DurableAgent({
-//   model: async () => openai("gpt-5"),
-//   stopWhen: stepCountIs(20),
-//   instructions:
-//     "You are a tweet generator. no quotation marks around it. Just write the tweet content directly as if you are posting it. Keep it engaging, concise, and within typical tweet length.",
-// });
+const tools: ToolSet = {
+  webSearch: google.tools.googleSearch({}) as any,
+  urlContext: google.tools.urlContext({}) as any,
+};
 
-export const chatAgent = new ToolLoopAgent({
-  model: "google/gemini-3-pro-preview",
-  stopWhen: stepCountIs(20),
-  tools: {
-    // countCharacters: countCharactersTool,
-    googleSearch: google.tools.googleSearch({}) as any,
-    urlContext: google.tools.urlContext({}) as any,
-  },
-  providerOptions: {
-    google: {
-      thinkingConfig: {
-        thinkingLevel: "high",
-        includeThoughts: true,
-      },
-    } satisfies GoogleGenerativeAIProviderOptions,
-  },
-  instructions: `You are a tweet generator with a research-first approach. Follow these steps:
+export const metadataSchema = z.object({});
+type ChatMetadata = z.infer<typeof metadataSchema>;
+
+export const dataPartSchema = z.object({
+  progress: z.object({
+    text: z.string(),
+  }),
+});
+export type ChatDataPart = z.infer<typeof dataPartSchema>;
+
+export type ChatToolSet = InferUITools<typeof tools>;
+export type ChatTextPart = Extract<ChatUIMessagePart, { type: "text" }>;
+export type ChatReasoningPart = Extract<
+  ChatUIMessagePart,
+  { type: "reasoning" }
+>;
+export type ChatSourceUrlPart = Extract<
+  ChatUIMessagePart,
+  { type: "source-url" }
+>;
+export type ChatToolPart = Extract<
+  ChatUIMessagePart,
+  { type: `tool-${string}` }
+>;
+export type ChatDataProgressPart = Extract<
+  ChatUIMessagePart,
+  { type: "data-progress" }
+>;
+
+export type ChatAgentUIMessage = UIMessage<
+  ChatMetadata,
+  ChatDataPart,
+  ChatToolSet
+>;
+export type ChatUIMessagePart = UIMessagePart<ChatDataPart, ChatToolSet>;
+export type ChatProviderMetadata = Record<string, Record<string, JSONValue>>;
+
+export function chatAgent(messages: ChatAgentUIMessage[]) {
+  return streamText({
+    model: "google/gemini-3-pro-preview",
+    stopWhen: stepCountIs(20),
+    tools,
+    providerOptions: {
+      google: {
+        thinkingConfig: {
+          thinkingLevel: "high",
+          includeThoughts: true,
+        },
+      } satisfies GoogleGenerativeAIProviderOptions,
+    },
+    messages: convertToModelMessages(messages),
+    system: `You are a tweet generator with a research-first approach. Follow these steps:
 
 1. RESEARCH PHASE:
    - Analyze the user's request to identify topics, companies, technologies, or concepts that need research
@@ -60,25 +93,5 @@ export const chatAgent = new ToolLoopAgent({
    - Provide a brief summary of your work
    - Present the final tweet in a code block or clearly formatted markup for easy copying
    - The tweet itself should contain no quotation marks, no meta-commentary - just the tweet content as if you're posting it directly`,
-});
-
-export type ChatAgentUIMessage = InferAgentUIMessage<typeof chatAgent>;
-
-// Extract all part types for type safety
-type MessagePart = ChatAgentUIMessage["parts"][0];
-
-// Text part type
-export type TextPart = Extract<MessagePart, { type: "text" }>;
-
-// Reasoning part type
-export type ReasoningPart = Extract<MessagePart, { type: "reasoning" }>;
-
-// Source part types
-export type SourceUrlPart = Extract<MessagePart, { type: "source-url" }>;
-
-// Tool part types
-export type ToolPart = Extract<MessagePart, { type: `tool-${string}` }>;
-export type CountCharactersToolPart = Extract<
-  MessagePart,
-  { type: "tool-countCharacters" }
->;
+  });
+}

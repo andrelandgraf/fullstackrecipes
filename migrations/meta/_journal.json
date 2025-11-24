@@ -50,6 +50,20 @@
       "when": 1763987332412,
       "tag": "0006_magical_zuras",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1763988498020,
+      "tag": "0007_wealthy_post",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1763988767897,
+      "tag": "0008_special_impossible_man",
+      "breakpoints": true
     }
   ]
 }

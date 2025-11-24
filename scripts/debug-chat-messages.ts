@@ -63,11 +63,18 @@ async function main() {
               );
               break;
             case "tool":
-              console.log(`      Tool: ${part.toolName}`);
+              console.log(`      Tool: ${part.toolType}`);
               console.log(`      Tool Call ID: ${part.toolCallId}`);
               console.log(
                 `      Data:`,
-                JSON.stringify(part.data, null, 2)
+                JSON.stringify(part.input, null, 2)
+                  .split("\n")
+                  .map((line) => `      ${line}`)
+                  .join("\n"),
+              );
+              console.log(
+                `      Output:`,
+                JSON.stringify(part.output, null, 2)
                   .split("\n")
                   .map((line) => `      ${line}`)
                   .join("\n"),

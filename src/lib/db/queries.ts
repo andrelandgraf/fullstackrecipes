@@ -6,11 +6,13 @@ import {
   messageReasoning,
   messageTools,
   messageSourceUrls,
+  messageData,
   type Message,
   type MessageText,
   type MessageReasoning,
   type MessageTool,
   type MessageSourceUrl,
+  type MessageData,
 } from "./schema";
 
 /**
@@ -21,7 +23,8 @@ type MessagePart =
   | ({ type: "text" } & MessageText)
   | ({ type: "reasoning" } & MessageReasoning)
   | ({ type: "tool" } & MessageTool)
-  | ({ type: "source-url" } & MessageSourceUrl);
+  | ({ type: "source-url" } & MessageSourceUrl)
+  | ({ type: "data" } & MessageData);
 
 /**
  * A message with its parts assembled
@@ -43,25 +46,34 @@ export async function getChatMessages(
   chatId: string,
 ): Promise<MessageWithParts[]> {
   // Execute all queries in parallel - each is ~1-2ms
-  const [messagesData, textsData, reasoningData, toolsData, sourceUrlsData] =
-    await Promise.all([
-      db.query.messages.findMany({
-        where: eq(messages.chatId, chatId),
-        orderBy: (messages, { asc }) => [asc(messages.createdAt)],
-      }),
-      db.query.messageTexts.findMany({
-        where: eq(messageTexts.chatId, chatId),
-      }),
-      db.query.messageReasoning.findMany({
-        where: eq(messageReasoning.chatId, chatId),
-      }),
-      db.query.messageTools.findMany({
-        where: eq(messageTools.chatId, chatId),
-      }),
-      db.query.messageSourceUrls.findMany({
-        where: eq(messageSourceUrls.chatId, chatId),
-      }),
-    ]);
+  const [
+    messagesData,
+    textsData,
+    reasoningData,
+    toolsData,
+    sourceUrlsData,
+    dataData,
+  ] = await Promise.all([
+    db.query.messages.findMany({
+      where: eq(messages.chatId, chatId),
+      orderBy: (messages, { asc }) => [asc(messages.createdAt)],
+    }),
+    db.query.messageTexts.findMany({
+      where: eq(messageTexts.chatId, chatId),
+    }),
+    db.query.messageReasoning.findMany({
+      where: eq(messageReasoning.chatId, chatId),
+    }),
+    db.query.messageTools.findMany({
+      where: eq(messageTools.chatId, chatId),
+    }),
+    db.query.messageSourceUrls.findMany({
+      where: eq(messageSourceUrls.chatId, chatId),
+    }),
+    db.query.messageData.findMany({
+      where: eq(messageData.chatId, chatId),
+    }),
+  ]);
 
   // Create a map of message ID to parts for fast assembly
   const partsMap = new Map<string, MessagePart[]>();
@@ -73,7 +85,14 @@ export async function getChatMessages(
   ) => {
     for (const part of parts) {
       const existing = partsMap.get(part.messageId) || [];
-      existing.push({ ...part, type } as unknown as MessagePart);
+      if (type === "data") {
+        // For data parts, MessageData already has 'dataType' field
+        // which contains the full type name like "data-weather"
+        // The part object already has dataType from the database query
+        existing.push({ ...part, type: "data" } as unknown as MessagePart);
+      } else {
+        existing.push({ ...part, type } as unknown as MessagePart);
+      }
       partsMap.set(part.messageId, existing);
     }
   };
@@ -82,6 +101,7 @@ export async function getChatMessages(
   addParts(reasoningData, "reasoning");
   addParts(toolsData, "tool");
   addParts(sourceUrlsData, "source-url");
+  addParts(dataData, "data");
 
   // Assemble messages with their parts sorted by UUID v7 ID (time-ordered)
   return messagesData.map((message) => {
