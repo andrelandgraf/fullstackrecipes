@@ -158,10 +158,49 @@ export const messageData = pgTable("message_data", {
 });
 
 /**
- * Parts not implemented:
- * - file (messageFiles)
- * - source-document (messageSourceDocuments)
+ * File parts - for user-uploaded files (images, PDFs, etc.)
+ * Files are stored as data URLs or regular URLs
  */
+export const messageFiles = pgTable("message_files", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuid_generate_v7()`),
+  messageId: uuid("message_id")
+    .notNull()
+    .references(() => messages.id, { onDelete: "cascade" }),
+  chatId: uuid("chat_id")
+    .notNull()
+    .references(() => chats.id, { onDelete: "cascade" }),
+  mediaType: text("media_type").notNull(), // IANA media type (e.g., image/png, application/pdf)
+  filename: text("filename"), // Optional filename
+  url: text("url").notNull(), // Data URL or regular URL
+  providerMetadata: jsonb("provider_metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/**
+ * Source document parts - for documents cited by the AI model
+ * These are documents that the model references as sources
+ */
+export const messageSourceDocuments = pgTable("message_source_documents", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuid_generate_v7()`),
+  messageId: uuid("message_id")
+    .notNull()
+    .references(() => messages.id, { onDelete: "cascade" }),
+  chatId: uuid("chat_id")
+    .notNull()
+    .references(() => chats.id, { onDelete: "cascade" }),
+  sourceId: text("source_id").notNull(),
+  mediaType: text("media_type").notNull(), // IANA media type
+  title: text("title").notNull(),
+  filename: text("filename"), // Optional filename
+  providerMetadata: jsonb("provider_metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
 
 /**
  * Parts not persisted:
@@ -184,3 +223,8 @@ export type MessageSourceUrl = typeof messageSourceUrls.$inferSelect;
 export type NewMessageSourceUrl = typeof messageSourceUrls.$inferInsert;
 export type MessageData = typeof messageData.$inferSelect;
 export type NewMessageData = typeof messageData.$inferInsert;
+export type MessageFile = typeof messageFiles.$inferSelect;
+export type NewMessageFile = typeof messageFiles.$inferInsert;
+export type MessageSourceDocument = typeof messageSourceDocuments.$inferSelect;
+export type NewMessageSourceDocument =
+  typeof messageSourceDocuments.$inferInsert;

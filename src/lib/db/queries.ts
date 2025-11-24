@@ -7,12 +7,16 @@ import {
   messageTools,
   messageSourceUrls,
   messageData,
+  messageFiles,
+  messageSourceDocuments,
   type Message,
   type MessageText,
   type MessageReasoning,
   type MessageTool,
   type MessageSourceUrl,
   type MessageData,
+  type MessageFile,
+  type MessageSourceDocument,
 } from "./schema";
 
 /**
@@ -24,7 +28,9 @@ type MessagePart =
   | ({ type: "reasoning" } & MessageReasoning)
   | ({ type: "tool" } & MessageTool)
   | ({ type: "source-url" } & MessageSourceUrl)
-  | ({ type: "data" } & MessageData);
+  | ({ type: "data" } & MessageData)
+  | ({ type: "file" } & MessageFile)
+  | ({ type: "source-document" } & MessageSourceDocument);
 
 /**
  * A message with its parts assembled
@@ -53,6 +59,8 @@ export async function getChatMessages(
     toolsData,
     sourceUrlsData,
     dataData,
+    filesData,
+    sourceDocumentsData,
   ] = await Promise.all([
     db.query.messages.findMany({
       where: eq(messages.chatId, chatId),
@@ -72,6 +80,12 @@ export async function getChatMessages(
     }),
     db.query.messageData.findMany({
       where: eq(messageData.chatId, chatId),
+    }),
+    db.query.messageFiles.findMany({
+      where: eq(messageFiles.chatId, chatId),
+    }),
+    db.query.messageSourceDocuments.findMany({
+      where: eq(messageSourceDocuments.chatId, chatId),
     }),
   ]);
 
@@ -102,6 +116,8 @@ export async function getChatMessages(
   addParts(toolsData, "tool");
   addParts(sourceUrlsData, "source-url");
   addParts(dataData, "data");
+  addParts(filesData, "file");
+  addParts(sourceDocumentsData, "source-document");
 
   // Assemble messages with their parts sorted by UUID v7 ID (time-ordered)
   return messagesData.map((message) => {

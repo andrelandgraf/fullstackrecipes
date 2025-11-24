@@ -8,15 +8,21 @@ import {
 import { Loader } from "@/components/ai-elements/loader";
 import {
   Message,
+  MessageAttachment,
+  MessageAttachments,
   MessageContent,
   MessageResponse,
 } from "@/components/ai-elements/message";
 import {
   PromptInput,
+  PromptInputAttachment,
+  PromptInputAttachments,
+  PromptInputButton,
   PromptInputFooter,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
+  usePromptInputAttachments,
 } from "@/components/ai-elements/prompt-input";
 import {
   Reasoning,
@@ -44,10 +50,11 @@ import {
   ChatSourceUrlPart,
   ChatToolPart,
   ChatDataProgressPart,
+  ChatFilePart,
 } from "@/lib/agent-chat/agent";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { AlertCircleIcon } from "lucide-react";
+import { AlertCircleIcon, PaperclipIcon } from "lucide-react";
 import { v7 as uuidv7 } from "uuid";
 
 // Type guard to check if a part is a tool part
@@ -102,6 +109,24 @@ function DataProgressPart({ text }: { text: string }) {
   );
 }
 
+function FilePart({ part }: { part: ChatFilePart }) {
+  return <MessageAttachment data={part} />;
+}
+
+function FileUploadButton() {
+  const attachments = usePromptInputAttachments();
+
+  return (
+    <PromptInputButton
+      type="button"
+      onClick={() => attachments.openFileDialog()}
+      aria-label="Upload files"
+    >
+      <PaperclipIcon className="size-4" />
+    </PromptInputButton>
+  );
+}
+
 function ToolPart({ part }: { part: ChatToolPart }) {
   // if (part.type === "tool-countCharacters") {
   //   return <ToolCountCharacters part={part as CountCharactersToolPart} />;
@@ -135,6 +160,11 @@ function MessageWithParts({ message }: { message: ChatAgentUIMessage }) {
     (part): part is ChatSourceUrlPart => part.type === "source-url",
   );
 
+  // Collect all file parts
+  const fileParts = message.parts.filter(
+    (part): part is ChatFilePart => part.type === "file",
+  );
+
   // Collect all data-progress parts and get the latest one
   const dataProgressParts = message.parts.filter(
     (part): part is ChatDataProgressPart => part.type === "data-progress",
@@ -147,6 +177,13 @@ function MessageWithParts({ message }: { message: ChatAgentUIMessage }) {
         {latestDataProgress && (
           <DataProgressPart text={latestDataProgress.data.text} />
         )}
+        {fileParts.length > 0 && (
+          <MessageAttachments>
+            {fileParts.map((part, index) => (
+              <FilePart key={index} part={part} />
+            ))}
+          </MessageAttachments>
+        )}
         {message.parts.map((part, index) => {
           if (part.type === "text") {
             return <TextPart key={index} part={part} />;
@@ -158,6 +195,9 @@ function MessageWithParts({ message }: { message: ChatAgentUIMessage }) {
             return null;
           }
           if (part.type === "data-progress") {
+            return null; // Already displayed above
+          }
+          if (part.type === "file") {
             return null; // Already displayed above
           }
           if (isToolPart(part)) {
@@ -221,15 +261,24 @@ export function SimpleChat({
       </Conversation>
 
       <PromptInput
+        multiple
         onSubmit={(message) => {
-          if (message.text.trim()) {
-            sendMessage({ text: message.text });
+          if (message.text.trim() || message.files.length > 0) {
+            sendMessage({
+              text: message.text,
+              files: message.files,
+            });
           }
         }}
       >
+        <PromptInputAttachments>
+          {(attachment) => (
+            <PromptInputAttachment key={attachment.id} data={attachment} />
+          )}
+        </PromptInputAttachments>
         <PromptInputTextarea placeholder="Say something..." />
         <PromptInputFooter>
-          <div />
+          <FileUploadButton />
           <PromptInputTools>
             <PromptInputSubmit status={status} />
           </PromptInputTools>

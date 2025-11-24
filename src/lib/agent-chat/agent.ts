@@ -36,6 +36,7 @@ export type ChatDataProgressPart = Extract<
   ChatUIMessagePart,
   { type: "data-progress" }
 >;
+export type ChatFilePart = Extract<ChatUIMessagePart, { type: "file" }>;
 
 export type ChatAgentUIMessage = UIMessage<
   ChatMetadata,

@@ -8,14 +8,29 @@ import {
   messageTools,
   messageSourceUrls,
   messageData,
+  messageFiles,
+  messageSourceDocuments,
   type NewMessageText,
   type NewMessageReasoning,
   type NewMessageTool,
   type NewMessageSourceUrl,
   type NewMessageData,
+  type NewMessageFile,
+  type NewMessageSourceDocument,
 } from "@/lib/db/schema";
 import { v7 as uuidv7 } from "uuid";
 import assert from "../common/assert";
+
+/**
+ * Parse provider metadata from database format to UI format.
+ * Handles empty objects, null, and undefined by returning undefined.
+ */
+function parseMetadata(metadata: unknown): any {
+  if (!metadata) return undefined;
+  if (typeof metadata !== "object") return undefined;
+  if (Object.keys(metadata).length === 0) return undefined;
+  return metadata;
+}
 
 /**
  * Convert database messages with parts to ChatAgentUIMessage format
@@ -39,6 +54,7 @@ export function convertDbMessagesToUIMessages(
             type: "text",
             text: part.text,
             state: "done",
+            providerMetadata: parseMetadata(part.providerMetadata),
           };
           break;
         case "tool":
@@ -49,6 +65,7 @@ export function convertDbMessagesToUIMessages(
               state: "output-available",
               input: part.input,
               output: part.output,
+              callProviderMetadata: parseMetadata(part.callProviderMetadata),
             };
           } else if (part.state === "output-error") {
             assert(part.errorText !== null, "Error text is required");
@@ -58,6 +75,7 @@ export function convertDbMessagesToUIMessages(
               state: "output-error",
               errorText: part.errorText ?? "",
               input: part.input,
+              callProviderMetadata: parseMetadata(part.callProviderMetadata),
             };
           } else if (part.state === "output-denied") {
             assert(part.approvalId !== null, "Approval ID is required");
@@ -71,6 +89,7 @@ export function convertDbMessagesToUIMessages(
                 reason: part.approvalReason || "",
               },
               input: part.input,
+              callProviderMetadata: parseMetadata(part.callProviderMetadata),
             };
           } else {
             throw new Error(`Unknown part state ${part.state}`);
@@ -80,6 +99,7 @@ export function convertDbMessagesToUIMessages(
           uiPart = {
             type: "reasoning",
             text: part.text,
+            providerMetadata: parseMetadata(part.providerMetadata),
           };
           break;
         case "source-url":
@@ -88,6 +108,7 @@ export function convertDbMessagesToUIMessages(
             sourceId: part.sourceId,
             url: part.url,
             title: part.title ?? undefined,
+            providerMetadata: parseMetadata(part.providerMetadata),
           };
           break;
         case "data": {
@@ -97,6 +118,25 @@ export function convertDbMessagesToUIMessages(
           } as ChatAgentUIMessage["parts"][0];
           break;
         }
+        case "file":
+          uiPart = {
+            type: "file",
+            mediaType: part.mediaType,
+            url: part.url,
+            filename: part.filename ?? undefined,
+            providerMetadata: parseMetadata(part.providerMetadata),
+          };
+          break;
+        case "source-document":
+          uiPart = {
+            type: "source-document",
+            sourceId: part.sourceId,
+            mediaType: part.mediaType,
+            title: part.title,
+            filename: part.filename ?? undefined,
+            providerMetadata: parseMetadata(part.providerMetadata),
+          };
+          break;
         default:
           throw new Error(`Unknown part ${JSON.stringify(part)}`);
       }
@@ -144,6 +184,8 @@ export async function persistMessage({
   const toolInserts: Array<NewMessageTool> = [];
   const sourceUrlInserts: Array<NewMessageSourceUrl> = [];
   const dataInserts: Array<NewMessageData> = [];
+  const fileInserts: Array<NewMessageFile> = [];
+  const sourceDocumentInserts: Array<NewMessageSourceDocument> = [];
 
   // Process each part in order, generating UUID v7 IDs sequentially
   for (const part of uiMessage.parts) {
@@ -246,6 +288,27 @@ export async function persistMessage({
       } else {
         throw new Error(`Unknown data type ${part.type}`);
       }
+    } else if (part.type === "file") {
+      fileInserts.push({
+        id: uuidv7(),
+        messageId,
+        chatId,
+        mediaType: part.mediaType,
+        filename: part.filename ?? null,
+        url: part.url,
+        providerMetadata: part.providerMetadata ?? null,
+      });
+    } else if (part.type === "source-document") {
+      sourceDocumentInserts.push({
+        id: uuidv7(),
+        messageId,
+        chatId,
+        sourceId: part.sourceId,
+        mediaType: part.mediaType,
+        title: part.title,
+        filename: part.filename ?? null,
+        providerMetadata: part.providerMetadata ?? null,
+      });
     }
   }
 
@@ -266,6 +329,14 @@ export async function persistMessage({
   }
   if (dataInserts.length > 0) {
     insertPromises.push(db.insert(messageData).values(dataInserts));
+  }
+  if (fileInserts.length > 0) {
+    insertPromises.push(db.insert(messageFiles).values(fileInserts));
+  }
+  if (sourceDocumentInserts.length > 0) {
+    insertPromises.push(
+      db.insert(messageSourceDocuments).values(sourceDocumentInserts),
+    );
   }
 
   if (insertPromises.length > 0) {

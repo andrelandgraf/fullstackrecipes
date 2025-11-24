@@ -64,6 +64,13 @@
       "when": 1763988767897,
       "tag": "0008_special_impossible_man",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1764025094537,
+      "tag": "0009_condemned_devos",
+      "breakpoints": true
     }
   ]
 }
