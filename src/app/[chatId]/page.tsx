@@ -29,20 +29,22 @@ export default async function ChatPage({ params }: PageProps) {
   const persistedMessages = await getChatMessages(chatId);
   const history = convertDbMessagesToUIMessages(persistedMessages);
 
-  if (!config.flags.enableWorkflowChat) {
-    return <SimpleChat messageHistory={history} chatId={chatId} />;
-  }
-  // Check if the last message has a streamId - if so, it's still streaming
-  const lastDbMessage = persistedMessages.at(-1);
-  const initialStreamingMessageId = lastDbMessage?.runId
-    ? lastDbMessage.id
-    : null;
+  return <SimpleChat messageHistory={history} chatId={chatId} />;
 
-  return (
-    <Chat
-      chatId={chatId}
-      messageHistory={history}
-      initialStreamingMessageId={initialStreamingMessageId}
-    />
-  );
+  // if (!config.flags.enableWorkflowChat) {
+  //   return <SimpleChat messageHistory={history} chatId={chatId} />;
+  // }
+  // // Check if the last message has a streamId - if so, it's still streaming
+  // const lastDbMessage = persistedMessages.at(-1);
+  // const initialStreamingMessageId = lastDbMessage?.runId
+  //   ? lastDbMessage.id
+  //   : null;
+
+  // return (
+  //   <Chat
+  //     chatId={chatId}
+  //     messageHistory={history}
+  //     initialStreamingMessageId={initialStreamingMessageId}
+  //   />
+  //);
 }

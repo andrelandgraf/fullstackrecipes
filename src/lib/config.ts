@@ -1,4 +1,4 @@
-const ENABLE_WORKFLOW_CHAT = false;
+const ENABLE_WORKFLOW_CHAT = true;
 
 export const config = {
   flags: {

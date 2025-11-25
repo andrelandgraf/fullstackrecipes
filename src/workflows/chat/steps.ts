@@ -1,8 +1,13 @@
-import { convertToModelMessages, readUIMessageStream } from "ai";
 import { getChatMessages } from "@/lib/db/queries";
-import { convertDbMessagesToUIMessages } from "@/lib/agent-chat/utils";
-import { getRun } from "workflow/api";
-import { getWorkflowMetadata } from "workflow";
+import {
+  convertDbMessagesToUIMessages,
+  persistMessage,
+} from "@/lib/agent-chat/utils";
+import { getWritable } from "workflow";
+import {
+  ChatAgentUIMessage,
+  durableChatAgentStream,
+} from "@/lib/agent-chat/agent";
 
 /**
  * Get message history and convert to ModelMessage format
@@ -16,49 +21,30 @@ export async function getMessageHistory(chatId: string) {
   // Convert database messages to UIMessage format
   const uiMessages = convertDbMessagesToUIMessages(messageHistory);
 
-  // Convert UIMessages to ModelMessage format for AI SDK
-  const coreMessages = convertToModelMessages(uiMessages);
-
-  return coreMessages;
+  return uiMessages;
 }
 
 /**
  * Persist chat agent response to database
  */
 export async function persistChatAgentResponse({
-  assistantMessageId,
   chatId,
+  message,
 }: {
-  assistantMessageId: string;
   chatId: string;
+  message: ChatAgentUIMessage;
 }) {
   "use step";
 
-  const meta = getWorkflowMetadata();
-  const run = await getRun(meta.workflowRunId);
-  const readable = await run.readable;
+  await persistMessage({ chatId, message });
+}
 
-  const i = readUIMessageStream({
-    stream: readable,
-  });
+/**
+ * Stream chat agent response
+ */
+export async function streamChatAgentResponse(messages: ChatAgentUIMessage[]) {
+  "use step";
 
-  //   // Save all message parts to the database from the completed generation
-  //   await saveMessageParts({
-  //     messageId: assistantMessageId,
-  //     chatId,
-  //     text: result.text,
-  //     reasoning: result.reasoning,
-  //     toolCalls: result.toolCalls,
-  //     toolResults: result.toolResults,
-
-  //   });
-
-  //   // Clear the streamId to indicate streaming is complete
-  //   await db
-  //     .update(messages)
-  //     .set({
-  //       streamId: null,
-  //     })
-  //     .where(eq(messages.id, assistantMessageId));
-  // }
+  const writable = await getWritable();
+  return durableChatAgentStream(writable, messages);
 }

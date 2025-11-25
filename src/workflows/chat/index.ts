@@ -1,26 +1,23 @@
-import { chatAgent } from "@/lib/agent-chat/agent";
-import { getMessageHistory, persistChatAgentResponse } from "./steps";
+import {
+  getMessageHistory,
+  persistChatAgentResponse,
+  streamChatAgentResponse,
+} from "./steps";
 
 /**
  * AI Chat Workflow with streaming support
  * Generates tweets using AI SDK with S2 streaming
  */
-export async function chatWorkflow({
-  chatId,
-  assistantMessageId,
-}: {
-  chatId: string;
-  assistantMessageId: string;
-}) {
+export async function chatWorkflow({ chatId }: { chatId: string }) {
   "use workflow";
 
   // Get message history converted to ModelMessage format
-  const coreMessages = await getMessageHistory(chatId);
+  const history = await getMessageHistory(chatId);
 
   // Stream AI response
-  await chatAgent.stream({
-    messages: coreMessages,
-  });
+  const { messages } = await streamChatAgentResponse(history);
 
-  await persistChatAgentResponse({ chatId, assistantMessageId });
+  console.log("messages", messages);
+  const newMessage = messages[messages.length - 1];
+  console.log("newMessage", newMessage);
 }

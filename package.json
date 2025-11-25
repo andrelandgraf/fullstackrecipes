@@ -10,7 +10,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "fmt": "prettier --write ."
+    "fmt": "prettier --write .",
+    "workflow:dev": "workflow inspect runs --web"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.0-beta.56",
@@ -46,6 +47,7 @@
     "@radix-ui/react-use-controllable-state": "^1.2.2",
     "@types/pg": "^8.15.6",
     "@vercel/functions": "^3.3.2",
+    "@workflow/ai": "^4.0.1-beta.21",
     "@xyflow/react": "^12.9.3",
     "ai": "^6.0.0-beta.102",
     "class-variance-authority": "^0.7.1",
@@ -75,7 +77,7 @@
     "use-stick-to-bottom": "^1.1.1",
     "uuid": "^13.0.0",
     "vaul": "^1.1.2",
-    "workflow": "^4.0.1-beta.14",
+    "workflow": "^4.0.1-beta.21",
     "zod": "^4.1.12"
   },
   "devDependencies": {
