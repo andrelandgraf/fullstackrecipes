@@ -3,7 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import { WorkflowChatTransport } from "@workflow/ai";
 import { v7 as uuidv7 } from "uuid";
-import type { ChatAgentUIMessage } from "@/lib/agent-chat/agent";
+import type { ChatAgentUIMessage } from "@/workflows/chat/types";
 import { useRef } from "react";
 
 interface UseResumableChatOptions {

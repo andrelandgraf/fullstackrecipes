@@ -51,7 +51,7 @@ import {
   ChatToolPart,
   ChatDataProgressPart,
   ChatFilePart,
-} from "@/lib/agent-chat/agent";
+} from "@/workflows/chat/types";
 import { useResumableChat } from "@/hooks/use-resumable-chat";
 import { AlertCircleIcon, PaperclipIcon } from "lucide-react";
 

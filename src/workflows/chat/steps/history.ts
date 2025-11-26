@@ -3,11 +3,8 @@ import {
   convertDbMessagesToUIMessages,
   persistMessage,
   insertMessageParts,
-} from "@/lib/agent-chat/utils";
-import type {
-  ChatAgentUIMessage,
-  ChatUIMessagePart,
-} from "@/lib/agent-chat/agent";
+} from "@/lib/db/messages";
+import type { ChatAgentUIMessage, ChatUIMessagePart } from "../types";
 import { db } from "@/lib/db/client";
 import { messages } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";

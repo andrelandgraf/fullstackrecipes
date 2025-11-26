@@ -4,7 +4,7 @@ import { chatWorkflow } from "@/workflows/chat";
 import { eq } from "drizzle-orm";
 import { start } from "workflow/api";
 import { createUIMessageStreamResponse } from "ai";
-import type { ChatAgentUIMessage } from "@/lib/agent-chat/agent";
+import type { ChatAgentUIMessage } from "@/workflows/chat/types";
 
 export async function POST(request: Request) {
   const { chatId, message } = (await request.json()) as {

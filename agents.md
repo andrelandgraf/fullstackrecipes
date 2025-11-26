@@ -6,6 +6,7 @@
 - Use `knip` to remove unused code if making large changes
 - The `gh` CLI is installed, use it
 - Don’t use emojis
+- No barrel index files - just export from the source files instead
 
 ## React
 

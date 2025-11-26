@@ -1,5 +1,5 @@
 import type { MessageWithParts } from "@/lib/db/queries";
-import type { ChatAgentUIMessage } from "./agent";
+import { TOOL_TYPES, type ChatAgentUIMessage } from "@/workflows/chat/types";
 import { db } from "@/lib/db/client";
 import {
   messages,
@@ -19,7 +19,7 @@ import {
   type NewMessageSourceDocument,
 } from "@/lib/db/schema";
 import { v7 as uuidv7 } from "uuid";
-import assert from "../common/assert";
+import assert from "@/lib/common/assert";
 
 /**
  * Parse provider metadata from database format to UI format.
@@ -58,6 +58,8 @@ export function convertDbMessagesToUIMessages(
           };
           break;
         case "tool":
+          // Cast to any because TOOL_TYPES (source of truth) may have more tools
+          // than TypeScript's InferUITools can infer from allTools
           if (part.state === "output-available") {
             uiPart = {
               type: part.toolType,
@@ -66,7 +68,7 @@ export function convertDbMessagesToUIMessages(
               input: part.input,
               output: part.output,
               callProviderMetadata: parseMetadata(part.callProviderMetadata),
-            };
+            } as any;
           } else if (part.state === "output-error") {
             assert(part.errorText !== null, "Error text is required");
             uiPart = {
@@ -76,7 +78,7 @@ export function convertDbMessagesToUIMessages(
               errorText: part.errorText ?? "",
               input: part.input,
               callProviderMetadata: parseMetadata(part.callProviderMetadata),
-            };
+            } as any;
           } else if (part.state === "output-denied") {
             assert(part.approvalId !== null, "Approval ID is required");
             uiPart = {
@@ -90,7 +92,7 @@ export function convertDbMessagesToUIMessages(
               },
               input: part.input,
               callProviderMetadata: parseMetadata(part.callProviderMetadata),
-            };
+            } as any;
           } else {
             throw new Error(`Unknown part state ${part.state}`);
           }
@@ -199,52 +201,55 @@ export async function insertMessageParts(
       });
     } else if (part.type.startsWith("tool-")) {
       assert(
-        part.type === "tool-googleSearch" || part.type === "tool-urlContext",
-        "Invalid tool type",
+        TOOL_TYPES.includes(part.type as any),
+        `Invalid tool type: ${part.type}. Valid types: ${TOOL_TYPES.join(", ")}`,
       );
-      if (part.state === "output-available") {
+      // Cast to any since TypeScript can't narrow tool part types properly
+      // Runtime validation is done above with TOOL_TYPES.includes()
+      const toolPart = part as any;
+      if (toolPart.state === "output-available") {
         toolInserts.push({
           id: uuidv7(),
           messageId,
           chatId,
-          input: part.input,
-          toolCallId: part.toolCallId,
-          toolType: part.type,
-          callProviderMetadata: part.callProviderMetadata,
-          title: part.title,
-          providerExecuted: part.providerExecuted,
-          output: part.output,
+          input: toolPart.input,
+          toolCallId: toolPart.toolCallId,
+          toolType: toolPart.type,
+          callProviderMetadata: toolPart.callProviderMetadata,
+          title: toolPart.title,
+          providerExecuted: toolPart.providerExecuted,
+          output: toolPart.output,
           state: "output-available",
         });
-      } else if (part.state === "output-error") {
+      } else if (toolPart.state === "output-error") {
         toolInserts.push({
           id: uuidv7(),
           messageId,
           chatId,
-          input: part.input,
-          toolCallId: part.toolCallId,
-          toolType: part.type,
-          callProviderMetadata: part.callProviderMetadata,
-          title: part.title,
-          providerExecuted: part.providerExecuted,
-          errorText: part.errorText,
+          input: toolPart.input,
+          toolCallId: toolPart.toolCallId,
+          toolType: toolPart.type,
+          callProviderMetadata: toolPart.callProviderMetadata,
+          title: toolPart.title,
+          providerExecuted: toolPart.providerExecuted,
+          errorText: toolPart.errorText,
           state: "output-error",
         });
-      } else if (part.state === "output-denied") {
-        assert(!!part.approval?.id, "Approval ID is required");
+      } else if (toolPart.state === "output-denied") {
+        assert(!!toolPart.approval?.id, "Approval ID is required");
         toolInserts.push({
           id: uuidv7(),
           messageId,
           chatId,
-          input: part.input,
-          toolCallId: part.toolCallId,
-          toolType: part.type,
-          callProviderMetadata: part.callProviderMetadata,
-          title: part.title,
-          providerExecuted: part.providerExecuted,
+          input: toolPart.input,
+          toolCallId: toolPart.toolCallId,
+          toolType: toolPart.type,
+          callProviderMetadata: toolPart.callProviderMetadata,
+          title: toolPart.title,
+          providerExecuted: toolPart.providerExecuted,
           state: "output-denied",
-          approvalId: part.approval?.id,
-          approvalReason: part.approval?.reason,
+          approvalId: toolPart.approval?.id,
+          approvalReason: toolPart.approval?.reason,
           approved: false,
         });
       }

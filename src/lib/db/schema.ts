@@ -7,6 +7,7 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import { TOOL_TYPES } from "@/workflows/chat/types";
 
 /**
  * A chat is a conversation between a user and an assistant.
@@ -105,7 +106,7 @@ export const messageTools = pgTable("message_tools", {
   input: jsonb("input").notNull(),
   output: jsonb("output"),
   toolType: text("tool_type", {
-    enum: ["tool-googleSearch", "tool-urlContext"],
+    enum: TOOL_TYPES,
   }).notNull(),
   state: text("state", {
     enum: ["output-available", "output-error", "output-denied"],
