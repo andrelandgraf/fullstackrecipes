@@ -152,32 +152,15 @@ export function convertDbMessagesToUIMessages(
 }
 
 /**
- * Persist a single UI message to the database
- * Takes a ChatAgentUIMessage and saves it with its parts
+ * Insert message parts into database
+ * Used for both initial message creation and updating existing messages
  * Pre-generates UUID v7 IDs for parts in order to maintain sequence
  */
-export async function persistMessage({
-  chatId,
-  message: uiMessage,
-  runId,
-}: {
-  chatId: string;
-  message: ChatAgentUIMessage;
-  runId?: string | null;
-}) {
-  // Insert the message record
-  // Only include id if it's a valid non-empty string, otherwise let DB generate it
-  const [{ messageId }] = await db
-    .insert(messages)
-    .values({
-      id: uiMessage.id || undefined,
-      chatId,
-      role: uiMessage.role,
-      runId: runId || null,
-    })
-    .returning({ messageId: messages.id });
-
-  // Process parts in order and pre-generate UUIDs to maintain sequence
+export async function insertMessageParts(
+  chatId: string,
+  messageId: string,
+  parts: ChatAgentUIMessage["parts"],
+) {
   // Group inserts by table for efficient bulk insertion
   const textInserts: Array<NewMessageText> = [];
   const reasoningInserts: Array<NewMessageReasoning> = [];
@@ -188,7 +171,7 @@ export async function persistMessage({
   const sourceDocumentInserts: Array<NewMessageSourceDocument> = [];
 
   // Process each part in order, generating UUID v7 IDs sequentially
-  for (const part of uiMessage.parts) {
+  for (const part of parts) {
     // Skip step-start and other non-persistable parts
     if (part.type === "step-start") {
       continue;
@@ -342,4 +325,33 @@ export async function persistMessage({
   if (insertPromises.length > 0) {
     await Promise.all(insertPromises);
   }
+}
+
+/**
+ * Persist a single UI message to the database
+ * Takes a ChatAgentUIMessage and saves it with its parts
+ */
+export async function persistMessage({
+  chatId,
+  message: uiMessage,
+  runId,
+}: {
+  chatId: string;
+  message: ChatAgentUIMessage;
+  runId?: string | null;
+}) {
+  // Insert the message record
+  // Only include id if it's a valid non-empty string, otherwise let DB generate it
+  const [{ messageId }] = await db
+    .insert(messages)
+    .values({
+      id: uiMessage.id || undefined,
+      chatId,
+      role: uiMessage.role,
+      runId: runId || null,
+    })
+    .returning({ messageId: messages.id });
+
+  // Insert all parts
+  await insertMessageParts(chatId, messageId, uiMessage.parts);
 }

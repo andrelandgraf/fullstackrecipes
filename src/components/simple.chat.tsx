@@ -52,10 +52,8 @@ import {
   ChatDataProgressPart,
   ChatFilePart,
 } from "@/lib/agent-chat/agent";
-import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
+import { useResumableChat } from "@/hooks/use-resumable-chat";
 import { AlertCircleIcon, PaperclipIcon } from "lucide-react";
-import { v7 as uuidv7 } from "uuid";
 
 // Type guard to check if a part is a tool part
 function isToolPart(
@@ -214,27 +212,18 @@ function MessageWithParts({ message }: { message: ChatAgentUIMessage }) {
 export function SimpleChat({
   messageHistory,
   chatId,
+  initialRunId,
 }: {
   messageHistory: ChatAgentUIMessage[];
   chatId: string;
+  /** Initial workflow run ID for resuming an interrupted stream */
+  initialRunId?: string;
 }) {
-  const { messages, sendMessage, status, error } = useChat<ChatAgentUIMessage>({
-    messages: messageHistory,
-    transport: new DefaultChatTransport({
-      api: `/api/chats/${chatId}/messages`,
-      prepareSendMessagesRequest: ({ messages }) => {
-        return {
-          body: {
-            chatId,
-            message: messages[messages.length - 1],
-          },
-        };
-      },
-    }),
-    id: chatId,
-    generateId: () => uuidv7(),
+  const { messages, sendMessage, status, error } = useResumableChat({
+    chatId,
+    messageHistory,
+    initialRunId,
   });
-  console.log("messages", messages);
 
   return (
     <div className="flex h-screen flex-col">
