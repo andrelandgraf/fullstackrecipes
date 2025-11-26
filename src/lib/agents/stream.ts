@@ -1,5 +1,19 @@
+import { getWritable } from "workflow";
 import type { StreamTextResult, UIMessageChunk, UIMessage } from "ai";
-import type { UIStreamOptions, UIWritableStream } from "./types";
+
+/**
+ * Configuration for converting streamText to UI stream
+ */
+export interface UIStreamOptions {
+  /** Send start message chunk (default: true) */
+  sendStart?: boolean;
+  /** Send finish message chunk (default: true) */
+  sendFinish?: boolean;
+  /** Include reasoning in stream (default: false) */
+  sendReasoning?: boolean;
+  /** Include sources in stream (default: false) */
+  sendSources?: boolean;
+}
 
 /**
  * Pipes a ReadableStream to a WritableStream with proper lock management.
@@ -40,22 +54,20 @@ export interface StreamToWritableResult<TMessage extends UIMessage> {
 }
 
 /**
- * Converts a streamText result to UI message stream and pipes it to a writable.
+ * Converts a streamText result to UI message stream and pipes it to the workflow's writable.
  *
  * This handles:
  * - Converting the streamText result to a UI message stream
- * - Piping all chunks to the workflow's writable stream
+ * - Piping all chunks to the workflow's writable stream (obtained via getWritable())
  * - Consuming the stream to trigger onFinish callbacks
  * - Capturing the response message and finish reason
  *
  * @param result - The streamText result from AI SDK
- * @param writable - The writable stream to pipe chunks to
  * @param options - UI stream options (sendStart, sendFinish, etc.)
  * @returns The response message and finish reason
  */
 export async function streamToWritable<TMessage extends UIMessage>(
   result: StreamTextResult<any, any>,
-  writable: UIWritableStream,
   options: UIStreamOptions = {},
 ): Promise<StreamToWritableResult<TMessage>> {
   const {
@@ -66,6 +78,9 @@ export async function streamToWritable<TMessage extends UIMessage>(
   } = options;
 
   let responseMessage: TMessage | null = null;
+
+  // Get the workflow's writable stream
+  const writable = getWritable<UIMessageChunk>();
 
   // Convert to UI message stream
   const uiStream = result.toUIMessageStream({

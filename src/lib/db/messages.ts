@@ -1,5 +1,5 @@
-import type { MessageWithParts } from "@/lib/db/queries";
-import { TOOL_TYPES, type ChatAgentUIMessage } from "@/workflows/chat/types";
+import { TOOL_TYPES } from "@/lib/ai/tools";
+import type { ChatAgentUIMessage } from "@/workflows/chat/types";
 import { db } from "@/lib/db/client";
 import {
   messages,
@@ -17,14 +17,19 @@ import {
   type NewMessageData,
   type NewMessageFile,
   type NewMessageSourceDocument,
+  type Message,
+  type MessageText,
+  type MessageReasoning,
+  type MessageTool,
+  type MessageSourceUrl,
+  type MessageData,
+  type MessageFile,
+  type MessageSourceDocument,
 } from "@/lib/db/schema";
 import { v7 as uuidv7 } from "uuid";
 import assert from "@/lib/common/assert";
+import { eq } from "drizzle-orm";
 
-/**
- * Parse provider metadata from database format to UI format.
- * Handles empty objects, null, and undefined by returning undefined.
- */
 function parseMetadata(metadata: unknown): any {
   if (!metadata) return undefined;
   if (typeof metadata !== "object") return undefined;
@@ -156,7 +161,7 @@ export function convertDbMessagesToUIMessages(
 /**
  * Insert message parts into database
  * Used for both initial message creation and updating existing messages
- * Pre-generates UUID v7 IDs for parts in order to maintain sequence
+ * Pre-generates UUID v7 IDs for parts in order to maintain sequence (parts sorted by UUID v7 ID)
  */
 export async function insertMessageParts(
   chatId: string,
@@ -359,4 +364,107 @@ export async function persistMessage({
 
   // Insert all parts
   await insertMessageParts(chatId, messageId, uiMessage.parts);
+}
+
+/**
+ * Message part types for assembly
+ * Parts are sorted by their UUID v7 IDs, which are time-ordered
+ */
+type MessagePart =
+  | ({ type: "text" } & MessageText)
+  | ({ type: "reasoning" } & MessageReasoning)
+  | ({ type: "tool" } & MessageTool)
+  | ({ type: "source-url" } & MessageSourceUrl)
+  | ({ type: "data" } & MessageData)
+  | ({ type: "file" } & MessageFile)
+  | ({ type: "source-document" } & MessageSourceDocument);
+
+/**
+ * A message with its parts assembled
+ */
+export type MessageWithParts = Message & {
+  parts: MessagePart[];
+};
+
+/**
+ * Fetch all messages and their parts
+ */
+export async function getChatMessages(
+  chatId: string,
+): Promise<MessageWithParts[]> {
+  const [
+    messagesData,
+    textsData,
+    reasoningData,
+    toolsData,
+    sourceUrlsData,
+    dataData,
+    filesData,
+    sourceDocumentsData,
+  ] = await Promise.all([
+    db.query.messages.findMany({
+      where: eq(messages.chatId, chatId),
+      orderBy: (messages, { asc }) => [asc(messages.createdAt)],
+    }),
+    db.query.messageTexts.findMany({
+      where: eq(messageTexts.chatId, chatId),
+    }),
+    db.query.messageReasoning.findMany({
+      where: eq(messageReasoning.chatId, chatId),
+    }),
+    db.query.messageTools.findMany({
+      where: eq(messageTools.chatId, chatId),
+    }),
+    db.query.messageSourceUrls.findMany({
+      where: eq(messageSourceUrls.chatId, chatId),
+    }),
+    db.query.messageData.findMany({
+      where: eq(messageData.chatId, chatId),
+    }),
+    db.query.messageFiles.findMany({
+      where: eq(messageFiles.chatId, chatId),
+    }),
+    db.query.messageSourceDocuments.findMany({
+      where: eq(messageSourceDocuments.chatId, chatId),
+    }),
+  ]);
+
+  // Create a map of message ID to parts for fast assembly
+  const partsMap = new Map<string, MessagePart[]>();
+
+  // Add all parts to the map with their type
+  const addParts = (
+    parts: Array<{ messageId: string; id: string; [key: string]: unknown }>,
+    type: MessagePart["type"],
+  ) => {
+    for (const part of parts) {
+      const existing = partsMap.get(part.messageId) || [];
+      if (type === "data") {
+        existing.push({ ...part, type: "data" } as unknown as MessagePart);
+      } else {
+        existing.push({ ...part, type } as unknown as MessagePart);
+      }
+      partsMap.set(part.messageId, existing);
+    }
+  };
+
+  addParts(textsData, "text");
+  addParts(reasoningData, "reasoning");
+  addParts(toolsData, "tool");
+  addParts(sourceUrlsData, "source-url");
+  addParts(dataData, "data");
+  addParts(filesData, "file");
+  addParts(sourceDocumentsData, "source-document");
+
+  // Assemble messages with their parts sorted by UUID v7 ID (time-ordered)
+  return messagesData.map((message) => {
+    const parts = partsMap.get(message.id) || [];
+    // Sort parts by ID - UUID v7 IDs are chronologically ordered
+    parts.sort((a, b) => a.id.localeCompare(b.id));
+
+    return {
+      ...message,
+      parts,
+    };
+  });
 }

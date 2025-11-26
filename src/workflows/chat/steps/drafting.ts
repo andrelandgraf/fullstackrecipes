@@ -1,12 +1,10 @@
 import { streamText, type ModelMessage } from "ai";
 import { type GoogleGenerativeAIProviderOptions } from "@ai-sdk/google";
 import { streamToWritable } from "@/lib/agents/stream";
-import type { AgentStepResult } from "@/lib/agents/types";
-import {
-  draftingTools,
-  type ChatAgentUIMessage,
-  type ChatWritableStream,
-} from "../types";
+import type { AgentStepResult } from "@/lib/agents/tool-loop";
+import { draftingTools } from "@/lib/ai/tools";
+import type { ChatAgentUIMessage } from "../types";
+import { writeProgress } from "../progress";
 
 const draftingSystemPrompt = `You are a tweet drafting agent.
 
@@ -30,10 +28,13 @@ After drafting, present the tweet in a code block for easy copying.`;
  * Uses character count tool to ensure tweet fits within limits.
  */
 export async function draftingAgentStep(
-  writable: ChatWritableStream,
+  chatId: string,
+  messageId: string,
   messages: ModelMessage[],
 ): Promise<AgentStepResult<ChatAgentUIMessage>> {
   "use step";
+
+  await writeProgress("Drafting the tweet...", chatId, messageId);
 
   const resultStream = streamText({
     model: "google/gemini-3-pro-preview",
@@ -51,7 +52,7 @@ export async function draftingAgentStep(
   });
 
   const { responseMessage, finishReason } =
-    await streamToWritable<ChatAgentUIMessage>(resultStream, writable, {
+    await streamToWritable<ChatAgentUIMessage>(resultStream, {
       sendStart: false,
       sendFinish: false,
       sendReasoning: true,

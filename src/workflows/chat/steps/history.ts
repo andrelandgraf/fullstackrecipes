@@ -1,10 +1,9 @@
-import { getChatMessages } from "@/lib/db/queries";
 import {
   convertDbMessagesToUIMessages,
   persistMessage,
-  insertMessageParts,
+  getChatMessages,
 } from "@/lib/db/messages";
-import type { ChatAgentUIMessage, ChatUIMessagePart } from "../types";
+import type { ChatAgentUIMessage } from "../types";
 import { db } from "@/lib/db/client";
 import { messages } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -32,21 +31,23 @@ export async function persistUserMessage({
  */
 export async function createAssistantMessage({
   chatId,
-  messageId,
   runId,
 }: {
   chatId: string;
-  messageId: string;
   runId: string;
-}): Promise<void> {
+}): Promise<string> {
   "use step";
 
-  await db.insert(messages).values({
-    id: messageId,
-    chatId,
-    role: "assistant",
-    runId,
-  });
+  const [{ messageId }] = await db
+    .insert(messages)
+    .values({
+      chatId,
+      role: "assistant",
+      runId,
+    })
+    .returning({ messageId: messages.id });
+
+  return messageId;
 }
 
 /**
@@ -62,26 +63,14 @@ export async function getMessageHistory(
 }
 
 /**
- * Update the assistant message with parts and clear runId
- * Called at the end of the workflow to finalize the message
+ * Clear the runId from a message to mark workflow as complete.
+ * Called at the end of the workflow after all parts are persisted.
  */
-export async function updateAssistantMessage({
-  chatId,
-  messageId,
-  parts,
-}: {
-  chatId: string;
-  messageId: string;
-  parts: ChatUIMessagePart[];
-}): Promise<void> {
+export async function removeRunId(messageId: string): Promise<void> {
   "use step";
 
-  // Clear runId (workflow complete)
   await db
     .update(messages)
     .set({ runId: null })
     .where(eq(messages.id, messageId));
-
-  // Insert all parts
-  await insertMessageParts(chatId, messageId, parts);
 }

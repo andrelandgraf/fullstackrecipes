@@ -1,6 +1,6 @@
-import { generateObject, type ModelMessage } from "ai";
-import { google } from "@ai-sdk/google";
+import { generateObject, convertToModelMessages, type UIMessage } from "ai";
 import { z } from "zod";
+import { writeProgress } from "../progress";
 
 const routerSystemPrompt = `You are an orchestrator agent for a tweet author system.
 
@@ -34,18 +34,22 @@ export type RouterDecision = z.infer<typeof routerSchema>;
  * Uses generateObject for structured output.
  */
 export async function routerStep(
-  messages: ModelMessage[],
+  chatId: string,
+  messageId: string,
+  history: UIMessage[],
 ): Promise<RouterDecision> {
   "use step";
 
+  await writeProgress("Thinking about the next step...", chatId, messageId);
+
   try {
-    console.log("Router: Processing", messages.length, "messages");
+    console.log("Router: Processing", history.length, "messages");
 
     const result = await generateObject({
       model: "google/gemini-2.5-flash",
       system: routerSystemPrompt,
       schema: routerSchema,
-      messages,
+      messages: convertToModelMessages(history),
     });
 
     console.log("Router decision:", result.object);
@@ -53,7 +57,7 @@ export async function routerStep(
     return result.object;
   } catch (error) {
     console.error("Router error:", error);
-    console.error("Messages:", JSON.stringify(messages, null, 2));
+    console.error("Messages:", JSON.stringify(history, null, 2));
     throw error;
   }
 }

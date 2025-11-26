@@ -7,7 +7,7 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { TOOL_TYPES } from "@/workflows/chat/types";
+import { TOOL_TYPES } from "@/lib/ai/tools";
 
 /**
  * A chat is a conversation between a user and an assistant.

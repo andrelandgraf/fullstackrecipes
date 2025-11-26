@@ -1,16 +1,14 @@
+import { getWritable } from "workflow";
 import type { UIMessageChunk } from "ai";
-import type { ChatWritableStream } from "../types";
 
 /**
  * Initialize the stream with start event
  * This is called once at the beginning of the workflow
  */
-export async function startStream(
-  writable: ChatWritableStream,
-  messageId: string,
-): Promise<void> {
+export async function startStream(messageId: string): Promise<void> {
   "use step";
 
+  const writable = getWritable<UIMessageChunk>();
   const writer = writable.getWriter();
   try {
     await writer.write({
@@ -28,11 +26,10 @@ export async function startStream(
  * Finalize the stream with finish event and close it
  * This is called once at the end of the workflow
  */
-export async function finishStream(
-  writable: ChatWritableStream,
-): Promise<void> {
+export async function finishStream(): Promise<void> {
   "use step";
 
+  const writable = getWritable<UIMessageChunk>();
   const writer = writable.getWriter();
   try {
     await writer.write({

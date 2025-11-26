@@ -1,12 +1,10 @@
 import { streamText, type ModelMessage } from "ai";
 import { type GoogleGenerativeAIProviderOptions } from "@ai-sdk/google";
 import { streamToWritable } from "@/lib/agents/stream";
-import type { AgentStepResult } from "@/lib/agents/types";
-import {
-  researchTools,
-  type ChatAgentUIMessage,
-  type ChatWritableStream,
-} from "../types";
+import type { AgentStepResult } from "@/lib/agents/tool-loop";
+import { researchTools } from "@/lib/ai/tools";
+import type { ChatAgentUIMessage } from "../types";
+import { writeProgress } from "../progress";
 
 const researchSystemPrompt = `You are a research agent for a tweet authoring system.
 
@@ -32,10 +30,13 @@ Do NOT draft the tweet yet - just gather and present research.`;
  * Uses Google search to find relevant context and sources.
  */
 export async function researchAgentStep(
-  writable: ChatWritableStream,
+  chatId: string,
+  messageId: string,
   messages: ModelMessage[],
 ): Promise<AgentStepResult<ChatAgentUIMessage>> {
   "use step";
+
+  await writeProgress("Researching the topic...", chatId, messageId);
 
   const resultStream = streamText({
     model: "google/gemini-3-pro-preview",
@@ -53,7 +54,7 @@ export async function researchAgentStep(
   });
 
   const { responseMessage, finishReason } =
-    await streamToWritable<ChatAgentUIMessage>(resultStream, writable, {
+    await streamToWritable<ChatAgentUIMessage>(resultStream, {
       sendStart: false,
       sendFinish: false,
       sendReasoning: true,

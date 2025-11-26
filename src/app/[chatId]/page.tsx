@@ -1,6 +1,8 @@
-import { SimpleChat } from "@/components/simple.chat";
-import { getChatMessages } from "@/lib/db/queries";
-import { convertDbMessagesToUIMessages } from "@/lib/db/messages";
+import { SimpleChat } from "@/components/chat/chat";
+import {
+  convertDbMessagesToUIMessages,
+  getChatMessages,
+} from "@/lib/db/messages";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { chats } from "@/lib/db/schema";
