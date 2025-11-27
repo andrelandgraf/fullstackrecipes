@@ -33,18 +33,12 @@ import {
   ChatFilePart,
 } from "@/workflows/chat/types";
 
-/**
- * Type guard to check if a part is a tool part
- */
 export function isToolPart(
   part: ChatAgentUIMessage["parts"][0],
 ): part is ChatToolPart {
   return part.type.startsWith("tool-");
 }
 
-/**
- * Renders a text part of a message
- */
 export function TextPart({ part }: { part: ChatTextPart }) {
   if (part.text === "" && part.state === "streaming") {
     return <Loader size={16} />;
@@ -53,9 +47,6 @@ export function TextPart({ part }: { part: ChatTextPart }) {
   return <MessageResponse>{part.text}</MessageResponse>;
 }
 
-/**
- * Renders a reasoning/thinking part of a message
- */
 export function ReasoningPart({ part }: { part: ChatReasoningPart }) {
   const isStreaming = part.state === "streaming";
   return (
@@ -66,9 +57,6 @@ export function ReasoningPart({ part }: { part: ChatReasoningPart }) {
   );
 }
 
-/**
- * Renders source citations from web search results
- */
 export function SourcesPart({ parts }: { parts: ChatSourceUrlPart[] }) {
   if (parts.length === 0) return null;
 
@@ -88,9 +76,6 @@ export function SourcesPart({ parts }: { parts: ChatSourceUrlPart[] }) {
   );
 }
 
-/**
- * Renders workflow progress updates
- */
 export function DataProgressPart({ text }: { text: string }) {
   return (
     <div className="mb-2 rounded-md bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground">
@@ -99,16 +84,10 @@ export function DataProgressPart({ text }: { text: string }) {
   );
 }
 
-/**
- * Renders a file attachment part
- */
 export function FilePart({ part }: { part: ChatFilePart }) {
   return <MessageAttachment data={part} />;
 }
 
-/**
- * Renders a tool invocation part
- */
 export function ToolPart({ part }: { part: ChatToolPart }) {
   return (
     <Tool>

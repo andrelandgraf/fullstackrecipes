@@ -1,19 +1,17 @@
 import { google } from "@ai-sdk/google";
-import { tool } from "ai";
+import { tool, type Tool } from "ai";
 import { z } from "zod";
 
-/**
- * Research tools - Google search for finding information
- * Note: Key names determine the tool type stored in database (tool-{keyName})
- */
+// Cast needed: @ai-sdk/google returns Tool<{}, unknown> but AI SDK expects Tool<any, any>
+function asToolSetCompatible<T>(tool: T): Tool<any, any> {
+  return tool as Tool<any, any>;
+}
+
 export const researchTools = {
-  googleSearch: google.tools.googleSearch({}) as any,
-  urlContext: google.tools.urlContext({}) as any,
+  googleSearch: asToolSetCompatible(google.tools.googleSearch({})),
+  urlContext: asToolSetCompatible(google.tools.urlContext({})),
 };
 
-/**
- * Drafting tools - Character counting for tweet validation
- */
 export const draftingTools = {
   countCharacters: tool({
     description:
@@ -37,19 +35,12 @@ export const draftingTools = {
   }),
 };
 
-/**
- * Combined tool set - all tools that can appear in UI messages
- */
 export const allTools = {
   ...researchTools,
   ...draftingTools,
 };
 
-/**
- * Tool type names for database schema.
- * Single source of truth for tool types stored in the database.
- * Format: "tool-{toolName}" where toolName matches the key in allTools
- */
+// Tool type names for database schema - must match keys in allTools as "tool-{key}"
 export const TOOL_TYPES = [
   "tool-googleSearch",
   "tool-urlContext",

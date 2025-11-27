@@ -2,16 +2,13 @@ import {
   convertDbMessagesToUIMessages,
   persistMessage,
   getChatMessages,
+  clearMessageRunId,
+  insertMessageParts,
 } from "@/lib/db/messages";
 import type { ChatAgentUIMessage } from "../types";
 import { db } from "@/lib/db/client";
 import { messages } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 
-/**
- * Persist the user message to database
- * This is the first step - saves the incoming user message
- */
 export async function persistUserMessage({
   chatId,
   message,
@@ -25,9 +22,8 @@ export async function persistUserMessage({
 }
 
 /**
- * Create an empty assistant message with runId for resumability
- * This creates the message record before streaming starts,
- * allowing the client to resume the stream via the runId
+ * Creates message record with runId before streaming starts,
+ * enabling client stream resumption on reconnection.
  */
 export async function createAssistantMessage({
   chatId,
@@ -50,9 +46,6 @@ export async function createAssistantMessage({
   return messageId;
 }
 
-/**
- * Load message history from database and convert to UI message format
- */
 export async function getMessageHistory(
   chatId: string,
 ): Promise<ChatAgentUIMessage[]> {
@@ -62,15 +55,22 @@ export async function getMessageHistory(
   return convertDbMessagesToUIMessages(messageHistory);
 }
 
-/**
- * Clear the runId from a message to mark workflow as complete.
- * Called at the end of the workflow after all parts are persisted.
- */
 export async function removeRunId(messageId: string): Promise<void> {
   "use step";
 
-  await db
-    .update(messages)
-    .set({ runId: null })
-    .where(eq(messages.id, messageId));
+  await clearMessageRunId(messageId);
+}
+
+export async function persistMessageParts({
+  chatId,
+  messageId,
+  parts,
+}: {
+  chatId: string;
+  messageId: string;
+  parts: ChatAgentUIMessage["parts"];
+}): Promise<void> {
+  "use step";
+
+  await insertMessageParts(chatId, messageId, parts);
 }

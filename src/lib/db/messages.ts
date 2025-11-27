@@ -1,5 +1,9 @@
-import { TOOL_TYPES } from "@/lib/ai/tools";
-import type { ChatAgentUIMessage } from "@/workflows/chat/types";
+import { TOOL_TYPES, type ToolType } from "@/lib/ai/tools";
+import {
+  isToolPart,
+  type ChatAgentUIMessage,
+  type ChatToolPart,
+} from "@/workflows/chat/types";
 import { db } from "@/lib/db/client";
 import {
   messages,
@@ -37,20 +41,15 @@ function parseMetadata(metadata: unknown): any {
   return metadata;
 }
 
-/**
- * Convert database messages with parts to ChatAgentUIMessage format
- */
 export function convertDbMessagesToUIMessages(
   messageHistory: MessageWithParts[],
 ): ChatAgentUIMessage[] {
   return messageHistory.map((msg) => {
     const uiParts: ChatAgentUIMessage["parts"] = [];
-    // Add step-start part to the beginning of every message
     uiParts.push({
       type: "step-start",
     });
 
-    // Map persisted database parts to UI message parts
     for (const part of msg.parts) {
       let uiPart: ChatAgentUIMessage["parts"][0];
       switch (part.type) {
@@ -63,8 +62,7 @@ export function convertDbMessagesToUIMessages(
           };
           break;
         case "tool":
-          // Cast to any because TOOL_TYPES (source of truth) may have more tools
-          // than TypeScript's InferUITools can infer from allTools
+          // Cast needed: TS can't narrow discriminated union from runtime string
           if (part.state === "output-available") {
             uiPart = {
               type: part.toolType,
@@ -73,7 +71,7 @@ export function convertDbMessagesToUIMessages(
               input: part.input,
               output: part.output,
               callProviderMetadata: parseMetadata(part.callProviderMetadata),
-            } as any;
+            } as ChatToolPart;
           } else if (part.state === "output-error") {
             assert(part.errorText !== null, "Error text is required");
             uiPart = {
@@ -83,7 +81,7 @@ export function convertDbMessagesToUIMessages(
               errorText: part.errorText ?? "",
               input: part.input,
               callProviderMetadata: parseMetadata(part.callProviderMetadata),
-            } as any;
+            } as ChatToolPart;
           } else if (part.state === "output-denied") {
             assert(part.approvalId !== null, "Approval ID is required");
             uiPart = {
@@ -97,7 +95,7 @@ export function convertDbMessagesToUIMessages(
               },
               input: part.input,
               callProviderMetadata: parseMetadata(part.callProviderMetadata),
-            } as any;
+            } as ChatToolPart;
           } else {
             throw new Error(`Unknown part state ${part.state}`);
           }
@@ -119,10 +117,14 @@ export function convertDbMessagesToUIMessages(
           };
           break;
         case "data": {
-          uiPart = {
-            type: part.dataType as `data-${string}`,
-            data: part.data,
-          } as ChatAgentUIMessage["parts"][0];
+          if (part.dataType === "data-progress") {
+            uiPart = {
+              type: "data-progress",
+              data: part.data as { text: string },
+            };
+          } else {
+            throw new Error(`Unknown data type: ${part.dataType}`);
+          }
           break;
         }
         case "file":
@@ -159,16 +161,13 @@ export function convertDbMessagesToUIMessages(
 }
 
 /**
- * Insert message parts into database
- * Used for both initial message creation and updating existing messages
- * Pre-generates UUID v7 IDs for parts in order to maintain sequence (parts sorted by UUID v7 ID)
+ * Pre-generates UUID v7 IDs to maintain insertion order (parts sorted by ID).
  */
 export async function insertMessageParts(
   chatId: string,
   messageId: string,
   parts: ChatAgentUIMessage["parts"],
 ) {
-  // Group inserts by table for efficient bulk insertion
   const textInserts: Array<NewMessageText> = [];
   const reasoningInserts: Array<NewMessageReasoning> = [];
   const toolInserts: Array<NewMessageTool> = [];
@@ -177,9 +176,7 @@ export async function insertMessageParts(
   const fileInserts: Array<NewMessageFile> = [];
   const sourceDocumentInserts: Array<NewMessageSourceDocument> = [];
 
-  // Process each part in order, generating UUID v7 IDs sequentially
   for (const part of parts) {
-    // Skip step-start and other non-persistable parts
     if (part.type === "step-start") {
       continue;
     }
@@ -204,57 +201,54 @@ export async function insertMessageParts(
         text: part.text,
         providerMetadata: part.providerMetadata,
       });
-    } else if (part.type.startsWith("tool-")) {
+    } else if (isToolPart(part)) {
       assert(
-        TOOL_TYPES.includes(part.type as any),
+        TOOL_TYPES.includes(part.type as ToolType),
         `Invalid tool type: ${part.type}. Valid types: ${TOOL_TYPES.join(", ")}`,
       );
-      // Cast to any since TypeScript can't narrow tool part types properly
-      // Runtime validation is done above with TOOL_TYPES.includes()
-      const toolPart = part as any;
-      if (toolPart.state === "output-available") {
+      if (part.state === "output-available") {
         toolInserts.push({
           id: uuidv7(),
           messageId,
           chatId,
-          input: toolPart.input,
-          toolCallId: toolPart.toolCallId,
-          toolType: toolPart.type,
-          callProviderMetadata: toolPart.callProviderMetadata,
-          title: toolPart.title,
-          providerExecuted: toolPart.providerExecuted,
-          output: toolPart.output,
+          input: part.input,
+          toolCallId: part.toolCallId,
+          toolType: part.type,
+          callProviderMetadata: part.callProviderMetadata,
+          title: part.title,
+          providerExecuted: part.providerExecuted,
+          output: part.output,
           state: "output-available",
         });
-      } else if (toolPart.state === "output-error") {
+      } else if (part.state === "output-error") {
         toolInserts.push({
           id: uuidv7(),
           messageId,
           chatId,
-          input: toolPart.input,
-          toolCallId: toolPart.toolCallId,
-          toolType: toolPart.type,
-          callProviderMetadata: toolPart.callProviderMetadata,
-          title: toolPart.title,
-          providerExecuted: toolPart.providerExecuted,
-          errorText: toolPart.errorText,
+          input: part.input,
+          toolCallId: part.toolCallId,
+          toolType: part.type,
+          callProviderMetadata: part.callProviderMetadata,
+          title: part.title,
+          providerExecuted: part.providerExecuted,
+          errorText: part.errorText,
           state: "output-error",
         });
-      } else if (toolPart.state === "output-denied") {
-        assert(!!toolPart.approval?.id, "Approval ID is required");
+      } else if (part.state === "output-denied") {
+        assert(!!part.approval?.id, "Approval ID is required");
         toolInserts.push({
           id: uuidv7(),
           messageId,
           chatId,
-          input: toolPart.input,
-          toolCallId: toolPart.toolCallId,
-          toolType: toolPart.type,
-          callProviderMetadata: toolPart.callProviderMetadata,
-          title: toolPart.title,
-          providerExecuted: toolPart.providerExecuted,
+          input: part.input,
+          toolCallId: part.toolCallId,
+          toolType: part.type,
+          callProviderMetadata: part.callProviderMetadata,
+          title: part.title,
+          providerExecuted: part.providerExecuted,
           state: "output-denied",
-          approvalId: toolPart.approval?.id,
-          approvalReason: toolPart.approval?.reason,
+          approvalId: part.approval?.id,
+          approvalReason: part.approval?.reason,
           approved: false,
         });
       }
@@ -269,7 +263,6 @@ export async function insertMessageParts(
         providerMetadata: part.providerMetadata,
       });
     } else if (part.type.startsWith("data-")) {
-      // Store the full type name in the database as dataType
       if (part.type === "data-progress") {
         dataInserts.push({
           id: uuidv7(),
@@ -305,7 +298,6 @@ export async function insertMessageParts(
     }
   }
 
-  // Execute all inserts in parallel (order preserved by pre-generated UUIDs)
   const insertPromises = [];
 
   if (textInserts.length > 0) {
@@ -337,10 +329,6 @@ export async function insertMessageParts(
   }
 }
 
-/**
- * Persist a single UI message to the database
- * Takes a ChatAgentUIMessage and saves it with its parts
- */
 export async function persistMessage({
   chatId,
   message: uiMessage,
@@ -350,8 +338,6 @@ export async function persistMessage({
   message: ChatAgentUIMessage;
   runId?: string | null;
 }) {
-  // Insert the message record
-  // Only include id if it's a valid non-empty string, otherwise let DB generate it
   const [{ messageId }] = await db
     .insert(messages)
     .values({
@@ -362,14 +348,9 @@ export async function persistMessage({
     })
     .returning({ messageId: messages.id });
 
-  // Insert all parts
   await insertMessageParts(chatId, messageId, uiMessage.parts);
 }
 
-/**
- * Message part types for assembly
- * Parts are sorted by their UUID v7 IDs, which are time-ordered
- */
 type MessagePart =
   | ({ type: "text" } & MessageText)
   | ({ type: "reasoning" } & MessageReasoning)
@@ -379,16 +360,17 @@ type MessagePart =
   | ({ type: "file" } & MessageFile)
   | ({ type: "source-document" } & MessageSourceDocument);
 
-/**
- * A message with its parts assembled
- */
 export type MessageWithParts = Message & {
   parts: MessagePart[];
 };
 
-/**
- * Fetch all messages and their parts
- */
+export async function clearMessageRunId(messageId: string): Promise<void> {
+  await db
+    .update(messages)
+    .set({ runId: null })
+    .where(eq(messages.id, messageId));
+}
+
 export async function getChatMessages(
   chatId: string,
 ): Promise<MessageWithParts[]> {
@@ -429,37 +411,36 @@ export async function getChatMessages(
     }),
   ]);
 
-  // Create a map of message ID to parts for fast assembly
   const partsMap = new Map<string, MessagePart[]>();
 
-  // Add all parts to the map with their type
-  const addParts = (
-    parts: Array<{ messageId: string; id: string; [key: string]: unknown }>,
-    type: MessagePart["type"],
-  ) => {
+  function addToMap<T extends { messageId: string }>(
+    parts: T[],
+    transform: (part: T) => MessagePart,
+  ) {
     for (const part of parts) {
       const existing = partsMap.get(part.messageId) || [];
-      if (type === "data") {
-        existing.push({ ...part, type: "data" } as unknown as MessagePart);
-      } else {
-        existing.push({ ...part, type } as unknown as MessagePart);
-      }
+      existing.push(transform(part));
       partsMap.set(part.messageId, existing);
     }
-  };
+  }
 
-  addParts(textsData, "text");
-  addParts(reasoningData, "reasoning");
-  addParts(toolsData, "tool");
-  addParts(sourceUrlsData, "source-url");
-  addParts(dataData, "data");
-  addParts(filesData, "file");
-  addParts(sourceDocumentsData, "source-document");
+  addToMap(textsData, (part) => ({ ...part, type: "text" as const }));
+  addToMap(reasoningData, (part) => ({ ...part, type: "reasoning" as const }));
+  addToMap(toolsData, (part) => ({ ...part, type: "tool" as const }));
+  addToMap(sourceUrlsData, (part) => ({
+    ...part,
+    type: "source-url" as const,
+  }));
+  addToMap(dataData, (part) => ({ ...part, type: "data" as const }));
+  addToMap(filesData, (part) => ({ ...part, type: "file" as const }));
+  addToMap(sourceDocumentsData, (part) => ({
+    ...part,
+    type: "source-document" as const,
+  }));
 
-  // Assemble messages with their parts sorted by UUID v7 ID (time-ordered)
   return messagesData.map((message) => {
     const parts = partsMap.get(message.id) || [];
-    // Sort parts by ID - UUID v7 IDs are chronologically ordered
+    // UUID v7 IDs are chronologically ordered
     parts.sort((a, b) => a.id.localeCompare(b.id));
 
     return {

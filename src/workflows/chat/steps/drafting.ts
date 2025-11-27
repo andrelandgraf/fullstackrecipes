@@ -23,10 +23,6 @@ Guidelines for great tweets:
 
 After drafting, present the tweet in a code block for easy copying.`;
 
-/**
- * Drafting agent that creates the final tweet.
- * Uses character count tool to ensure tweet fits within limits.
- */
 export async function draftingAgentStep(
   chatId: string,
   messageId: string,

@@ -40,9 +40,6 @@ import {
   ToolPart,
 } from "./parts";
 
-/**
- * File upload button for the prompt input
- */
 function FileUploadButton() {
   const attachments = usePromptInputAttachments();
 
@@ -57,21 +54,15 @@ function FileUploadButton() {
   );
 }
 
-/**
- * Renders a single message with all its parts
- */
 function MessageWithParts({ message }: { message: ChatAgentUIMessage }) {
-  // Collect all sources from the message
   const sources = message.parts.filter(
     (part): part is ChatSourceUrlPart => part.type === "source-url",
   );
 
-  // Collect all file parts
   const fileParts = message.parts.filter(
     (part): part is ChatFilePart => part.type === "file",
   );
 
-  // Collect all data-progress parts and get the latest one
   const dataProgressParts = message.parts.filter(
     (part): part is ChatDataProgressPart => part.type === "data-progress",
   );
@@ -101,10 +92,10 @@ function MessageWithParts({ message }: { message: ChatAgentUIMessage }) {
             return null;
           }
           if (part.type === "data-progress") {
-            return null; // Already displayed above
+            return null;
           }
           if (part.type === "file") {
-            return null; // Already displayed above
+            return null;
           }
           if (isToolPart(part)) {
             return <ToolPart key={index} part={part} />;
@@ -117,9 +108,6 @@ function MessageWithParts({ message }: { message: ChatAgentUIMessage }) {
   );
 }
 
-/**
- * Simple chat interface component
- */
 export function SimpleChat({
   messageHistory,
   chatId,
@@ -127,7 +115,6 @@ export function SimpleChat({
 }: {
   messageHistory: ChatAgentUIMessage[];
   chatId: string;
-  /** Initial workflow run ID for resuming an interrupted stream */
   initialRunId?: string;
 }) {
   const { messages, sendMessage, status, error } = useResumableChat({

@@ -29,10 +29,6 @@ const routerSchema = z.object({
 
 export type RouterDecision = z.infer<typeof routerSchema>;
 
-/**
- * Router agent that decides which specialized agent to invoke next.
- * Uses generateObject for structured output.
- */
 export async function routerStep(
   chatId: string,
   messageId: string,

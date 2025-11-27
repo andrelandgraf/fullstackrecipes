@@ -25,10 +25,6 @@ After presenting your research, ask the user:
 
 Do NOT draft the tweet yet - just gather and present research.`;
 
-/**
- * Research agent that gathers information about the tweet topic.
- * Uses Google search to find relevant context and sources.
- */
 export async function researchAgentStep(
   chatId: string,
   messageId: string,

@@ -9,9 +9,6 @@ import {
 import { sql } from "drizzle-orm";
 import { TOOL_TYPES } from "@/lib/ai/tools";
 
-/**
- * A chat is a conversation between a user and an assistant.
- */
 export const chats = pgTable("chats", {
   id: uuid("id")
     .primaryKey()
@@ -21,11 +18,7 @@ export const chats = pgTable("chats", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-/**
- * A message is a single message in a chat. A message consists of parts that make up the message.
- * If runId is not null, then the message is currently streaming as part of a workflow run.
- * After the workflow run is complete, the runId is set to null.
- */
+// runId is non-null while message is streaming, null when complete
 export const messages = pgTable("messages", {
   id: uuid("id")
     .primaryKey()
@@ -39,18 +32,8 @@ export const messages = pgTable("messages", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-/**
- * Message parts are stored in separate tables by type.
- * Each table includes chatId for parallel fetching and avoiding JOINs.
- *
- * UUID v7 is used for part IDs - these are time-ordered UUIDs that naturally
- * sort chronologically. This eliminates the need for a separate order field.
- * Simply sort by ID to get parts in chronological order.
- */
+// Message parts stored in separate tables. UUID v7 IDs enable chronological sorting.
 
-/**
- * Text parts - the most common message part type
- */
 export const messageTexts = pgTable("message_texts", {
   id: uuid("id")
     .primaryKey()
@@ -67,9 +50,6 @@ export const messageTexts = pgTable("message_texts", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-/**
- * Reasoning parts - for AI reasoning/thinking content
- */
 export const messageReasoning = pgTable("message_reasoning", {
   id: uuid("id")
     .primaryKey()
@@ -86,9 +66,6 @@ export const messageReasoning = pgTable("message_reasoning", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-/**
- * Tool invocation parts - for tool calls and results
- */
 export const messageTools = pgTable("message_tools", {
   id: uuid("id")
     .primaryKey()
@@ -121,9 +98,6 @@ export const messageTools = pgTable("message_tools", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-/**
- * Source URL parts - for citing external sources
- */
 export const messageSourceUrls = pgTable("message_source_urls", {
   id: uuid("id")
     .primaryKey()
@@ -158,10 +132,6 @@ export const messageData = pgTable("message_data", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-/**
- * File parts - for user-uploaded files (images, PDFs, etc.)
- * Files are stored as data URLs or regular URLs
- */
 export const messageFiles = pgTable("message_files", {
   id: uuid("id")
     .primaryKey()
@@ -180,10 +150,6 @@ export const messageFiles = pgTable("message_files", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-/**
- * Source document parts - for documents cited by the AI model
- * These are documents that the model references as sources
- */
 export const messageSourceDocuments = pgTable("message_source_documents", {
   id: uuid("id")
     .primaryKey()
@@ -202,11 +168,6 @@ export const messageSourceDocuments = pgTable("message_source_documents", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
-
-/**
- * Parts not persisted:
- * - step-start
- */
 
 // Type exports
 export type Chat = typeof chats.$inferSelect;
