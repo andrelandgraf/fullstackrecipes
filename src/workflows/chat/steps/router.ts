@@ -1,6 +1,6 @@
 import { generateObject, convertToModelMessages, type UIMessage } from "ai";
 import { z } from "zod";
-import { writeProgress } from "../progress";
+import { writeProgress } from "./progress";
 
 const routerSystemPrompt = `You are an orchestrator agent for a tweet author system.
 

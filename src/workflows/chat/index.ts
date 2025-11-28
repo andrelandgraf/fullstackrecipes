@@ -1,7 +1,5 @@
-import { getWorkflowMetadata } from "workflow";
-import type { ModelMessage } from "ai";
+import { getWorkflowMetadata, getWritable } from "workflow";
 import type { ChatAgentUIMessage } from "./types";
-import { runToolLoop } from "@/lib/agents/tool-loop";
 import {
   persistUserMessage,
   createAssistantMessage,
@@ -11,8 +9,9 @@ import {
 } from "./steps/history";
 import { startStream, finishStream } from "./steps/stream";
 import { routerStep } from "./steps/router";
-import { researchAgentStep } from "./steps/research";
-import { draftingAgentStep } from "./steps/drafting";
+import { writeProgress } from "./steps/progress";
+import { researchAgent } from "@/lib/ai/research";
+import { draftingAgent } from "@/lib/ai/drafting";
 
 /**
  * Main chat workflow that routes between research and drafting agents.
@@ -38,23 +37,23 @@ export async function chatWorkflow({
 
   const history = await getMessageHistory(chatId);
 
+  await startStream(messageId);
+
   const { next, reasoning } = await routerStep(chatId, messageId, history);
   console.log(`Router: ${next} - ${reasoning}`);
 
-  await startStream(messageId);
+  const progressText =
+    next === "research" ? "Researching topic..." : "Authoring tweet...";
+  await writeProgress(progressText, chatId, messageId);
 
-  const agentStep =
-    next === "research"
-      ? (messages: ModelMessage[]) =>
-          researchAgentStep(chatId, messageId, messages)
-      : (messages: ModelMessage[]) =>
-          draftingAgentStep(chatId, messageId, messages);
+  const agent = next === "research" ? researchAgent : draftingAgent;
 
-  await runToolLoop<ChatAgentUIMessage>(history, agentStep, {
+  const { parts } = await agent.run(history, {
     maxSteps: 10,
-    onIterationComplete: (parts) =>
-      persistMessageParts({ chatId, messageId, parts }),
+    writable: getWritable(),
   });
+
+  await persistMessageParts({ chatId, messageId, parts });
 
   await finishStream();
 

@@ -1,10 +1,11 @@
+import type { UIMessage } from "ai";
 import {
   convertDbMessagesToUIMessages,
   persistMessage,
   getChatMessages,
   clearMessageRunId,
   insertMessageParts,
-} from "@/lib/db/messages";
+} from "@/lib/db/queries/chat";
 import type { ChatAgentUIMessage } from "../types";
 import { db } from "@/lib/db/client";
 import { messages } from "@/lib/db/schema";
@@ -68,9 +69,14 @@ export async function persistMessageParts({
 }: {
   chatId: string;
   messageId: string;
-  parts: ChatAgentUIMessage["parts"];
+  parts: UIMessage["parts"];
 }): Promise<void> {
   "use step";
 
-  await insertMessageParts(chatId, messageId, parts);
+  // Cast to ChatAgentUIMessage["parts"] - the db layer handles all part types
+  await insertMessageParts(
+    chatId,
+    messageId,
+    parts as ChatAgentUIMessage["parts"],
+  );
 }

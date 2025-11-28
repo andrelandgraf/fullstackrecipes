@@ -3,10 +3,11 @@
 - Only create an abstraction if it’s actually needed
 - Prefer clear function/variable names over inline comments
 - Avoid helper functions when a simple inline expression would suffice
-- Use `knip` to remove unused code if making large changes
-- The `gh` CLI is installed, use it
 - Don’t use emojis
 - No barrel index files - just export from the source files instead
+- No type.ts files, just inline types or co-locate them with their related code
+- Don’t unnecessarily add `try`/`catch`
+- Don’t cast to `any`
 
 ## React
 
@@ -25,8 +26,3 @@
 - Use next/font + next/script when applicable
 - next/image above the fold should have `sync` / `eager` / use `priority` sparingly
 - Be mindful of serialized prop size for RSC → child components
-
-## TypeScript
-
-- Don’t unnecessarily add `try`/`catch`
-- Don’t cast to `any`

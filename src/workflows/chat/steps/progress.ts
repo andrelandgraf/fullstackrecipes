@@ -1,16 +1,16 @@
 import { getWritable } from "workflow";
 import type { UIMessageChunk } from "ai";
-import type { ChatDataProgressPart } from "./types";
-import { insertMessageParts } from "@/lib/db/messages";
+import type { ChatDataProgressPart } from "../types";
+import { insertMessageParts } from "@/lib/db/queries/chat";
 
-/**
- * Writes a progress update to both the stream and database.
- */
+/** Writes a progress update to both the stream and database. */
 export async function writeProgress(
   text: string,
   chatId: string,
   messageId: string,
 ): Promise<void> {
+  "use step";
+
   const progressPart: ChatDataProgressPart = {
     type: "data-progress",
     data: {

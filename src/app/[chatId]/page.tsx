@@ -2,7 +2,7 @@ import { SimpleChat } from "@/components/chat/chat";
 import {
   convertDbMessagesToUIMessages,
   getChatMessages,
-} from "@/lib/db/messages";
+} from "@/lib/db/queries/chat";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { chats } from "@/lib/db/schema";
