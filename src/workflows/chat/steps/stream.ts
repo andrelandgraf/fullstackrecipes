@@ -9,10 +9,8 @@ export async function startStream(messageId: string): Promise<void> {
   try {
     await writer.write({
       type: "start",
-      messageMetadata: {
-        messageId,
-      },
-    } satisfies UIMessageChunk);
+      messageId,
+    });
   } finally {
     writer.releaseLock();
   }
@@ -27,7 +25,7 @@ export async function finishStream(): Promise<void> {
     await writer.write({
       type: "finish",
       finishReason: "stop",
-    } satisfies UIMessageChunk);
+    });
   } finally {
     writer.releaseLock();
   }

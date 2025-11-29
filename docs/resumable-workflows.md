@@ -4,8 +4,30 @@ This guide shows how to build resumable AI chat workflows using the Workflow SDK
 
 ## Prerequisites
 
-- Completed [Chat Persistence](./chat-persistence.md) setup
-- Workflow SDK installed and configured
+- Completed [Setup](./setup.md) (includes Workflow SDK)
+- Completed [Chat Persistence](./chat-persistence.md)
+
+### Set up Workflow Development Kit
+
+1. Install the packages
+
+```bash
+bun add workflow @workflow/ai
+```
+
+2. Update `next.config.ts`
+
+```ts
+import type { NextConfig } from "next";
+import { withWorkflow } from "workflow/next";
+
+const nextConfig: NextConfig = {
+  /* config options here */
+  reactCompiler: true,
+};
+
+export default withWorkflow(nextConfig);
+```
 
 ## Overview
 
@@ -15,6 +37,10 @@ The workflow system provides:
 - **Step-level durability** - Each step is persisted and can be replayed
 - **Agent orchestration** - Route between multiple specialized agents
 - **Tool loops** - Agents can call tools repeatedly until complete
+
+## Get Started
+
+Refer to the [Getting started on Next.js guide](https://useworkflow.dev/docs/getting-started/next) for detailed setup instructions.
 
 ## Project Structure
 
@@ -455,7 +481,7 @@ export async function startStream(messageId: string): Promise<void> {
   try {
     await writer.write({
       type: "start",
-      messageMetadata: { messageId },
+      messageId,
     });
   } finally {
     writer.releaseLock();

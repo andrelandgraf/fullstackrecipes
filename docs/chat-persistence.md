@@ -1,18 +1,16 @@
 # Chat Persistence with AI SDK, Drizzle & Neon
 
-This guide shows how to persist chat messages to a Postgres database using Drizzle ORM and Neon. You'll learn how to save messages using the `onFinish` callback and load chat history on page load.
+This guide shows how to build a tweet drafting assistant with persistent chat history. You'll learn how to save messages to a Postgres database using Drizzle ORM and load chat history on page load.
 
 ## Prerequisites
 
-- Next.js app with AI SDK and AI Elements set up
-- Drizzle ORM configured with Neon
-- Basic chat UI working
+- Completed [Setup](./setup.md) (Next.js, Drizzle, AI SDK, Neon)
 
 ## Required Packages
 
 ```bash
-npm install uuid drizzle-orm pg @vercel/functions
-npm install -D @types/uuid drizzle-kit
+bun add uuid zod
+bun add -D @types/uuid
 ```
 
 We use the `uuid` package for generating UUID v7 identifiers:
@@ -42,11 +40,18 @@ This way, we can avoid an `order`/`index` column for each message part in the DB
 
 ## Database Schema
 
-Create your schema file with tables for chats, messages, and message content:
+Create your schema file with tables for chats, messages, and all message part types:
 
 ```typescript
 // src/lib/db/schemas/chat.ts
-import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  jsonb,
+  boolean,
+} from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 export const chats = pgTable("chats", {
@@ -70,6 +75,8 @@ export const messages = pgTable("messages", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Message parts stored in separate tables. UUID v7 IDs enable chronological sorting.
+
 export const messageTexts = pgTable("message_texts", {
   id: uuid("id")
     .primaryKey()
@@ -81,6 +88,127 @@ export const messageTexts = pgTable("message_texts", {
     .notNull()
     .references(() => chats.id, { onDelete: "cascade" }),
   text: text("text").notNull(),
+  providerMetadata: jsonb("provider_metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const messageReasoning = pgTable("message_reasoning", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuid_generate_v7()`),
+  messageId: uuid("message_id")
+    .notNull()
+    .references(() => messages.id, { onDelete: "cascade" }),
+  chatId: uuid("chat_id")
+    .notNull()
+    .references(() => chats.id, { onDelete: "cascade" }),
+  text: text("text").notNull(),
+  providerMetadata: jsonb("provider_metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const messageTools = pgTable("message_tools", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuid_generate_v7()`),
+  messageId: uuid("message_id")
+    .notNull()
+    .references(() => messages.id, { onDelete: "cascade" }),
+  chatId: uuid("chat_id")
+    .notNull()
+    .references(() => chats.id, { onDelete: "cascade" }),
+  title: text("title"),
+  toolCallId: text("tool_call_id").notNull(),
+  providerExecuted: boolean("provider_executed").notNull().default(false),
+  errorText: text("error_text"),
+  input: jsonb("input").notNull(),
+  output: jsonb("output"),
+  // Must match TOOL_TYPES from tools.ts
+  toolType: text("tool_type", {
+    enum: ["tool-countCharacters"],
+  }).notNull(),
+  state: text("state", {
+    enum: ["output-available", "output-error", "output-denied"],
+  })
+    .notNull()
+    .default("output-available"),
+  callProviderMetadata: jsonb("call_provider_metadata"),
+  approvalId: text("approval_id"),
+  approvalReason: text("approval_reason"),
+  approved: boolean("approved"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const messageSourceUrls = pgTable("message_source_urls", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuid_generate_v7()`),
+  messageId: uuid("message_id")
+    .notNull()
+    .references(() => messages.id, { onDelete: "cascade" }),
+  chatId: uuid("chat_id")
+    .notNull()
+    .references(() => chats.id, { onDelete: "cascade" }),
+  sourceId: text("source_id").notNull(),
+  url: text("url").notNull(),
+  title: text("title"),
+  providerMetadata: jsonb("provider_metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const messageData = pgTable("message_data", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuid_generate_v7()`),
+  messageId: uuid("message_id")
+    .notNull()
+    .references(() => messages.id, { onDelete: "cascade" }),
+  chatId: uuid("chat_id")
+    .notNull()
+    .references(() => chats.id, { onDelete: "cascade" }),
+  dataType: text("data_type").notNull(), // data-weather, data-news, etc.
+  data: jsonb("data").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const messageFiles = pgTable("message_files", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuid_generate_v7()`),
+  messageId: uuid("message_id")
+    .notNull()
+    .references(() => messages.id, { onDelete: "cascade" }),
+  chatId: uuid("chat_id")
+    .notNull()
+    .references(() => chats.id, { onDelete: "cascade" }),
+  mediaType: text("media_type").notNull(), // IANA media type (e.g., image/png, application/pdf)
+  filename: text("filename"), // Optional filename
+  url: text("url").notNull(), // Data URL or regular URL
+  providerMetadata: jsonb("provider_metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const messageSourceDocuments = pgTable("message_source_documents", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuid_generate_v7()`),
+  messageId: uuid("message_id")
+    .notNull()
+    .references(() => messages.id, { onDelete: "cascade" }),
+  chatId: uuid("chat_id")
+    .notNull()
+    .references(() => chats.id, { onDelete: "cascade" }),
+  sourceId: text("source_id").notNull(),
+  mediaType: text("media_type").notNull(), // IANA media type
+  title: text("title").notNull(),
+  filename: text("filename"), // Optional filename
+  providerMetadata: jsonb("provider_metadata"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -90,8 +218,22 @@ export type Chat = typeof chats.$inferSelect;
 export type NewChat = typeof chats.$inferInsert;
 export type Message = typeof messages.$inferSelect;
 export type NewMessage = typeof messages.$inferInsert;
+
 export type MessageText = typeof messageTexts.$inferSelect;
 export type NewMessageText = typeof messageTexts.$inferInsert;
+export type MessageReasoning = typeof messageReasoning.$inferSelect;
+export type NewMessageReasoning = typeof messageReasoning.$inferInsert;
+export type MessageTool = typeof messageTools.$inferSelect;
+export type NewMessageTool = typeof messageTools.$inferInsert;
+export type MessageSourceUrl = typeof messageSourceUrls.$inferSelect;
+export type NewMessageSourceUrl = typeof messageSourceUrls.$inferInsert;
+export type MessageData = typeof messageData.$inferSelect;
+export type NewMessageData = typeof messageData.$inferInsert;
+export type MessageFile = typeof messageFiles.$inferSelect;
+export type NewMessageFile = typeof messageFiles.$inferInsert;
+export type MessageSourceDocument = typeof messageSourceDocuments.$inferSelect;
+export type NewMessageSourceDocument =
+  typeof messageSourceDocuments.$inferInsert;
 ```
 
 Then re-export from the main schema file:
@@ -101,11 +243,66 @@ Then re-export from the main schema file:
 export * from "./schemas/chat";
 ```
 
+### Drizzle Config
+
+Create the Drizzle configuration file:
+
+```typescript
+// drizzle.config.ts
+import { defineConfig } from "drizzle-kit";
+
+export default defineConfig({
+  schema: "./src/lib/db/schema.ts",
+  out: "./migrations",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL!,
+  },
+});
+```
+
+### UUID v7 Postgres Function
+
+The schema uses `uuid_generate_v7()` for default IDs. You have two options:
+
+**Option 1: Use the `pg_uuidv7` extension**
+
+```sql
+CREATE EXTENSION IF NOT EXISTS pg_uuidv7;
+```
+
+**Option 2: PostgreSQL 18+**
+
+PostgreSQL 18 includes native UUID v7 support via `uuidv7()`. Update your schema to use `uuidv7()` instead of `uuid_generate_v7()`.
+
 Run the migration to create your tables:
 
 ```bash
 npx drizzle-kit generate
 npx drizzle-kit migrate
+```
+
+## Assert Helper
+
+A simple assertion utility used throughout:
+
+```typescript
+// src/lib/common/assert.ts
+const prefix: string = "Assertion failed";
+
+export default function assert(
+  condition: any,
+  message?: string | (() => string),
+): asserts condition {
+  if (condition) {
+    return;
+  }
+
+  const provided: string | undefined =
+    typeof message === "function" ? message() : message;
+  const value: string = provided ? `${prefix}: ${provided}` : prefix;
+  throw new Error(value);
+}
 ```
 
 ## Database Client
@@ -135,37 +332,151 @@ const db = drizzle({ client: pool, schema });
 export { db };
 ```
 
+## Chat Types
+
+Define types for your chat agent that extend the AI SDK's base types with your tools and data parts:
+
+```typescript
+// src/lib/chat/types.ts
+import type { UIMessage, UIMessagePart, InferUITools } from "ai";
+import { z } from "zod";
+import { allTools } from "@/lib/ai/tools";
+
+const metadataSchema = z.object({});
+type ChatMetadata = z.infer<typeof metadataSchema>;
+
+// Data parts allow streaming custom structured data to the client.
+// This example defines a "progress" data part for status updates.
+// Use dataStream.writeData({ type: "data-progress", data: { text: "..." } })
+// in your API route to stream progress updates during long operations.
+const dataPartSchema = z.object({
+  progress: z.object({
+    text: z.string(),
+  }),
+});
+export type ChatDataPart = z.infer<typeof dataPartSchema>;
+
+export type ChatToolSet = InferUITools<typeof allTools>;
+
+export type ChatAgentUIMessage = UIMessage<
+  ChatMetadata,
+  ChatDataPart,
+  ChatToolSet
+>;
+export type ChatUIMessagePart = UIMessagePart<ChatDataPart, ChatToolSet>;
+
+export type ChatTextPart = Extract<ChatUIMessagePart, { type: "text" }>;
+export type ChatReasoningPart = Extract<
+  ChatUIMessagePart,
+  { type: "reasoning" }
+>;
+export type ChatSourceUrlPart = Extract<
+  ChatUIMessagePart,
+  { type: "source-url" }
+>;
+export type ChatToolPart = Extract<
+  ChatUIMessagePart,
+  { type: `tool-${string}` }
+>;
+export type ChatDataProgressPart = Extract<
+  ChatUIMessagePart,
+  { type: "data-progress" }
+>;
+export type ChatFilePart = Extract<ChatUIMessagePart, { type: "file" }>;
+
+export function isToolPart(part: ChatUIMessagePart): part is ChatToolPart {
+  return part.type.startsWith("tool-");
+}
+
+export function isDataProgressPart(
+  part: ChatUIMessagePart,
+): part is ChatDataProgressPart {
+  return part.type === "data-progress";
+}
+```
+
+### Tool Definitions
+
+Define your tools with their schemas. This example creates a tweet drafting assistant:
+
+```typescript
+// src/lib/ai/tools.ts
+import { tool } from "ai";
+import { z } from "zod";
+
+export const allTools = {
+  countCharacters: tool({
+    description:
+      "Count the number of characters in a text. Use this to verify tweet length before finalizing.",
+    inputSchema: z.object({
+      text: z.string().describe("The text to count characters for"),
+    }),
+    execute: async ({ text }) => {
+      const count = text.length;
+      const remaining = 280 - count;
+      return {
+        characterCount: count,
+        remainingCharacters: remaining,
+        isWithinLimit: count <= 280,
+        status:
+          count <= 280
+            ? `${count}/280 characters (${remaining} remaining)`
+            : `${count}/280 characters (${Math.abs(remaining)} over limit)`,
+      };
+    },
+  }),
+};
+
+// Tool type names for database schema - must match keys in allTools as "tool-{key}"
+export const TOOL_TYPES = ["tool-countCharacters"] as const;
+
+export type ToolType = (typeof TOOL_TYPES)[number];
+```
+
+The `TOOL_TYPES` array must match your tool keys prefixed with `tool-` for the database schema's enum constraint on the `messageTools` table.
+
 ## Query Helpers
 
 Create helper functions to persist and retrieve messages:
 
 ```typescript
 // src/lib/db/queries/chat.ts
+import { TOOL_TYPES, type ToolType } from "@/lib/ai/tools";
+import {
+  isToolPart,
+  type ChatAgentUIMessage,
+  type ChatToolPart,
+} from "@/lib/chat/types";
 import { db } from "@/lib/db/client";
 import {
   chats,
   messages,
   messageTexts,
+  messageReasoning,
+  messageTools,
+  messageSourceUrls,
+  messageData,
+  messageFiles,
+  messageSourceDocuments,
+  type NewMessageText,
+  type NewMessageReasoning,
+  type NewMessageTool,
+  type NewMessageSourceUrl,
+  type NewMessageData,
+  type NewMessageFile,
+  type NewMessageSourceDocument,
   type Message,
   type MessageText,
+  type MessageReasoning,
+  type MessageTool,
+  type MessageSourceUrl,
+  type MessageData,
+  type MessageFile,
+  type MessageSourceDocument,
 } from "@/lib/db/schema";
-import type { UIMessage } from "ai";
-import { eq } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
-
-// ============================================================================
-// Types
-// ============================================================================
-
-type MessagePart = { type: "text" } & MessageText;
-
-export type MessageWithParts = Message & {
-  parts: MessagePart[];
-};
-
-// ============================================================================
-// Chat Operations
-// ============================================================================
+import assert from "@/lib/common/assert";
+import { eq } from "drizzle-orm";
 
 /**
  * Ensure a chat exists, creating it if necessary.
@@ -180,82 +491,346 @@ export async function ensureChatExists(chatId: string): Promise<void> {
   }
 }
 
-// ============================================================================
-// Message Persistence
-// ============================================================================
+function parseMetadata(metadata: unknown): any {
+  if (!metadata) return undefined;
+  if (typeof metadata !== "object") return undefined;
+  if (Object.keys(metadata).length === 0) return undefined;
+  return metadata;
+}
+
+export function convertDbMessagesToUIMessages(
+  messageHistory: MessageWithParts[],
+): ChatAgentUIMessage[] {
+  return messageHistory.map((msg) => {
+    const uiParts: ChatAgentUIMessage["parts"] = [];
+    uiParts.push({
+      type: "step-start",
+    });
+
+    for (const part of msg.parts) {
+      let uiPart: ChatAgentUIMessage["parts"][0];
+      switch (part.type) {
+        case "text":
+          uiPart = {
+            type: "text",
+            text: part.text,
+            state: "done",
+            providerMetadata: parseMetadata(part.providerMetadata),
+          };
+          break;
+        case "tool":
+          // Cast needed: TS can't narrow discriminated union from runtime string
+          if (part.state === "output-available") {
+            uiPart = {
+              type: part.toolType,
+              toolCallId: part.toolCallId,
+              state: "output-available",
+              input: part.input,
+              output: part.output,
+              callProviderMetadata: parseMetadata(part.callProviderMetadata),
+            } as ChatToolPart;
+          } else if (part.state === "output-error") {
+            assert(part.errorText !== null, "Error text is required");
+            uiPart = {
+              type: part.toolType,
+              toolCallId: part.toolCallId,
+              state: "output-error",
+              errorText: part.errorText ?? "",
+              input: part.input,
+              callProviderMetadata: parseMetadata(part.callProviderMetadata),
+            } as ChatToolPart;
+          } else if (part.state === "output-denied") {
+            assert(part.approvalId !== null, "Approval ID is required");
+            uiPart = {
+              type: part.toolType,
+              toolCallId: part.toolCallId,
+              state: "output-denied",
+              approval: {
+                id: part.approvalId,
+                approved: false,
+                reason: part.approvalReason || "",
+              },
+              input: part.input,
+              callProviderMetadata: parseMetadata(part.callProviderMetadata),
+            } as ChatToolPart;
+          } else {
+            throw new Error(`Unknown part state ${part.state}`);
+          }
+          break;
+        case "reasoning":
+          uiPart = {
+            type: "reasoning",
+            text: part.text,
+            providerMetadata: parseMetadata(part.providerMetadata),
+          };
+          break;
+        case "source-url":
+          uiPart = {
+            type: "source-url",
+            sourceId: part.sourceId,
+            url: part.url,
+            title: part.title ?? undefined,
+            providerMetadata: parseMetadata(part.providerMetadata),
+          };
+          break;
+        case "data": {
+          if (part.dataType === "data-progress") {
+            uiPart = {
+              type: "data-progress",
+              data: part.data as { text: string },
+            };
+          } else {
+            throw new Error(`Unknown data type: ${part.dataType}`);
+          }
+          break;
+        }
+        case "file":
+          uiPart = {
+            type: "file",
+            mediaType: part.mediaType,
+            url: part.url,
+            filename: part.filename ?? undefined,
+            providerMetadata: parseMetadata(part.providerMetadata),
+          };
+          break;
+        case "source-document":
+          uiPart = {
+            type: "source-document",
+            sourceId: part.sourceId,
+            mediaType: part.mediaType,
+            title: part.title,
+            filename: part.filename ?? undefined,
+            providerMetadata: parseMetadata(part.providerMetadata),
+          };
+          break;
+        default:
+          throw new Error(`Unknown part ${JSON.stringify(part)}`);
+      }
+      uiParts.push(uiPart);
+    }
+
+    return {
+      id: msg.id,
+      role: msg.role,
+      parts: uiParts,
+    };
+  });
+}
 
 /**
- * Persist a message with its text parts to the database.
- * Uses UUID v7 for part IDs to maintain chronological ordering.
+ * Pre-generates UUID v7 IDs to maintain insertion order (parts sorted by ID).
  */
-export async function persistMessage({
-  chatId,
-  message,
-}: {
-  chatId: string;
-  message: UIMessage;
-}): Promise<void> {
-  // Insert message record
-  const [{ messageId }] = await db
-    .insert(messages)
-    .values({
-      id: message.id || uuidv7(),
-      chatId,
-      role: message.role,
-    })
-    .returning({ messageId: messages.id });
+export async function insertMessageParts(
+  chatId: string,
+  messageId: string,
+  parts: ChatAgentUIMessage["parts"],
+) {
+  const textInserts: Array<NewMessageText> = [];
+  const reasoningInserts: Array<NewMessageReasoning> = [];
+  const toolInserts: Array<NewMessageTool> = [];
+  const sourceUrlInserts: Array<NewMessageSourceUrl> = [];
+  const dataInserts: Array<NewMessageData> = [];
+  const fileInserts: Array<NewMessageFile> = [];
+  const sourceDocumentInserts: Array<NewMessageSourceDocument> = [];
 
-  // Extract and insert text parts
-  const textParts = message.parts.filter(
-    (part): part is Extract<typeof part, { type: "text" }> =>
-      part.type === "text",
-  );
+  for (const part of parts) {
+    if (part.type === "step-start") {
+      continue;
+    }
 
-  if (textParts.length > 0) {
-    await db.insert(messageTexts).values(
-      textParts.map((part) => ({
-        id: uuidv7(), // UUID v7 ensures chronological order
+    if (part.type === "text" && "text" in part && part.text.trim()) {
+      textInserts.push({
+        id: uuidv7(),
         messageId,
         chatId,
         text: part.text,
-      })),
+        providerMetadata: part.providerMetadata,
+      });
+    } else if (
+      part.type === "reasoning" &&
+      "text" in part &&
+      part.text.trim()
+    ) {
+      reasoningInserts.push({
+        id: uuidv7(),
+        messageId,
+        chatId,
+        text: part.text,
+        providerMetadata: part.providerMetadata,
+      });
+    } else if (isToolPart(part)) {
+      assert(
+        TOOL_TYPES.includes(part.type as ToolType),
+        `Invalid tool type: ${part.type}. Valid types: ${TOOL_TYPES.join(", ")}`,
+      );
+      if (part.state === "output-available") {
+        toolInserts.push({
+          id: uuidv7(),
+          messageId,
+          chatId,
+          input: part.input,
+          toolCallId: part.toolCallId,
+          toolType: part.type,
+          callProviderMetadata: part.callProviderMetadata,
+          title: part.title,
+          providerExecuted: part.providerExecuted,
+          output: part.output,
+          state: "output-available",
+        });
+      } else if (part.state === "output-error") {
+        toolInserts.push({
+          id: uuidv7(),
+          messageId,
+          chatId,
+          input: part.input,
+          toolCallId: part.toolCallId,
+          toolType: part.type,
+          callProviderMetadata: part.callProviderMetadata,
+          title: part.title,
+          providerExecuted: part.providerExecuted,
+          errorText: part.errorText,
+          state: "output-error",
+        });
+      } else if (part.state === "output-denied") {
+        assert(!!part.approval?.id, "Approval ID is required");
+        toolInserts.push({
+          id: uuidv7(),
+          messageId,
+          chatId,
+          input: part.input,
+          toolCallId: part.toolCallId,
+          toolType: part.type,
+          callProviderMetadata: part.callProviderMetadata,
+          title: part.title,
+          providerExecuted: part.providerExecuted,
+          state: "output-denied",
+          approvalId: part.approval?.id,
+          approvalReason: part.approval?.reason,
+          approved: false,
+        });
+      }
+    } else if (part.type === "source-url") {
+      sourceUrlInserts.push({
+        id: uuidv7(),
+        messageId,
+        chatId,
+        sourceId: part.sourceId,
+        url: part.url,
+        title: part.title,
+        providerMetadata: part.providerMetadata,
+      });
+    } else if (part.type.startsWith("data-")) {
+      if (part.type === "data-progress") {
+        dataInserts.push({
+          id: uuidv7(),
+          messageId,
+          chatId,
+          dataType: part.type,
+          data: part.data,
+        });
+      } else {
+        throw new Error(`Unknown data type ${part.type}`);
+      }
+    } else if (part.type === "file") {
+      fileInserts.push({
+        id: uuidv7(),
+        messageId,
+        chatId,
+        mediaType: part.mediaType,
+        filename: part.filename ?? null,
+        url: part.url,
+        providerMetadata: part.providerMetadata ?? null,
+      });
+    } else if (part.type === "source-document") {
+      sourceDocumentInserts.push({
+        id: uuidv7(),
+        messageId,
+        chatId,
+        sourceId: part.sourceId,
+        mediaType: part.mediaType,
+        title: part.title,
+        filename: part.filename ?? null,
+        providerMetadata: part.providerMetadata ?? null,
+      });
+    }
+  }
+
+  const insertPromises = [];
+
+  if (textInserts.length > 0) {
+    insertPromises.push(db.insert(messageTexts).values(textInserts));
+  }
+  if (reasoningInserts.length > 0) {
+    insertPromises.push(db.insert(messageReasoning).values(reasoningInserts));
+  }
+  if (toolInserts.length > 0) {
+    insertPromises.push(db.insert(messageTools).values(toolInserts));
+  }
+  if (sourceUrlInserts.length > 0) {
+    insertPromises.push(db.insert(messageSourceUrls).values(sourceUrlInserts));
+  }
+  if (dataInserts.length > 0) {
+    insertPromises.push(db.insert(messageData).values(dataInserts));
+  }
+  if (fileInserts.length > 0) {
+    insertPromises.push(db.insert(messageFiles).values(fileInserts));
+  }
+  if (sourceDocumentInserts.length > 0) {
+    insertPromises.push(
+      db.insert(messageSourceDocuments).values(sourceDocumentInserts),
     );
+  }
+
+  if (insertPromises.length > 0) {
+    await Promise.all(insertPromises);
   }
 }
 
-/**
- * Persist a user message to the database.
- */
-export async function persistUserMessage(
-  chatId: string,
-  message: UIMessage,
-): Promise<void> {
-  await persistMessage({ chatId, message });
+export async function persistMessage({
+  chatId,
+  message: uiMessage,
+}: {
+  chatId: string;
+  message: ChatAgentUIMessage;
+}) {
+  const [{ messageId }] = await db
+    .insert(messages)
+    .values({
+      id: uiMessage.id || undefined,
+      chatId,
+      role: uiMessage.role,
+    })
+    .returning({ messageId: messages.id });
+
+  await insertMessageParts(chatId, messageId, uiMessage.parts);
 }
 
-/**
- * Persist an assistant message to the database.
- */
-export async function persistAssistantMessage(
-  chatId: string,
-  message: UIMessage,
-): Promise<void> {
-  await persistMessage({ chatId, message });
-}
+type MessagePart =
+  | ({ type: "text" } & MessageText)
+  | ({ type: "reasoning" } & MessageReasoning)
+  | ({ type: "tool" } & MessageTool)
+  | ({ type: "source-url" } & MessageSourceUrl)
+  | ({ type: "data" } & MessageData)
+  | ({ type: "file" } & MessageFile)
+  | ({ type: "source-document" } & MessageSourceDocument);
 
-// ============================================================================
-// Message Retrieval
-// ============================================================================
+export type MessageWithParts = Message & {
+  parts: MessagePart[];
+};
 
-/**
- * Get all messages for a chat with their text parts.
- * Parts are sorted by UUID v7 ID to maintain chronological order.
- */
 export async function getChatMessages(
   chatId: string,
 ): Promise<MessageWithParts[]> {
-  // Fetch messages and text parts in parallel
-  const [messagesData, textsData] = await Promise.all([
+  const [
+    messagesData,
+    textsData,
+    reasoningData,
+    toolsData,
+    sourceUrlsData,
+    dataData,
+    filesData,
+    sourceDocumentsData,
+  ] = await Promise.all([
     db.query.messages.findMany({
       where: eq(messages.chatId, chatId),
       orderBy: (messages, { asc }) => [asc(messages.createdAt)],
@@ -263,21 +838,56 @@ export async function getChatMessages(
     db.query.messageTexts.findMany({
       where: eq(messageTexts.chatId, chatId),
     }),
+    db.query.messageReasoning.findMany({
+      where: eq(messageReasoning.chatId, chatId),
+    }),
+    db.query.messageTools.findMany({
+      where: eq(messageTools.chatId, chatId),
+    }),
+    db.query.messageSourceUrls.findMany({
+      where: eq(messageSourceUrls.chatId, chatId),
+    }),
+    db.query.messageData.findMany({
+      where: eq(messageData.chatId, chatId),
+    }),
+    db.query.messageFiles.findMany({
+      where: eq(messageFiles.chatId, chatId),
+    }),
+    db.query.messageSourceDocuments.findMany({
+      where: eq(messageSourceDocuments.chatId, chatId),
+    }),
   ]);
 
-  // Group parts by messageId
   const partsMap = new Map<string, MessagePart[]>();
 
-  for (const text of textsData) {
-    const existing = partsMap.get(text.messageId) || [];
-    existing.push({ ...text, type: "text" as const });
-    partsMap.set(text.messageId, existing);
+  function addToMap<T extends { messageId: string }>(
+    parts: T[],
+    transform: (part: T) => MessagePart,
+  ) {
+    for (const part of parts) {
+      const existing = partsMap.get(part.messageId) || [];
+      existing.push(transform(part));
+      partsMap.set(part.messageId, existing);
+    }
   }
 
-  // Assemble messages with their parts
+  addToMap(textsData, (part) => ({ ...part, type: "text" as const }));
+  addToMap(reasoningData, (part) => ({ ...part, type: "reasoning" as const }));
+  addToMap(toolsData, (part) => ({ ...part, type: "tool" as const }));
+  addToMap(sourceUrlsData, (part) => ({
+    ...part,
+    type: "source-url" as const,
+  }));
+  addToMap(dataData, (part) => ({ ...part, type: "data" as const }));
+  addToMap(filesData, (part) => ({ ...part, type: "file" as const }));
+  addToMap(sourceDocumentsData, (part) => ({
+    ...part,
+    type: "source-document" as const,
+  }));
+
   return messagesData.map((message) => {
     const parts = partsMap.get(message.id) || [];
-    // UUID v7 IDs are chronologically ordered - sort by ID for insertion order
+    // UUID v7 IDs are chronologically ordered
     parts.sort((a, b) => a.id.localeCompare(b.id));
 
     return {
@@ -285,26 +895,6 @@ export async function getChatMessages(
       parts,
     };
   });
-}
-
-// ============================================================================
-// Conversion Helpers
-// ============================================================================
-
-/**
- * Convert database messages to AI SDK UIMessage format.
- */
-export function convertDbMessagesToUIMessages(
-  messageHistory: MessageWithParts[],
-): UIMessage[] {
-  return messageHistory.map((msg) => ({
-    id: msg.id,
-    role: msg.role as "user" | "assistant" | "system",
-    parts: msg.parts.map((part) => ({
-      type: "text" as const,
-      text: part.text,
-    })),
-  }));
 }
 ```
 
@@ -314,43 +904,55 @@ Update your chat API route to persist messages using `onFinish`:
 
 ```typescript
 // src/app/api/chats/[chatId]/route.ts
-import { streamText, convertToModelMessages, type UIMessage } from "ai";
+import { streamText, convertToModelMessages, stepCountIs } from "ai";
+import type { ChatAgentUIMessage } from "@/lib/chat/types";
+import { allTools } from "@/lib/ai/tools";
 import {
-  persistUserMessage,
-  persistAssistantMessage,
   ensureChatExists,
+  persistMessage,
   getChatMessages,
+  convertDbMessagesToUIMessages,
 } from "@/lib/db/queries/chat";
 
-export const maxDuration = 30;
+const systemPrompt = `You are a tweet drafting assistant. Your job is to help users craft engaging, impactful tweets that fit within the 280 character limit. You understand the nuances of Twitter/X culture, including effective use of hashtags, mentions, and hooks that capture attention.
+
+When drafting tweets, always use the countCharacters tool to verify the length before presenting a final draft. If a tweet is over the limit, proactively suggest shorter alternatives. Offer multiple variations when appropriate, and explain your reasoning for word choices and structure.`;
 
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ chatId: string }> },
 ) {
   const { chatId } = await params;
-  const { message }: { message: UIMessage } = await req.json();
+  const { message }: { message: ChatAgentUIMessage } = await req.json();
 
-  // Ensure chat exists
+  // Ensure chat exists before persisting messages
   await ensureChatExists(chatId);
 
   // Persist user message first
-  await persistUserMessage(chatId, message);
+  await persistMessage({ chatId, message });
 
   // Get full conversation history for context
-  const history = await getChatMessages(chatId);
+  const dbMessages = await getChatMessages(chatId);
+  const history = convertDbMessagesToUIMessages(dbMessages);
 
   const result = streamText({
-    model: "anthropic/claude-sonnet-4-20250514",
-    system: "You are a helpful assistant.",
+    // Vercel AI Gateway - requires AI_GATEWAY_API_KEY env var
+    model: "google/gemini-2.5-pro-preview-05-06",
+    system: systemPrompt,
     messages: convertToModelMessages(history),
-    onFinish: async ({ response }) => {
-      // Persist assistant response after streaming completes
-      await persistAssistantMessage(chatId, response.messages[0]);
-    },
+    tools: allTools,
+    stopWhen: stepCountIs(10),
   });
 
-  return result.toUIMessageStreamResponse();
+  return result.toUIMessageStreamResponse({
+    onFinish: async ({ responseMessage }) => {
+      // Persist assistant response after streaming completes
+      await persistMessage({
+        chatId,
+        message: responseMessage as ChatAgentUIMessage,
+      });
+    },
+  });
 }
 ```
 
@@ -363,7 +965,6 @@ Create a chat component that includes the `chatId` in requests:
 import { Chat } from "@/components/chat";
 import {
   getChatMessages,
-  ensureChatExists,
   convertDbMessagesToUIMessages,
 } from "@/lib/db/queries/chat";
 
@@ -373,9 +974,6 @@ interface PageProps {
 
 export default async function ChatPage({ params }: PageProps) {
   const { chatId } = await params;
-
-  // Ensure chat exists
-  await ensureChatExists(chatId);
 
   // Load existing messages and convert to UI format
   const dbMessages = await getChatMessages(chatId);
@@ -392,21 +990,26 @@ export default async function ChatPage({ params }: PageProps) {
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useState } from "react";
-import type { UIMessage } from "ai";
+import { v7 as uuidv7 } from "uuid";
+import type { ChatAgentUIMessage } from "@/lib/chat/types";
 
 interface ChatProps {
   chatId: string;
-  initialMessages: UIMessage[];
+  initialMessages: ChatAgentUIMessage[];
 }
 
 export function Chat({ chatId, initialMessages }: ChatProps) {
   const { messages, sendMessage, status } = useChat({
+    id: chatId,
     messages: initialMessages,
+    generateId: () => uuidv7(),
     transport: new DefaultChatTransport({
       api: `/api/chats/${chatId}`,
       // Send only the latest message (server loads full history)
-      prepareRequestBody: ({ messages }) => ({
-        message: messages[messages.length - 1],
+      prepareSendMessagesRequest: ({ messages }) => ({
+        body: {
+          message: messages[messages.length - 1],
+        },
       }),
     }),
   });
@@ -486,7 +1089,7 @@ Every record uses UUID v7 as its primary key:
 
 ### Separate Tables for Message Parts
 
-Message content is stored in separate tables (`messageTexts`, etc.) rather than JSONB:
+Message content is stored in separate tables (`messageTexts`, `messageReasoning`, `messageTools`, `messageSourceUrls`, `messageData`, `messageFiles`, `messageSourceDocuments`) rather than JSONB:
 
 - Enables efficient queries for specific part types
 - Supports parallel insertion of different part types
@@ -502,9 +1105,4 @@ The API loads full history from the database rather than trusting client-sent me
 
 ## Next Steps
 
-- Add message reasoning/thinking persistence
-- Add tool call persistence
-- Add file attachment support
-- Add source URL persistence for grounded responses
 - Implement chat list and navigation
-- See [Resumable Workflows](./resumable-workflows.md) for advanced workflow patterns

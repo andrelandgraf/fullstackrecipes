@@ -1,6 +1,6 @@
 # Template - Neon Agent Workflow Persistence
 
-Persist AI SDK messages to your Neon database.
+Persist AI SDK chats and messages to your Neon database.
 
 ## Stack
 
@@ -100,15 +100,7 @@ Follow the [Drizzle Postgres setup guide](https://orm.drizzle.team/docs/get-star
 
 Optionally, configure the Neon MCP server by following the instructions in the [MCP server README](https://github.com/neondatabase/mcp-server-neon) or by running `bunx neonctl@latest init`.
 
-4. Set up Workflow Development Kit
-
-```bash
-bun add workflow
-```
-
-Refer to the [Getting started on Next.js guide](https://useworkflow.dev/docs/getting-started/next) for setup instructions.
-
-5. Install AI SDK and AI Elements
+4. Install AI SDK and AI Elements
 
 Install [AI SDK v6](https://v6.ai-sdk.dev/docs/introduction):
 
@@ -116,3 +108,81 @@ Install [AI SDK v6](https://v6.ai-sdk.dev/docs/introduction):
 bun add ai@beta @ai-sdk/react@beta
 bunx shadcn@latest add @ai-elements/all
 ```
+
+5. Create a simple chat route
+
+Create the API route:
+
+```typescript
+// src/app/api/chat/route.ts
+import { convertToModelMessages, streamText, UIMessage } from "ai";
+
+export const maxDuration = 30;
+
+export async function POST(req: Request) {
+  const { messages }: { messages: UIMessage[] } = await req.json();
+
+  const result = streamText({
+    model: "anthropic/claude-sonnet-4.5",
+    system: "You are a helpful assistant.",
+    messages: convertToModelMessages(messages),
+  });
+
+  return result.toUIMessageStreamResponse();
+}
+```
+
+Create the chat page:
+
+```tsx
+// src/app/page.tsx
+"use client";
+
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
+import { useState } from "react";
+
+export default function Page() {
+  const { messages, sendMessage, status } = useChat({
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+    }),
+  });
+  const [input, setInput] = useState("");
+
+  return (
+    <>
+      {messages.map((message) => (
+        <div key={message.id}>
+          {message.role === "user" ? "User: " : "AI: "}
+          {message.parts.map((part, index) =>
+            part.type === "text" ? <span key={index}>{part.text}</span> : null,
+          )}
+        </div>
+      ))}
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (input.trim()) {
+            sendMessage({ text: input });
+            setInput("");
+          }
+        }}
+      >
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          disabled={status !== "ready"}
+          placeholder="Say something..."
+        />
+        <button type="submit" disabled={status !== "ready"}>
+          Send
+        </button>
+      </form>
+    </>
+  );
+}
+```
+
+For status handling, error states, and more, see the [AI SDK chat docs](https://ai-sdk.dev/docs/ai-sdk-ui/chatbot).

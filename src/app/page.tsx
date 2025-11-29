@@ -1,8 +1,17 @@
-import { redirect } from "next/navigation";
-import { v7 as uuidv7 } from "uuid";
+import { Header } from "@/components/home/header";
+import { Hero } from "@/components/home/hero";
+import { RecipeGrid } from "@/components/recipes/grid";
+import { Footer } from "@/components/home/footer";
 
 export default function Home() {
-  // Generate a new chat ID and redirect to it
-  const newChatId = uuidv7();
-  redirect(`/${newChatId}`);
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main>
+        <Hero />
+        <RecipeGrid />
+      </main>
+      <Footer />
+    </div>
+  );
 }
