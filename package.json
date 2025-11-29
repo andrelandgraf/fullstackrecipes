@@ -1,7 +1,16 @@
 {
-  "name": "s2-ai-chat",
-  "version": "0.1.0",
-  "private": true,
+  "name": "fullstackrecipes",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Andre Landgraf <andre.timo.landgraf@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andrelandgraf/fullstackrecipes"
+  },
+  "homepage": "https://fullstackrecipes.com",
+  "bugs": {
+    "url": "https://github.com/andrelandgraf/fullstackrecipes/issues"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,6 +28,7 @@
     "@ai-sdk/openai": "^3.0.0-beta.66",
     "@ai-sdk/react": "^3.0.0-beta.102",
     "@hookform/resolvers": "^5.2.2",
+    "@markdoc/markdoc": "^0.5.4",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.8",

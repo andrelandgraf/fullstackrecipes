@@ -1,1 +1,1 @@
-export * from "./schemas/chat";
+export * from "@/lib/chat/schema";

@@ -2,10 +2,10 @@ import { SimpleChat } from "@/components/chat/chat";
 import {
   convertDbMessagesToUIMessages,
   getChatMessages,
-} from "@/lib/db/queries/chat";
+} from "@/lib/chat/queries";
+import { chats } from "@/lib/chat/schema";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { chats } from "@/lib/db/schema";
 
 interface PageProps {
   params: Promise<{

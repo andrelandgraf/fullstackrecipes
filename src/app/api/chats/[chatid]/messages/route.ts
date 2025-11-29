@@ -1,5 +1,5 @@
 import { db } from "@/lib/db/client";
-import { chats } from "@/lib/db/schema";
+import { chats } from "@/lib/chat/schema";
 import { chatWorkflow } from "@/workflows/chat";
 import { eq } from "drizzle-orm";
 import { start } from "workflow/api";

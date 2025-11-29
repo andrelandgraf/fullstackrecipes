@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock, type LucideIcon } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 import Link from "next/link";
 
 interface RecipeCardProps {
@@ -10,8 +10,6 @@ interface RecipeCardProps {
   description: string;
   icon: LucideIcon;
   tags: string[];
-  difficulty: string;
-  time: string;
   slug?: string;
 }
 
@@ -20,29 +18,14 @@ export function RecipeCard({
   description,
   icon: Icon,
   tags,
-  difficulty,
-  time,
   slug,
 }: RecipeCardProps) {
-  const difficultyColor = {
-    Beginner: "text-primary",
-    Intermediate: "text-accent",
-    Advanced: "text-chart-4",
-  }[difficulty];
-
   const cardContent = (
     <Card className="group cursor-pointer border-border/50 bg-card transition-all duration-300 hover:border-primary/50 hover:bg-secondary/50">
       <CardContent className="p-6">
         <div className="mb-4 flex items-start justify-between">
           <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
             <Icon className="h-6 w-6 text-primary" />
-          </div>
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <span className={difficultyColor}>{difficulty}</span>
-            <span className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
-              {time}
-            </span>
           </div>
         </div>
 

@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Copy } from "lucide-react";
+import { ArrowRight, Copy, Layers } from "lucide-react";
+import Link from "next/link";
+import { recipes } from "@/lib/recipes/data";
 
 export function Hero() {
   return (
@@ -14,7 +16,7 @@ export function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
             </span>
-            Now with 4 production-ready recipes
+            Now with {recipes.length} production-ready recipes
           </div>
 
           <h1 className="mb-6 text-balance text-4xl font-bold tracking-tight md:text-6xl">
@@ -28,32 +30,44 @@ export function Hero() {
           </p>
 
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button size="lg" className="gap-2 font-medium">
-              Browse Recipes
-              <ArrowRight className="h-4 w-4" />
+            <Button asChild size="lg" className="gap-2 font-medium">
+              <a href="#recipes">
+                Browse Recipes
+                <ArrowRight className="h-4 w-4" />
+              </a>
             </Button>
 
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 font-mono text-sm">
-              <span className="text-muted-foreground">$</span>
-              <code>npx create-next-app@latest</code>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-muted-foreground hover:text-foreground"
-              >
-                <Copy className="h-3.5 w-3.5" />
-              </Button>
-            </div>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="gap-2 font-medium"
+            >
+              <Link href="/philosophy">
+                <Layers className="h-4 w-4" />
+                Philosophy
+              </Link>
+            </Button>
           </div>
         </div>
 
         {/* Tech logos */}
         <div className="mt-20 border-t border-border/50 pt-10">
           <p className="mb-6 text-center text-sm text-muted-foreground">
-            Works with your favorite stack
+            Purpose-built for
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8 opacity-60">
-            {["Next.js", "React", "Vercel", "Neon", "Stripe"].map((tech) => (
+            {[
+              "Next.js",
+              "React",
+              "TypeScript",
+              "Vercel",
+              "Neon",
+              "Stripe",
+              "AI SDK",
+              "Workflow Development Kit",
+              "Bun",
+            ].map((tech) => (
               <span key={tech} className="font-mono text-sm font-medium">
                 {tech}
               </span>

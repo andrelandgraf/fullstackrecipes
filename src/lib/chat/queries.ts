@@ -29,7 +29,7 @@ import {
   type MessageData,
   type MessageFile,
   type MessageSourceDocument,
-} from "@/lib/db/schema";
+} from "./schema";
 import { v7 as uuidv7 } from "uuid";
 import assert from "@/lib/common/assert";
 import { eq } from "drizzle-orm";

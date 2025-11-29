@@ -1,7 +1,7 @@
 import { getWritable } from "workflow";
 import type { UIMessageChunk } from "ai";
 import type { ChatDataProgressPart } from "../types";
-import { insertMessageParts } from "@/lib/db/queries/chat";
+import { insertMessageParts } from "@/lib/chat/queries";
 
 /** Writes a progress update to both the stream and database. */
 export async function writeProgress(

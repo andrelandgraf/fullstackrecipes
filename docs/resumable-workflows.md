@@ -7,28 +7,6 @@ This guide shows how to build resumable AI chat workflows using the Workflow SDK
 - Completed [Setup](./setup.md) (includes Workflow SDK)
 - Completed [Chat Persistence](./chat-persistence.md)
 
-### Set up Workflow Development Kit
-
-1. Install the packages
-
-```bash
-bun add workflow @workflow/ai
-```
-
-2. Update `next.config.ts`
-
-```ts
-import type { NextConfig } from "next";
-import { withWorkflow } from "workflow/next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
-  reactCompiler: true,
-};
-
-export default withWorkflow(nextConfig);
-```
-
 ## Overview
 
 The workflow system provides:
@@ -51,6 +29,9 @@ src/
 │   ├── tools.ts       # Tool definitions
 │   ├── research.ts    # Research agent instance
 │   └── drafting.ts    # Drafting agent instance
+├── lib/chat/
+│   ├── queries.ts     # Database queries for messages
+│   └── schema.ts      # Drizzle schema for chat tables
 ├── workflows/chat/
 │   ├── index.ts       # Main workflow definition
 │   ├── types.ts       # Type definitions
@@ -68,9 +49,70 @@ src/
             └── route.ts          # Resume stream endpoint
 ```
 
+## Type Definitions
+
+Define types for your chat messages and parts:
+
+```typescript
+// src/workflows/chat/types.ts
+import type { UIMessage, UIMessagePart, InferUITools } from "ai";
+import { z } from "zod";
+import { allTools } from "@/lib/ai/tools";
+
+const metadataSchema = z.object({});
+type ChatMetadata = z.infer<typeof metadataSchema>;
+
+const dataPartSchema = z.object({
+  progress: z.object({
+    text: z.string(),
+  }),
+});
+export type ChatDataPart = z.infer<typeof dataPartSchema>;
+
+export type ChatToolSet = InferUITools<typeof allTools>;
+
+export type ChatAgentUIMessage = UIMessage<
+  ChatMetadata,
+  ChatDataPart,
+  ChatToolSet
+>;
+export type ChatUIMessagePart = UIMessagePart<ChatDataPart, ChatToolSet>;
+
+export type ChatTextPart = Extract<ChatUIMessagePart, { type: "text" }>;
+export type ChatReasoningPart = Extract<
+  ChatUIMessagePart,
+  { type: "reasoning" }
+>;
+export type ChatSourceUrlPart = Extract<
+  ChatUIMessagePart,
+  { type: "source-url" }
+>;
+export type ChatToolPart = Extract<
+  ChatUIMessagePart,
+  { type: `tool-${string}` }
+>;
+export type ChatDataProgressPart = Extract<
+  ChatUIMessagePart,
+  { type: "data-progress" }
+>;
+export type ChatFilePart = Extract<ChatUIMessagePart, { type: "file" }>;
+
+export function isToolPart(part: ChatUIMessagePart): part is ChatToolPart {
+  return part.type.startsWith("tool-");
+}
+
+export function isDataProgressPart(
+  part: ChatUIMessagePart,
+): part is ChatDataProgressPart {
+  return part.type === "data-progress";
+}
+```
+
 ## Agent Class
 
-The `Agent` class wraps `streamText` in a tool loop, executing steps until no more tool calls are needed:
+> **Alternative to DurableAgent**: This recipe uses a custom `Agent` class instead of the built-in [`DurableAgent`](https://useworkflow.dev/docs/api-reference/workflow-ai/durable-agent) from `@workflow/ai/agent`. The custom agent provides full access to `streamText` and `toUIMessageStream` options like `providerOptions`, `sendReasoning`, and `sendSources` that `DurableAgent` currently lacks. See [Custom Durable Agent](./custom-durable-agent.md) for a detailed comparison.
+
+The `Agent` class wraps `streamText` in a tool loop. Note that `"use step"` only works in standalone functions, so the step executor is separated from the class:
 
 ```typescript
 // src/lib/ai/agent.ts
@@ -83,29 +125,29 @@ import {
   type ModelMessage,
 } from "ai";
 import type { ProviderOptions } from "@ai-sdk/provider-utils";
+import { researchTools, draftingTools } from "./tools";
 
 type MessagePart = UIMessage["parts"][number];
 
 export type ToolsKey = "research" | "drafting";
 
-// Tool sets are referenced by key and resolved at runtime
 const toolSets = {
   research: researchTools,
   drafting: draftingTools,
 } as const;
-
-export interface StepOptions {
-  model: string;
-  system: string;
-  tools: ToolsKey;
-  providerOptions?: ProviderOptions;
-}
 
 export interface StreamOptions {
   sendStart?: boolean;
   sendFinish?: boolean;
   sendReasoning?: boolean;
   sendSources?: boolean;
+}
+
+export interface StepOptions {
+  model: string;
+  system: string;
+  tools: ToolsKey;
+  providerOptions?: ProviderOptions;
 }
 
 export interface AgentConfig {
@@ -123,6 +165,18 @@ export interface AgentRunResult {
   stepCount: number;
 }
 
+interface AgentStepResult {
+  shouldContinue: boolean;
+  responseMessage: UIMessage;
+  finishReason: FinishReason;
+}
+
+interface StepExecutorConfig {
+  stepOptions: StepOptions;
+  streamOptions?: StreamOptions;
+  writable?: WritableStream<UIMessageChunk>;
+}
+
 export class Agent {
   constructor(private config: AgentConfig) {}
 
@@ -132,13 +186,19 @@ export class Agent {
   ): Promise<AgentRunResult> {
     const { maxSteps = 20, writable } = runConfig;
 
-    let modelMessages = convertToModelMessages(history);
+    const stepConfig: StepExecutorConfig = {
+      stepOptions: this.config.stepOptions,
+      streamOptions: this.config.streamOptions,
+      writable,
+    };
+
+    let modelMessages: ModelMessage[] = convertToModelMessages(history);
     let stepCount = 0;
     let shouldContinue = true;
     let allParts: MessagePart[] = [];
 
     while (shouldContinue && stepCount < maxSteps) {
-      const result = await this.executeStep(modelMessages, writable);
+      const result = await executeAgentStep(modelMessages, stepConfig);
 
       allParts = [...allParts, ...result.responseMessage.parts];
       modelMessages = [
@@ -146,86 +206,92 @@ export class Agent {
         ...convertToModelMessages([result.responseMessage]),
       ];
 
-      shouldContinue = result.finishReason === "tool-calls";
+      shouldContinue = result.shouldContinue;
       stepCount++;
     }
 
     return { parts: allParts, stepCount };
   }
+}
 
-  private async executeStep(
-    messages: ModelMessage[],
-    writable?: WritableStream<UIMessageChunk>,
-  ) {
-    "use step";
+/**
+ * Step executor with "use step" directive.
+ * Separated from class because "use step" only works in standalone functions.
+ */
+async function executeAgentStep(
+  messages: ModelMessage[],
+  config: StepExecutorConfig,
+): Promise<AgentStepResult> {
+  "use step";
 
-    const tools = toolSets[this.config.stepOptions.tools];
+  const tools = toolSets[config.stepOptions.tools];
 
-    const resultStream = streamText({
-      model: this.config.stepOptions.model,
-      system: this.config.stepOptions.system,
-      tools,
-      messages,
-      providerOptions: this.config.stepOptions.providerOptions,
-    });
+  const resultStream = streamText({
+    model: config.stepOptions.model,
+    system: config.stepOptions.system,
+    tools,
+    messages,
+    providerOptions: config.stepOptions.providerOptions,
+  });
 
-    let responseMessage: UIMessage | null = null;
+  let responseMessage: UIMessage | null = null;
 
-    const uiStream = resultStream.toUIMessageStream({
-      sendStart: this.config.streamOptions?.sendStart ?? false,
-      sendFinish: this.config.streamOptions?.sendFinish ?? false,
-      sendReasoning: this.config.streamOptions?.sendReasoning ?? false,
-      sendSources: this.config.streamOptions?.sendSources ?? false,
-      onFinish: ({ responseMessage: msg }) => {
-        responseMessage = msg;
-      },
-    });
+  const uiStream = resultStream.toUIMessageStream({
+    sendStart: config.streamOptions?.sendStart ?? false,
+    sendFinish: config.streamOptions?.sendFinish ?? false,
+    sendReasoning: config.streamOptions?.sendReasoning ?? false,
+    sendSources: config.streamOptions?.sendSources ?? false,
+    onFinish: ({ responseMessage: msg }) => {
+      responseMessage = msg;
+    },
+  });
 
-    if (writable) {
-      await this.pipeToWritable(uiStream, writable);
-    } else {
-      await this.consumeStream(uiStream);
-    }
-
-    await resultStream.consumeStream();
-    const finishReason = await resultStream.finishReason;
-
-    if (!responseMessage) {
-      throw new Error("No response message received from stream");
-    }
-
-    return { responseMessage, finishReason };
+  if (config.writable) {
+    await pipeToWritable(uiStream, config.writable);
+  } else {
+    await consumeStream(uiStream);
   }
 
-  private async consumeStream<T>(stream: ReadableStream<T>): Promise<void> {
-    const reader = stream.getReader();
-    try {
-      while (true) {
-        const { done } = await reader.read();
-        if (done) break;
-      }
-    } finally {
-      reader.releaseLock();
-    }
+  await resultStream.consumeStream();
+  const finishReason = await resultStream.finishReason;
+
+  if (!responseMessage) {
+    throw new Error("No response message received from stream");
   }
 
-  private async pipeToWritable<T>(
-    readable: ReadableStream<T>,
-    writable: WritableStream<T>,
-  ): Promise<void> {
-    const writer = writable.getWriter();
-    const reader = readable.getReader();
+  const shouldContinue = finishReason === "tool-calls";
 
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        await writer.write(value);
-      }
-    } finally {
-      reader.releaseLock();
-      writer.releaseLock();
+  return { shouldContinue, responseMessage, finishReason };
+}
+
+async function consumeStream<T>(stream: ReadableStream<T>): Promise<void> {
+  const reader = stream.getReader();
+  try {
+    while (true) {
+      const { done } = await reader.read();
+      if (done) break;
     }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+async function pipeToWritable<T>(
+  readable: ReadableStream<T>,
+  writable: WritableStream<T>,
+): Promise<void> {
+  const writer = writable.getWriter();
+  const reader = readable.getReader();
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      await writer.write(value);
+    }
+  } finally {
+    reader.releaseLock();
+    writer.releaseLock();
   }
 }
 ```
@@ -237,26 +303,37 @@ Define tools that your agents can use:
 ```typescript
 // src/lib/ai/tools.ts
 import { google } from "@ai-sdk/google";
-import { tool } from "ai";
+import { tool, type Tool } from "ai";
 import { z } from "zod";
 
+// Cast needed: @ai-sdk/google returns Tool<{}, unknown> but AI SDK expects Tool<any, any>
+function asToolSetCompatible<T>(tool: T): Tool<any, any> {
+  return tool as Tool<any, any>;
+}
+
 export const researchTools = {
-  googleSearch: google.tools.googleSearch({}),
-  urlContext: google.tools.urlContext({}),
+  googleSearch: asToolSetCompatible(google.tools.googleSearch({})),
+  urlContext: asToolSetCompatible(google.tools.urlContext({})),
 };
 
 export const draftingTools = {
   countCharacters: tool({
-    description: "Count characters in text to verify tweet length.",
+    description:
+      "Count the number of characters in a text. Use this to verify tweet length before finalizing.",
     inputSchema: z.object({
       text: z.string().describe("The text to count characters for"),
     }),
     execute: async ({ text }) => {
       const count = text.length;
+      const remaining = 280 - count;
       return {
         characterCount: count,
-        remainingCharacters: 280 - count,
+        remainingCharacters: remaining,
         isWithinLimit: count <= 280,
+        status:
+          count <= 280
+            ? `${count}/280 characters (${remaining} remaining)`
+            : `${count}/280 characters (${Math.abs(remaining)} over limit)`,
       };
     },
   }),
@@ -267,7 +344,7 @@ export const allTools = {
   ...draftingTools,
 };
 
-// Tool type names for database schema
+// Tool type names for database schema - must match keys in allTools as "tool-{key}"
 export const TOOL_TYPES = [
   "tool-googleSearch",
   "tool-urlContext",
@@ -285,11 +362,29 @@ Create specialized agent instances with different configurations:
 // src/lib/ai/research.ts
 import { Agent } from "./agent";
 
+const researchSystemPrompt = `You are a research agent for a tweet authoring system.
+
+Your job is to:
+1. Analyze the user's tweet topic or idea
+2. Research relevant information using web search
+3. Find authoritative sources and context
+4. Summarize your findings clearly
+5. Ask the user to confirm your understanding before proceeding
+
+When researching:
+- Look up companies, technologies, people, or concepts mentioned
+- Find recent news or updates if relevant
+- Cite your sources so the user can verify
+
+After presenting your research, ask the user:
+"Does this capture what you want to convey? Should I proceed to drafting the tweet?"
+
+Do NOT draft the tweet yet - just gather and present research.`;
+
 export const researchAgent = new Agent({
   stepOptions: {
     model: "google/gemini-3-pro-preview",
-    system: `You are a research agent. Analyze topics and gather information 
-using web search. Summarize findings and cite sources.`,
+    system: researchSystemPrompt,
     tools: "research",
     providerOptions: {
       google: {
@@ -311,15 +406,40 @@ using web search. Summarize findings and cite sources.`,
 // src/lib/ai/drafting.ts
 import { Agent } from "./agent";
 
+const draftingSystemPrompt = `You are a tweet drafting agent.
+
+Based on the research already gathered in the conversation, your job is to:
+1. Draft a compelling tweet
+2. Use the countCharacters tool to verify it's within Twitter's 280 character limit
+3. Revise if needed to fit the limit while maintaining impact
+4. Present the final tweet clearly for easy copying
+
+Guidelines for great tweets:
+- Be concise and punchy
+- Lead with the hook
+- Use line breaks strategically
+- Avoid quotation marks around the tweet content
+- No meta-commentary - just the tweet itself
+
+After drafting, present the tweet in a code block for easy copying.`;
+
 export const draftingAgent = new Agent({
   stepOptions: {
     model: "google/gemini-3-pro-preview",
-    system: `You are a drafting agent. Create content based on prior research.
-Use countCharacters to verify length limits.`,
+    system: draftingSystemPrompt,
     tools: "drafting",
+    providerOptions: {
+      google: {
+        thinkingConfig: {
+          thinkingBudget: 4000,
+          includeThoughts: true,
+        },
+      },
+    },
   },
   streamOptions: {
     sendReasoning: true,
+    sendSources: true,
   },
 });
 ```
@@ -341,6 +461,7 @@ import {
 } from "./steps/history";
 import { startStream, finishStream } from "./steps/stream";
 import { routerStep } from "./steps/router";
+import { writeProgress } from "./steps/progress";
 import { researchAgent } from "@/lib/ai/research";
 import { draftingAgent } from "@/lib/ai/drafting";
 
@@ -367,11 +488,17 @@ export async function chatWorkflow({
   // Load conversation history
   const history = await getMessageHistory(chatId);
 
-  // Route to appropriate agent
-  const { next } = await routerStep(chatId, messageId, history);
-
   // Start streaming to client
   await startStream(messageId);
+
+  // Route to appropriate agent
+  const { next, reasoning } = await routerStep(chatId, messageId, history);
+  console.log(`Router: ${next} - ${reasoning}`);
+
+  // Send progress update
+  const progressText =
+    next === "research" ? "Researching topic..." : "Authoring tweet...";
+  await writeProgress(progressText, chatId, messageId);
 
   // Run selected agent
   const agent = next === "research" ? researchAgent : draftingAgent;
@@ -399,15 +526,17 @@ Steps for managing message persistence:
 
 ```typescript
 // src/workflows/chat/steps/history.ts
-import { db } from "@/lib/db/client";
-import { messages } from "@/lib/db/schema";
+import type { UIMessage } from "ai";
 import {
+  convertDbMessagesToUIMessages,
   persistMessage,
   getChatMessages,
   clearMessageRunId,
   insertMessageParts,
-  convertDbMessagesToUIMessages,
-} from "@/lib/db/queries/chat";
+} from "@/lib/chat/queries";
+import { messages } from "@/lib/chat/schema";
+import type { ChatAgentUIMessage } from "../types";
+import { db } from "@/lib/db/client";
 
 export async function persistUserMessage({
   chatId,
@@ -417,9 +546,14 @@ export async function persistUserMessage({
   message: ChatAgentUIMessage;
 }): Promise<void> {
   "use step";
+
   await persistMessage({ chatId, message, runId: null });
 }
 
+/**
+ * Creates message record with runId before streaming starts,
+ * enabling client stream resumption on reconnection.
+ */
 export async function createAssistantMessage({
   chatId,
   runId,
@@ -431,7 +565,11 @@ export async function createAssistantMessage({
 
   const [{ messageId }] = await db
     .insert(messages)
-    .values({ chatId, role: "assistant", runId })
+    .values({
+      chatId,
+      role: "assistant",
+      runId,
+    })
     .returning({ messageId: messages.id });
 
   return messageId;
@@ -441,12 +579,14 @@ export async function getMessageHistory(
   chatId: string,
 ): Promise<ChatAgentUIMessage[]> {
   "use step";
+
   const messageHistory = await getChatMessages(chatId);
   return convertDbMessagesToUIMessages(messageHistory);
 }
 
 export async function removeRunId(messageId: string): Promise<void> {
   "use step";
+
   await clearMessageRunId(messageId);
 }
 
@@ -460,7 +600,12 @@ export async function persistMessageParts({
   parts: UIMessage["parts"];
 }): Promise<void> {
   "use step";
-  await insertMessageParts(chatId, messageId, parts);
+
+  await insertMessageParts(
+    chatId,
+    messageId,
+    parts as ChatAgentUIMessage["parts"],
+  );
 }
 ```
 
@@ -506,6 +651,44 @@ export async function finishStream(): Promise<void> {
 }
 ```
 
+### Progress Step
+
+Send progress updates to the client:
+
+```typescript
+// src/workflows/chat/steps/progress.ts
+import { getWritable } from "workflow";
+import type { UIMessageChunk } from "ai";
+import type { ChatDataProgressPart } from "../types";
+import { insertMessageParts } from "@/lib/chat/queries";
+
+/** Writes a progress update to both the stream and database. */
+export async function writeProgress(
+  text: string,
+  chatId: string,
+  messageId: string,
+): Promise<void> {
+  "use step";
+
+  const progressPart: ChatDataProgressPart = {
+    type: "data-progress",
+    data: {
+      text,
+    },
+  };
+
+  const writable = getWritable<UIMessageChunk>();
+  const writer = writable.getWriter();
+  try {
+    await writer.write(progressPart);
+  } finally {
+    writer.releaseLock();
+  }
+
+  await insertMessageParts(chatId, messageId, [progressPart]);
+}
+```
+
 ### Router Step
 
 Route between agents based on conversation context:
@@ -514,23 +697,47 @@ Route between agents based on conversation context:
 // src/workflows/chat/steps/router.ts
 import { generateObject, convertToModelMessages, type UIMessage } from "ai";
 import { z } from "zod";
+import { writeProgress } from "./progress";
+
+const routerSystemPrompt = `You are an orchestrator agent for a tweet author system.
+
+Analyze the conversation and determine what should happen next:
+
+1. If the user provides a draft tweet idea, prompt, or topic that needs research:
+   - Return { next: 'research' }
+
+2. If research has been completed and the user confirms they want to proceed with drafting:
+   - Return { next: 'drafting' }
+
+3. If the user has feedback or questions about the research, or wants more information:
+   - Return { next: 'research' }
+
+4. If the conversation is just starting with a new tweet request:
+   - Return { next: 'research' }
+
+Look at the conversation history to understand the current state.`;
 
 const routerSchema = z.object({
-  next: z.enum(["research", "drafting"]),
-  reasoning: z.string(),
+  next: z.enum(["research", "drafting"]).describe("The next agent to invoke"),
+  reasoning: z
+    .string()
+    .describe("Brief explanation of why this route was chosen"),
 });
+
+export type RouterDecision = z.infer<typeof routerSchema>;
 
 export async function routerStep(
   chatId: string,
   messageId: string,
   history: UIMessage[],
-): Promise<z.infer<typeof routerSchema>> {
+): Promise<RouterDecision> {
   "use step";
+
+  await writeProgress("Thinking about the next step...", chatId, messageId);
 
   const result = await generateObject({
     model: "google/gemini-2.5-flash",
-    system: `Analyze the conversation and determine if we need 'research' 
-(gathering information) or 'drafting' (creating content).`,
+    system: routerSystemPrompt,
     schema: routerSchema,
     messages: convertToModelMessages(history),
   });
@@ -546,14 +753,22 @@ export async function routerStep(
 ```typescript
 // src/app/api/chats/[chatId]/messages/route.ts
 import { db } from "@/lib/db/client";
-import { chats } from "@/lib/db/schema";
+import { chats } from "@/lib/chat/schema";
 import { chatWorkflow } from "@/workflows/chat";
 import { eq } from "drizzle-orm";
 import { start } from "workflow/api";
 import { createUIMessageStreamResponse } from "ai";
+import type { ChatAgentUIMessage } from "@/workflows/chat/types";
 
 export async function POST(request: Request) {
-  const { chatId, message } = await request.json();
+  const { chatId, message } = (await request.json()) as {
+    chatId: string;
+    message: ChatAgentUIMessage;
+  };
+
+  if (!chatId || !message) {
+    return new Response("Missing chatId or message", { status: 400 });
+  }
 
   const chat = await db.query.chats.findFirst({
     where: eq(chats.id, chatId),
@@ -562,7 +777,12 @@ export async function POST(request: Request) {
     return new Response("Chat not found", { status: 404 });
   }
 
-  const run = await start(chatWorkflow, [{ chatId, userMessage: message }]);
+  const run = await start(chatWorkflow, [
+    {
+      chatId,
+      userMessage: message,
+    },
+  ]);
 
   return createUIMessageStreamResponse({
     stream: run.readable,
@@ -580,21 +800,31 @@ export async function POST(request: Request) {
 import { getRun } from "workflow/api";
 import { createUIMessageStreamResponse } from "ai";
 
+/**
+ * GET /api/chats/:chatId/messages/:runId/stream
+ * Resume endpoint for workflow streams
+ */
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ chatId: string; runId: string }> },
+  { params }: { params: Promise<{ chatid: string; runId: string }> },
 ) {
   const { runId } = await params;
 
+  if (!runId) {
+    return new Response("Missing runId parameter", { status: 400 });
+  }
+
   const { searchParams } = new URL(request.url);
-  const startIndex = searchParams.get("startIndex");
+  const startIndexParam = searchParams.get("startIndex");
+  const startIndex =
+    startIndexParam !== null ? parseInt(startIndexParam, 10) : undefined;
 
   const run = await getRun(runId);
-  const readable = await run.getReadable({
-    startIndex: startIndex ? parseInt(startIndex, 10) : undefined,
-  });
+  const readable = await run.getReadable({ startIndex });
 
-  return createUIMessageStreamResponse({ stream: readable });
+  return createUIMessageStreamResponse({
+    stream: readable,
+  });
 }
 ```
 
@@ -609,11 +839,12 @@ The `useResumableChat` hook handles automatic reconnection:
 import { useChat } from "@ai-sdk/react";
 import { WorkflowChatTransport } from "@workflow/ai";
 import { v7 as uuidv7 } from "uuid";
+import type { ChatAgentUIMessage } from "@/workflows/chat/types";
 import { useRef } from "react";
 
 interface UseResumableChatOptions {
   chatId: string;
-  messageHistory: UIMessage[];
+  messageHistory: ChatAgentUIMessage[];
   initialRunId?: string;
 }
 
@@ -624,7 +855,7 @@ export function useResumableChat({
 }: UseResumableChatOptions) {
   const activeRunIdRef = useRef<string | undefined>(initialRunId);
 
-  const chatResult = useChat({
+  const chatResult = useChat<ChatAgentUIMessage>({
     messages: messageHistory,
     resume: !!initialRunId,
     transport: new WorkflowChatTransport({
@@ -637,23 +868,27 @@ export function useResumableChat({
         },
       }),
 
-      // Store workflow run ID from response
+      // Store the workflow run ID when a message is sent
       onChatSendMessage: (response) => {
-        const runId = response.headers.get("x-workflow-run-id");
-        if (runId) activeRunIdRef.current = runId;
+        const workflowRunId = response.headers.get("x-workflow-run-id");
+        if (workflowRunId) {
+          activeRunIdRef.current = workflowRunId;
+        }
       },
 
-      // Configure reconnection URL
-      prepareReconnectToStreamRequest: ({ ...rest }) => {
-        const runId = activeRunIdRef.current;
-        if (!runId) throw new Error("No run ID for reconnection");
+      // Configure reconnection to use the ref for the latest value
+      prepareReconnectToStreamRequest: ({ api, ...rest }) => {
+        const currentRunId = activeRunIdRef.current;
+        if (!currentRunId) {
+          throw new Error("No active workflow run ID found for reconnection");
+        }
         return {
           ...rest,
-          api: `/api/chats/${chatId}/messages/${runId}/stream`,
+          api: `/api/chats/${chatId}/messages/${encodeURIComponent(currentRunId)}/stream`,
         };
       },
 
-      // Clear run ID when complete
+      // Clear the workflow run ID when the chat stream ends
       onChatEnd: () => {
         activeRunIdRef.current = undefined;
       },
@@ -674,29 +909,58 @@ Load history and detect incomplete streams for resumption:
 
 ```typescript
 // src/app/[chatId]/page.tsx
-import { Chat } from "@/components/chat";
-import { getChatMessages } from "@/lib/db/queries/chat";
+import { SimpleChat } from "@/components/chat/chat";
+import {
+  convertDbMessagesToUIMessages,
+  getChatMessages,
+} from "@/lib/chat/queries";
+import { chats } from "@/lib/chat/schema";
+import { eq } from "drizzle-orm";
+import { db } from "@/lib/db/client";
 
-export default async function ChatPage({ params }) {
+interface PageProps {
+  params: Promise<{
+    chatId: string;
+  }>;
+}
+
+export default async function ChatPage({ params }: PageProps) {
   const { chatId } = await params;
 
-  const messages = await getChatMessages(chatId);
+  // Create chat if it doesn't exist
+  const chat = await db.query.chats.findFirst({
+    where: eq(chats.id, chatId),
+  });
+  if (!chat) {
+    await db.insert(chats).values({
+      id: chatId,
+    });
+  }
 
-  // Detect incomplete assistant message (has runId = was interrupted)
-  const lastMessage = messages.at(-1);
-  const isIncomplete =
+  // Fetch all messages for this chat
+  const persistedMessages = await getChatMessages(chatId);
+
+  // Check if the last message is an incomplete assistant message (has runId but no parts)
+  // This happens when a workflow was interrupted mid-stream
+  const lastMessage = persistedMessages.at(-1);
+  const isIncompleteMessage =
     lastMessage?.role === "assistant" &&
     lastMessage?.runId &&
     lastMessage?.parts.length === 0;
 
-  const initialRunId = isIncomplete ? lastMessage.runId : undefined;
-  const history = isIncomplete ? messages.slice(0, -1) : messages;
+  // If incomplete, extract the runId for resumption and remove the empty message from history
+  const initialRunId = isIncompleteMessage ? lastMessage.runId : undefined;
+  const messagesToConvert = isIncompleteMessage
+    ? persistedMessages.slice(0, -1)
+    : persistedMessages;
+
+  const history = convertDbMessagesToUIMessages(messagesToConvert);
 
   return (
-    <Chat
-      chatId={chatId}
+    <SimpleChat
       messageHistory={history}
-      initialRunId={initialRunId}
+      chatId={chatId}
+      initialRunId={initialRunId ?? undefined}
     />
   );
 }
@@ -716,7 +980,7 @@ export default async function ChatPage({ params }) {
 
 ### The `"use step"` Directive
 
-Marks functions as durable workflow steps. Each step is persisted and can be replayed if the workflow is interrupted.
+Marks functions as durable workflow steps. Each step is persisted and can be replayed if the workflow is interrupted. Note that `"use step"` only works in standalone functions, not class methods.
 
 ### The `"use workflow"` Directive
 
@@ -731,3 +995,7 @@ Marks the main workflow function. Provides access to `getWorkflowMetadata()` and
 ### Tool Loops
 
 The Agent class continues executing until `finishReason !== "tool-calls"`, allowing models to call tools multiple times before responding.
+
+### Progress Updates
+
+Use `writeProgress` to send progress updates to both the stream and database. This keeps the client informed during long-running operations like routing decisions.

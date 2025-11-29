@@ -27,7 +27,12 @@ export function Footer() {
           </p>
 
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground">
+            <a
+              href="https://github.com/andrelandgraf/fullstackrecipes"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground"
+            >
               GitHub
             </a>
           </div>

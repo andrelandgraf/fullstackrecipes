@@ -54,6 +54,8 @@ AI_GATEWAY_API_KEY=<your-string-here>
 
 Alternatively, you can follow the [AI SDK provider docs](https://ai-sdk.dev/providers/ai-sdk-providers) and modify the model serving in the code to use a different provider instead of Vercel AI Gateway.
 
+> **Note**: This codebase uses a type-safe config pattern with Zod validation. Environment variables are accessed via `serverConfig` instead of `process.env` directly. See `src/lib/config/` for the implementation and the [Environment Variable Management](./sections/env-config.md) recipe for details.
+
 5. Run the development server
 
 ```bash
@@ -70,7 +72,17 @@ Follow these steps to integrate this setup into your existing application or to 
 bunx create-next-app@latest
 ```
 
-2. Set up Shadcn
+2. Configure Vercel to use Bun
+
+Create a `vercel.json` file in the project root to use Bun as both the package manager and runtime on Vercel:
+
+```json
+{
+  "bunVersion": "1.x"
+}
+```
+
+3. Set up Shadcn
 
 ```bash
 bunx --bun shadcn@latest init
@@ -87,7 +99,7 @@ bun add next-themes
 
 Follow the [Shadcn Next.js dark mode guide](https://ui.shadcn.com/docs/dark-mode/next) to review all relevant code changes.
 
-3. Set up Neon
+4. Set up Neon
 
 On Vercel Fluid compute, we recommend using a pooled PostgreSQL connection that can be reused across requests (more details [here](https://neon.com/docs/guides/vercel-connection-methods)). This setup uses `node-postgres` with Drizzle as the ORM.
 
@@ -100,7 +112,7 @@ Follow the [Drizzle Postgres setup guide](https://orm.drizzle.team/docs/get-star
 
 Optionally, configure the Neon MCP server by following the instructions in the [MCP server README](https://github.com/neondatabase/mcp-server-neon) or by running `bunx neonctl@latest init`.
 
-4. Install AI SDK and AI Elements
+5. Install AI SDK and AI Elements
 
 Install [AI SDK v6](https://v6.ai-sdk.dev/docs/introduction):
 
@@ -109,7 +121,7 @@ bun add ai@beta @ai-sdk/react@beta
 bunx shadcn@latest add @ai-elements/all
 ```
 
-5. Create a simple chat route
+6. Create a simple chat route
 
 Create the API route:
 
@@ -186,3 +198,97 @@ export default function Page() {
 ```
 
 For status handling, error states, and more, see the [AI SDK chat docs](https://ai-sdk.dev/docs/ai-sdk-ui/chatbot).
+
+7. Set up Workflow Development Kit
+
+The [Workflow Development Kit](https://useworkflow.dev) provides resumable, durable workflows for AI agents.
+
+```bash
+bun add workflow @workflow/ai
+```
+
+Update your Next.js config:
+
+```ts
+// next.config.ts
+import type { NextConfig } from "next";
+import { withWorkflow } from "workflow/next";
+
+const nextConfig: NextConfig = {
+  /* config options here */
+  reactCompiler: true,
+};
+
+export default withWorkflow(nextConfig);
+```
+
+Refer to the [Getting started on Next.js guide](https://useworkflow.dev/docs/getting-started/next) for detailed setup instructions.
+
+8. Add agent rules
+
+Create an `agents.md` file in the project root with coding guidelines for AI agents:
+
+```md
+## TypeScript
+
+- Only create an abstraction if it's actually needed
+- Prefer clear function/variable names over inline comments
+- Avoid helper functions when a simple inline expression would suffice
+- Don't use emojis
+- No barrel index files - just export from the source files instead
+- No type.ts files, just inline types or co-locate them with their related code
+- Don't unnecessarily add `try`/`catch`
+- Don't cast to `any`
+
+## React
+
+- Avoid massive JSX blocks and compose smaller components
+- Colocate code that changes together
+- Avoid `useEffect` unless absolutely needed
+
+## Tailwind
+
+- Mostly use built-in values, occasionally allow dynamic values, rarely globals
+- Always use v4 + global CSS file format + shadcn/ui
+
+## Next
+
+- Prefer fetching data in RSC (page can still be static)
+- Use next/font + next/script when applicable
+- next/image above the fold should have `sync` / `eager` / use `priority` sparingly
+- Be mindful of serialized prop size for RSC → child components
+```
+
+## Coding Guidelines
+
+### TypeScript
+
+- Only create an abstraction if it's actually needed
+- Prefer clear function/variable names over inline comments
+- Avoid helper functions when a simple inline expression would suffice
+- No barrel index files - just export from the source files instead
+- No `types.ts` files, just inline types or co-locate them with their related code
+- Don't unnecessarily add `try`/`catch`
+- Don't cast to `any`
+
+### React
+
+- Avoid massive JSX blocks and compose smaller components
+- Colocate code that changes together
+- Avoid `useEffect` unless absolutely needed
+
+### Tailwind
+
+- Mostly use built-in values, occasionally allow dynamic values, rarely globals
+- Always use v4 + global CSS file format + shadcn/ui
+
+### Next.js
+
+- Prefer fetching data in RSC (page can still be static)
+- Use `next/font` + `next/script` when applicable
+- `next/image` above the fold should have `sync` / `eager` / use `priority` sparingly
+- Be mindful of serialized prop size for RSC to child components
+
+## Further Reading
+
+For more details on the philosophy and architecture patterns used in this codebase, see the [Architecture Decisions](./sections/architecture-decisions.md) document.

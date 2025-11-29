@@ -5,10 +5,10 @@ import {
   getChatMessages,
   clearMessageRunId,
   insertMessageParts,
-} from "@/lib/db/queries/chat";
+} from "@/lib/chat/queries";
+import { messages } from "@/lib/chat/schema";
 import type { ChatAgentUIMessage } from "../types";
 import { db } from "@/lib/db/client";
-import { messages } from "@/lib/db/schema";
 
 export async function persistUserMessage({
   chatId,
