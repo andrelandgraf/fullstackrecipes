@@ -14,7 +14,7 @@ import { verifyChatOwnership } from "@/lib/chat/queries";
  */
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ chatid: string; runId: string }> },
+  { params }: { params: Promise<{ chatId: string; runId: string }> },
 ) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -24,7 +24,7 @@ export async function GET(
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const { chatid: chatId, runId } = await params;
+  const { chatId, runId } = await params;
 
   if (!runId) {
     return new Response("Missing runId parameter", { status: 400 });

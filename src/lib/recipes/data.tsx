@@ -133,6 +133,7 @@ export const recipes: Recipe[] = [
       "workflow-concepts.md",
     ],
     requires: ["ai-chat-persistence"],
+    includes: ["custom-durable-agent"],
   },
   {
     slug: "custom-durable-agent",
