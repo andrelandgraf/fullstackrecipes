@@ -9,3 +9,5 @@ export default defineConfig({
     url: databaseConfig.url,
   },
 });
+
+// CREATE extension pg_uuidv7;

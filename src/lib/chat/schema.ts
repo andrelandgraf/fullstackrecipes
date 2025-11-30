@@ -8,11 +8,15 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { TOOL_TYPES } from "@/lib/ai/tools";
+import { users } from "@/lib/auth/schema";
 
 export const chats = pgTable("chats", {
   id: uuid("id")
     .primaryKey()
     .default(sql`uuid_generate_v7()`),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   title: text("title").notNull().default("New chat"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

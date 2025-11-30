@@ -1,11 +1,11 @@
 import { attachDatabasePool } from "@vercel/functions";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import { serverConfig } from "../config/server";
+import { databaseConfig } from "./config";
 import * as schema from "./schema";
 
 const pool = new Pool({
-  connectionString: serverConfig.database.url,
+  connectionString: databaseConfig.url,
 });
 attachDatabasePool(pool);
 

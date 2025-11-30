@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { validateConfig, type PreValidate } from "../config/utils";
+import { validateConfig, type PreValidate } from "../common/validate-config";
 
 const AIConfigSchema = z.object({
   gatewayApiKey: z.string("AI_GATEWAY_API_KEY must be defined."),

@@ -2,9 +2,12 @@
 
 This guide shows how to build a tweet drafting assistant with persistent chat history. You'll learn how to save messages to a Postgres database using Drizzle ORM and load chat history on page load.
 
+Chats are tied to authenticated users via Better Auth, ensuring each user can only access their own conversations.
+
 ## Prerequisites
 
 - Completed [Setup](./setup.md) (Next.js, Drizzle, AI SDK, Neon)
+- Completed [Better Auth Setup](./sections/better-auth-setup.md) (User authentication)
 
 ## Required Packages
 
@@ -43,7 +46,7 @@ This way, we can avoid an `order`/`index` column for each message part in the DB
 Create your schema file with tables for chats, messages, and all message part types:
 
 ```typescript
-// src/lib/db/schemas/chat.ts
+// src/lib/chat/schema.ts
 import {
   pgTable,
   text,
@@ -53,11 +56,15 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import { users } from "@/lib/auth/schema";
 
 export const chats = pgTable("chats", {
   id: uuid("id")
     .primaryKey()
     .default(sql`uuid_generate_v7()`),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   title: text("title").notNull().default("New chat"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -240,7 +247,8 @@ Then re-export from the main schema file:
 
 ```typescript
 // src/lib/db/schema.ts
-export * from "./schemas/chat";
+export * from "@/lib/chat/schema";
+export * from "@/lib/auth/schema";
 ```
 
 ### Drizzle Config
@@ -253,7 +261,7 @@ import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
   schema: "./src/lib/db/schema.ts",
-  out: "./migrations",
+  out: "./src/lib/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
     url: process.env.DATABASE_URL!,
@@ -440,7 +448,7 @@ The `TOOL_TYPES` array must match your tool keys prefixed with `tool-` for the d
 Create helper functions to persist and retrieve messages:
 
 ```typescript
-// src/lib/db/queries/chat.ts
+// src/lib/chat/queries.ts
 import { TOOL_TYPES, type ToolType } from "@/lib/ai/tools";
 import {
   isToolPart,
@@ -476,19 +484,27 @@ import {
 } from "@/lib/db/schema";
 import { v7 as uuidv7 } from "uuid";
 import assert from "@/lib/common/assert";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 /**
- * Ensure a chat exists, creating it if necessary.
+ * Ensure a chat exists for the given user, creating it if necessary.
+ * Returns false if chat exists but belongs to a different user.
  */
-export async function ensureChatExists(chatId: string): Promise<void> {
+export async function ensureChatExists(
+  chatId: string,
+  userId: string,
+): Promise<boolean> {
   const existing = await db.query.chats.findFirst({
     where: eq(chats.id, chatId),
   });
 
   if (!existing) {
-    await db.insert(chats).values({ id: chatId });
+    await db.insert(chats).values({ id: chatId, userId });
+    return true;
   }
+
+  // Verify the chat belongs to the current user
+  return existing.userId === userId;
 }
 
 function parseMetadata(metadata: unknown): any {
@@ -818,9 +834,23 @@ export type MessageWithParts = Message & {
   parts: MessagePart[];
 };
 
+/**
+ * Get chat messages for a specific chat, verifying user ownership.
+ * Returns null if the chat doesn't exist or belongs to a different user.
+ */
 export async function getChatMessages(
   chatId: string,
-): Promise<MessageWithParts[]> {
+  userId: string,
+): Promise<MessageWithParts[] | null> {
+  // First verify the chat belongs to the user
+  const chat = await db.query.chats.findFirst({
+    where: and(eq(chats.id, chatId), eq(chats.userId, userId)),
+  });
+
+  if (!chat) {
+    return null;
+  }
+
   const [
     messagesData,
     textsData,
@@ -900,19 +930,21 @@ export async function getChatMessages(
 
 ## API Route with Persistence
 
-Update your chat API route to persist messages using `onFinish`:
+Update your chat API route to persist messages using `onFinish`. The route authenticates the user and ensures they can only access their own chats:
 
 ```typescript
 // src/app/api/chats/[chatId]/route.ts
 import { streamText, convertToModelMessages, stepCountIs } from "ai";
+import { headers } from "next/headers";
 import type { ChatAgentUIMessage } from "@/lib/chat/types";
 import { allTools } from "@/lib/ai/tools";
+import { auth } from "@/lib/auth/server";
 import {
   ensureChatExists,
   persistMessage,
   getChatMessages,
   convertDbMessagesToUIMessages,
-} from "@/lib/db/queries/chat";
+} from "@/lib/chat/queries";
 
 const systemPrompt = `You are a tweet drafting assistant. Your job is to help users craft engaging, impactful tweets that fit within the 280 character limit. You understand the nuances of Twitter/X culture, including effective use of hashtags, mentions, and hooks that capture attention.
 
@@ -922,17 +954,33 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ chatId: string }> },
 ) {
+  // Authenticate the user
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  const userId = session.user.id;
   const { chatId } = await params;
   const { message }: { message: ChatAgentUIMessage } = await req.json();
 
-  // Ensure chat exists before persisting messages
-  await ensureChatExists(chatId);
+  // Ensure chat exists and belongs to the user
+  const isAuthorized = await ensureChatExists(chatId, userId);
+  if (!isAuthorized) {
+    return new Response("Forbidden", { status: 403 });
+  }
 
   // Persist user message first
   await persistMessage({ chatId, message });
 
   // Get full conversation history for context
-  const dbMessages = await getChatMessages(chatId);
+  const dbMessages = await getChatMessages(chatId, userId);
+  if (!dbMessages) {
+    return new Response("Chat not found", { status: 404 });
+  }
   const history = convertDbMessagesToUIMessages(dbMessages);
 
   const result = streamText({
@@ -958,26 +1006,38 @@ export async function POST(
 
 ## Client-Side Chat Component
 
-Create a chat component that includes the `chatId` in requests:
+Create a chat component that includes the `chatId` in requests. The page authenticates the user server-side and only loads their own chats:
 
 ```tsx
 // src/app/[chatId]/page.tsx
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { Chat } from "@/components/chat";
+import { auth } from "@/lib/auth/server";
 import {
   getChatMessages,
   convertDbMessagesToUIMessages,
-} from "@/lib/db/queries/chat";
+} from "@/lib/chat/queries";
 
 interface PageProps {
   params: Promise<{ chatId: string }>;
 }
 
 export default async function ChatPage({ params }: PageProps) {
+  // Authenticate the user
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/login");
+  }
+
   const { chatId } = await params;
 
-  // Load existing messages and convert to UI format
-  const dbMessages = await getChatMessages(chatId);
-  const history = convertDbMessagesToUIMessages(dbMessages);
+  // Load existing messages (returns null if chat doesn't belong to user)
+  const dbMessages = await getChatMessages(chatId, session.user.id);
+  const history = dbMessages ? convertDbMessagesToUIMessages(dbMessages) : [];
 
   return <Chat chatId={chatId} initialMessages={history} />;
 }
@@ -1051,30 +1111,45 @@ export function Chat({ chatId, initialMessages }: ChatProps) {
 }
 ```
 
-## Home Page with Redirect
+## Protected New Chat Route
 
-Redirect to a new chat on the home page:
+Create a protected route that redirects authenticated users to a new chat:
 
 ```tsx
-// src/app/page.tsx
+// src/app/chat/new/page.tsx
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { v7 as uuidv7 } from "uuid";
+import { auth } from "@/lib/auth/server";
 
-export default function Home() {
+export default async function NewChat() {
+  // Authenticate the user
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/login");
+  }
+
   const newChatId = uuidv7();
   redirect(`/${newChatId}`);
 }
 ```
 
+The home page can remain a public landing page with links to login/signup, while the chat functionality requires authentication.
+
 ## How It Works
 
-1. **New Chat**: When a user visits `/`, they're redirected to `/{chatId}` with a new UUID v7
-2. **Load History**: The chat page loads existing messages from the database
-3. **Send Message**: The client sends the user message to the API
-4. **Persist User Message**: The API persists the user message before streaming
-5. **Stream Response**: The AI response is streamed to the client
-6. **Persist Assistant Message**: `onFinish` callback persists the assistant response
-7. **Reload**: If the user refreshes, they see the full conversation history
+1. **Authentication**: User signs in via Better Auth (email/password or social providers)
+2. **New Chat**: Authenticated user visits `/chat/new`, gets redirected to `/{chatId}` with a new UUID v7
+3. **Load History**: The chat page verifies user ownership and loads existing messages from the database
+4. **Send Message**: The client sends the user message to the API
+5. **Authorization**: API verifies the chat belongs to the authenticated user
+6. **Persist User Message**: The API persists the user message before streaming
+7. **Stream Response**: The AI response is streamed to the client
+8. **Persist Assistant Message**: `onFinish` callback persists the assistant response
+9. **Reload**: If the user refreshes, they see their full conversation history
 
 ## Key Design Decisions
 
@@ -1102,6 +1177,15 @@ The API loads full history from the database rather than trusting client-sent me
 - Single source of truth
 - Prevents message tampering
 - Client only sends the latest user message
+
+### User-Scoped Chats
+
+Every chat is tied to a user via the `userId` foreign key:
+
+- Chats are created with the authenticated user's ID
+- All queries filter by both `chatId` and `userId`
+- Prevents unauthorized access to other users' conversations
+- Cascading deletes: when a user is deleted, their chats are automatically removed
 
 ## Next Steps
 

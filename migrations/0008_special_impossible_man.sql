@@ -1,1 +1,0 @@
-ALTER TABLE "message_data" RENAME COLUMN "type" TO "data_type";

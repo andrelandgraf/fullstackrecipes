@@ -3,43 +3,44 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Full Stack Recipes - Branded theme with teal primary and orange accent */
+/* Full Stack Recipes - Dark developer-focused theme */
 
 :root {
-  --radius: 0.5rem;
-  /* Light mode */
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.145 0.005 285);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0.005 285);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0.005 285);
-  --primary: oklch(0.45 0.15 160);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.96 0.005 285);
-  --secondary-foreground: oklch(0.205 0.005 285);
-  --muted: oklch(0.96 0.005 285);
-  --muted-foreground: oklch(0.45 0 0);
-  --accent: oklch(0.65 0.12 50);
-  --accent-foreground: oklch(0.145 0.005 285);
+  --background: oklch(0.13 0.005 285);
+  --foreground: oklch(0.95 0 0);
+  --card: oklch(0.17 0.005 285);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.17 0.005 285);
+  --popover-foreground: oklch(0.95 0 0);
+  --primary: oklch(0.85 0.15 160);
+  --primary-foreground: oklch(0.13 0.005 285);
+  --secondary: oklch(0.22 0.005 285);
+  --secondary-foreground: oklch(0.85 0 0);
+  --muted: oklch(0.22 0.005 285);
+  --muted-foreground: oklch(0.65 0 0);
+  /* Replaced dark orange with vibrant blue for better contrast with teal primary */
+  --accent: oklch(0.7 0.18 240);
+  --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.9 0.005 285);
-  --input: oklch(0.9 0.005 285);
-  --ring: oklch(0.45 0.15 160);
-  --chart-1: oklch(0.45 0.15 160);
-  --chart-2: oklch(0.65 0.12 50);
-  --chart-3: oklch(0.55 0.15 280);
-  --chart-4: oklch(0.55 0.18 30);
-  --chart-5: oklch(0.5 0.1 200);
-  --sidebar: oklch(0.97 0.005 285);
-  --sidebar-foreground: oklch(0.145 0.005 285);
-  --sidebar-primary: oklch(0.45 0.15 160);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.94 0.005 285);
-  --sidebar-accent-foreground: oklch(0.205 0.005 285);
-  --sidebar-border: oklch(0.9 0.005 285);
-  --sidebar-ring: oklch(0.45 0.15 160);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.28 0.005 285);
+  --input: oklch(0.22 0.005 285);
+  --ring: oklch(0.85 0.15 160);
+  --chart-1: oklch(0.85 0.15 160);
+  /* Updated chart-2 to use the new blue accent */
+  --chart-2: oklch(0.7 0.18 240);
+  --chart-3: oklch(0.7 0.15 280);
+  --chart-4: oklch(0.65 0.18 30);
+  --chart-5: oklch(0.8 0.1 200);
+  --radius: 0.5rem;
+  --sidebar: oklch(0.15 0.005 285);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(0.85 0.15 160);
+  --sidebar-primary-foreground: oklch(0.13 0.005 285);
+  --sidebar-accent: oklch(0.22 0.005 285);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.28 0.005 285);
+  --sidebar-ring: oklch(0.85 0.15 160);
 }
 
 .dark {
@@ -55,15 +56,17 @@
   --secondary-foreground: oklch(0.85 0 0);
   --muted: oklch(0.22 0.005 285);
   --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.28 0.02 50);
-  --accent-foreground: oklch(0.95 0 0);
+  /* Replaced dark orange with vibrant blue for better contrast with teal primary */
+  --accent: oklch(0.7 0.18 240);
+  --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: oklch(0.28 0.005 285);
   --input: oklch(0.22 0.005 285);
   --ring: oklch(0.85 0.15 160);
   --chart-1: oklch(0.85 0.15 160);
-  --chart-2: oklch(0.75 0.12 50);
+  /* Updated chart-2 to use the new blue accent */
+  --chart-2: oklch(0.7 0.18 240);
   --chart-3: oklch(0.7 0.15 280);
   --chart-4: oklch(0.65 0.18 30);
   --chart-5: oklch(0.8 0.1 200);

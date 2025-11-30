@@ -64,7 +64,7 @@ import { databaseConfig } from "./src/lib/db/config";
 
 export default defineConfig({
   schema: "./src/lib/db/schema.ts",
-  out: "./migrations",
+  out: "./src/lib/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
     url: databaseConfig.url,

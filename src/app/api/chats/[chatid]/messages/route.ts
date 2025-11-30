@@ -1,12 +1,20 @@
-import { db } from "@/lib/db/client";
-import { chats } from "@/lib/chat/schema";
+import { headers } from "next/headers";
+import { verifyChatOwnership } from "@/lib/chat/queries";
+import { auth } from "@/lib/auth/server";
 import { chatWorkflow } from "@/workflows/chat";
-import { eq } from "drizzle-orm";
 import { start } from "workflow/api";
 import { createUIMessageStreamResponse } from "ai";
 import type { ChatAgentUIMessage } from "@/workflows/chat/types";
 
 export async function POST(request: Request) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
   const { chatId, message } = (await request.json()) as {
     chatId: string;
     message: ChatAgentUIMessage;
@@ -16,11 +24,9 @@ export async function POST(request: Request) {
     return new Response("Missing chatId or message", { status: 400 });
   }
 
-  const chat = await db.query.chats.findFirst({
-    where: eq(chats.id, chatId),
-  });
-  if (!chat) {
-    return new Response("Chat not found", { status: 404 });
+  const isAuthorized = await verifyChatOwnership(chatId, session.user.id);
+  if (!isAuthorized) {
+    return new Response("Forbidden", { status: 403 });
   }
 
   // Start workflow with user message

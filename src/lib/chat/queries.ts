@@ -6,6 +6,7 @@ import {
 } from "@/workflows/chat/types";
 import { db } from "@/lib/db/client";
 import {
+  chats,
   messages,
   messageTexts,
   messageReasoning,
@@ -32,7 +33,40 @@ import {
 } from "./schema";
 import { v7 as uuidv7 } from "uuid";
 import assert from "@/lib/common/assert";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
+
+/**
+ * Ensure a chat exists for the given user, creating it if necessary.
+ * Returns false if chat exists but belongs to a different user.
+ */
+export async function ensureChatExists(
+  chatId: string,
+  userId: string,
+): Promise<boolean> {
+  const existing = await db.query.chats.findFirst({
+    where: eq(chats.id, chatId),
+  });
+
+  if (!existing) {
+    await db.insert(chats).values({ id: chatId, userId });
+    return true;
+  }
+
+  return existing.userId === userId;
+}
+
+/**
+ * Verify that a chat belongs to a specific user.
+ */
+export async function verifyChatOwnership(
+  chatId: string,
+  userId: string,
+): Promise<boolean> {
+  const chat = await db.query.chats.findFirst({
+    where: and(eq(chats.id, chatId), eq(chats.userId, userId)),
+  });
+  return !!chat;
+}
 
 function parseMetadata(metadata: unknown): any {
   if (!metadata) return undefined;

@@ -1,11 +1,12 @@
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { SimpleChat } from "@/components/chat/chat";
 import {
   convertDbMessagesToUIMessages,
+  ensureChatExists,
   getChatMessages,
 } from "@/lib/chat/queries";
-import { chats } from "@/lib/chat/schema";
-import { eq } from "drizzle-orm";
-import { db } from "@/lib/db/client";
+import { auth } from "@/lib/auth/server";
 
 interface PageProps {
   params: Promise<{
@@ -14,15 +15,20 @@ interface PageProps {
 }
 
 export default async function ChatPage({ params }: PageProps) {
-  const { chatId } = await params;
-
-  const chat = await db.query.chats.findFirst({
-    where: eq(chats.id, chatId),
+  const session = await auth.api.getSession({
+    headers: await headers(),
   });
-  if (!chat) {
-    await db.insert(chats).values({
-      id: chatId,
-    });
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  const { chatId } = await params;
+  const userId = session.user.id;
+
+  const isAuthorized = await ensureChatExists(chatId, userId);
+  if (!isAuthorized) {
+    redirect("/");
   }
 
   // Fetch all messages for this chat

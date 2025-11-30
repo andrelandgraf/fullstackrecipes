@@ -1,5 +1,8 @@
+import { headers } from "next/headers";
 import { getRun } from "workflow/api";
 import { createUIMessageStreamResponse } from "ai";
+import { auth } from "@/lib/auth/server";
+import { verifyChatOwnership } from "@/lib/chat/queries";
 
 /**
  * GET /api/chats/:chatId/messages/:runId/stream
@@ -13,10 +16,23 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ chatid: string; runId: string }> },
 ) {
-  const { runId } = await params;
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  const { chatid: chatId, runId } = await params;
 
   if (!runId) {
     return new Response("Missing runId parameter", { status: 400 });
+  }
+
+  const isAuthorized = await verifyChatOwnership(chatId, session.user.id);
+  if (!isAuthorized) {
+    return new Response("Forbidden", { status: 403 });
   }
 
   const { searchParams } = new URL(request.url);

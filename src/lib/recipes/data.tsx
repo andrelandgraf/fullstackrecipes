@@ -5,6 +5,7 @@ import {
   CreditCard,
   Rocket,
   Settings,
+  KeyRound,
 } from "lucide-react";
 
 export type Recipe = {
@@ -89,16 +90,20 @@ export const recipes: Recipe[] = [
   },
   {
     slug: "stripe-sync",
-    title: "Stripe Sync",
+    title: "Stripe Subscriptions DB Sync",
     description:
-      "Sync Stripe products, prices, and subscriptions to your database. Handle webhooks and manage customer state reliably.",
-    tags: ["Payments", "Webhooks", "Database"],
+      "Complete subscription system with Stripe, Vercel Flags for plan configuration, webhook handling, usage tracking, and billing portal integration.",
+    tags: ["Payments", "Subscriptions", "Webhooks", "Database"],
     icon: CreditCard,
     sections: [
-      "stripe-sync-schema.md",
-      "stripe-webhook-handler.md",
-      "stripe-sync-functions.md",
-      "stripe-initial-sync.md",
+      "stripe-overview.md",
+      "stripe-schema.md",
+      "stripe-client-plans.md",
+      "stripe-customer-checkout.md",
+      "stripe-webhooks.md",
+      "stripe-billing-usage.md",
+      "stripe-ui.md",
+      "stripe-deployment.md",
     ],
     requires: ["neon-drizzle-setup"],
   },
@@ -111,6 +116,16 @@ export const recipes: Recipe[] = [
     icon: Bot,
     sections: ["custom-durable-agent.md"],
     requires: ["ai-agent-workflow"],
+  },
+  {
+    slug: "better-auth-setup",
+    title: "Better Auth Setup",
+    description:
+      "Add user authentication to your Next.js app using Better Auth with Drizzle ORM and Neon PostgreSQL. Supports email/password and social providers.",
+    tags: ["Auth", "Users", "Neon", "Drizzle"],
+    icon: KeyRound,
+    sections: ["better-auth-setup.md"],
+    requires: ["neon-drizzle-setup"],
   },
 ];
 
