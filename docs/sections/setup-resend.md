@@ -1,12 +1,6 @@
 ## Resend Setup
 
-Set up Resend for transactional emails like password resets and email verification.
-
-### Why Resend?
-
-- **Developer-first**: Simple API, great DX
-- **React Email**: Native support for React components as email templates
-- **Reliable**: Built for transactional email delivery
+Set up [Resend](https://resend.com/docs/send-with-nextjs) for transactional emails like password resets.
 
 ---
 
@@ -27,15 +21,13 @@ RESEND_FROM_EMAIL="Your App <noreply@yourdomain.com>"
 
 Get your API key from [resend.com/api-keys](https://resend.com/api-keys).
 
-Note: `RESEND_FROM_EMAIL` is optional and defaults to `Acme <onboarding@resend.dev>` for testing.
-
 ### Step 3: Create the resend config
 
-Create `src/lib/resend/config.ts` following the [Environment Variable Management](/recipes/env-config) pattern:
+Create `src/lib/resend/config.ts`:
 
 ```typescript
 import { z } from "zod";
-import { validateConfig, type PreValidate } from "../config/utils";
+import { validateConfig, type PreValidate } from "../common/validate-config";
 
 const ResendConfigSchema = z.object({
   apiKey: z.string("RESEND_API_KEY must be defined."),
@@ -50,22 +42,6 @@ const config: PreValidate<ResendConfig> = {
 };
 
 export const resendConfig = validateConfig(ResendConfigSchema, config);
-```
-
-Add it to `src/lib/config/server.ts`:
-
-```typescript
-import { databaseConfig } from "../db/config";
-import { aiConfig } from "../ai/config";
-import { authConfig } from "../auth/config";
-import { resendConfig } from "../resend/config";
-
-export const serverConfig = {
-  database: databaseConfig,
-  ai: aiConfig,
-  auth: authConfig,
-  resend: resendConfig,
-} as const;
 ```
 
 ### Step 4: Create the Resend client
@@ -113,8 +89,6 @@ export async function sendEmail({ to, subject, react, from }: SendEmailParams) {
 ---
 
 ## Usage
-
-### Send an email
 
 ```typescript
 import { sendEmail } from "@/lib/resend/send";
@@ -166,5 +140,5 @@ src/lib/auth/emails/
 
 ## References
 
-- [Resend Documentation](https://resend.com/docs)
+- [Resend Next.js Guide](https://resend.com/docs/send-with-nextjs)
 - [React Email](https://react.email/)

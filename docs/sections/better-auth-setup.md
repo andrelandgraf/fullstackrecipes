@@ -11,6 +11,13 @@ Add user authentication to your Next.js app using Better Auth with Drizzle ORM a
 
 ---
 
+### Prerequisites
+
+- [Neon + Drizzle Setup](/recipes/neon-drizzle-setup) - Database configuration
+- [Resend Setup](/recipes/resend-setup) - Required for password reset emails
+
+---
+
 ### Step 1: Install the package
 
 ```bash
@@ -38,7 +45,7 @@ Create `src/lib/auth/config.ts` following the [Environment Variable Management](
 
 ```typescript
 import { z } from "zod";
-import { validateConfig, type PreValidate } from "../config/utils";
+import { validateConfig, type PreValidate } from "../common/validate-config";
 
 const AuthConfigSchema = z.object({
   secret: z.string("BETTER_AUTH_SECRET must be defined."),
@@ -53,20 +60,6 @@ const config: PreValidate<AuthConfig> = {
 };
 
 export const authConfig = validateConfig(AuthConfigSchema, config);
-```
-
-Add it to `src/lib/config/server.ts`:
-
-```typescript
-import { databaseConfig } from "../db/config";
-import { aiConfig } from "../ai/config";
-import { authConfig } from "../auth/config";
-
-export const serverConfig = {
-  database: databaseConfig,
-  ai: aiConfig,
-  auth: authConfig,
-} as const;
 ```
 
 ### Step 4: Create the auth schema
@@ -144,11 +137,32 @@ export * from "@/lib/chat/schema";
 export * from "@/lib/auth/schema";
 ```
 
-### Step 5: Create the auth server instance
+### Step 5: Create the forgot password email template
+
+Create `src/lib/auth/emails/forgot-password.tsx`:
+
+```tsx
+interface ForgotPasswordEmailProps {
+  resetLink: string;
+}
+
+export function ForgotPasswordEmail({ resetLink }: ForgotPasswordEmailProps) {
+  return (
+    <div>
+      <h1>Reset Your Password</h1>
+      <p>Click the link below to reset your password:</p>
+      <a href={resetLink}>Reset Password</a>
+      <p>If you did not request a password reset, please ignore this email.</p>
+    </div>
+  );
+}
+```
+
+### Step 6: Create the auth server instance
 
 Create `src/lib/auth/server.tsx` (uses `.tsx` extension for JSX in email templates):
 
-```typescript
+```tsx
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/client";
@@ -182,9 +196,7 @@ export const auth = betterAuth({
 });
 ```
 
-> **Note:** This requires [Resend Setup](/recipes/setup-resend) for email delivery.
-
-### Step 6: Create the API route handler
+### Step 7: Create the API route handler
 
 Create `src/app/api/auth/[...all]/route.ts`:
 
@@ -195,7 +207,7 @@ import { toNextJsHandler } from "better-auth/next-js";
 export const { POST, GET } = toNextJsHandler(auth);
 ```
 
-### Step 7: Create the auth client
+### Step 8: Create the auth client
 
 Create `src/lib/auth/client.ts`:
 
@@ -209,7 +221,7 @@ export const authClient = createAuthClient();
 export const { signIn, signUp, signOut, useSession } = authClient;
 ```
 
-### Step 8: Generate and run migrations
+### Step 9: Generate and run migrations
 
 ```bash
 bun run db:generate

@@ -6,6 +6,7 @@ import {
   Rocket,
   Settings,
   KeyRound,
+  Mail,
 } from "lucide-react";
 
 export type Recipe = {
@@ -61,6 +62,16 @@ export const recipes: Recipe[] = [
     requires: ["env-config"],
   },
   {
+    slug: "resend-setup",
+    title: "Resend Setup",
+    description:
+      "Set up Resend for transactional emails like password resets and email verification.",
+    tags: ["Email"],
+    icon: Mail,
+    sections: ["setup-resend.md"],
+    requires: ["env-config"],
+  },
+  {
     slug: "better-auth-setup",
     title: "Better Auth Setup",
     description:
@@ -68,7 +79,7 @@ export const recipes: Recipe[] = [
     tags: ["Auth", "Neon", "Drizzle"],
     icon: KeyRound,
     sections: ["better-auth-setup.md"],
-    requires: ["neon-drizzle-setup"],
+    requires: ["neon-drizzle-setup", "resend-setup"],
   },
   {
     slug: "ai-chat-persistence",
