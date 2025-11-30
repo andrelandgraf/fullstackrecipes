@@ -3,44 +3,40 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Full Stack Recipes - Dark developer-focused theme */
-
 :root {
-  --background: oklch(0.13 0.005 285);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.17 0.005 285);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.17 0.005 285);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.85 0.15 160);
-  --primary-foreground: oklch(0.13 0.005 285);
-  --secondary: oklch(0.22 0.005 285);
-  --secondary-foreground: oklch(0.85 0 0);
-  --muted: oklch(0.22 0.005 285);
-  --muted-foreground: oklch(0.65 0 0);
-  /* Replaced dark orange with vibrant blue for better contrast with teal primary */
-  --accent: oklch(0.7 0.18 240);
+  --background: oklch(0.98 0.005 285);
+  --foreground: oklch(0.15 0.005 285);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.005 285);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.005 285);
+  --primary: oklch(0.45 0.15 160);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.94 0.005 285);
+  --secondary-foreground: oklch(0.25 0.005 285);
+  --muted: oklch(0.94 0.005 285);
+  --muted-foreground: oklch(0.45 0 0);
+  --accent: oklch(0.55 0.18 240);
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.28 0.005 285);
-  --input: oklch(0.22 0.005 285);
-  --ring: oklch(0.85 0.15 160);
-  --chart-1: oklch(0.85 0.15 160);
-  /* Updated chart-2 to use the new blue accent */
-  --chart-2: oklch(0.7 0.18 240);
-  --chart-3: oklch(0.7 0.15 280);
-  --chart-4: oklch(0.65 0.18 30);
-  --chart-5: oklch(0.8 0.1 200);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.88 0.005 285);
+  --input: oklch(0.88 0.005 285);
+  --ring: oklch(0.45 0.15 160);
+  --chart-1: oklch(0.45 0.15 160);
+  --chart-2: oklch(0.55 0.18 240);
+  --chart-3: oklch(0.55 0.15 280);
+  --chart-4: oklch(0.55 0.18 30);
+  --chart-5: oklch(0.6 0.1 200);
   --radius: 0.5rem;
-  --sidebar: oklch(0.15 0.005 285);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.85 0.15 160);
-  --sidebar-primary-foreground: oklch(0.13 0.005 285);
-  --sidebar-accent: oklch(0.22 0.005 285);
-  --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.28 0.005 285);
-  --sidebar-ring: oklch(0.85 0.15 160);
+  --sidebar: oklch(0.96 0.005 285);
+  --sidebar-foreground: oklch(0.15 0.005 285);
+  --sidebar-primary: oklch(0.45 0.15 160);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.92 0.005 285);
+  --sidebar-accent-foreground: oklch(0.15 0.005 285);
+  --sidebar-border: oklch(0.88 0.005 285);
+  --sidebar-ring: oklch(0.45 0.15 160);
 }
 
 .dark {
@@ -56,7 +52,6 @@
   --secondary-foreground: oklch(0.85 0 0);
   --muted: oklch(0.22 0.005 285);
   --muted-foreground: oklch(0.65 0 0);
-  /* Replaced dark orange with vibrant blue for better contrast with teal primary */
   --accent: oklch(0.7 0.18 240);
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.396 0.141 25.723);
@@ -65,7 +60,6 @@
   --input: oklch(0.22 0.005 285);
   --ring: oklch(0.85 0.15 160);
   --chart-1: oklch(0.85 0.15 160);
-  /* Updated chart-2 to use the new blue accent */
   --chart-2: oklch(0.7 0.18 240);
   --chart-3: oklch(0.7 0.15 280);
   --chart-4: oklch(0.65 0.18 30);
@@ -127,81 +121,5 @@
   }
   body {
     @apply bg-background text-foreground;
-  }
-}
-
-/* Added prose styles for markdown content */
-@layer components {
-  .prose {
-    @apply text-foreground max-w-none;
-  }
-  .prose h1 {
-    @apply text-3xl font-bold mt-8 mb-4 text-foreground;
-  }
-  .prose h2 {
-    @apply text-2xl font-semibold mt-8 mb-3 text-foreground;
-  }
-  .prose h3 {
-    @apply text-xl font-semibold mt-6 mb-2 text-foreground;
-  }
-  .prose h4 {
-    @apply text-lg font-medium mt-4 mb-2 text-foreground;
-  }
-  .prose p {
-    @apply my-4 leading-relaxed text-muted-foreground;
-  }
-  .prose a {
-    @apply text-primary underline underline-offset-4 hover:text-primary/80 transition-colors;
-  }
-  .prose strong {
-    @apply font-semibold text-foreground;
-  }
-  .prose ul {
-    @apply my-4 ml-6 list-disc text-muted-foreground;
-  }
-  .prose ol {
-    @apply my-4 ml-6 list-decimal text-muted-foreground;
-  }
-  .prose li {
-    @apply my-1;
-  }
-  .prose blockquote {
-    @apply border-l-4 border-primary pl-4 my-4 italic text-muted-foreground;
-  }
-  .prose hr {
-    @apply my-8 border-border;
-  }
-  .prose table {
-    @apply w-full my-4 border-collapse;
-  }
-  .prose th {
-    @apply border border-border bg-secondary px-4 py-2 text-left font-semibold;
-  }
-  .prose td {
-    @apply border border-border px-4 py-2;
-  }
-  .prose img {
-    @apply rounded-lg my-4;
-  }
-  /* Inline code */
-  .prose code:not(pre code) {
-    @apply bg-secondary text-primary px-1.5 py-0.5 rounded text-sm font-mono;
-  }
-  /* Shiki code blocks */
-  .prose pre {
-    @apply my-6 rounded-lg border border-border overflow-x-auto;
-  }
-  .prose pre code {
-    @apply text-sm leading-relaxed;
-  }
-  /* Shiki theme overrides */
-  .shiki {
-    @apply p-4 rounded-lg overflow-x-auto;
-  }
-  .shiki code {
-    @apply font-mono text-sm;
-  }
-  .shiki .line {
-    @apply leading-relaxed;
   }
 }
