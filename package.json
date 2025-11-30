@@ -57,6 +57,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
     "@types/pg": "^8.15.6",
+    "@vercel/analytics": "^1.5.0",
     "@vercel/functions": "^3.3.2",
     "@workflow/ai": "^4.0.1-beta.21",
     "@xyflow/react": "^12.9.3",
