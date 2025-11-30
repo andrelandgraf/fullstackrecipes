@@ -94,7 +94,7 @@ export const recipes: Recipe[] = [
       "chat-component-integration.md",
       "chat-history-hydration.md",
     ],
-    requires: ["neon-drizzle-setup"],
+    requires: ["better-auth-setup"],
   },
   {
     slug: "stripe-sync",
