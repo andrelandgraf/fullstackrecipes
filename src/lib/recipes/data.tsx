@@ -21,13 +21,14 @@ export type Recipe = {
   requires?: string[];
 };
 
+// Ordered in order of setup requirements/requisites
 export const recipes: Recipe[] = [
   {
     slug: "base-app-setup",
     title: "Base App Setup",
     description:
       "Complete setup guide for a Next.js app with Shadcn UI, Neon PostgreSQL, Drizzle ORM, and AI SDK.",
-    tags: ["Setup", "Next.js", "Full Stack"],
+    tags: [],
     icon: Rocket,
     sections: [
       "setup-nextjs.md",
@@ -45,7 +46,7 @@ export const recipes: Recipe[] = [
     title: "Environment Variable Management",
     description:
       "Type-safe environment variable validation using Zod with a modular config pattern for clean, maintainable configuration.",
-    tags: ["Config", "TypeScript", "Zod"],
+    tags: ["Config"],
     icon: Settings,
     sections: ["env-config.md"],
   },
@@ -54,10 +55,20 @@ export const recipes: Recipe[] = [
     title: "Neon + Drizzle Setup",
     description:
       "Set up a PostgreSQL database with Neon and Drizzle ORM for type-safe database queries in your Next.js app.",
-    tags: ["Database", "ORM", "Postgres"],
+    tags: ["Neon", "Drizzle"],
     icon: Database,
     sections: ["drizzle-with-node-postgres.md"],
     requires: ["env-config"],
+  },
+  {
+    slug: "better-auth-setup",
+    title: "Better Auth Setup",
+    description:
+      "Add user authentication to your Next.js app using Better Auth with Drizzle ORM and Neon PostgreSQL. Supports email/password and social providers.",
+    tags: ["Auth", "Neon", "Drizzle"],
+    icon: KeyRound,
+    sections: ["better-auth-setup.md"],
+    requires: ["neon-drizzle-setup"],
   },
   {
     slug: "ai-chat-persistence",
@@ -75,25 +86,11 @@ export const recipes: Recipe[] = [
     requires: ["neon-drizzle-setup"],
   },
   {
-    slug: "ai-agent-workflow",
-    title: "AI Agent Workflow",
-    description:
-      "Build multi-step AI agents with custom tool loops. Create autonomous workflows that reason and act on your behalf.",
-    tags: ["AI", "Agents", "Tools"],
-    icon: Bot,
-    sections: [
-      "agent-tools.md",
-      "agent-loop.md",
-      "agent-api-route.md",
-      "agent-streaming.md",
-    ],
-  },
-  {
     slug: "stripe-sync",
     title: "Stripe Subscriptions DB Sync",
     description:
       "Complete subscription system with Stripe, Vercel Flags for plan configuration, webhook handling, usage tracking, and billing portal integration.",
-    tags: ["Payments", "Subscriptions", "Webhooks", "Database"],
+    tags: ["Stripe", "Neon", "Drizzle"],
     icon: CreditCard,
     sections: [
       "stripe-overview.md",
@@ -108,24 +105,28 @@ export const recipes: Recipe[] = [
     requires: ["neon-drizzle-setup"],
   },
   {
+    slug: "ai-agent-workflow",
+    title: "AI Agent Workflow",
+    description:
+      "Build multi-step AI agents with custom tool loops. Create autonomous workflows that reason and act on your behalf.",
+    tags: ["AI", "Agents", "Workflow Dev Kit"],
+    icon: Bot,
+    sections: [
+      "agent-tools.md",
+      "agent-loop.md",
+      "agent-api-route.md",
+      "agent-streaming.md",
+    ],
+  },
+  {
     slug: "custom-durable-agent",
     title: "Custom Durable Agent",
     description:
       "Build a custom durable AI agent with full control over streamText options, provider configs, and tool loops. Compatible with the Workflow Development Kit.",
-    tags: ["AI", "Agents", "Workflow", "Streaming"],
+    tags: ["AI", "Agents", "Workflow Dev Kit", "Streaming"],
     icon: Bot,
     sections: ["custom-durable-agent.md"],
     requires: ["ai-agent-workflow"],
-  },
-  {
-    slug: "better-auth-setup",
-    title: "Better Auth Setup",
-    description:
-      "Add user authentication to your Next.js app using Better Auth with Drizzle ORM and Neon PostgreSQL. Supports email/password and social providers.",
-    tags: ["Auth", "Users", "Neon", "Drizzle"],
-    icon: KeyRound,
-    sections: ["better-auth-setup.md"],
-    requires: ["neon-drizzle-setup"],
   },
 ];
 

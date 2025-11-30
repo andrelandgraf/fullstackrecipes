@@ -21,12 +21,12 @@ export function Hero() {
 
           <h1 className="mb-6 text-balance text-4xl font-bold tracking-tight md:text-6xl">
             Production Patterns for{" "}
-            <span className="text-primary">Full Stack</span> React
+            <span className="text-primary">Full Stack</span> AI Apps
           </h1>
 
           <p className="mb-10 text-pretty text-lg text-muted-foreground md:text-xl">
-            Copy-paste recipes to add databases, AI capabilities, payments, and
-            more to your React applications.
+            Copy-paste recipes to add database persistence, duability, Stripe
+            subscriptions, and more to your Next.js agentic applications.
           </p>
 
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -56,22 +56,27 @@ export function Hero() {
           <p className="mb-6 text-center text-sm text-muted-foreground">
             Purpose-built for
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 opacity-60">
-            {[
-              "Next.js",
-              "React",
-              "TypeScript",
-              "Vercel",
-              "Neon",
-              "Stripe",
-              "AI SDK",
-              "Workflow Development Kit",
-              "Bun",
-            ].map((tech) => (
-              <span key={tech} className="font-mono text-sm font-medium">
-                {tech}
-              </span>
-            ))}
+          <div className="mx-auto max-w-xl">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-center opacity-60 sm:grid-cols-3 md:grid-cols-4">
+              {[
+                "Next.js",
+                "React",
+                "TypeScript",
+                "Vercel",
+                "Neon",
+                "Drizzle",
+                "better-auth",
+                "Resend",
+                "Stripe",
+                "AI SDK",
+                "WDK",
+                "Bun",
+              ].map((tech) => (
+                <span key={tech} className="font-mono text-sm font-medium">
+                  {tech}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>

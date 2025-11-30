@@ -4,6 +4,8 @@ import { useState, useMemo } from "react";
 import { RecipeCard } from "@/components/recipes/card";
 import { RecipeSearch } from "@/components/recipes/search";
 import { getAllRecipes } from "@/lib/recipes/data";
+import { Button } from "@/components/ui/button";
+import { ListOrdered } from "lucide-react";
 
 const recipes = getAllRecipes();
 
@@ -12,9 +14,10 @@ const allTags = Array.from(new Set(recipes.flatMap((r) => r.tags))).sort();
 export function RecipeGrid() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [inOrder, setInOrder] = useState(false);
 
   const filteredRecipes = useMemo(() => {
-    return recipes.filter((recipe) => {
+    const filtered = recipes.filter((recipe) => {
       const matchesSearch =
         searchQuery === "" ||
         recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -26,7 +29,9 @@ export function RecipeGrid() {
 
       return matchesSearch && matchesTags;
     });
-  }, [searchQuery, selectedTags]);
+
+    return inOrder ? filtered : [...filtered].reverse();
+  }, [searchQuery, selectedTags, inOrder]);
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
@@ -42,13 +47,24 @@ export function RecipeGrid() {
   return (
     <section id="recipes" className="py-24">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="mb-8">
-          <h2 className="mb-2 text-2xl font-bold tracking-tight md:text-3xl">
-            Featured Recipes
-          </h2>
-          <p className="text-muted-foreground">
-            Step-by-step guides to ship faster
-          </p>
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <h2 className="mb-2 text-2xl font-bold tracking-tight md:text-3xl">
+              All Recipes
+            </h2>
+            <p className="text-muted-foreground">
+              Step-by-step guides to ship faster
+            </p>
+          </div>
+          <Button
+            variant={inOrder ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => setInOrder(!inOrder)}
+            className="gap-2"
+          >
+            <ListOrdered className="h-4 w-4" />
+            In order
+          </Button>
         </div>
 
         <RecipeSearch
