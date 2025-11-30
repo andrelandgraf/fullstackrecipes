@@ -22,7 +22,7 @@ export function Playground() {
 
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Button asChild size="lg" className="gap-2 font-medium">
-              <Link href="/login">
+              <Link href="/sign-in">
                 <LogIn className="h-4 w-4" />
                 Sign In
               </Link>
@@ -34,7 +34,7 @@ export function Playground() {
               size="lg"
               className="gap-2 font-medium"
             >
-              <Link href="/signup">
+              <Link href="/sign-up">
                 <UserPlus className="h-4 w-4" />
                 Create Account
               </Link>

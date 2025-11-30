@@ -20,7 +20,7 @@ export default async function ChatPage({ params }: PageProps) {
   });
 
   if (!session) {
-    redirect("/login");
+    redirect("/sign-in");
   }
 
   const { chatId } = await params;

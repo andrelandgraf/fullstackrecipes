@@ -130,7 +130,7 @@ import { v7 as uuidv7 } from "uuid";
 
 export default function Home() {
   const newChatId = uuidv7();
-  redirect(`/${newChatId}`);
+  redirect(`/chats/${newChatId}`);
 }
 ```
 
@@ -161,7 +161,7 @@ The transport sends only the latest message. The server loads full history from 
 
 ## How It Works
 
-1. **New Chat**: User visits `/` and is redirected to `/{chatId}` with a new UUID v7
+1. **New Chat**: User visits `/` and is redirected to `/chats/{chatId}` with a new UUID v7
 2. **Load History**: The chat page loads existing messages from the database
 3. **Send Message**: Client sends user message to the API
 4. **Persist User Message**: API persists user message before streaming
