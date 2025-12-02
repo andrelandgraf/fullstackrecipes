@@ -63,7 +63,7 @@ import { defineConfig } from "drizzle-kit";
 import { databaseConfig } from "./src/lib/db/config";
 
 export default defineConfig({
-  schema: "./src/lib/db/schema.ts",
+  schema: "./src/lib/*/schema.ts",
   out: "./src/lib/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
@@ -71,6 +71,8 @@ export default defineConfig({
   },
 });
 ```
+
+ The `schema` glob pattern picks up `schema.ts` files from all feature libraries in `src/lib/`, following the "everything is a library" pattern where each feature owns its own schema. See [Philosophy](/philosophy) for more details.
 
 ### Step 6: Generate and run migrations
 

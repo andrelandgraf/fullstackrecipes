@@ -7,6 +7,7 @@ import {
   Settings,
   KeyRound,
   Mail,
+  Flag,
 } from "lucide-react";
 
 export type Recipe = {
@@ -82,6 +83,15 @@ export const recipes: Recipe[] = [
     requires: ["neon-drizzle-setup", "resend-setup"],
   },
   {
+    slug: "feature-flags-setup",
+    title: "Feature Flags with Flags SDK",
+    description:
+      "Implement feature flags using the Vercel Flags SDK with server-side evaluation, environment-based toggles, and Vercel Toolbar integration.",
+    tags: ["Config", "Vercel"],
+    icon: Flag,
+    sections: ["feature-flags-setup.md"],
+  },
+  {
     slug: "ai-chat-persistence",
     title: "AI Chat Persistence with Neon",
     description:
@@ -113,7 +123,7 @@ export const recipes: Recipe[] = [
       "stripe-ui.md",
       "stripe-deployment.md",
     ],
-    requires: ["neon-drizzle-setup"],
+    requires: ["neon-drizzle-setup", "feature-flags-setup"],
   },
   {
     slug: "ai-agent-workflow",

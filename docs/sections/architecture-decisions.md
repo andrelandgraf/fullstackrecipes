@@ -1,75 +1,66 @@
-## Architecture Decisions
+## Philosophy and Architecture Decisions
 
-This document outlines the philosophy and patterns that guide this codebase.
+This document outlines the philosophy, patterns, and coding guidelines that guide the recipes on fullstackrecipes.com. It is a living document that will be extended over time as recipes are refined and new ones are added.
+
+### Background and Context
+
+I've worked on very large codebases with dozens of team members that were plagued by years of changing patterns and opinionated refactors—migrations that left half the code following the old pattern and half following another. It was fine. Some architecture decisions can have long-lasting negative effects and turn into tech debt, but most coding styles and patterns that appear isolated are fine. This is the latest code structure I enjoy following. It also makes it easy to isolate recipes into co-located files and share them via the Shadcn registry. If you disagree with what you're seeing here, it should be easy enough to copy the desired code from the recipes and have Cursor reorganize and refactor before committing it to your codebase. I hope this document provides some clarity on how I like to organize my full-stack Next.js AI apps these days.
 
 ---
 
 ## Everything is a Library
 
-Every feature, infrastructure service, and domain concept is organized as a self-contained folder in `src/lib/` following npm package naming conventions (e.g., `chat`, `ai`, `recipes`).
-
-### Structure
-
-```
-src/lib/
-  ai/             # AI/LLM utilities
-    agent.ts
-    config.ts     # AI environment config
-    tools.ts
-  chat/           # Chat feature library
-    schema.ts     # Database schema
-    queries.ts    # Database queries
-  config/         # Centralized configuration
-    server.ts     # Aggregates all module configs
-    utils.ts      # Zod validation helpers
-  db/             # Database infrastructure
-    client.ts     # Connection pool
-    config.ts     # Database environment config
-    schema.ts     # Re-exports all schemas
-  recipes/        # Recipe feature
-    data.tsx
-    loader.ts
-```
+Every feature, infrastructure service, and domain concept is organized as a self-contained folder in `src/lib/` following npm package naming conventions (e.g., `chat`, `ai`, `recipes`). Every piece of code that is part of a feature or domain should be co-located in that folder. The exception is React components and hooks. These are located in `components/` and `hooks/` to follow the Shadcn default location. However, components should also be grouped in matching folder names. For instance, all `chat` feature components should be located in `components/chat` utilizing the code in `lib/chat`.
 
 ### Principles
 
 **Colocation**: Code that changes together stays together. A feature's schema, queries, types, and utilities live in the same folder.
 
-**Dependencies flow inward**: Libraries can depend on each other. Feature libraries (like `chat`) depend on infrastructure libraries (like `db`). Infrastructure libraries don't depend on feature libraries.
+**Dependencies flow inward**: Libraries can depend on each other. Feature libraries (like `chat`) depend on infrastructure libraries (like `db`). Infrastructure libraries do not depend on feature libraries.
 
 **No barrel files**: Export directly from source files. Import what you need from the specific file, not from an index.
 
-**Flat structure**: Avoid deep nesting. A library folder should be shallow - if it needs subdirectories, consider whether it should be split into multiple libraries.
+**Flat structure**: Avoid deep nesting. A library folder should be shallow—if it needs subdirectories, consider whether it should be split into multiple libraries.
 
 ### Example: Chat Library
 
 ```
 src/lib/chat/
+  actions.ts   # React Server Functions
   schema.ts    # Drizzle table definitions + types
   queries.ts   # Database operations
 ```
 
 The chat library owns everything related to chat persistence. Components and API routes import from `@/lib/chat/queries` and `@/lib/chat/schema`.
 
-### Example: Config Library
+### Example: db Library
 
 ```
-src/lib/config/
-  server.ts    # Aggregates all module configs into serverConfig
-  utils.ts     # PreValidate type, InvalidConfigurationError, validateConfig()
+src/lib/db/
+  migrations/  # Drizzle migrations folder
+  client.ts    # Database client
+  config.ts    # Database environment config
 ```
 
-Each feature library that needs environment variables defines its own `config.ts` (e.g., `db/config.ts`, `ai/config.ts`). The central `config/server.ts` imports and re-exports them all as `serverConfig`. See the [Environment Variable Management](/recipes/env-config) recipe for details.
+Each feature library that needs environment variables defines its own `config.ts` (e.g., `db/config.ts`, `ai/config.ts`). See the [Environment Variable Management](/recipes/env-config) recipe for details.
+
+Each feature library that requires database persistence defines a `schema.ts` file that defines the requires database schemas. Queries are made using the `client.ts` db library client.
 
 ---
 
 ## Coding Guidelines
 
-This codebase includes an `agents.md` file at the project root. This file is intended to be used as context for AI coding assistants (like Cursor, GitHub Copilot, or similar tools).
+This codebase includes an `agents.md` file at the project root which includes further code style guidelines and patterns that the recipes follow. This file is intended to be used as context for AI coding assistants (like Cursor, GitHub Copilot, or similar tools). It is based on [this X post](https://x.com/leerob/status/1993162978410004777?s=20) by [Lee Robinson](https://x.com/leerob).
 
 Copy this into your project root or AI assistant configuration:
 
 ```markdown
+# Patterns
+
+- Everything is a library: Organize features and domains as self-contained folders in `src/lib/` (e.g., `chat`, `ai`, `db`). Co-locate schema, queries, types, and utilities together. Components go in `components/<feature>/`.
+
+# Coding Guidelines
+
 ## TypeScript
 
 - Only create an abstraction if it's actually needed
@@ -100,15 +91,3 @@ Copy this into your project root or AI assistant configuration:
 - Be mindful of serialized prop size for RSC → child components
 ```
 
----
-
-## Why This Matters
-
-This structure optimizes for:
-
-1. **Discoverability**: Find all chat-related code in one place
-2. **Changeability**: Modify a feature without hunting across the codebase
-3. **Deletability**: Remove a feature by deleting its folder
-4. **Testability**: Test a library in isolation
-
-When adding a new feature, create a new library folder. When a file doesn't fit an existing library, that's a signal to create a new one.
