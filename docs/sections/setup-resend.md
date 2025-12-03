@@ -4,11 +4,13 @@ Set up [Resend](https://resend.com/docs/send-with-nextjs) for transactional emai
 
 ---
 
-### Step 1: Install the package
+### Step 1: Install the packages
 
 ```bash
-bun add resend
+bun add resend @react-email/components
 ```
+
+The `@react-email/components` package is required for Resend to render React email templates.
 
 ### Step 2: Add environment variables
 

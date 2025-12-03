@@ -1,10 +1,15 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth/server";
-import { SignUp } from "@/components/auth/sign-up";
-import { vercelSignInFlag } from "@/lib/auth/flags";
+import { ResetPassword } from "@/components/auth/reset-password";
 
-export default async function SignUpPage() {
+type SearchParams = Promise<{ token?: string; error?: string }>;
+
+export default async function ResetPasswordPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -13,11 +18,11 @@ export default async function SignUpPage() {
     redirect("/chats");
   }
 
-  const showVercelSignIn = await vercelSignInFlag();
+  const { token, error } = await searchParams;
 
   return (
     <main className="min-h-dvh flex items-center justify-center p-4">
-      <SignUp showVercelSignIn={showVercelSignIn} />
+      <ResetPassword token={token ?? null} error={error ?? null} />
     </main>
   );
 }

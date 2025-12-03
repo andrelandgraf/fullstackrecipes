@@ -1,12 +1,12 @@
-interface ForgotPasswordEmailProps {
-  resetLink: string;
+interface DeleteAccountEmailProps {
+  confirmationLink: string;
   userName?: string;
 }
 
-export function ForgotPasswordEmail({
-  resetLink,
+export function DeleteAccountEmail({
+  confirmationLink,
   userName,
-}: ForgotPasswordEmailProps) {
+}: DeleteAccountEmailProps) {
   return (
     <div
       style={{
@@ -30,13 +30,54 @@ export function ForgotPasswordEmail({
           style={{
             fontSize: "24px",
             fontWeight: "600",
-            color: "#1a1a1a",
+            color: "#dc2626",
             marginTop: "0",
             marginBottom: "16px",
           }}
         >
-          Reset your password
+          Confirm Account Deletion
         </h1>
+        <p
+          style={{
+            fontSize: "16px",
+            color: "#4a4a4a",
+            lineHeight: "1.6",
+            marginBottom: "16px",
+          }}
+        >
+          {userName ? `Hi ${userName},` : "Hi,"} we received a request to
+          permanently delete your account.
+        </p>
+        <div
+          style={{
+            backgroundColor: "#fef2f2",
+            border: "1px solid #fecaca",
+            borderRadius: "6px",
+            padding: "16px",
+            marginBottom: "24px",
+          }}
+        >
+          <p
+            style={{
+              fontSize: "14px",
+              color: "#dc2626",
+              fontWeight: "500",
+              margin: "0 0 8px 0",
+            }}
+          >
+            Warning: This action is irreversible
+          </p>
+          <p
+            style={{
+              fontSize: "14px",
+              color: "#7f1d1d",
+              margin: "0",
+            }}
+          >
+            Clicking the button below will permanently delete your account and
+            all associated data. This cannot be undone.
+          </p>
+        </div>
         <p
           style={{
             fontSize: "16px",
@@ -45,14 +86,13 @@ export function ForgotPasswordEmail({
             marginBottom: "24px",
           }}
         >
-          {userName ? `Hi ${userName},` : "Hi,"} we received a request to reset
-          your password. Click the button below to choose a new password.
+          If you&apos;re sure you want to proceed, click the button below:
         </p>
         <a
-          href={resetLink}
+          href={confirmationLink}
           style={{
             display: "inline-block",
-            backgroundColor: "#0d9488",
+            backgroundColor: "#dc2626",
             color: "#ffffff",
             padding: "14px 28px",
             borderRadius: "6px",
@@ -61,7 +101,7 @@ export function ForgotPasswordEmail({
             fontSize: "16px",
           }}
         >
-          Reset Password
+          Delete My Account
         </a>
         <p
           style={{
@@ -71,8 +111,8 @@ export function ForgotPasswordEmail({
             lineHeight: "1.5",
           }}
         >
-          If you didn&apos;t request a password reset, you can safely ignore
-          this email. Your password will remain unchanged.
+          If you didn&apos;t request this deletion, please ignore this email or
+          contact support immediately. Your account will remain safe.
         </p>
         <hr
           style={{
@@ -94,12 +134,12 @@ export function ForgotPasswordEmail({
         <p
           style={{
             fontSize: "12px",
-            color: "#0d9488",
+            color: "#dc2626",
             wordBreak: "break-all",
             marginTop: "8px",
           }}
         >
-          {resetLink}
+          {confirmationLink}
         </p>
       </div>
     </div>

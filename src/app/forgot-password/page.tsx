@@ -1,10 +1,9 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth/server";
-import { SignUp } from "@/components/auth/sign-up";
-import { vercelSignInFlag } from "@/lib/auth/flags";
+import { ForgotPassword } from "@/components/auth/forgot-password";
 
-export default async function SignUpPage() {
+export default async function ForgotPasswordPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -13,11 +12,9 @@ export default async function SignUpPage() {
     redirect("/chats");
   }
 
-  const showVercelSignIn = await vercelSignInFlag();
-
   return (
     <main className="min-h-dvh flex items-center justify-center p-4">
-      <SignUp showVercelSignIn={showVercelSignIn} />
+      <ForgotPassword />
     </main>
   );
 }

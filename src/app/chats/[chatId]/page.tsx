@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import Link from "next/link";
+import { ChefHat, ArrowLeft } from "lucide-react";
 import { SimpleChat } from "@/components/chat/chat";
 import {
   convertDbMessagesToUIMessages,
@@ -7,6 +9,8 @@ import {
   getChatMessages,
 } from "@/lib/chat/queries";
 import { auth } from "@/lib/auth/server";
+import { UserMenu } from "@/components/auth/user-menu";
+import { ThemeSelector } from "@/components/themes/selector";
 
 interface PageProps {
   params: Promise<{
@@ -51,10 +55,47 @@ export default async function ChatPage({ params }: PageProps) {
   const history = convertDbMessagesToUIMessages(messagesToConvert);
 
   return (
-    <SimpleChat
-      messageHistory={history}
-      chatId={chatId}
-      initialRunId={initialRunId ?? undefined}
-    />
+    <div className="h-screen bg-gradient-to-b from-background via-background to-muted/20 flex flex-col overflow-hidden">
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/chats"
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="text-sm font-medium">Back to chats</span>
+            </Link>
+            <span className="text-border">|</span>
+            <Link
+              href="/"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
+                <ChefHat className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <span className="font-mono text-lg font-semibold tracking-tight">
+                full<span className="text-primary">stack</span>recipes
+              </span>
+            </Link>
+            <span className="text-xs font-semibold text-accent-foreground bg-accent px-2.5 py-1 rounded-full">
+              demo
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ThemeSelector />
+            <UserMenu />
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 flex flex-col min-h-0">
+        <SimpleChat
+          messageHistory={history}
+          chatId={chatId}
+          initialRunId={initialRunId ?? undefined}
+        />
+      </main>
+    </div>
   );
 }

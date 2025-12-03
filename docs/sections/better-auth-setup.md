@@ -14,7 +14,7 @@ Add user authentication to your Next.js app using Better Auth with Drizzle ORM a
 ### Prerequisites
 
 - [Neon + Drizzle Setup](/recipes/neon-drizzle-setup) - Database configuration
-- [Resend Setup](/recipes/resend-setup) - Required for password reset emails
+- [Resend Setup](/recipes/resend-setup) - Required for email verification and password reset
 
 ---
 
@@ -137,20 +137,29 @@ export * from "@/lib/chat/schema";
 export * from "@/lib/auth/schema";
 ```
 
-### Step 5: Create the forgot password email template
+### Step 5: Create email templates
 
-Create `src/lib/auth/emails/forgot-password.tsx`:
+Create email templates for all auth flows. These are simple examples - customize styling as needed.
+
+**Password Reset** - `src/lib/auth/emails/forgot-password.tsx`:
 
 ```tsx
 interface ForgotPasswordEmailProps {
   resetLink: string;
+  userName?: string;
 }
 
-export function ForgotPasswordEmail({ resetLink }: ForgotPasswordEmailProps) {
+export function ForgotPasswordEmail({
+  resetLink,
+  userName,
+}: ForgotPasswordEmailProps) {
   return (
     <div>
       <h1>Reset Your Password</h1>
-      <p>Click the link below to reset your password:</p>
+      <p>
+        {userName ? `Hi ${userName},` : "Hi,"} we received a request to reset
+        your password.
+      </p>
       <a href={resetLink}>Reset Password</a>
       <p>If you did not request a password reset, please ignore this email.</p>
     </div>
@@ -158,9 +167,89 @@ export function ForgotPasswordEmail({ resetLink }: ForgotPasswordEmailProps) {
 }
 ```
 
+**Email Verification** - `src/lib/auth/emails/verify-email.tsx`:
+
+```tsx
+interface VerifyEmailProps {
+  verificationLink: string;
+  userName?: string;
+}
+
+export function VerifyEmail({ verificationLink, userName }: VerifyEmailProps) {
+  return (
+    <div>
+      <h1>Verify your email address</h1>
+      <p>
+        {userName ? `Hi ${userName},` : "Hi,"} please verify your email to
+        complete registration.
+      </p>
+      <a href={verificationLink}>Verify Email Address</a>
+      <p>If you didn't create an account, you can safely ignore this email.</p>
+    </div>
+  );
+}
+```
+
+**Change Email Confirmation** - `src/lib/auth/emails/change-email.tsx`:
+
+```tsx
+interface ChangeEmailProps {
+  confirmationLink: string;
+  newEmail: string;
+  userName?: string;
+}
+
+export function ChangeEmail({
+  confirmationLink,
+  newEmail,
+  userName,
+}: ChangeEmailProps) {
+  return (
+    <div>
+      <h1>Approve email change</h1>
+      <p>
+        {userName ? `Hi ${userName},` : "Hi,"} we received a request to change
+        your email to {newEmail}.
+      </p>
+      <a href={confirmationLink}>Approve Email Change</a>
+      <p>If you didn't request this change, please ignore this email.</p>
+    </div>
+  );
+}
+```
+
+**Delete Account Verification** - `src/lib/auth/emails/delete-account.tsx`:
+
+```tsx
+interface DeleteAccountEmailProps {
+  confirmationLink: string;
+  userName?: string;
+}
+
+export function DeleteAccountEmail({
+  confirmationLink,
+  userName,
+}: DeleteAccountEmailProps) {
+  return (
+    <div>
+      <h1>Confirm Account Deletion</h1>
+      <p>
+        {userName ? `Hi ${userName},` : "Hi,"} we received a request to delete
+        your account.
+      </p>
+      <p>
+        <strong>Warning:</strong> This action cannot be undone.
+      </p>
+      <a href={confirmationLink}>Delete My Account</a>
+      <p>If you didn't request this, please ignore this email.</p>
+    </div>
+  );
+}
+```
+
 ### Step 6: Create the auth server instance
 
-Create `src/lib/auth/server.tsx` (uses `.tsx` extension for JSX in email templates):
+Create `src/lib/auth/server.tsx` with full email verification, change email, and delete account support:
 
 ```tsx
 import { betterAuth } from "better-auth";
@@ -169,6 +258,9 @@ import { db } from "../db/client";
 import { authConfig } from "./config";
 import { sendEmail } from "../resend/send";
 import { ForgotPasswordEmail } from "./emails/forgot-password";
+import { VerifyEmail } from "./emails/verify-email";
+import { ChangeEmail } from "./emails/change-email";
+import { DeleteAccountEmail } from "./emails/delete-account";
 import * as schema from "./schema";
 
 export const auth = betterAuth({
@@ -185,16 +277,59 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
     async sendResetPassword({ user, url }) {
-      await sendEmail({
+      void sendEmail({
         to: user.email,
         subject: "Reset Your Password",
-        react: <ForgotPasswordEmail resetLink={url} />,
+        react: <ForgotPasswordEmail resetLink={url} userName={user.name} />,
       });
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    async sendVerificationEmail({ user, url }) {
+      void sendEmail({
+        to: user.email,
+        subject: "Verify your email address",
+        react: <VerifyEmail verificationLink={url} userName={user.name} />,
+      });
+    },
+  },
+  user: {
+    changeEmail: {
+      enabled: true,
+      async sendChangeEmailConfirmation({ user, newEmail, url }) {
+        void sendEmail({
+          to: user.email,
+          subject: "Approve email change",
+          react: (
+            <ChangeEmail
+              confirmationLink={url}
+              newEmail={newEmail}
+              userName={user.name}
+            />
+          ),
+        });
+      },
+    },
+    deleteUser: {
+      enabled: true,
+      async sendDeleteAccountVerification({ user, url }) {
+        void sendEmail({
+          to: user.email,
+          subject: "Confirm account deletion",
+          react: (
+            <DeleteAccountEmail confirmationLink={url} userName={user.name} />
+          ),
+        });
+      },
     },
   },
 });
 ```
+
+> **Note:** Using `void` instead of `await` for email sending prevents timing attacks and improves response times.
 
 ### Step 7: Create the API route handler
 
@@ -221,11 +356,720 @@ export const authClient = createAuthClient();
 export const { signIn, signUp, signOut, useSession } = authClient;
 ```
 
-### Step 9: Generate and run migrations
+### Step 9: Add Toaster to layout
+
+Update `src/app/layout.tsx` to include the toast notification provider:
+
+```tsx
+import { Toaster } from "@/components/ui/sonner";
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <Toaster richColors position="top-center" />
+      </body>
+    </html>
+  );
+}
+```
+
+### Step 10: Generate and run migrations
 
 ```bash
 bun run db:generate
 bun run db:migrate
+```
+
+---
+
+## Auth Pages
+
+Create pages for all auth flows with server-side session checks.
+
+### Sign In Page
+
+`src/app/sign-in/page.tsx`:
+
+```tsx
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth/server";
+import { SignIn } from "@/components/auth/sign-in";
+
+export default async function SignInPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
+  return (
+    <main className="min-h-dvh flex items-center justify-center p-4">
+      <SignIn />
+    </main>
+  );
+}
+```
+
+### Sign Up Page
+
+`src/app/sign-up/page.tsx`:
+
+```tsx
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth/server";
+import { SignUp } from "@/components/auth/sign-up";
+
+export default async function SignUpPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
+  return (
+    <main className="min-h-dvh flex items-center justify-center p-4">
+      <SignUp />
+    </main>
+  );
+}
+```
+
+### Forgot Password Page
+
+`src/app/forgot-password/page.tsx`:
+
+```tsx
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth/server";
+import { ForgotPassword } from "@/components/auth/forgot-password";
+
+export default async function ForgotPasswordPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
+  return (
+    <main className="min-h-dvh flex items-center justify-center p-4">
+      <ForgotPassword />
+    </main>
+  );
+}
+```
+
+### Reset Password Page
+
+`src/app/reset-password/page.tsx`:
+
+```tsx
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth/server";
+import { ResetPassword } from "@/components/auth/reset-password";
+
+type SearchParams = Promise<{ token?: string; error?: string }>;
+
+export default async function ResetPasswordPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
+  const { token, error } = await searchParams;
+
+  return (
+    <main className="min-h-dvh flex items-center justify-center p-4">
+      <ResetPassword token={token ?? null} error={error ?? null} />
+    </main>
+  );
+}
+```
+
+---
+
+## UI Components
+
+### Sign In Component
+
+`src/components/auth/sign-in.tsx`:
+
+This component handles email/password sign-in and includes inline resend verification when `requireEmailVerification` is enabled. When a user tries to sign in without verifying their email, they see an inline alert with a resend option instead of being stuck.
+
+```tsx
+"use client";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
+import { Loader2, AlertCircle, Send } from "lucide-react";
+import { signIn, authClient } from "@/lib/auth/client";
+import Link from "next/link";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+
+export function SignIn() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const router = useRouter();
+
+  const handleResendVerification = async () => {
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    setResendLoading(true);
+    try {
+      const { error } = await authClient.sendVerificationEmail({
+        email,
+        callbackURL: "/sign-in",
+      });
+
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+
+      toast.success("Verification email sent! Please check your inbox.");
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailNotVerified(false);
+
+    await signIn.email(
+      { email, password, rememberMe, callbackURL: "/dashboard" },
+      {
+        onRequest: () => setLoading(true),
+        onResponse: () => setLoading(false),
+        onError: (ctx) => {
+          const errorMessage = ctx.error.message.toLowerCase();
+          if (
+            errorMessage.includes("email not verified") ||
+            errorMessage.includes("verify your email")
+          ) {
+            setEmailNotVerified(true);
+          } else {
+            toast.error(ctx.error.message);
+          }
+        },
+        onSuccess: () => router.push("/dashboard"),
+      },
+    );
+  };
+
+  return (
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Sign In</CardTitle>
+        <CardDescription>Enter your email below to login</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {emailNotVerified && (
+          <div className="rounded-lg border border-amber-600/30 bg-amber-950/50 p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="size-5 text-amber-500 shrink-0 mt-0.5" />
+              <div className="flex flex-col gap-2">
+                <p className="font-medium text-amber-200">Email not verified</p>
+                <p className="text-sm text-amber-200/70">
+                  Please verify your email address before signing in.
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-fit text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 px-0"
+                  onClick={handleResendVerification}
+                  disabled={resendLoading}
+                >
+                  {resendLoading ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Send className="size-4" />
+                  )}
+                  Resend verification email
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              <Link href="/forgot-password" className="text-sm underline">
+                Forgot password?
+              </Link>
+            </div>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="remember"
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMe(checked === true)}
+            />
+            <Label htmlFor="remember" className="text-sm font-normal">
+              Remember me
+            </Label>
+          </div>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? <Loader2 className="size-4 animate-spin" /> : "Sign in"}
+          </Button>
+        </form>
+      </CardContent>
+      <CardFooter className="justify-center border-t pt-4">
+        <p className="text-sm text-muted-foreground">
+          Don't have an account?{" "}
+          <Link href="/sign-up" className="underline">
+            Sign up
+          </Link>
+        </p>
+      </CardFooter>
+    </Card>
+  );
+}
+```
+
+> **Note:** When `requireEmailVerification: true` is set in the server config, users cannot sign in until they verify their email. The inline resend option provides a smooth UX for users who haven't verified yet.
+
+### Sign Up Component
+
+`src/components/auth/sign-up.tsx`:
+
+```tsx
+"use client";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { signUp } from "@/lib/auth/client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+
+export function SignUp() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    await signUp.email(
+      { email, password, name },
+      {
+        onRequest: () => setLoading(true),
+        onResponse: () => setLoading(false),
+        onError: (ctx) => {
+          toast.error(ctx.error.message);
+        },
+        onSuccess: () => {
+          setSuccess(true);
+          toast.success("Check your email to verify your account");
+        },
+      },
+    );
+  };
+
+  if (success) {
+    return (
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle>Check your email</CardTitle>
+          <CardDescription>
+            We've sent a verification link to <strong>{email}</strong>
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="justify-center">
+          <Button variant="outline" onClick={() => router.push("/sign-in")}>
+            Back to sign in
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Create an account</CardTitle>
+        <CardDescription>Enter your details to get started</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm-password">Confirm Password</Label>
+            <Input
+              id="confirm-password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              "Create account"
+            )}
+          </Button>
+        </form>
+      </CardContent>
+      <CardFooter className="justify-center border-t pt-4">
+        <p className="text-sm text-muted-foreground">
+          Already have an account?{" "}
+          <Link href="/sign-in" className="underline">
+            Sign in
+          </Link>
+        </p>
+      </CardFooter>
+    </Card>
+  );
+}
+```
+
+### Forgot Password Component
+
+`src/components/auth/forgot-password.tsx`:
+
+```tsx
+"use client";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { authClient } from "@/lib/auth/client";
+import { toast } from "sonner";
+import Link from "next/link";
+
+export function ForgotPassword() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const { error } = await authClient.forgetPassword({
+      email,
+      redirectTo: "/reset-password",
+    });
+    setLoading(false);
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setSuccess(true);
+  };
+
+  if (success) {
+    return (
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle>Check your email</CardTitle>
+          <CardDescription>
+            If an account exists for {email}, we've sent password reset
+            instructions.
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="justify-center">
+          <Link href="/sign-in">
+            <Button variant="outline">Back to sign in</Button>
+          </Link>
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Forgot password?</CardTitle>
+        <CardDescription>
+          Enter your email and we'll send you a reset link
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              "Send reset link"
+            )}
+          </Button>
+        </form>
+      </CardContent>
+      <CardFooter className="justify-center border-t pt-4">
+        <Link href="/sign-in">
+          <Button variant="ghost">Back to sign in</Button>
+        </Link>
+      </CardFooter>
+    </Card>
+  );
+}
+```
+
+### Reset Password Component
+
+`src/components/auth/reset-password.tsx`:
+
+```tsx
+"use client";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { authClient } from "@/lib/auth/client";
+import { toast } from "sonner";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+type ResetPasswordProps = {
+  token: string | null;
+  error: string | null;
+};
+
+export function ResetPassword({ token, error }: ResetPasswordProps) {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
+
+  if (error || !token) {
+    return (
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle>Invalid link</CardTitle>
+          <CardDescription>
+            This password reset link is invalid or has expired.
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="justify-center">
+          <Link href="/forgot-password">
+            <Button>Request new link</Button>
+          </Link>
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await authClient.resetPassword({
+      newPassword: password,
+      token,
+    });
+    setLoading(false);
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setSuccess(true);
+    toast.success("Password reset successfully!");
+  };
+
+  if (success) {
+    return (
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle>Password reset!</CardTitle>
+          <CardDescription>
+            You can now sign in with your new password.
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="justify-center">
+          <Button onClick={() => router.push("/sign-in")}>Sign in</Button>
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Set new password</CardTitle>
+        <CardDescription>Enter your new password below</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="password">New password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm-password">Confirm new password</Label>
+            <Input
+              id="confirm-password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              "Reset password"
+            )}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
 ```
 
 ---
@@ -237,7 +1081,7 @@ bun run db:migrate
 ```typescript
 import { signUp } from "@/lib/auth/client";
 
-const { data, error } = await signUp.email({
+await signUp.email({
   email: "user@example.com",
   password: "securepassword",
   name: "John Doe",
@@ -249,7 +1093,7 @@ const { data, error } = await signUp.email({
 ```typescript
 import { signIn } from "@/lib/auth/client";
 
-const { data, error } = await signIn.email({
+await signIn.email({
   email: "user@example.com",
   password: "securepassword",
 });
@@ -265,25 +1109,88 @@ await signOut();
 
 ### Forgot Password
 
-Request a password reset email:
-
 ```typescript
 import { authClient } from "@/lib/auth/client";
 
-const { error } = await authClient.forgetPassword({
+await authClient.forgetPassword({
   email: "user@example.com",
   redirectTo: "/reset-password",
 });
 ```
 
-Reset the password with the token from the email:
+### Reset Password
 
 ```typescript
 import { authClient } from "@/lib/auth/client";
 
-const { error } = await authClient.resetPassword({
+await authClient.resetPassword({
   newPassword: "newSecurePassword",
+  token: "token-from-url",
 });
+```
+
+### Send Verification Email
+
+```typescript
+import { authClient } from "@/lib/auth/client";
+
+await authClient.sendVerificationEmail({
+  email: "user@example.com",
+  callbackURL: "/dashboard",
+});
+```
+
+### Change Email
+
+```typescript
+import { authClient } from "@/lib/auth/client";
+
+await authClient.changeEmail({
+  newEmail: "newemail@example.com",
+  callbackURL: "/profile",
+});
+```
+
+### Change Password
+
+```typescript
+import { authClient } from "@/lib/auth/client";
+
+await authClient.changePassword({
+  currentPassword: "oldPassword",
+  newPassword: "newPassword",
+  revokeOtherSessions: true,
+});
+```
+
+### Delete Account
+
+```typescript
+import { authClient } from "@/lib/auth/client";
+
+await authClient.deleteUser({
+  password: "password",
+  callbackURL: "/",
+});
+```
+
+### Update User Profile
+
+```typescript
+import { authClient } from "@/lib/auth/client";
+
+await authClient.updateUser({
+  name: "New Name",
+  image: "https://example.com/avatar.jpg",
+});
+```
+
+### Revoke Other Sessions
+
+```typescript
+import { authClient } from "@/lib/auth/client";
+
+await authClient.revokeOtherSessions();
 ```
 
 ### Get Session (Client)
@@ -322,398 +1229,53 @@ export default async function Page() {
 }
 ```
 
+### Protected Page Pattern
+
+```tsx
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth/server";
+
+export default async function ProtectedPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/sign-in");
+  }
+
+  return <div>Welcome, {session.user.name}</div>;
+}
+```
+
 ---
 
 ## File Structure
-
-Following the [Architecture Decisions](/recipes/architecture-decisions), all auth code lives in `src/lib/auth/`:
 
 ```
 src/lib/auth/
   config.ts    # Environment validation
   schema.ts    # Drizzle table definitions
-  server.tsx   # Better Auth server instance (JSX for email templates)
+  server.tsx   # Better Auth server instance
   client.ts    # React client hooks
   emails/
-    forgot-password.tsx    # Password reset email template
+    forgot-password.tsx
+    verify-email.tsx
+    change-email.tsx
+    delete-account.tsx
 
 src/components/auth/
-  sign-in.tsx  # Sign in form component
-  sign-up.tsx  # Sign up form component
-```
+  sign-in.tsx
+  sign-up.tsx
+  forgot-password.tsx
+  reset-password.tsx
 
----
-
-## UI Components
-
-Pre-built sign-in and sign-up components using shadcn/ui.
-
-### Sign In Component
-
-Create `src/components/auth/sign-in.tsx`:
-
-```tsx
-"use client";
-
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
-import { signIn } from "@/lib/auth/client";
-import Link from "next/link";
-
-export function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-
-  return (
-    <Card className="max-w-md">
-      <CardHeader>
-        <CardTitle className="text-lg md:text-xl">Sign In</CardTitle>
-        <CardDescription className="text-xs md:text-sm">
-          Enter your email below to login to your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              required
-              onChange={(e) => {
-                setEmail(e.target.value);
-              }}
-              value={email}
-            />
-          </div>
-          <div className="grid gap-2">
-            <div className="flex items-center">
-              <Label htmlFor="password">Password</Label>
-              <Link
-                href="/forgot-password"
-                className="ml-auto inline-block text-sm underline"
-              >
-                Forgot your password?
-              </Link>
-            </div>
-            <Input
-              id="password"
-              type="password"
-              placeholder="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="remember"
-              checked={rememberMe}
-              onCheckedChange={(checked) => setRememberMe(checked === true)}
-            />
-            <Label htmlFor="remember">Remember me</Label>
-          </div>
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading}
-            onClick={async () => {
-              await signIn.email(
-                {
-                  email,
-                  password,
-                  rememberMe,
-                },
-                {
-                  onRequest: () => {
-                    setLoading(true);
-                  },
-                  onResponse: () => {
-                    setLoading(false);
-                  },
-                },
-              );
-            }}
-          >
-            {loading ? <Loader2 size={16} className="animate-spin" /> : "Login"}
-          </Button>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <div className="flex justify-center w-full border-t py-4">
-          <p className="text-center text-xs text-neutral-500">
-            Don&apos;t have an account?{" "}
-            <Link href="/sign-up" className="underline">
-              Sign up
-            </Link>
-          </p>
-        </div>
-      </CardFooter>
-    </Card>
-  );
-}
-```
-
-### Sign Up Component
-
-Create `src/components/auth/sign-up.tsx`:
-
-```tsx
-"use client";
-
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import Image from "next/image";
-import { Loader2, X } from "lucide-react";
-import { signUp } from "@/lib/auth/client";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-
-export function SignUp() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirmation, setPasswordConfirmation] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  return (
-    <Card className="max-w-md">
-      <CardHeader>
-        <CardTitle className="text-lg md:text-xl">Sign Up</CardTitle>
-        <CardDescription className="text-xs md:text-sm">
-          Enter your information to create an account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="first-name">First name</Label>
-              <Input
-                id="first-name"
-                placeholder="Max"
-                required
-                onChange={(e) => {
-                  setFirstName(e.target.value);
-                }}
-                value={firstName}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="last-name">Last name</Label>
-              <Input
-                id="last-name"
-                placeholder="Robinson"
-                required
-                onChange={(e) => {
-                  setLastName(e.target.value);
-                }}
-                value={lastName}
-              />
-            </div>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              required
-              onChange={(e) => {
-                setEmail(e.target.value);
-              }}
-              value={email}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-              placeholder="Password"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password_confirmation">Confirm Password</Label>
-            <Input
-              id="password_confirmation"
-              type="password"
-              value={passwordConfirmation}
-              onChange={(e) => setPasswordConfirmation(e.target.value)}
-              autoComplete="new-password"
-              placeholder="Confirm Password"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="image">Profile Image (optional)</Label>
-            <div className="flex items-end gap-4">
-              {imagePreview && (
-                <div className="relative w-16 h-16 rounded-sm overflow-hidden">
-                  <Image
-                    src={imagePreview}
-                    alt="Profile preview"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              )}
-              <div className="flex items-center gap-2 w-full">
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full"
-                />
-                {imagePreview && (
-                  <X
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setImage(null);
-                      setImagePreview(null);
-                    }}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading}
-            onClick={async () => {
-              if (password !== passwordConfirmation) {
-                toast.error("Passwords do not match");
-                return;
-              }
-              await signUp.email({
-                email,
-                password,
-                name: `${firstName} ${lastName}`,
-                image: image ? await convertImageToBase64(image) : "",
-                callbackURL: "/",
-                fetchOptions: {
-                  onResponse: () => {
-                    setLoading(false);
-                  },
-                  onRequest: () => {
-                    setLoading(true);
-                  },
-                  onError: (ctx) => {
-                    toast.error(ctx.error.message);
-                  },
-                  onSuccess: async () => {
-                    router.push("/");
-                  },
-                },
-              });
-            }}
-          >
-            {loading ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              "Create an account"
-            )}
-          </Button>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <div className="flex justify-center w-full border-t py-4">
-          <p className="text-center text-xs text-neutral-500">
-            Already have an account?{" "}
-            <Link href="/sign-in" className="underline">
-              Sign in
-            </Link>
-          </p>
-        </div>
-      </CardFooter>
-    </Card>
-  );
-}
-
-async function convertImageToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-```
-
-### Using the Components
-
-Create pages that use these components:
-
-```tsx
-// src/app/sign-in/page.tsx
-import { SignIn } from "@/components/auth/sign-in";
-
-export default function SignInPage() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <SignIn />
-    </div>
-  );
-}
-```
-
-```tsx
-// src/app/sign-up/page.tsx
-import { SignUp } from "@/components/auth/sign-up";
-
-export default function SignUpPage() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <SignUp />
-    </div>
-  );
-}
+src/app/
+  sign-in/page.tsx
+  sign-up/page.tsx
+  forgot-password/page.tsx
+  reset-password/page.tsx
 ```
 
 ---

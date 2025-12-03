@@ -1,12 +1,9 @@
-interface ForgotPasswordEmailProps {
-  resetLink: string;
+interface VerifyEmailProps {
+  verificationLink: string;
   userName?: string;
 }
 
-export function ForgotPasswordEmail({
-  resetLink,
-  userName,
-}: ForgotPasswordEmailProps) {
+export function VerifyEmail({ verificationLink, userName }: VerifyEmailProps) {
   return (
     <div
       style={{
@@ -35,7 +32,7 @@ export function ForgotPasswordEmail({
             marginBottom: "16px",
           }}
         >
-          Reset your password
+          Verify your email address
         </h1>
         <p
           style={{
@@ -45,11 +42,12 @@ export function ForgotPasswordEmail({
             marginBottom: "24px",
           }}
         >
-          {userName ? `Hi ${userName},` : "Hi,"} we received a request to reset
-          your password. Click the button below to choose a new password.
+          {userName ? `Hi ${userName},` : "Hi,"} thanks for signing up! Please
+          verify your email address to complete your registration and access all
+          features.
         </p>
         <a
-          href={resetLink}
+          href={verificationLink}
           style={{
             display: "inline-block",
             backgroundColor: "#0d9488",
@@ -61,7 +59,7 @@ export function ForgotPasswordEmail({
             fontSize: "16px",
           }}
         >
-          Reset Password
+          Verify Email Address
         </a>
         <p
           style={{
@@ -71,8 +69,8 @@ export function ForgotPasswordEmail({
             lineHeight: "1.5",
           }}
         >
-          If you didn&apos;t request a password reset, you can safely ignore
-          this email. Your password will remain unchanged.
+          If you didn&apos;t create an account, you can safely ignore this
+          email.
         </p>
         <hr
           style={{
@@ -99,7 +97,7 @@ export function ForgotPasswordEmail({
             marginTop: "8px",
           }}
         >
-          {resetLink}
+          {verificationLink}
         </p>
       </div>
     </div>

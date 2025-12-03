@@ -124,7 +124,7 @@ export function SimpleChat({
   });
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-full flex-col">
       <Conversation>
         <ConversationContent>
           {messages.map((message) => (

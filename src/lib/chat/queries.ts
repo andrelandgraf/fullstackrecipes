@@ -33,7 +33,7 @@ import {
 } from "./schema";
 import { v7 as uuidv7 } from "uuid";
 import assert from "@/lib/common/assert";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 
 /**
  * Ensure a chat exists for the given user, creating it if necessary.
@@ -482,4 +482,87 @@ export async function getChatMessages(
       parts,
     };
   });
+}
+
+export type ChatWithPreview = {
+  id: string;
+  title: string;
+  createdAt: Date;
+  updatedAt: Date;
+  messageCount: number;
+  lastMessagePreview: string | null;
+};
+
+export async function getUserChats(userId: string): Promise<ChatWithPreview[]> {
+  const userChats = await db.query.chats.findMany({
+    where: eq(chats.userId, userId),
+    orderBy: [desc(chats.updatedAt)],
+  });
+
+  const chatPreviews = await Promise.all(
+    userChats.map(async (chat) => {
+      const chatMessages = await db.query.messages.findMany({
+        where: eq(messages.chatId, chat.id),
+      });
+
+      const lastUserMessage = chatMessages
+        .filter((m) => m.role === "user")
+        .at(-1);
+
+      let lastMessagePreview: string | null = null;
+      if (lastUserMessage) {
+        const textPart = await db.query.messageTexts.findFirst({
+          where: eq(messageTexts.messageId, lastUserMessage.id),
+        });
+        lastMessagePreview = textPart?.text?.slice(0, 100) ?? null;
+      }
+
+      return {
+        id: chat.id,
+        title: chat.title,
+        createdAt: chat.createdAt,
+        updatedAt: chat.updatedAt,
+        messageCount: chatMessages.length,
+        lastMessagePreview,
+      };
+    }),
+  );
+
+  return chatPreviews;
+}
+
+export async function deleteChat(
+  chatId: string,
+  userId: string,
+): Promise<boolean> {
+  const chat = await db.query.chats.findFirst({
+    where: and(eq(chats.id, chatId), eq(chats.userId, userId)),
+  });
+
+  if (!chat) {
+    return false;
+  }
+
+  await db.delete(chats).where(eq(chats.id, chatId));
+  return true;
+}
+
+export async function renameChat(
+  chatId: string,
+  userId: string,
+  newTitle: string,
+): Promise<boolean> {
+  const chat = await db.query.chats.findFirst({
+    where: and(eq(chats.id, chatId), eq(chats.userId, userId)),
+  });
+
+  if (!chat) {
+    return false;
+  }
+
+  await db
+    .update(chats)
+    .set({ title: newTitle, updatedAt: new Date() })
+    .where(eq(chats.id, chatId));
+  return true;
 }

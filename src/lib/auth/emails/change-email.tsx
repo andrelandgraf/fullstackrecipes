@@ -1,12 +1,14 @@
-interface ForgotPasswordEmailProps {
-  resetLink: string;
+interface ChangeEmailProps {
+  confirmationLink: string;
+  newEmail: string;
   userName?: string;
 }
 
-export function ForgotPasswordEmail({
-  resetLink,
+export function ChangeEmail({
+  confirmationLink,
+  newEmail,
   userName,
-}: ForgotPasswordEmailProps) {
+}: ChangeEmailProps) {
   return (
     <div
       style={{
@@ -35,8 +37,47 @@ export function ForgotPasswordEmail({
             marginBottom: "16px",
           }}
         >
-          Reset your password
+          Approve email change
         </h1>
+        <p
+          style={{
+            fontSize: "16px",
+            color: "#4a4a4a",
+            lineHeight: "1.6",
+            marginBottom: "16px",
+          }}
+        >
+          {userName ? `Hi ${userName},` : "Hi,"} we received a request to change
+          your email address.
+        </p>
+        <div
+          style={{
+            backgroundColor: "#f5f5f5",
+            borderRadius: "6px",
+            padding: "16px",
+            marginBottom: "24px",
+          }}
+        >
+          <p
+            style={{
+              fontSize: "14px",
+              color: "#6b6b6b",
+              margin: "0 0 4px 0",
+            }}
+          >
+            New email address:
+          </p>
+          <p
+            style={{
+              fontSize: "16px",
+              color: "#1a1a1a",
+              fontWeight: "500",
+              margin: "0",
+            }}
+          >
+            {newEmail}
+          </p>
+        </div>
         <p
           style={{
             fontSize: "16px",
@@ -45,11 +86,11 @@ export function ForgotPasswordEmail({
             marginBottom: "24px",
           }}
         >
-          {userName ? `Hi ${userName},` : "Hi,"} we received a request to reset
-          your password. Click the button below to choose a new password.
+          Click the button below to approve this change. A verification email
+          will then be sent to your new email address.
         </p>
         <a
-          href={resetLink}
+          href={confirmationLink}
           style={{
             display: "inline-block",
             backgroundColor: "#0d9488",
@@ -61,7 +102,7 @@ export function ForgotPasswordEmail({
             fontSize: "16px",
           }}
         >
-          Reset Password
+          Approve Email Change
         </a>
         <p
           style={{
@@ -71,8 +112,8 @@ export function ForgotPasswordEmail({
             lineHeight: "1.5",
           }}
         >
-          If you didn&apos;t request a password reset, you can safely ignore
-          this email. Your password will remain unchanged.
+          If you didn&apos;t request this change, please ignore this email or
+          contact support if you&apos;re concerned about your account security.
         </p>
         <hr
           style={{
@@ -99,7 +140,7 @@ export function ForgotPasswordEmail({
             marginTop: "8px",
           }}
         >
-          {resetLink}
+          {confirmationLink}
         </p>
       </div>
     </div>
