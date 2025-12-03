@@ -27,13 +27,19 @@ Create `src/lib/db/client.ts`:
 import { attachDatabasePool } from "@vercel/functions";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import { serverConfig } from "../config/server";
-import * as schema from "./schema";
+import { databaseConfig } from "./config";
+
+import * as authSchema from "@/lib/auth/schema";
+import * as chatSchema from "@/lib/chat/schema";
+
+const schema = {
+  ...authSchema,
+  ...chatSchema,
+};
 
 const pool = new Pool({
-  connectionString: serverConfig.database.url,
+  connectionString: databaseConfig.url,
 });
-
 attachDatabasePool(pool);
 
 const db = drizzle({ client: pool, schema });
@@ -41,20 +47,11 @@ const db = drizzle({ client: pool, schema });
 export { db };
 ```
 
-> **Note**: This uses the type-safe `serverConfig` pattern instead of accessing `process.env` directly. See the [Environment Variable Management](/recipes/env-config) recipe for setup details.
+The `databaseConfig` import provides type-safe access to the `DATABASE_URL` environment variable. See the [Environment Variable Management](/recipes/env-config) recipe for the config setup pattern.
 
-### Step 4: Create your schema file
+Each feature library owns its own schema file (e.g., `@/lib/auth/schema`, `@/lib/chat/schema`). Instead of a central `db/schema.ts` aggregation file, schemas are imported directly in `client.ts` and merged into a single object for type-safe queries.
 
-Create `src/lib/db/schema.ts` to re-export all table definitions from your feature libs:
-
-```typescript
-export * from "@/lib/chat/schema";
-export * from "@/lib/stripe/schema";
-```
-
-Each feature lib owns its own schema. The central `db/schema.ts` just aggregates them for Drizzle.
-
-### Step 5: Configure Drizzle Kit
+### Step 4: Configure Drizzle Kit
 
 Create `drizzle.config.ts` in your project root:
 
@@ -74,7 +71,7 @@ export default defineConfig({
 
 The `schema` glob pattern picks up `schema.ts` files from all feature libraries in `src/lib/`, following the "everything is a library" pattern where each feature owns its own schema. See [Philosophy](/philosophy) for more details.
 
-### Step 6: Generate and run migrations
+### Step 5: Generate and run migrations
 
 ```bash
 npx drizzle-kit generate
