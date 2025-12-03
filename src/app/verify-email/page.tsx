@@ -23,7 +23,7 @@ export default async function VerifyEmailPage({
         query: { token },
         headers: await headers(),
       });
-      verificationResult = { success: !result.error };
+      verificationResult = { success: result?.status === true };
     } catch {
       verificationResult = { success: false, error: "VERIFICATION_FAILED" };
     }
