@@ -40,6 +40,7 @@ export const recipes: Recipe[] = [
       "drizzle-with-node-postgres.md",
       "setup-ai-sdk.md",
       "setup-simple-chat.md",
+      "agents-setup.md",
     ],
     includes: ["env-config", "neon-drizzle-setup"],
   },

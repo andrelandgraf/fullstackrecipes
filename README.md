@@ -1,13 +1,14 @@
 # Full Stack Recipes
 
-**[fullstackrecipes.com](https://fullstackrecipes.com)** — A Shadcn registry and collection of production-ready patterns and step-by-step guides (recipes) for full stack web apps and agentic apps specifically.
+**[fullstackrecipes.com](https://fullstackrecipes.com)** — A Shadcn registry and collection of complete step-by-step guides (recipes) for building full-stack web apps and agentic applications.
 
 ## Stack
 
 - Full-stack framework: **Next.js**
-- ORM: **Drizzle**
+- UI components: **Shadcn & AI Elements**
 - Agent runtime: **Workflow Development Kit**
 - Agent framework: **AI SDK v6**
-- UI components: **Shadcn & AI Elements**
-- Database: **Neon Serverless Postgres**
+- ORM: **Drizzle**
 - TypeScript runtime & package manager: **Bun**
+- Hosting environment: **Vercel Fluid Compute**
+- Database: **Neon Serverless Postgres**

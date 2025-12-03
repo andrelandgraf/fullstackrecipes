@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Copy, Layers } from "lucide-react";
+import { ArrowRight, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { recipes } from "@/lib/recipes/data";
 
@@ -43,9 +43,9 @@ export function Hero() {
               size="lg"
               className="gap-2 font-medium"
             >
-              <Link href="/philosophy">
-                <Layers className="h-4 w-4" />
-                Philosophy
+              <Link href="/intro">
+                <BookOpen className="h-4 w-4" />
+                Get Started
               </Link>
             </Button>
           </div>
