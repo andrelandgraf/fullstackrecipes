@@ -2,6 +2,16 @@
 
 Type-safe environment variable validation using Zod with a modular config pattern.
 
+### Install via Registry
+
+```bash
+bunx shadcn@latest add https://fullstackrecipes.com/r/validate-config.json
+```
+
+This installs the `validate-config.ts` utility to `src/lib/common/validate-config.ts`.
+
+---
+
 ### Why This Pattern?
 
 - **Type safety**: Catch missing or invalid env vars at startup, not runtime

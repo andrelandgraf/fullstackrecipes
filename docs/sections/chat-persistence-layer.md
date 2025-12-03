@@ -2,6 +2,14 @@
 
 The persistence layer handles converting between AI SDK's `UIMessage` format and your database tables. This includes type definitions, query helpers, and persistence functions.
 
+### Install Assertion Helper via Registry
+
+```bash
+bunx shadcn@latest add https://fullstackrecipes.com/r/assert.json
+```
+
+This installs the assertion utility to `src/lib/common/assert.ts`, used throughout the persistence layer for runtime type checks.
+
 ### Chat Types
 
 Create `src/lib/chat/types.ts` to define types that extend AI SDK's base types with your tools and data parts:

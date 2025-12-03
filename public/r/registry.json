@@ -1,0 +1,64 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "fullstackrecipes",
+  "homepage": "https://fullstackrecipes.com",
+  "items": [
+    {
+      "name": "validate-config",
+      "type": "registry:lib",
+      "title": "Environment Variable Validation",
+      "description": "Type-safe environment variable validation using Zod with clear error messages. Validates config at startup and provides full TypeScript autocompletion.",
+      "dependencies": ["zod"],
+      "files": [
+        {
+          "path": "src/lib/common/validate-config.ts",
+          "type": "registry:lib",
+          "target": "lib/common/validate-config.ts"
+        }
+      ]
+    },
+    {
+      "name": "assert",
+      "type": "registry:lib",
+      "title": "Assertion Helper",
+      "description": "TypeScript assertion function that narrows types when condition is truthy. Throws with optional message if condition is falsy.",
+      "files": [
+        {
+          "path": "src/lib/common/assert.ts",
+          "type": "registry:lib",
+          "target": "lib/common/assert.ts"
+        }
+      ]
+    },
+    {
+      "name": "use-resumable-chat",
+      "type": "registry:hook",
+      "title": "Resumable Chat Hook",
+      "description": "React hook wrapping useChat with WorkflowChatTransport for automatic stream resumption. Handles reconnection to interrupted workflow streams.",
+      "dependencies": ["@ai-sdk/react", "@workflow/ai", "uuid"],
+      "files": [
+        {
+          "path": "src/hooks/use-resumable-chat.ts",
+          "type": "registry:hook",
+          "target": "hooks/use-resumable-chat.ts"
+        }
+      ],
+      "docs": "This hook requires a ChatAgentUIMessage type definition. Update the import path to match your project structure."
+    },
+    {
+      "name": "durable-agent",
+      "type": "registry:lib",
+      "title": "Durable Agent",
+      "description": "AI agent class that executes streamText in a tool loop with workflow compatibility. Supports provider options, streaming control, and step-level durability via 'use step' directive.",
+      "dependencies": ["ai", "@ai-sdk/provider-utils"],
+      "files": [
+        {
+          "path": "src/lib/ai/agent.ts",
+          "type": "registry:lib",
+          "target": "lib/ai/agent.ts"
+        }
+      ],
+      "docs": "This agent requires tool definitions. Update the import from './tools' to match your project's tool configuration."
+    }
+  ]
+}

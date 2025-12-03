@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-resumable-chat",
+  "type": "registry:hook",
+  "title": "Resumable Chat Hook",
+  "description": "React hook wrapping useChat with WorkflowChatTransport for automatic stream resumption. Handles reconnection to interrupted workflow streams.",
+  "dependencies": ["@ai-sdk/react", "@workflow/ai", "uuid"],
+  "files": [
+    {
+      "path": "src/hooks/use-resumable-chat.ts",
+      "content": "\"use client\";\n\nimport { useChat } from \"@ai-sdk/react\";\nimport { WorkflowChatTransport } from \"@workflow/ai\";\nimport { v7 as uuidv7 } from \"uuid\";\nimport type { ChatAgentUIMessage } from \"@/workflows/chat/types\";\nimport { useRef } from \"react\";\n\ninterface UseResumableChatOptions {\n  chatId: string;\n  messageHistory: ChatAgentUIMessage[];\n  /** Initial workflow run ID for resuming an interrupted stream */\n  initialRunId?: string;\n}\n\n/**\n * Custom hook that wraps useChat with WorkflowChatTransport for resumable streaming.\n *\n * Uses useStateRef to track the active workflow run ID, enabling automatic\n * reconnection to interrupted streams without stale closure issues.\n */\nexport function useResumableChat({\n  chatId,\n  messageHistory,\n  initialRunId,\n}: UseResumableChatOptions) {\n  const activeRunIdRef = useRef<string | undefined>(initialRunId);\n\n  const chatResult = useChat<ChatAgentUIMessage>({\n    messages: messageHistory,\n    resume: !!initialRunId, // for first render\n    transport: new WorkflowChatTransport({\n      // Send new messages\n      prepareSendMessagesRequest: ({ messages }) => ({\n        api: `/api/chats/${chatId}/messages`,\n        body: {\n          chatId,\n          message: messages[messages.length - 1],\n        },\n      }),\n\n      // Store the workflow run ID when a message is sent\n      onChatSendMessage: (response) => {\n        const workflowRunId = response.headers.get(\"x-workflow-run-id\");\n        console.log(\"onChatSendMessage: workflowRunId\", workflowRunId);\n        if (workflowRunId) {\n          activeRunIdRef.current = workflowRunId;\n        }\n      },\n\n      // Configure reconnection to use the ref for the latest value\n      prepareReconnectToStreamRequest: ({ api, ...rest }) => {\n        const currentRunId = activeRunIdRef.current;\n        console.log(\n          \"prepareReconnectToStreamRequest activeRunId\",\n          currentRunId,\n        );\n        if (!currentRunId) {\n          throw new Error(\"No active workflow run ID found for reconnection\");\n        }\n        return {\n          ...rest,\n          api: `/api/chats/${chatId}/messages/${encodeURIComponent(currentRunId)}/stream`,\n        };\n      },\n\n      // Clear the workflow run ID when the chat stream ends\n      onChatEnd: ({ chunkIndex }) => {\n        console.log(\"Chat completed, total chunks:\", chunkIndex);\n        activeRunIdRef.current = undefined;\n      },\n\n      // Retry up to 5 times on reconnection errors\n      maxConsecutiveErrors: 5,\n    }),\n    id: chatId,\n    generateId: () => uuidv7(),\n  });\n\n  return {\n    ...chatResult,\n  };\n}\n",
+      "type": "registry:hook",
+      "target": "hooks/use-resumable-chat.ts"
+    }
+  ],
+  "docs": "This hook requires a ChatAgentUIMessage type definition. Update the import path to match your project structure."
+}

@@ -16,10 +16,41 @@ Fullstackrecipes isn't a library you install. Instead, it follows [Shadcn's Open
 
 The easiest way to do this is to copy a recipe as markdown and instruct a coding agent to do the copy-paste work.
 
-Recipe components can also be installed via a custom Shadcn registry:
+---
+
+## Registry
+
+Some recipe utilities can be installed directly via the fullstackrecipes Shadcn registry:
 
 ```bash
-bunx shadcn@latest add https://fullstackrecipes.com/r/<component-name>
+bunx shadcn@latest add https://fullstackrecipes.com/r/<item-name>.json
+```
+
+### Available Registry Items
+
+| Item                 | Description                                                    |
+| -------------------- | -------------------------------------------------------------- |
+| `validate-config`    | Type-safe environment variable validation with Zod             |
+| `assert`             | TypeScript assertion helper for runtime type narrowing         |
+| `use-resumable-chat` | React hook for workflow-compatible chat with stream resumption |
+| `durable-agent`      | AI agent class with tool loops and workflow step durability    |
+
+### Using the Registry Namespace
+
+You can also configure the fullstackrecipes registry as a namespace in your `components.json`:
+
+```json
+{
+  "registries": {
+    "@fsr": "https://fullstackrecipes.com/r/{name}.json"
+  }
+}
+```
+
+Then install items using the namespace:
+
+```bash
+bunx shadcn@latest add @fsr/validate-config
 ```
 
 ---

@@ -2,6 +2,16 @@
 
 The client uses `WorkflowChatTransport` for automatic stream resumption.
 
+### Install via Registry
+
+```bash
+bunx shadcn@latest add https://fullstackrecipes.com/r/use-resumable-chat.json
+```
+
+This installs the hook to `src/hooks/use-resumable-chat.ts`. You'll need to update the `ChatAgentUIMessage` import to match your project's type definitions.
+
+---
+
 ### Resumable Chat Hook
 
 Create `src/hooks/use-resumable-chat.ts`:

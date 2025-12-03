@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "assert",
+  "type": "registry:lib",
+  "title": "Assertion Helper",
+  "description": "TypeScript assertion function that narrows types when condition is truthy. Throws with optional message if condition is falsy.",
+  "files": [
+    {
+      "path": "src/lib/common/assert.ts",
+      "content": "const prefix: string = \"Assertion failed\";\n\n/**\n * TypeScript assertion function that narrows types when condition is truthy.\n * Throws if condition is falsy. Message can be string or lazy function.\n */\nexport default function assert(\n  condition: any,\n  message?: string | (() => string),\n): asserts condition {\n  if (condition) {\n    return;\n  }\n\n  const provided: string | undefined =\n    typeof message === \"function\" ? message() : message;\n  const value: string = provided ? `${prefix}: ${provided}` : prefix;\n  throw new Error(value);\n}\n",
+      "type": "registry:lib",
+      "target": "lib/common/assert.ts"
+    }
+  ]
+}
