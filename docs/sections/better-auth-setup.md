@@ -2,6 +2,23 @@
 
 Add user authentication to your Next.js app using Better Auth with Drizzle ORM and Neon PostgreSQL.
 
+### MCP Server
+
+Add the Better Auth MCP server to your `.cursor/mcp.json` for accurate API guidance:
+
+```json
+{
+  "mcpServers": {
+    "better-auth": {
+      "url": "https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp",
+      "headers": {}
+    }
+  }
+}
+```
+
+---
+
 ### Why Better Auth?
 
 - **Type-safe**: Full TypeScript support with inferred types

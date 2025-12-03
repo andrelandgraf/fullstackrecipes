@@ -4,6 +4,32 @@ Fullstackrecipes is a Shadcn registry and collection of step-by-step guides (rec
 
 ---
 
+## MCP Servers
+
+Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhance your coding agent's capabilities. Add these to your `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "next-devtools": {
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"]
+    },
+    "context7": {
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {}
+    }
+  }
+}
+```
+
+| Server           | Description                                                        |
+| ---------------- | ------------------------------------------------------------------ |
+| `next-devtools`  | Next.js development tools for debugging, routing, and build info   |
+| `context7`       | Up-to-date documentation lookup for any library                    |
+
+---
+
 ## Recipes
 
 Each recipe documents a complete step-by-step guide for adding a specific feature, pattern, or integration to your application. A recipe may build on top of other recipes (prerequisites) or have other requirements for your codebase such as requiring a database setup.

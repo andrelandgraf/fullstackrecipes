@@ -2,6 +2,21 @@
 
 Set up [Resend](https://resend.com/docs/send-with-nextjs) for transactional emails like password resets.
 
+### MCP Server
+
+Add the Resend MCP server to your `.cursor/mcp.json` for accurate API guidance:
+
+```json
+{
+  "mcpServers": {
+    "resend": {
+      "url": "https://resend.com/docs/mcp",
+      "headers": {}
+    }
+  }
+}
+```
+
 ---
 
 ### Step 1: Install the packages
