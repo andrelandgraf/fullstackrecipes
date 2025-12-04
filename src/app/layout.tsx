@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Fullstackrecipes",
   description:
-    "A collection of completestep-by-step guides for building full-stack web apps and agentic applications.",
+    "A collection of complete step-by-step guides for building full-stack web apps and agentic applications.",
 };
 
 export default function RootLayout({
