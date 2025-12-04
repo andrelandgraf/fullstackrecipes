@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
   getRecipeBySlug,
@@ -21,12 +22,15 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const recipe = getRecipeBySlug(slug);
 
   if (!recipe) {
-    return { title: "Recipe Not Found" };
+    return {
+      title: "Recipe Not Found",
+      description: "The requested recipe could not be found.",
+    };
   }
 
   return {

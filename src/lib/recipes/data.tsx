@@ -21,6 +21,8 @@ export type Recipe = {
   includes?: string[];
   /** Slugs of recipes that should be completed before this one */
   requires?: string[];
+  /** Code snippet to display in the OG image preview */
+  previewCode: string;
 };
 
 // Ordered in order of setup requirements/requisites
@@ -43,6 +45,9 @@ export const recipes: Recipe[] = [
       "agents-setup.md",
     ],
     includes: ["env-config", "neon-drizzle-setup"],
+    previewCode: `bunx create-next-app@latest my-app
+bunx shadcn@latest init
+bun add drizzle-orm @ai-sdk/openai`,
   },
   {
     slug: "env-config",
@@ -52,6 +57,13 @@ export const recipes: Recipe[] = [
     tags: ["Config"],
     icon: Settings,
     sections: ["env-config.md"],
+    previewCode: `const DatabaseConfigSchema = z.object({
+  url: z.string("DATABASE_URL must be defined."),
+});
+
+export const databaseConfig = validateConfig(
+  DatabaseConfigSchema, { url: process.env.DATABASE_URL }
+);`,
   },
   {
     slug: "neon-drizzle-setup",
@@ -62,6 +74,12 @@ export const recipes: Recipe[] = [
     icon: Database,
     sections: ["drizzle-with-node-postgres.md"],
     requires: ["env-config"],
+    previewCode: `import { drizzle } from "drizzle-orm/node-postgres";
+import { attachDatabasePool } from "@vercel/functions";
+
+const pool = new Pool({ connectionString: databaseConfig.url });
+attachDatabasePool(pool);
+export const db = drizzle({ client: pool, schema });`,
   },
   {
     slug: "resend-setup",
@@ -72,6 +90,14 @@ export const recipes: Recipe[] = [
     icon: Mail,
     sections: ["setup-resend.md"],
     requires: ["env-config"],
+    previewCode: `export async function sendEmail({ to, subject, react }) {
+  const { data, error } = await resend.emails.send({
+    from: resendConfig.fromEmail,
+    to: Array.isArray(to) ? to : [to],
+    subject,
+    react,
+  });
+}`,
   },
   {
     slug: "better-auth-setup",
@@ -82,6 +108,13 @@ export const recipes: Recipe[] = [
     icon: KeyRound,
     sections: ["better-auth-setup.md"],
     requires: ["neon-drizzle-setup", "resend-setup"],
+    previewCode: `export const auth = betterAuth({
+  database: drizzleAdapter(db, { provider: "pg" }),
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true,
+  },
+});`,
   },
   {
     slug: "feature-flags-setup",
@@ -91,6 +124,12 @@ export const recipes: Recipe[] = [
     tags: ["Config", "Vercel"],
     icon: Flag,
     sections: ["feature-flags-setup.md"],
+    previewCode: `export const stripeFlag = flag({
+  key: "stripe-enabled",
+  decide() {
+    return Boolean(process.env.STRIPE_SECRET_KEY);
+  },
+});`,
   },
   {
     slug: "ai-chat-persistence",
@@ -106,6 +145,12 @@ export const recipes: Recipe[] = [
       "chat-history-hydration.md",
     ],
     requires: ["better-auth-setup"],
+    previewCode: `export const chats = pgTable("chats", {
+  id: uuid("id").primaryKey()
+    .default(sql\`uuid_generate_v7()\`),
+  title: text("title").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});`,
   },
   {
     slug: "stripe-sync",
@@ -125,6 +170,13 @@ export const recipes: Recipe[] = [
       "stripe-deployment.md",
     ],
     requires: ["neon-drizzle-setup", "feature-flags-setup"],
+    previewCode: `export async function syncStripeData(customerId: string) {
+  const subscriptions = await stripe.subscriptions.list({
+    customer: customerId,
+    expand: ["data.default_payment_method"],
+  });
+  await upsertSubscription(userId, subscriptionData);
+}`,
   },
   {
     slug: "ai-agent-workflow",
@@ -145,6 +197,14 @@ export const recipes: Recipe[] = [
     ],
     requires: ["ai-chat-persistence"],
     includes: ["custom-durable-agent"],
+    previewCode: `export async function chatWorkflow({ chatId, userMessage }) {
+  "use workflow";
+  const { workflowRunId } = getWorkflowMetadata();
+  const history = await getMessageHistory(chatId);
+  const { parts } = await agent.run(history, {
+    writable: getWritable(),
+  });
+}`,
   },
   {
     slug: "custom-durable-agent",
@@ -155,6 +215,12 @@ export const recipes: Recipe[] = [
     icon: Bot,
     sections: ["custom-durable-agent.md"],
     requires: ["ai-agent-workflow"],
+    previewCode: `const { parts } = await researchAgent.run(history, {
+  maxSteps: 10,
+  writable: getWritable(),
+});
+
+// Tool loop continues until finishReason !== "tool-calls"`,
   },
 ];
 
