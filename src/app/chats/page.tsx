@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
@@ -7,6 +8,12 @@ import { getUserChats } from "@/lib/chat/queries";
 import { ChatList } from "@/components/chats/chat-list";
 import { UserMenu } from "@/components/auth/user-menu";
 import { ThemeSelector } from "@/components/themes/selector";
+
+export const metadata: Metadata = {
+  title: "Your Chats",
+  description:
+    "View and manage your AI conversations. Continue where you left off or start a new chat.",
+};
 
 export default async function ChatsPage() {
   const session = await auth.api.getSession({

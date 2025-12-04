@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth/server";
 import { VerifyEmailResult } from "@/components/auth/verify-email-result";
+
+export const metadata: Metadata = {
+  title: "Verify Email",
+  description: "Confirm your email address to complete your account setup.",
+};
 
 type SearchParams = Promise<{ token?: string; error?: string }>;
 

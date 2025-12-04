@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
@@ -11,6 +12,11 @@ import {
 import { auth } from "@/lib/auth/server";
 import { UserMenu } from "@/components/auth/user-menu";
 import { ThemeSelector } from "@/components/themes/selector";
+
+export const metadata: Metadata = {
+  title: "Chat",
+  description: "Continue your AI-powered conversation.",
+};
 
 interface PageProps {
   params: Promise<{

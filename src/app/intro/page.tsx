@@ -6,10 +6,12 @@ import { ArrowLeft, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { RecipeGrid } from "@/components/recipes/grid";
 
-export const metadata = {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "Get Started",
   description:
-    "Introduction to fullstackrecipes - production-ready patterns for full stack AI apps.",
+    "Introduction to Fullstack Recipes - learn how to build production-ready full-stack AI apps with modern tooling.",
 };
 
 async function getContent() {

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth/server";
@@ -10,6 +11,12 @@ import { ResendVerification } from "@/components/profile/resend-verification";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Account Settings",
+  description:
+    "Manage your profile, security settings, email preferences, and active sessions.",
+};
 
 export default async function ProfilePage() {
   const session = await auth.api.getSession({

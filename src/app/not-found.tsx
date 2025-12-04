@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import { Header } from "@/components/home/header";
 import { Footer } from "@/components/home/footer";
 import { Button } from "@/components/ui/button";
 import { ChefHat, Home, Search } from "lucide-react";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Page Not Found",
+  description:
+    "The page you're looking for doesn't exist. Head back to explore our full-stack recipes and guides.",
+};
 
 export default function NotFound() {
   return (
