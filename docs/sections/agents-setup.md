@@ -43,15 +43,29 @@ Create an `agents.md` file in your project root. This file provides coding guide
 - Be mindful of serialized prop size for RSC → child components
 ```
 
-### Step 2: Configure your AI assistant
+### Step 2: Configure MCP Servers
 
-Most AI coding tools will automatically pick up files named `agents.md` or similar convention files in your project root. Check your specific tool's documentation for the exact configuration:
+Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhance your coding agent's capabilities. Different recipes may introduce additional MCP servers. For now, start by adding these to your `.cursor/mcp.json`:
 
-- **Cursor**: Uses `.cursor/rules/` directory or `agents.md` at project root
-- **GitHub Copilot**: Can be configured with `.github/copilot-instructions.md`
-- **Other tools**: Typically support project-level instruction files
+```json
+{
+  "mcpServers": {
+    "next-devtools": {
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"]
+    },
+    "context7": {
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {}
+    }
+  }
+}
+```
 
-The patterns in this file align with the structure used throughout fullstackrecipes, making it easier for AI assistants to generate consistent code.
+| Server          | Description                                                      |
+| --------------- | ---------------------------------------------------------------- |
+| `next-devtools` | Next.js development tools for debugging, routing, and build info |
+| `context7`      | Up-to-date documentation lookup for any library                  |
 
 ---
 

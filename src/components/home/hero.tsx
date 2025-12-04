@@ -16,16 +16,16 @@ export function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
             </span>
-            Now with {recipes.length} production-ready recipes
+            Now with {recipes.length} full stack recipes
           </div>
 
           <h1 className="mb-6 text-balance text-4xl font-bold tracking-tight md:text-6xl">
-            Production Patterns for{" "}
+            Guides and Patterns for{" "}
             <span className="text-primary">Full Stack</span> AI Apps
           </h1>
 
           <p className="mb-10 text-pretty text-lg text-muted-foreground md:text-xl">
-            Copy-paste recipes to add database persistence, duability, Stripe
+            Copy-paste recipes to add persistence for AI chat, sync for Stripe
             subscriptions, and more to your Next.js agentic applications.
           </p>
 

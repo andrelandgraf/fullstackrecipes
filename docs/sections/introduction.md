@@ -4,32 +4,6 @@ Fullstackrecipes is a Shadcn registry and collection of step-by-step guides (rec
 
 ---
 
-## MCP Servers
-
-Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhance your coding agent's capabilities. Add these to your `.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "next-devtools": {
-      "command": "npx",
-      "args": ["-y", "next-devtools-mcp@latest"]
-    },
-    "context7": {
-      "url": "https://mcp.context7.com/mcp",
-      "headers": {}
-    }
-  }
-}
-```
-
-| Server           | Description                                                        |
-| ---------------- | ------------------------------------------------------------------ |
-| `next-devtools`  | Next.js development tools for debugging, routing, and build info   |
-| `context7`       | Up-to-date documentation lookup for any library                    |
-
----
-
 ## Recipes
 
 Each recipe documents a complete step-by-step guide for adding a specific feature, pattern, or integration to your application. A recipe may build on top of other recipes (prerequisites) or have other requirements for your codebase such as requiring a database setup.
@@ -38,13 +12,64 @@ Each recipe documents a complete step-by-step guide for adding a specific featur
 
 ## Shadcn & Open Code
 
-Fullstackrecipes isn't a library you install. Instead, it follows [Shadcn's Open Code philosophy](https://ui.shadcn.com/docs). By following a recipe, you copy-paste code and install dependencies to implement a feature, pattern, or integration in your codebase.
-
-The easiest way to do this is to copy a recipe as markdown and instruct a coding agent to do the copy-paste work.
+Fullstackrecipes isn't a library you install. Instead, it follows [Shadcn's Open Code philosophy](https://ui.shadcn.com/docs). When following a recipe, you copy-paste code and install dependencies step by step into your codebase - fully owning the resulting code and able to make adjustments as you see fit. Also, fullstackrecipes also serves a Shadcn registry, more information below.
 
 ---
 
-## Registry
+## Coding Style & Structure
+
+Fullstackrecipes follows common Next.js and full-stack TypeScript best practices. It adheres to the default Next.js folder structure introduced by Shadcn (`components/`, `hooks/`, `lib/` folders). Additionally, each recipe follows a set of opinonated more custom patterns that I've found work well when building full-stack web apps.
+
+### Patterns
+
+**Everything is a library**: Organize features and domains as self-contained folders in `src/lib/` (e.g., `chat`, `ai`, `db`). Co-locate schema, queries, types, and utilities together. Components go in `components/<feature>/`.
+
+**Use the web platform**: Prefer native APIs and standards. Avoid abstractions that hide what the code actually does.
+
+---
+
+## Stack
+
+Fullstackrecipes uses an opinionated stack. Some recipes work across different frameworks and hosting providers, but following the recommended stack enables deeper integration with platform-specific APIs (Bun, Vercel Functions) and more detailed guidance.
+
+| Category                             | Technology                   |
+| ------------------------------------ | ---------------------------- |
+| Full-stack framework                 | **Next.js**                  |
+| Agent runtime                        | **Workflow Development Kit** |
+| Agent framework                      | **AI SDK**                   |
+| UI components                        | **Shadcn & AI Elements**     |
+| ORM                                  | **Drizzle**                  |
+| Database                             | **Neon Serverless Postgres** |
+| TypeScript runtime & package manager | **Bun**                      |
+| Hosting environment                  | **Vercel Fluid Compute**     |
+| Auth system                          | **Better Auth**              |
+
+---
+
+## Getting Started
+
+Get started by exploring the recipes. You can also sort the recipes by order and follow them from start (basic setup) to finish (workflow durable agents) to end up with a fully working application template with Stripe subscriptions, AI chat and agents, and more.
+
+The easiest way to follow a recipe is to instruct a coding agent to the integration work. Either by copying the recipe as markdown manually form fullstackrecipes.com or by installing the Fullstackrecipe MCP server and have your agent look up recipes by name.
+
+### Fullstackrecipes MCP server
+
+Add the following to your editor's MCP confiugration, e.g., the `.cursor/mcp.json` file:
+
+```json
+{
+  "mcpServers": {
+    "fullstackrecipes": {
+      "url": "https://fullstackrecipes.com/api/mcp",
+      "headers": {}
+    }
+  }
+}
+```
+
+Now, simply ask your coding agent to follow the desired recipe. For instance, ask: `Please use the Fullstackrecipes MCP server to set up AI SDK UI chat persistence with Neon`.
+
+### Registry
 
 Some recipe utilities can be installed directly via the fullstackrecipes Shadcn registry:
 
@@ -80,40 +105,3 @@ bunx shadcn@latest add @fsr/validate-config
 ```
 
 ---
-
-## Coding Style & Structure
-
-Fullstackrecipes follows the default folder structure introduced by Shadcn (`components/`, `hooks/`, `lib/` folders) and adheres to common Next.js and full-stack TypeScript best practices.
-
-Additionally, each recipe follows a set of patterns that I've found work well when building full-stack web apps.
-
-### Patterns
-
-**Everything is a library**: Organize features and domains as self-contained folders in `src/lib/` (e.g., `chat`, `ai`, `db`). Co-locate schema, queries, types, and utilities together. Components go in `components/<feature>/`.
-
-**Use the web platform**: Prefer native APIs and standards. Avoid abstractions that hide what the code actually does.
-
----
-
-## Stack
-
-Fullstackrecipes uses an opinionated stack. Some recipes work across different frameworks and hosting providers, but following the recommended stack enables deeper integration with platform-specific APIs (Bun, Vercel Functions) and more detailed guidance.
-
-| Category                             | Technology                   |
-| ------------------------------------ | ---------------------------- |
-| Frontend library                     | **React**                    |
-| Full-stack framework                 | **Next.js**                  |
-| ORM                                  | **Drizzle**                  |
-| Agent runtime                        | **Workflow Development Kit** |
-| Agent framework                      | **AI SDK**                   |
-| UI components                        | **Shadcn & AI Elements**     |
-| Database                             | **Neon Serverless Postgres** |
-| TypeScript runtime & package manager | **Bun**                      |
-| Hosting environment                  | **Vercel Fluid Compute**     |
-| Auth system                          | **Better Auth**              |
-
----
-
-## Getting Started
-
-Get started by exploring the recipes. You can also sort the recipes by order and follow them from start (basic setup) to finish (workflow durable agents) to end up with a fully working application template with Stripe subscriptions, AI chat and agents, and more.

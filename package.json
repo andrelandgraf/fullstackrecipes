@@ -30,6 +30,7 @@
     "@ai-sdk/react": "^3.0.0-beta.102",
     "@hookform/resolvers": "^5.2.2",
     "@markdoc/markdoc": "^0.5.4",
+    "@modelcontextprotocol/sdk": "^1.24.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.8",
@@ -74,6 +75,7 @@
     "flags": "^4.0.2",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.554.0",
+    "mcp-handler": "^1.0.4",
     "motion": "^12.23.24",
     "nanoid": "^5.1.6",
     "next": "^16.0.7",
@@ -95,7 +97,7 @@
     "uuid": "^13.0.0",
     "vaul": "^1.1.2",
     "workflow": "^4.0.1-beta.21",
-    "zod": "^4.1.12"
+    "zod": "^4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
