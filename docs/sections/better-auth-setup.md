@@ -1,6 +1,6 @@
 ## Better Auth Setup
 
-Add user authentication to your Next.js app using Better Auth with Drizzle ORM and Neon PostgreSQL.
+Add user authentication to your Next.js app using Better Auth with Drizzle ORM and Neon Postgres.
 
 ### MCP Server
 

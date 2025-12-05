@@ -33,23 +33,43 @@ export const recipes: Recipe[] = [
     slug: "base-app-setup",
     title: "Base App Setup",
     description:
-      "Complete setup guide for a Next.js app with Shadcn UI, Neon PostgreSQL, Drizzle ORM, and AI SDK.",
+      "Complete setup guide for a Next.js app with Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK.",
     tags: [],
     icon: Rocket,
     sections: [
       "setup-nextjs.md",
+      "agents-setup.md",
       "setup-shadcn.md",
       "env-config.md",
       "setup-neon-env.md",
       "drizzle-with-node-postgres.md",
       "setup-ai-sdk.md",
       "setup-simple-chat.md",
-      "agents-setup.md",
     ],
-    includes: ["env-config", "neon-drizzle-setup"],
+    includes: ["agent-setup", "env-config", "neon-drizzle-setup"],
     previewCode: `bunx create-next-app@latest my-app
 bunx shadcn@latest init
 bun add drizzle-orm @ai-sdk/openai`,
+  },
+  {
+    slug: "agent-setup",
+    title: "AI Coding Agent Configuration",
+    description:
+      "Configure AI coding agents like Cursor or GitHub Copilot with project-specific patterns, coding guidelines, and MCP servers.",
+    tags: ["Config"],
+    icon: Bot,
+    sections: ["agents-setup.md"],
+    previewCode: `{
+  "mcpServers": {
+    "next-devtools": {
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"]
+    },
+    "context7": {
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}`,
   },
   {
     slug: "env-config",
@@ -72,7 +92,7 @@ export const databaseConfig = validateConfig(
     slug: "neon-drizzle-setup",
     title: "Neon + Drizzle Setup",
     description:
-      "Set up a PostgreSQL database with Neon and Drizzle ORM for type-safe database queries in your Next.js app.",
+      "Set up a Postgres database with Neon and Drizzle ORM for type-safe database queries in your Next.js app.",
     tags: ["Neon", "Drizzle"],
     icon: Database,
     sections: ["drizzle-with-node-postgres.md"],
@@ -106,7 +126,7 @@ export const db = drizzle({ client: pool, schema });`,
     slug: "better-auth-setup",
     title: "Better Auth Setup",
     description:
-      "Add user authentication to your Next.js app using Better Auth with Drizzle ORM and Neon PostgreSQL. Supports email/password and social providers.",
+      "Add user authentication to your Next.js app using Better Auth with Drizzle ORM and Neon Postgres. Supports email/password and social providers.",
     tags: ["Auth", "Neon", "Drizzle"],
     icon: KeyRound,
     sections: ["better-auth-setup.md"],
@@ -138,7 +158,7 @@ export const db = drizzle({ client: pool, schema });`,
     slug: "ai-chat-persistence",
     title: "AI Chat Persistence with Neon",
     description:
-      "Persist AI SDK messages to Neon PostgreSQL with full support for tools, reasoning, and streaming. Uses UUID v7 for chronological ordering.",
+      "Persist AI SDK messages to Neon Postgres with full support for tools, reasoning, and streaming. Uses UUID v7 for chronological ordering.",
     tags: ["AI", "Neon", "Drizzle", "Streaming"],
     icon: MessageSquare,
     sections: [

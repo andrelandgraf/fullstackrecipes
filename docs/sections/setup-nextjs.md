@@ -16,8 +16,6 @@ During setup, select:
 - **Tailwind CSS**: Yes
 - **App Router**: Yes
 
-> **Note**: This guide uses [Bun](https://bun.sh) as the package manager. Replace `bun` with `npm`, `yarn`, or `pnpm` if you prefer.
-
 ### Step 2: Add Prettier and scripts
 
 We use Prettier for code formatting and TypeScript for typechecking (no linter).

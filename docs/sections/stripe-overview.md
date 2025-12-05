@@ -4,7 +4,7 @@ The subscription system uses:
 
 - **Stripe** for payment processing and subscription management
 - **Vercel Flags** for plan configuration and feature gating
-- **PostgreSQL (via Drizzle ORM)** for storing customer and subscription data
+- **Postgres (via Drizzle ORM)** for storing customer and subscription data
 - **Webhooks** for syncing subscription state changes
 
 ### Architecture Flow

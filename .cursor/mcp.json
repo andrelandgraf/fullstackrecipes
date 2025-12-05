@@ -5,20 +5,16 @@
       "args": ["-y", "next-devtools-mcp@latest"]
     },
     "context7": {
-      "url": "https://mcp.context7.com/mcp",
-      "headers": {}
+      "url": "https://mcp.context7.com/mcp"
     },
     "better-auth": {
-      "url": "https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp",
-      "headers": {}
+      "url": "https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp"
     },
     "resend": {
-      "url": "https://resend.com/docs/mcp",
-      "headers": {}
+      "url": "https://resend.com/docs/mcp"
     },
     "fullstackrecipes": {
-      "url": "http://localhost:3000/api/mcp",
-      "headers": {}
+      "url": "http://localhost:3000/api/mcp"
     }
   }
 }

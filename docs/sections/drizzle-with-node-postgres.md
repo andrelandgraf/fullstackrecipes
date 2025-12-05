@@ -1,6 +1,6 @@
 ## Neon + Drizzle Setup
 
-Connect your Next.js app to a Neon PostgreSQL database using Drizzle ORM with optimized connection pooling for Vercel.
+Connect your Next.js app to a Neon Postgres database using Drizzle ORM with optimized connection pooling for Vercel.
 
 ### Step 1: Install packages
 
@@ -100,7 +100,7 @@ The `attachDatabasePool` helper from `@vercel/functions` is the key to efficient
 
 ## Info: Alternative Drivers
 
-This recipe uses `node-postgres` (the `pg` package) because it provides the best performance on Vercel with Fluid compute. However, Drizzle supports other PostgreSQL drivers:
+This recipe uses `node-postgres` (the `pg` package) because it provides the best performance on Vercel with Fluid compute. However, Drizzle supports other Postgres drivers:
 
 | Driver              | When to consider                                                                    |
 | ------------------- | ----------------------------------------------------------------------------------- |
@@ -113,7 +113,7 @@ This recipe uses `node-postgres` (the `pg` package) because it provides the best
 
 ## References
 
-- [Drizzle PostgreSQL docs](https://orm.drizzle.team/docs/get-started-postgresql)
+- [Drizzle Postgres docs](https://orm.drizzle.team/docs/get-started-postgresql)
 - [Drizzle Neon integration](https://orm.drizzle.team/docs/connect-neon)
 - [Vercel Connection Pooling Guide](https://vercel.com/guides/connection-pooling-with-functions)
 - [Neon + Vercel Connection Methods](https://neon.tech/docs/guides/vercel-connection-methods)

@@ -1,6 +1,6 @@
 ## Set Up Neon Environment
 
-Configure your Neon PostgreSQL connection for local development.
+Configure your Neon Postgres connection for local development.
 
 ### Step 1: Create a `.env.local` file
 

@@ -6,19 +6,19 @@ Fullstackrecipes is a Shadcn registry and collection of step-by-step guides (rec
 
 ## Recipes
 
-Each recipe documents a complete step-by-step guide for adding a specific feature, pattern, or integration to your application. A recipe may build on top of other recipes (prerequisites) or have other requirements for your codebase such as requiring a database setup.
+Each recipe provides a complete step-by-step guide for adding a specific feature, pattern, or integration to your application. A recipe may build on top of other recipes (prerequisites) or have other requirements for your codebase, such as requiring a database setup.
 
 ---
 
 ## Shadcn & Open Code
 
-Fullstackrecipes isn't a library you install. Instead, it follows [Shadcn's Open Code philosophy](https://ui.shadcn.com/docs). When following a recipe, you copy-paste code and install dependencies step by step into your codebase - fully owning the resulting code and able to make adjustments as you see fit. Also, fullstackrecipes also serves a Shadcn registry, more information below.
+Fullstackrecipes isn't a library you install. Instead, it follows [Shadcn's Open Code philosophy](https://ui.shadcn.com/docs). When following a recipe, you copy and paste code and install dependencies step by step into your codebase—fully owning the resulting code and free to make adjustments as you see fit. Additionally, Fullstackrecipes serves as a Shadcn registry; more information below.
 
 ---
 
 ## Coding Style & Structure
 
-Fullstackrecipes follows common Next.js and full-stack TypeScript best practices. It adheres to the default Next.js folder structure introduced by Shadcn (`components/`, `hooks/`, `lib/` folders). Additionally, each recipe follows a set of opinonated more custom patterns that I've found work well when building full-stack web apps.
+Fullstackrecipes follows common Next.js and full-stack TypeScript best practices. It adheres to the default Next.js folder structure recommended by Shadcn (`components/`, `hooks/`, `lib/` folders). Additionally, each recipe follows a set of opinionated, more custom patterns that I've found work well when building full-stack web apps.
 
 ### Patterns
 
@@ -48,13 +48,13 @@ Fullstackrecipes uses an opinionated stack. Some recipes work across different f
 
 ## Getting Started
 
-Get started by exploring the recipes. You can also sort the recipes by order and follow them from start (basic setup) to finish (workflow durable agents) to end up with a fully working application template with Stripe subscriptions, AI chat and agents, and more.
+Get started by exploring the recipes. You can also view the recipes in order and follow them from start (basic setup) to finish (workflow durable agents) to end up with a fully working application template with Stripe subscriptions, AI chat and agents, and more.
 
-The easiest way to follow a recipe is to instruct a coding agent to the integration work. Either by copying the recipe as markdown manually form fullstackrecipes.com or by installing the Fullstackrecipe MCP server and have your agent look up recipes by name.
+The easiest way to follow a recipe is to instruct a coding agent to do the integration work—either by copying the recipe as markdown manually from fullstackrecipes.com or by installing the Fullstackrecipes MCP server and having your agent look up recipes by name.
 
 ### Fullstackrecipes MCP server
 
-Add the following to your editor's MCP confiugration, e.g., the `.cursor/mcp.json` file:
+Add the following to your editor's MCP configuration, e.g., the `.cursor/mcp.json` file:
 
 ```json
 {

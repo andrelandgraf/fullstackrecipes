@@ -28,7 +28,7 @@ This enables:
 - **Part ordering** - Message parts (text, reasoning, tools) maintain insertion order when sorted by ID
 - **Efficient queries** - UUID v7 primary keys serve as natural sort keys
 
-### Enable UUID v7 in PostgreSQL
+### Enable UUID v7 in Postgres
 
 Before creating tables, enable the `pg_uuidv7` extension:
 
@@ -36,7 +36,7 @@ Before creating tables, enable the `pg_uuidv7` extension:
 CREATE EXTENSION IF NOT EXISTS pg_uuidv7;
 ```
 
-> **Note**: PostgreSQL 18+ includes native UUID v7 support via `uuidv7()`. Update your schema to use `uuidv7()` instead of `uuid_generate_v7()` when available.
+> **Note**: Postgres 18+ includes native UUID v7 support via `uuidv7()`. Update your schema to use `uuidv7()` instead of `uuid_generate_v7()` when available.
 
 ### Schema Definition
 
