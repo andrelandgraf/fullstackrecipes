@@ -1,6 +1,7 @@
 import { Header } from "@/components/home/header";
 import { Hero } from "@/components/home/hero";
-import { Playground } from "@/components/home/playground";
+import { HowItWorks } from "@/components/home/how-it-works";
+import { Demo } from "@/components/home/playground";
 import { RecipeGrid } from "@/components/recipes/grid";
 import { Footer } from "@/components/home/footer";
 
@@ -10,7 +11,8 @@ export default function Home() {
       <Header />
       <main>
         <Hero />
-        <Playground />
+        <HowItWorks />
+        <Demo />
         <RecipeGrid />
       </main>
       <Footer />

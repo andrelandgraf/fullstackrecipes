@@ -23,6 +23,8 @@ export type Recipe = {
   requires?: string[];
   /** Code snippet to display in the OG image preview */
   previewCode: string;
+  /** Registry items that can be installed via shadcn CLI */
+  registryDeps?: string[];
 };
 
 // Ordered in order of setup requirements/requisites
@@ -64,6 +66,7 @@ bun add drizzle-orm @ai-sdk/openai`,
 export const databaseConfig = validateConfig(
   DatabaseConfigSchema, { url: process.env.DATABASE_URL }
 );`,
+    registryDeps: ["validate-config"],
   },
   {
     slug: "neon-drizzle-setup",
@@ -205,6 +208,7 @@ export const db = drizzle({ client: pool, schema });`,
     writable: getWritable(),
   });
 }`,
+    registryDeps: ["use-resumable-chat"],
   },
   {
     slug: "custom-durable-agent",
@@ -221,6 +225,7 @@ export const db = drizzle({ client: pool, schema });`,
 });
 
 // Tool loop continues until finishReason !== "tool-calls"`,
+    registryDeps: ["durable-agent"],
   },
 ];
 
