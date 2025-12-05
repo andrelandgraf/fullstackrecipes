@@ -22,6 +22,54 @@ import {
   Bot,
 } from "lucide-react";
 import { getAllRecipes, type Recipe } from "@/lib/recipes/data";
+import { codeToHtml, type BundledLanguage } from "shiki";
+
+type HighlightedCodeProps = {
+  code: string;
+  language: BundledLanguage;
+};
+
+function HighlightedCode({ code, language }: HighlightedCodeProps) {
+  const [html, setHtml] = useState<{ light: string; dark: string } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let mounted = true;
+    Promise.all([
+      codeToHtml(code, { lang: language, theme: "one-light" }),
+      codeToHtml(code, { lang: language, theme: "one-dark-pro" }),
+    ]).then(([light, dark]) => {
+      if (mounted) {
+        setHtml({ light, dark });
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [code, language]);
+
+  if (!html) {
+    return (
+      <pre className="overflow-x-auto font-mono text-sm">
+        <code>{code}</code>
+      </pre>
+    );
+  }
+
+  return (
+    <div className="min-w-0 w-full overflow-hidden">
+      <div
+        className="overflow-x-auto dark:hidden [&>pre]:m-0 [&>pre]:bg-transparent! [&>pre]:p-0 [&>pre]:text-sm [&_code]:font-mono [&_code]:text-sm"
+        dangerouslySetInnerHTML={{ __html: html.light }}
+      />
+      <div
+        className="hidden overflow-x-auto dark:block [&>pre]:m-0 [&>pre]:bg-transparent! [&>pre]:p-0 [&>pre]:text-sm [&_code]:font-mono [&_code]:text-sm"
+        dangerouslySetInnerHTML={{ __html: html.dark }}
+      />
+    </div>
+  );
+}
 
 const recipes = getAllRecipes();
 
@@ -123,7 +171,7 @@ export function HowItWorks() {
         {/* Main Content Grid */}
         <div className="grid gap-8 lg:grid-cols-[1fr,1.2fr]">
           {/* Left: Recipe Preview */}
-          <div className="flex flex-col gap-4">
+          <div className="flex min-w-0 flex-col gap-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
                 <Icon className="h-5 w-5 text-primary" />
@@ -149,7 +197,7 @@ export function HowItWorks() {
               </div>
             </div>
 
-            <Card className="relative overflow-hidden border-border/50 bg-card/50 p-0">
+            <Card className="relative min-w-0 overflow-hidden border-border/50 bg-card/50 p-0">
               {/* Recipe Preview Header */}
               <div className="flex items-center justify-between border-b border-border/50 bg-secondary/30 px-4 py-2">
                 <div className="flex items-center gap-2">
@@ -161,15 +209,15 @@ export function HowItWorks() {
               </div>
 
               {/* Recipe Preview Content */}
-              <div className="h-[420px] overflow-y-auto p-4">
+              <div className="h-[420px] min-w-0 overflow-y-auto overflow-x-hidden p-4">
                 {isLoading ? (
                   <div className="flex h-full items-center justify-center">
                     <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                   </div>
                 ) : (
-                  <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-muted-foreground">
-                    {recipeContent}
-                  </pre>
+                  <div className="min-w-0 overflow-hidden text-xs leading-relaxed [&>pre]:whitespace-pre-wrap [&_code]:text-xs">
+                    <HighlightedCode code={recipeContent} language="markdown" />
+                  </div>
                 )}
               </div>
 
@@ -179,7 +227,7 @@ export function HowItWorks() {
           </div>
 
           {/* Right: Methods */}
-          <div className="flex flex-col">
+          <div className="flex min-w-0 flex-col">
             <Tabs defaultValue="copy" className="w-full">
               <TabsList className="mb-6 w-full">
                 <TabsTrigger value="copy" className="flex-1 gap-2">
@@ -280,10 +328,8 @@ export function HowItWorks() {
                     </div>
                   </div>
 
-                  <div className="group relative mb-6 rounded-lg border border-border bg-[#0d1117] p-4">
-                    <pre className="overflow-x-auto font-mono text-sm text-[#c9d1d9]">
-                      <code>{MCP_CONFIG}</code>
-                    </pre>
+                  <div className="group relative mb-6 min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4">
+                    <HighlightedCode code={MCP_CONFIG} language="json" />
                     <Button
                       size="icon"
                       variant="ghost"
@@ -368,11 +414,12 @@ export function HowItWorks() {
                     {selectedRecipe.registryDeps?.map((dep, index) => (
                       <div
                         key={dep}
-                        className="group relative mb-4 rounded-lg border border-border bg-[#0d1117] p-4"
+                        className="group relative mb-4 min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4"
                       >
-                        <pre className="overflow-x-auto font-mono text-sm text-[#c9d1d9]">
-                          <code>{getRegistryCommand(dep)}</code>
-                        </pre>
+                        <HighlightedCode
+                          code={getRegistryCommand(dep)}
+                          language="bash"
+                        />
                         <Button
                           size="icon"
                           variant="ghost"
