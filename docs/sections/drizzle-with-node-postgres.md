@@ -71,11 +71,24 @@ export default defineConfig({
 
 The `schema` glob pattern picks up `schema.ts` files from all feature libraries in `src/lib/`, following the "everything is a library" pattern where each feature owns its own schema. See [Philosophy](/philosophy) for more details.
 
-### Step 5: Generate and run migrations
+### Step 5: Add package.json scripts
+
+Add these scripts to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  }
+}
+```
+
+### Step 6: Generate and run migrations
 
 ```bash
-npx drizzle-kit generate
-npx drizzle-kit migrate
+bun run db:generate
+bun run db:migrate
 ```
 
 ---

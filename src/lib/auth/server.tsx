@@ -14,6 +14,7 @@ export const auth = betterAuth({
   baseURL: authConfig.url,
   database: drizzleAdapter(db, {
     provider: "pg",
+    usePlural: true,
     schema: {
       user: schema.users,
       session: schema.sessions,
