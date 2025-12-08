@@ -8,6 +8,7 @@ import {
   KeyRound,
   Mail,
   Flag,
+  Paintbrush,
 } from "lucide-react";
 
 export type Recipe = {
@@ -38,6 +39,7 @@ export const recipes: Recipe[] = [
     icon: Rocket,
     sections: [
       "setup-nextjs.md",
+      "setup-code-style.md",
       "agents-setup.md",
       "setup-shadcn.md",
       "env-config.md",
@@ -46,10 +48,30 @@ export const recipes: Recipe[] = [
       "setup-ai-sdk.md",
       "setup-simple-chat.md",
     ],
-    includes: ["agent-setup", "env-config", "neon-drizzle-setup"],
+    includes: [
+      "code-style-setup",
+      "agent-setup",
+      "env-config",
+      "neon-drizzle-setup",
+    ],
     previewCode: `bunx create-next-app@latest my-app
 bunx shadcn@latest init
 bun add drizzle-orm @ai-sdk/openai`,
+  },
+  {
+    slug: "code-style-setup",
+    title: "Editor and Linting Setup",
+    description:
+      "Configure Prettier for code formatting, TypeScript for typechecking, and editor settings for consistent code style across your team.",
+    tags: ["Config"],
+    icon: Paintbrush,
+    sections: ["setup-code-style.md"],
+    previewCode: `{
+  "editor.formatOnSave": true,
+  "[typescript][javascript]": {
+    "editor.defaultFormatter": "prettier.prettier-vscode"
+  }
+}`,
   },
   {
     slug: "agent-setup",

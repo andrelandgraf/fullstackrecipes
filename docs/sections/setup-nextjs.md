@@ -2,38 +2,25 @@
 
 Start with a fresh Next.js application using the latest version.
 
-### Step 1: Initialize the project
+### Initialize the project
 
 ```bash
 bunx create-next-app@latest my-app
-cd my-app
 ```
 
-During setup, select:
+Recommended options to select during the setup:
 
 - **TypeScript**: Yes
 - **ESLint**: No
 - **Tailwind CSS**: Yes
+- **src/ directory**: Yes
 - **App Router**: Yes
 
-### Step 2: Add Prettier and scripts
+---
 
-We use Prettier for code formatting and TypeScript for typechecking (no linter).
+## Next Steps
 
-```bash
-bun add -D prettier
-```
-
-Add these scripts to your `package.json`:
-
-```json
-{
-  "scripts": {
-    "typecheck": "tsc --noEmit",
-    "fmt": "prettier --write ."
-  }
-}
-```
+- [Code Style and Linting Setup](./setup-code-style.md)
 
 ---
 

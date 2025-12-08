@@ -100,7 +100,7 @@ function MockMessage({
       className={cn(
         "flex w-full",
         role === "user" ? "justify-end" : "justify-start",
-        className
+        className,
       )}
     >
       <div
@@ -108,7 +108,7 @@ function MockMessage({
           "max-w-[85%] text-sm leading-relaxed",
           role === "user"
             ? "rounded-2xl bg-secondary px-4 py-3 text-foreground shadow-sm"
-            : "text-foreground"
+            : "text-foreground",
         )}
       >
         {children}
@@ -131,14 +131,17 @@ function MockReasoning() {
         <ChevronDownIcon
           className={cn(
             "size-4 ml-auto transition-transform",
-            isExpanded && "rotate-180"
+            isExpanded && "rotate-180",
           )}
         />
       </button>
       {isExpanded && (
         <div className="text-xs text-muted-foreground pl-6 space-y-1.5">
           <p>Researching fullstackrecipes.com to understand the product...</p>
-          <p>Found: Next.js AI app recipes, authentication patterns, chat persistence...</p>
+          <p>
+            Found: Next.js AI app recipes, authentication patterns, chat
+            persistence...
+          </p>
           <p>Drafting announcement - keeping it concise for social media...</p>
         </div>
       )}
@@ -304,8 +307,10 @@ export function Demo() {
             <div className="flex items-start gap-2">
               <CheckCircleIcon className="size-4 text-primary mt-0.5 shrink-0" />
               <span className="text-sm text-muted-foreground">
-                <strong className="text-foreground">Durable & resumable workflows</strong> with
-                the Workflow Development Kit
+                <strong className="text-foreground">
+                  Durable & resumable workflows
+                </strong>{" "}
+                with the Workflow Development Kit
               </span>
             </div>
             <div className="flex items-start gap-2">
@@ -318,7 +323,9 @@ export function Demo() {
             <div className="flex items-start gap-2">
               <CheckCircleIcon className="size-4 text-primary mt-0.5 shrink-0" />
               <span className="text-sm text-muted-foreground">
-                <strong className="text-foreground">Stripe subscription sync</strong>{" "}
+                <strong className="text-foreground">
+                  Stripe subscription sync
+                </strong>{" "}
                 with Neon and Drizzle
               </span>
             </div>
