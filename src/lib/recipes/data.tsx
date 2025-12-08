@@ -9,6 +9,8 @@ import {
   Mail,
   Flag,
   Paintbrush,
+  Palette,
+  Sparkles,
 } from "lucide-react";
 
 export type Recipe = {
@@ -50,8 +52,10 @@ export const recipes: Recipe[] = [
     includes: [
       "code-style-setup",
       "agent-setup",
+      "shadcn-ui-setup",
       "env-config",
       "neon-drizzle-setup",
+      "ai-sdk-setup",
     ],
     previewCode: `bunx create-next-app@latest my-app
 bunx shadcn@latest init
@@ -93,6 +97,22 @@ bun add drizzle-orm @ai-sdk/openai`,
 }`,
   },
   {
+    slug: "shadcn-ui-setup",
+    title: "Shadcn UI & Theming",
+    description:
+      "Set up Shadcn UI components with dark mode support using next-themes. Includes theme provider setup and CSS variables configuration.",
+    tags: ["UI", "Theming"],
+    icon: Palette,
+    sections: ["setup-shadcn.md"],
+    previewCode: `bunx --bun shadcn@latest init
+bunx --bun shadcn@latest add --all
+
+// Theme provider with next-themes
+<ThemeProvider attribute="class">
+  {children}
+</ThemeProvider>`,
+  },
+  {
     slug: "env-config",
     title: "Environment Variable Management",
     description:
@@ -124,6 +144,27 @@ import { attachDatabasePool } from "@vercel/functions";
 const pool = new Pool({ connectionString: databaseConfig.url });
 attachDatabasePool(pool);
 export const db = drizzle({ client: pool, schema });`,
+  },
+  {
+    slug: "ai-sdk-setup",
+    title: "AI SDK & Simple Chat",
+    description:
+      "Set up the Vercel AI SDK with AI Elements components and build a streaming chat interface with useChat hook.",
+    tags: ["AI", "Streaming"],
+    icon: Sparkles,
+    sections: ["setup-ai-sdk.md", "setup-simple-chat.md"],
+    requires: ["env-config", "shadcn-ui-setup"],
+    previewCode: `const { messages, sendMessage, status } = useChat({
+  transport: new DefaultChatTransport({
+    api: "/api/chat",
+  }),
+});
+
+// Stream AI responses
+const result = streamText({
+  model: "anthropic/claude-sonnet-4.5",
+  messages: convertToModelMessages(messages),
+});`,
   },
   {
     slug: "resend-setup",
