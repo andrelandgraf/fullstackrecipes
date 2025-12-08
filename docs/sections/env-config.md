@@ -245,10 +245,3 @@ const ConfigSchema = z.object({
   port: z.coerce.number().default(3000),
 });
 ```
-
----
-
-## References
-
-- [Zod Documentation](https://zod.dev/)
-- [Next.js Environment Variables](https://nextjs.org/docs/basic-features/environment-variables)

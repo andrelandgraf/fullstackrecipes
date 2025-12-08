@@ -16,19 +16,13 @@ Follow the prompts to configure your project. The CLI will:
 
 ### Step 2: Add components
 
-Install all components at once:
+Install all components:
 
 ```bash
 bunx --bun shadcn@latest add --all
 ```
 
-Or add individual components as needed:
-
-```bash
-bunx --bun shadcn@latest add button card input
-```
-
-### Step 3: Add dark mode (optional)
+### Step 3: Add dark mode
 
 Install the theme provider:
 
@@ -74,7 +68,5 @@ export default function RootLayout({
 
 ## References
 
-- [Shadcn UI Documentation](https://ui.shadcn.com/docs)
 - [Shadcn Next.js Installation](https://ui.shadcn.com/docs/installation/next)
 - [Shadcn Dark Mode Guide](https://ui.shadcn.com/docs/dark-mode/next)
-- [next-themes](https://github.com/pacocoursey/next-themes)

@@ -58,13 +58,13 @@ OPENAI_API_KEY="sk-..."
 ANTHROPIC_API_KEY="sk-ant-..."
 ```
 
-### Step 4: Add to your config (recommended)
+### Step 4: Create the AI config
 
 Instead of accessing `process.env.AI_GATEWAY_API_KEY` directly, use the type-safe config pattern. Create `src/lib/ai/config.ts`:
 
 ```typescript
 import { z } from "zod";
-import { validateConfig, type PreValidate } from "../config/utils";
+import { validateConfig, type PreValidate } from "@/lib/common/validate-config";
 
 const AIConfigSchema = z.object({
   gatewayApiKey: z.string("AI_GATEWAY_API_KEY must be defined."),

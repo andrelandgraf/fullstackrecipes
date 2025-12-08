@@ -1,6 +1,6 @@
 ## Editor and Linting Setup
 
-We use Prettier for code formatting and TypeScript for typechecking (no linter).
+We use Prettier for code formatting and TypeScript for typechecking. We're explicitly not using a linter like ESLint or Biome to avoid config hell.
 
 ### Step 1: Install Prettier
 
@@ -25,8 +25,8 @@ Add these scripts to your `package.json`:
 
 Install the Prettier VSCode extension for automatic formatting:
 
-- [Install in Cursor](cursor:extension/prettier.prettier-vscode)
-- Or via VS Code command line: `ext install prettier.prettier-vscode`
+- [Install in Cursor](cursor:extension/esbenp.prettier-vscode)
+- Or via VS Code command line: `ext install esbenp.prettier-vscode`
 
 ### Step 4: Add .vscode Configuration (Recommended)
 
@@ -41,7 +41,7 @@ Recommend the Prettier extension to all contributors:
   // See https://go.microsoft.com/fwlink/?LinkId=827846 to learn about workspace recommendations.
   // Extension identifier format: ${publisher}.${name}. Example: vscode.csharp
   // List of extensions which should be recommended for users of this workspace.
-  "recommendations": ["prettier.prettier-vscode"],
+  "recommendations": ["esbenp.prettier-vscode"],
   // List of extensions recommended by VS Code that should not be recommended for users of this workspace.
   "unwantedRecommendations": []
 }
@@ -54,49 +54,31 @@ Enable format on save with Prettier as the default formatter:
 ```json
 {
   "editor.formatOnSave": true,
-  "[typescript][javascript][html][markdown][css][json][html][typescriptreact][javascriptreact]": {
-    "editor.defaultFormatter": "prettier.prettier-vscode"
-  }
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
 ```
 
 ### Step 5: Add .editorconfig (Recommended)
 
-Create a `.editorconfig` file in your project root:
+Create a `.editorconfig` file in your project root. This is optional as it follows the default Prettier configuration but can be useful for other editors that support it:
 
 ```editorconfig
-# Editor config
-# http://EditorConfig.org
+# Editor config - see http://EditorConfig.org
 
-# This EditorConfig overrides any parent EditorConfigs
 root = true
 
-# Default rules applied to all file types
 [*]
-
-# No trailing spaces, newline at EOF
 charset = utf-8
-trim_trailing_whitespace = true
 insert_final_newline = true
-
-# 2 space indentation
+end_of_line = lf
 indent_style = space
 indent_size = 2
-
-# JavaScript-specific settings
-[*.{js,ts}]
-quote_type = double
-continuation_indent_size = 2
-curly_bracket_next_line = false
-indent_brace_style = BSD
-spaces_around_operators = true
-spaces_around_brackets = none
+max_line_length = 80
 ```
 
 ---
 
 ## References
 
-- [Prettier Documentation](https://prettier.io/docs/en/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/)
+- [Prettier Philosophy](https://prettier.io/docs/option-philosophy)
 - [EditorConfig](https://editorconfig.org/)

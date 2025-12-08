@@ -2,24 +2,78 @@
 
 Connect your Next.js app to a Neon Postgres database using Drizzle ORM with optimized connection pooling for Vercel.
 
-### Step 1: Install packages
+### Step 1: Install the Neon MCP Server globally
 
 ```bash
-npm i drizzle-orm pg @vercel/functions
-npm i -D drizzle-kit @types/pg
+bunx neonctl@latest init
 ```
 
-### Step 2: Add your connection string
+> **Note**: This installs the MCP server globally (not project-scoped) using your user API key. By default, the MCP server has **write access** to your Neon account.
 
-Create a `.env.local` file with your Neon database URL:
+For production apps in your organization, configure the MCP server to be read-only:
+
+```json
+{
+  "mcpServers": {
+    "Neon": {
+      "url": "https://mcp.neon.tech/mcp",
+      "headers": {
+        "Authorization": "Bearer <$NEON_API_KEY>",
+        "x-read-only": "true"
+      }
+    }
+  }
+}
+```
+
+### Step 2: Create a new Neon project
+
+Use an existing Neon project or create a new one, either through the [Neon Dashboard](https://console.neon.tech/) or by instructing your coding agent to create a new project or retrieve the connection string of an existing project.
+
+### Step 3: Get your Neon database URL
+
+1. Go to the [Neon Dashboard](https://console.neon.tech/)
+2. Select your project
+3. Copy the connection string from the **Connection Details** widget
+4. Add it to your `.env.local`:
 
 ```env
 DATABASE_URL="postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require"
 ```
 
-> **Note**: Get your connection string from the Neon console. Make sure to use the pooled connection string for production workloads.
+> **Tip**: Use the **pooled** connection string for production workloads to improve performance and handle more concurrent connections.
 
-### Step 3: Create the database client
+### Step 4: Create the database config
+
+Instead of accessing `process.env.DATABASE_URL` directly, use the type-safe config pattern. Create `src/lib/db/config.ts`:
+
+```typescript
+import { z } from "zod";
+import { validateConfig, type PreValidate } from "@/lib/common/validate-config";
+
+const DatabaseConfigSchema = z.object({
+  url: z.string("DATABASE_URL must be defined."),
+});
+
+export type DatabaseConfig = z.infer<typeof DatabaseConfigSchema>;
+
+const config: PreValidate<DatabaseConfig> = {
+  url: process.env.DATABASE_URL,
+};
+
+export const databaseConfig = validateConfig(DatabaseConfigSchema, config);
+```
+
+Then access via `serverConfig.database.url` instead of `process.env.DATABASE_URL`. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.
+
+### Step 5: Install packages
+
+```bash
+bun add drizzle-orm pg @vercel/functions
+bun add -D drizzle-kit @types/pg
+```
+
+### Step 6: Create the database client
 
 Create `src/lib/db/client.ts`:
 
@@ -51,7 +105,7 @@ The `databaseConfig` import provides type-safe access to the `DATABASE_URL` envi
 
 Each feature library owns its own schema file (e.g., `@/lib/auth/schema`, `@/lib/chat/schema`). Instead of a central `db/schema.ts` aggregation file, schemas are imported directly in `client.ts` and merged into a single object for type-safe queries.
 
-### Step 4: Configure Drizzle Kit
+### Step 7: Configure Drizzle Kit
 
 Create `drizzle.config.ts` in your project root:
 
@@ -71,7 +125,7 @@ export default defineConfig({
 
 The `schema` glob pattern picks up `schema.ts` files from all feature libraries in `src/lib/`, following the "everything is a library" pattern where each feature owns its own schema. See [Philosophy](/philosophy) for more details.
 
-### Step 5: Add package.json scripts
+### Step 8: Add package.json scripts
 
 Add these scripts to your `package.json`:
 
@@ -84,7 +138,7 @@ Add these scripts to your `package.json`:
 }
 ```
 
-### Step 6: Generate and run migrations
+### Step 9: Generate and run migrations
 
 ```bash
 bun run db:generate
@@ -126,6 +180,7 @@ This recipe uses `node-postgres` (the `pg` package) because it provides the best
 
 ## References
 
+- [Neon MCP Server](https://github.com/neondatabase/mcp-server-neon)
 - [Drizzle Postgres docs](https://orm.drizzle.team/docs/get-started-postgresql)
 - [Drizzle Neon integration](https://orm.drizzle.team/docs/connect-neon)
 - [Vercel Connection Pooling Guide](https://vercel.com/guides/connection-pooling-with-functions)

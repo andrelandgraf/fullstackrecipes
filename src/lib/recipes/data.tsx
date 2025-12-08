@@ -43,7 +43,6 @@ export const recipes: Recipe[] = [
       "agents-setup.md",
       "setup-shadcn.md",
       "env-config.md",
-      "setup-neon-env.md",
       "drizzle-with-node-postgres.md",
       "setup-ai-sdk.md",
       "setup-simple-chat.md",
@@ -69,7 +68,7 @@ bun add drizzle-orm @ai-sdk/openai`,
     previewCode: `{
   "editor.formatOnSave": true,
   "[typescript][javascript]": {
-    "editor.defaultFormatter": "prettier.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }`,
   },

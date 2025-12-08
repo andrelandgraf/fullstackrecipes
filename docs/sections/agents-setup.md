@@ -1,6 +1,6 @@
 ## AI Coding Agent Configuration
 
-This guide helps you configure AI coding agents (like Cursor, GitHub Copilot, or similar tools) to follow consistent patterns when working with your codebase.
+This guide helps you configure AI coding agents (like Cursor, GitHub Copilot, Claude Code, or similar tools) to follow consistent patterns when working with your codebase.
 
 ### Step 1: Create an agents.md file
 
@@ -65,7 +65,7 @@ Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhanc
       "url": "https://resend.com/docs/mcp"
     },
     "fullstackrecipes": {
-      "url": "http://localhost:3000/api/mcp"
+      "url": "http://fullstackrecipes.com/api/mcp"
     }
   }
 }
@@ -77,7 +77,7 @@ Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhanc
 | `context7`         | Up-to-date documentation lookup for any library                  |
 | `better-auth`      | Better Auth framework documentation and API reference            |
 | `resend`           | Resend email API documentation and examples                      |
-| `fullstackrecipes` | Fullstackrecipes documentation (local dev server)                |
+| `fullstackrecipes` | Fullstackrecipes recipes                                         |
 
 > **Note:** Remove any MCP servers for tools you don't plan to use in your project. For example, if you're not using Better Auth for authentication, remove the `better-auth` entry.
 
