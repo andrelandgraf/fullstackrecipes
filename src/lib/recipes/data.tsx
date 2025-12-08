@@ -11,6 +11,7 @@ import {
   Paintbrush,
   Palette,
   Sparkles,
+  Layers,
 } from "lucide-react";
 
 export type Recipe = {
@@ -101,7 +102,7 @@ bun add drizzle-orm @ai-sdk/openai`,
     title: "Shadcn UI & Theming",
     description:
       "Set up Shadcn UI components with dark mode support using next-themes. Includes theme provider setup and CSS variables configuration.",
-    tags: ["UI", "Theming"],
+    tags: ["UI Components"],
     icon: Palette,
     sections: ["setup-shadcn.md"],
     previewCode: `bunx --bun shadcn@latest init
@@ -150,7 +151,7 @@ export const db = drizzle({ client: pool, schema });`,
     title: "AI SDK & Simple Chat",
     description:
       "Set up the Vercel AI SDK with AI Elements components and build a streaming chat interface with useChat hook.",
-    tags: ["AI", "Streaming"],
+    tags: ["AI", "Streaming", "UI Components"],
     icon: Sparkles,
     sections: ["setup-ai-sdk.md", "setup-simple-chat.md"],
     requires: ["env-config", "shadcn-ui-setup"],
@@ -264,6 +265,22 @@ const result = streamText({
 }`,
   },
   {
+    slug: "workflow-setup",
+    title: "Workflow Development Kit Setup",
+    description:
+      "Install and configure the Workflow Development Kit for resumable, durable AI agent workflows with step-level persistence.",
+    tags: ["Workflow Dev Kit", "Config"],
+    icon: Layers,
+    sections: ["setup-workflow.md"],
+    previewCode: `import { withWorkflow } from "workflow/next";
+
+const nextConfig: NextConfig = {
+  reactCompiler: true,
+};
+
+export default withWorkflow(nextConfig);`,
+  },
+  {
     slug: "ai-agent-workflow",
     title: "Resumable AI Agent Workflows",
     description:
@@ -281,7 +298,7 @@ const result = streamText({
       "workflow-concepts.md",
     ],
     requires: ["ai-chat-persistence"],
-    includes: ["custom-durable-agent"],
+    includes: ["workflow-setup", "custom-durable-agent"],
     previewCode: `export async function chatWorkflow({ chatId, userMessage }) {
   "use workflow";
   const { workflowRunId } = getWorkflowMetadata();
