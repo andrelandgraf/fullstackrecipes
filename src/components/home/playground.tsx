@@ -304,29 +304,29 @@ export function Demo() {
             <div className="flex items-start gap-2">
               <CheckCircleIcon className="size-4 text-primary mt-0.5 shrink-0" />
               <span className="text-sm text-muted-foreground">
+                <strong className="text-foreground">Durable & resumable workflows</strong> with
+                the Workflow Development Kit
+              </span>
+            </div>
+            <div className="flex items-start gap-2">
+              <CheckCircleIcon className="size-4 text-primary mt-0.5 shrink-0" />
+              <span className="text-sm text-muted-foreground">
+                <strong className="text-foreground">Chat persistence</strong>{" "}
+                with the AI SDK, Neon and Drizzle
+              </span>
+            </div>
+            <div className="flex items-start gap-2">
+              <CheckCircleIcon className="size-4 text-primary mt-0.5 shrink-0" />
+              <span className="text-sm text-muted-foreground">
+                <strong className="text-foreground">Stripe subscription sync</strong>{" "}
+                with Neon and Drizzle
+              </span>
+            </div>
+            <div className="flex items-start gap-2">
+              <CheckCircleIcon className="size-4 text-primary mt-0.5 shrink-0" />
+              <span className="text-sm text-muted-foreground">
                 <strong className="text-foreground">Authentication</strong> with
-                Better Auth, sessions, and email verification
-              </span>
-            </div>
-            <div className="flex items-start gap-2">
-              <CheckCircleIcon className="size-4 text-primary mt-0.5 shrink-0" />
-              <span className="text-sm text-muted-foreground">
-                <strong className="text-foreground">Persistent chat</strong>{" "}
-                using Neon serverless Postgres and Drizzle ORM
-              </span>
-            </div>
-            <div className="flex items-start gap-2">
-              <CheckCircleIcon className="size-4 text-primary mt-0.5 shrink-0" />
-              <span className="text-sm text-muted-foreground">
-                <strong className="text-foreground">AI SDK</strong> with
-                streaming, tool calls, and reasoning
-              </span>
-            </div>
-            <div className="flex items-start gap-2">
-              <CheckCircleIcon className="size-4 text-primary mt-0.5 shrink-0" />
-              <span className="text-sm text-muted-foreground">
-                <strong className="text-foreground">Resumable chats</strong>{" "}
-                that pick up right where you left off
+                Better Auth, Neon and Drizzle
               </span>
             </div>
           </div>
