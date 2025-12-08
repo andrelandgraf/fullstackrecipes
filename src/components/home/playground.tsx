@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +12,6 @@ import {
   Source,
 } from "@/components/ai-elements/sources";
 import {
-  MessageSquare,
   LogIn,
   Github,
   Mail,
@@ -25,50 +24,64 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 function MockLoginCard() {
   return (
-    <Card className="w-[280px] shadow-xl border-border/50 bg-card/95 backdrop-blur">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold text-center">
-          Sign in
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="space-y-1.5">
-          <Label htmlFor="mock-email" className="text-xs">
-            Email
-          </Label>
-          <div className="relative">
-            <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-            <Input
-              id="mock-email"
-              type="email"
-              placeholder="you@example.com"
-              className="pl-8 h-8 text-xs"
-              disabled
-            />
-          </div>
+    <Card className="w-[380px] p-6 shadow-2xl border-2 bg-card/95 backdrop-blur-sm">
+      <div className="space-y-5">
+        <div>
+          <h2 className="text-2xl font-bold mb-1">Sign in</h2>
+          <p className="text-sm text-muted-foreground">
+            Access your AI-powered workspace
+          </p>
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="mock-password" className="text-xs">
-            Password
-          </Label>
-          <div className="relative">
-            <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-            <Input
-              id="mock-password"
-              type="password"
-              placeholder="••••••••"
-              className="pl-8 h-8 text-xs"
-              disabled
-            />
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="mock-email" className="text-sm">
+              Email
+            </Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                id="mock-email"
+                type="email"
+                placeholder="you@example.com"
+                className="pl-10"
+                defaultValue="demo@aiapp.com"
+                disabled
+              />
+            </div>
           </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="mock-password" className="text-sm">
+              Password
+            </Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                id="mock-password"
+                type="password"
+                placeholder="••••••••"
+                className="pl-10"
+                defaultValue="********"
+                disabled
+              />
+            </div>
+          </div>
+          <Button className="w-full" disabled>
+            Sign in
+          </Button>
         </div>
-        <Button size="sm" className="w-full h-8 text-xs" disabled>
-          Sign in
-        </Button>
-      </CardContent>
+
+        <div className="pt-4 border-t">
+          <p className="text-xs text-center text-muted-foreground">
+            Don&apos;t have an account?{" "}
+            <span className="text-primary font-medium">Sign up for free</span>
+          </p>
+        </div>
+      </div>
     </Card>
   );
 }
@@ -87,15 +100,15 @@ function MockMessage({
       className={cn(
         "flex w-full",
         role === "user" ? "justify-end" : "justify-start",
-        className,
+        className
       )}
     >
       <div
         className={cn(
-          "max-w-[85%] text-xs leading-relaxed",
+          "max-w-[85%] text-sm leading-relaxed",
           role === "user"
-            ? "rounded-lg bg-secondary px-3 py-2 text-foreground"
-            : "text-foreground",
+            ? "rounded-2xl bg-secondary px-4 py-3 text-foreground shadow-sm"
+            : "text-foreground"
         )}
       >
         {children}
@@ -105,19 +118,38 @@ function MockMessage({
 }
 
 function MockReasoning() {
+  const [isExpanded, setIsExpanded] = useState(true);
+
   return (
-    <div className="flex items-center gap-1.5 text-primary text-xs">
-      <BrainIcon className="size-3.5" />
-      <span>Thought for 3 seconds</span>
-      <ChevronDownIcon className="size-3.5" />
+    <div className="space-y-2">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center gap-2 text-primary text-sm w-full"
+      >
+        <BrainIcon className="size-4" />
+        <span className="font-medium">Thought for 3 seconds</span>
+        <ChevronDownIcon
+          className={cn(
+            "size-4 ml-auto transition-transform",
+            isExpanded && "rotate-180"
+          )}
+        />
+      </button>
+      {isExpanded && (
+        <div className="text-xs text-muted-foreground pl-6 space-y-1.5">
+          <p>Researching fullstackrecipes.com to understand the product...</p>
+          <p>Found: Next.js AI app recipes, authentication patterns, chat persistence...</p>
+          <p>Drafting announcement - keeping it concise for social media...</p>
+        </div>
+      )}
     </div>
   );
 }
 
 function MockSources() {
   return (
-    <Sources className="text-xs mb-0">
-      <SourcesTrigger count={1} className="text-xs" />
+    <Sources className="text-sm mb-0">
+      <SourcesTrigger count={1} className="text-sm" />
       <SourcesContent>
         <Source
           href="https://fullstackrecipes.com"
@@ -130,25 +162,27 @@ function MockSources() {
 
 function MockTool() {
   return (
-    <div className="rounded-md border border-border/50 bg-card/50">
-      <div className="flex items-center justify-between gap-3 p-2">
-        <div className="flex items-center gap-1.5">
-          <WrenchIcon className="size-3 text-muted-foreground" />
-          <span className="font-medium text-xs">countCharacters</span>
+    <div className="rounded-lg border border-border/50 bg-card/50">
+      <div className="flex items-center justify-between gap-3 p-3">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded bg-muted">
+            <WrenchIcon className="size-3.5 text-muted-foreground" />
+          </div>
+          <span className="font-medium text-sm font-mono">countCharacters</span>
           <Badge
-            className="gap-1 rounded-full text-[10px] px-1.5 py-0"
+            className="gap-1 rounded-full text-xs px-2 py-0.5"
             variant="secondary"
           >
-            <CheckCircleIcon className="size-2.5 text-green-600" />
+            <CheckCircleIcon className="size-3 text-green-600" />
             Completed
           </Badge>
         </div>
       </div>
-      <div className="border-t border-border/50 p-2">
-        <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">
+      <div className="border-t border-border/50 p-3">
+        <div className="text-xs text-muted-foreground uppercase tracking-wide mb-2 font-medium">
           Result
         </div>
-        <div className="rounded bg-muted/50 p-1.5 font-mono text-[10px] text-muted-foreground">
+        <div className="rounded-lg bg-muted/50 p-2.5 font-mono text-xs text-muted-foreground">
           {`{ "count": 156, "remaining": 124 }`}
         </div>
       </div>
@@ -158,52 +192,49 @@ function MockTool() {
 
 function MockChatWindow() {
   return (
-    <Card className="w-[340px] shadow-2xl border-border/50 bg-card/95 backdrop-blur overflow-hidden">
-      {/* Chat messages */}
-      <CardContent className="p-3 space-y-3 h-[320px] overflow-y-auto">
+    <Card className="w-[460px] max-h-[420px] flex flex-col shadow-2xl border-2 bg-card/95 backdrop-blur-sm">
+      {/* Scrollable messages area */}
+      <div className="flex-1 overflow-y-auto p-5 space-y-4">
         <MockMessage role="user">
-          I&apos;m launching fullstackrecipes.com
+          I&apos;m launching fullstackrecipes.com - help me write a launch
+          announcement
         </MockMessage>
 
-        <MockMessage role="assistant">
-          <MockReasoning />
-        </MockMessage>
+        <div className="space-y-3">
+          <MockMessage role="assistant">
+            <MockReasoning />
+          </MockMessage>
 
-        <MockMessage role="assistant">
-          <MockSources />
-        </MockMessage>
+          <MockMessage role="assistant">
+            <MockTool />
+          </MockMessage>
 
-        <MockMessage role="assistant">
-          <MockTool />
-        </MockMessage>
-
-        <MockMessage role="assistant">
-          <div className="space-y-2">
-            <p className="text-muted-foreground text-[11px]">
-              Here&apos;s a draft for your launch:
-            </p>
-            <div className="rounded-md bg-muted/50 p-2 text-[11px] leading-relaxed">
-              Just shipped fullstackrecipes.com 🎉
-              <br />
-              <br />
-              Full stack recipes for your Next.js AI apps - check it out now!
+          <MockMessage role="assistant">
+            <div className="space-y-2">
+              <p className="text-muted-foreground text-sm">
+                Here&apos;s a draft for your launch:
+              </p>
+              <div className="rounded-lg bg-muted/50 p-3 text-sm leading-relaxed border">
+                Just shipped fullstackrecipes.com
+                <br />
+                <br />
+                Full stack recipes for your Next.js AI apps - check it out now!
+              </div>
             </div>
-          </div>
-        </MockMessage>
-      </CardContent>
+          </MockMessage>
 
-      {/* Chat input */}
-      <div className="border-t border-border/50 p-2">
-        <div className="flex items-center gap-2">
-          <Input
-            placeholder="Type a message..."
-            className="h-8 text-xs flex-1"
-            disabled
-          />
-          <Button size="icon" className="h-8 w-8 shrink-0" disabled>
-            <Send className="size-3.5" />
-          </Button>
+          <MockMessage role="assistant">
+            <MockSources />
+          </MockMessage>
         </div>
+      </div>
+
+      {/* Chat input - fixed at bottom */}
+      <div className="flex items-center gap-2 p-4 pt-2 border-t">
+        <Input placeholder="Type a message..." className="flex-1" disabled />
+        <Button size="icon" className="shrink-0" disabled>
+          <Send className="size-4" />
+        </Button>
       </div>
     </Card>
   );
@@ -216,10 +247,11 @@ export function Demo() {
         {/* CTA Header */}
         <div className="mx-auto mb-12 max-w-2xl text-center">
           <h2 className="mb-4 text-3xl font-bold tracking-tight">
-            Try it yourself
+            See it in action
           </h2>
           <p className="mb-6 text-muted-foreground">
-            A full-featured AI chat app using all patterns from the docs.
+            A full-featured AI chat app building on top of the recipes &
+            patterns.
           </p>
 
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -248,31 +280,16 @@ export function Demo() {
           </div>
         </div>
 
-        {/* Mock UI showcase */}
-        <div className="mb-32 flex justify-center">
-          <div
-            className="relative h-[440px] w-full max-w-[500px]"
-            style={{ perspective: "1000px" }}
-          >
-            {/* Login card - background, tilted, comes to front on hover */}
-            <div
-              className="absolute top-8 left-0 z-10 transition-all duration-500 hover:z-30 hover:translate-x-4 hover:-translate-y-4 hover:scale-105"
-              style={{
-                transform: "rotateY(15deg) rotateX(5deg) translateZ(-50px)",
-                transformStyle: "preserve-3d",
-              }}
-            >
+        {/* Mock UI showcase - Overlapping cards layout */}
+        <div className="relative mb-16 flex items-center justify-center">
+          <div className="relative w-full max-w-4xl h-[460px] flex items-center justify-center">
+            {/* Login card - Left side, rotated */}
+            <div className="absolute left-[42%] top-[55%] -translate-y-1/2 -translate-x-1/2 transition-all duration-500 ease-out -rotate-6 hover:rotate-0 hover:scale-105 z-10 hover:z-30">
               <MockLoginCard />
             </div>
 
-            {/* Chat window - foreground */}
-            <div
-              className="absolute top-0 right-0 z-20 transition-all duration-500 hover:-translate-x-2 hover:translate-y-2"
-              style={{
-                transform: "rotateY(-5deg) rotateX(2deg) translateZ(50px)",
-                transformStyle: "preserve-3d",
-              }}
-            >
+            {/* Chat window - Right side, rotated, overlapping */}
+            <div className="absolute right-[42%] top-[55%] -translate-y-1/2 translate-x-1/2 transition-all duration-500 ease-out rotate-3 hover:rotate-0 hover:scale-105 z-20 hover:z-30">
               <MockChatWindow />
             </div>
           </div>

@@ -25,8 +25,8 @@ export function Hero() {
           </h1>
 
           <p className="mb-10 text-pretty text-lg text-muted-foreground md:text-xl">
-            Copy-paste recipes to add persistence for AI chat, sync for Stripe
-            subscriptions, and more to your Next.js agentic applications.
+            Add persistence for AI chat, sync for Stripe
+            subscriptions, and more to your project.
           </p>
 
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

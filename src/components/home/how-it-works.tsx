@@ -305,7 +305,7 @@ export function HowItWorks() {
                         Paste to your AI assistant
                       </h4>
                       <p className="text-sm text-muted-foreground">
-                        Ask Cursor, Claude, or your preferred AI to follow the
+                        Ask your coding agent (Cursor, Claude, Copilot, etc.) to follow the
                         recipe and implement it in your project.
                       </p>
                     </div>
@@ -323,7 +323,7 @@ export function HowItWorks() {
                     <div>
                       <h4 className="font-medium">Add the MCP server</h4>
                       <p className="text-sm text-muted-foreground">
-                        Add to your Cursor, Claude Code, or VS Code MCP config
+                        Add to your coding agent's MCP config (Cursor, Claude Code, or VS Code MCP config)
                       </p>
                     </div>
                   </div>
@@ -350,7 +350,7 @@ export function HowItWorks() {
                     </div>
                     <div>
                       <h4 className="font-medium">
-                        Ask your AI to follow the recipe
+                        Ask your coding agent to follow the recipe
                       </h4>
                       <p className="text-sm text-muted-foreground">
                         The agent can fetch recipes directly via MCP resources
