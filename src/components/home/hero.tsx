@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BookOpen } from "lucide-react";
 import Link from "next/link";
-import { recipes } from "@/lib/recipes/data";
+import { getAllItems } from "@/lib/recipes/data";
+
+const items = getAllItems();
 
 export function Hero() {
   return (
@@ -16,7 +18,7 @@ export function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
             </span>
-            Now with {recipes.length} full stack recipes
+            Now with {items.length} full stack recipes
           </div>
 
           <h1 className="mb-6 text-balance text-4xl font-bold tracking-tight md:text-6xl">

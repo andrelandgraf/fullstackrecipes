@@ -359,37 +359,25 @@ export function HowItWorks() {
                     </div>
                   </div>
 
-                  <div className="rounded-lg border border-dashed border-border bg-secondary/30 p-4">
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="truncate font-mono text-sm text-muted-foreground">
-                        {getMcpPrompt(selectedRecipe)}
-                      </span>
-                      <Button
-                        size="sm"
-                        variant={
-                          copiedState === "prompt" ? "secondary" : "default"
-                        }
-                        onClick={() =>
-                          copyToClipboard(
-                            getMcpPrompt(selectedRecipe),
-                            "prompt",
-                          )
-                        }
-                        className="shrink-0 gap-2"
-                      >
-                        {copiedState === "prompt" ? (
-                          <>
-                            <Check className="h-4 w-4" />
-                            Copied
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="h-4 w-4" />
-                            Copy
-                          </>
-                        )}
-                      </Button>
-                    </div>
+                  <div className="group relative min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4">
+                    <HighlightedCode
+                      code={getMcpPrompt(selectedRecipe)}
+                      language="bash"
+                    />
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() =>
+                        copyToClipboard(getMcpPrompt(selectedRecipe), "prompt")
+                      }
+                      className="absolute right-2 top-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
+                    >
+                      {copiedState === "prompt" ? (
+                        <Check className="h-4 w-4 text-primary" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
                   </div>
                 </Card>
               </TabsContent>

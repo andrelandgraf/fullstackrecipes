@@ -13,6 +13,7 @@ import {
   Sparkles,
   Layers,
   RefreshCw,
+  BookOpen,
 } from "lucide-react";
 
 export type Recipe = {
@@ -22,8 +23,6 @@ export type Recipe = {
   tags: string[];
   icon: typeof Database;
   sections: string[];
-  /** Slugs of recipes that are bundled/included in this recipe */
-  includes?: string[];
   /** Slugs of recipes that should be completed before this one */
   requires?: string[];
   /** Code snippet to display in the OG image preview */
@@ -32,15 +31,33 @@ export type Recipe = {
   registryDeps?: string[];
 };
 
-// Ordered in order of setup requirements/requisites
-export const recipes: Recipe[] = [
+export type Cookbook = Recipe & {
+  /** Marks this as a cookbook - a curated collection of recipes */
+  isCookbook: true;
+  /** Ordered list of recipe slugs included in this cookbook */
+  recipes: string[];
+};
+
+// All items ordered by setup requirements/prerequisites
+// Cookbooks and recipes are in the same array to enforce display order
+export const items: (Recipe | Cookbook)[] = [
+  // === COOKBOOKS ===
   {
     slug: "base-app-setup",
     title: "Base App Setup",
     description:
       "Complete setup guide for a Next.js app with Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK.",
-    tags: [],
-    icon: Rocket,
+    tags: ["Cookbook"],
+    icon: BookOpen,
+    isCookbook: true,
+    recipes: [
+      "code-style-setup",
+      "agent-setup",
+      "shadcn-ui-setup",
+      "env-config",
+      "neon-drizzle-setup",
+      "ai-sdk-setup",
+    ],
     sections: [
       "setup-nextjs.md",
       "setup-code-style.md",
@@ -51,18 +68,11 @@ export const recipes: Recipe[] = [
       "setup-ai-sdk.md",
       "setup-simple-chat.md",
     ],
-    includes: [
-      "code-style-setup",
-      "agent-setup",
-      "shadcn-ui-setup",
-      "env-config",
-      "neon-drizzle-setup",
-      "ai-sdk-setup",
-    ],
     previewCode: `bunx create-next-app@latest my-app
 bunx shadcn@latest init
 bun add drizzle-orm @ai-sdk/openai`,
-  },
+  } satisfies Cookbook,
+  // === RECIPES ===
   {
     slug: "code-style-setup",
     title: "Editor and Linting Setup",
@@ -303,39 +313,6 @@ transport: new WorkflowChatTransport({
     registryDeps: ["use-resumable-chat"],
   },
   {
-    slug: "ai-agent-workflow",
-    title: "Multi-Agent Workflows",
-    description:
-      "Build resumable multi-agent workflows with durable execution, tool loops, and automatic stream recovery on client reconnection.",
-    tags: ["AI", "Agents", "Workflow Dev Kit", "Streaming"],
-    icon: Bot,
-    sections: [
-      "setup-workflow.md",
-      "workflow-types.md",
-      "workflow-tools.md",
-      "workflow-definition.md",
-      "workflow-steps.md",
-      "workflow-api-routes.md",
-      "workflow-client.md",
-      "workflow-concepts.md",
-    ],
-    requires: ["ai-chat-persistence"],
-    includes: [
-      "workflow-setup",
-      "resumable-ai-streams",
-      "custom-durable-agent",
-    ],
-    previewCode: `export async function chatWorkflow({ chatId, userMessage }) {
-  "use workflow";
-  const { workflowRunId } = getWorkflowMetadata();
-  const history = await getMessageHistory(chatId);
-  const { parts } = await agent.run(history, {
-    writable: getWritable(),
-  });
-}`,
-    registryDeps: ["use-resumable-chat"],
-  },
-  {
     slug: "custom-durable-agent",
     title: "Custom Durable Agent",
     description:
@@ -352,26 +329,84 @@ transport: new WorkflowChatTransport({
 // Tool loop continues until finishReason !== "tool-calls"`,
     registryDeps: ["durable-agent"],
   },
+  // === COOKBOOKS (that depend on recipes above) ===
+  {
+    slug: "ai-agent-workflow",
+    title: "Multi-Agent Workflows",
+    description:
+      "Build resumable multi-agent workflows with durable execution, tool loops, and automatic stream recovery on client reconnection.",
+    tags: ["Cookbook", "AI", "Agents", "Workflow Dev Kit"],
+    icon: BookOpen,
+    isCookbook: true,
+    recipes: ["workflow-setup", "resumable-ai-streams", "custom-durable-agent"],
+    sections: [
+      "setup-workflow.md",
+      "workflow-types.md",
+      "workflow-tools.md",
+      "workflow-definition.md",
+      "workflow-steps.md",
+      "workflow-api-routes.md",
+      "workflow-client.md",
+      "workflow-concepts.md",
+    ],
+    requires: ["ai-chat-persistence"],
+    previewCode: `export async function chatWorkflow({ chatId, userMessage }) {
+  "use workflow";
+  const { workflowRunId } = getWorkflowMetadata();
+  const history = await getMessageHistory(chatId);
+  const { parts } = await agent.run(history, {
+    writable: getWritable(),
+  });
+}`,
+    registryDeps: ["use-resumable-chat"],
+  } satisfies Cookbook,
 ];
 
+/** All items in display order */
+export function getAllItems(): (Recipe | Cookbook)[] {
+  return items;
+}
+
+export function getItemBySlug(slug: string): Recipe | Cookbook | undefined {
+  return items.find((item) => item.slug === slug);
+}
+
 export function getRecipeBySlug(slug: string): Recipe | undefined {
-  return recipes.find((r) => r.slug === slug);
+  const item = items.find((r) => r.slug === slug);
+  return item && !isCookbook(item) ? item : undefined;
+}
+
+export function getCookbookBySlug(slug: string): Cookbook | undefined {
+  const item = items.find((c) => c.slug === slug);
+  return item && isCookbook(item) ? item : undefined;
 }
 
 export function getAllRecipes(): Recipe[] {
-  return recipes;
+  return items.filter((item): item is Recipe => !isCookbook(item));
+}
+
+export function getAllCookbooks(): Cookbook[] {
+  return items.filter((item): item is Cookbook => isCookbook(item));
 }
 
 export function getRecipesBySlugs(slugs: string[]): Recipe[] {
   return slugs
-    .map((slug) => recipes.find((r) => r.slug === slug))
+    .map((slug) => items.find((r) => r.slug === slug && !isCookbook(r)))
     .filter((r): r is Recipe => r !== undefined);
 }
 
-export function getIncludedRecipes(recipe: Recipe): Recipe[] {
-  return getRecipesBySlugs(recipe.includes ?? []);
+export function getCookbookRecipes(cookbook: Cookbook): Recipe[] {
+  return getRecipesBySlugs(cookbook.recipes);
 }
 
-export function getRequiredRecipes(recipe: Recipe): Recipe[] {
-  return getRecipesBySlugs(recipe.requires ?? []);
+export function getRequiredItems(
+  item: Recipe | Cookbook,
+): (Recipe | Cookbook)[] {
+  return (item.requires ?? [])
+    .map((slug) => items.find((i) => i.slug === slug))
+    .filter((i): i is Recipe | Cookbook => i !== undefined);
+}
+
+export function isCookbook(item: Recipe | Cookbook): item is Cookbook {
+  return "isCookbook" in item && item.isCookbook === true;
 }

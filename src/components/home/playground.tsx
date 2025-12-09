@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +28,7 @@ import { useState } from "react";
 
 function MockLoginCard() {
   return (
-    <Card className="w-[380px] p-6 shadow-2xl border-2 bg-card/95 backdrop-blur-sm">
+    <Card className="w-[320px] sm:w-[380px] p-6 shadow-2xl border-2 bg-card/95 backdrop-blur-sm">
       <div className="space-y-5">
         <div>
           <h2 className="text-2xl font-bold mb-1">Sign in</h2>
@@ -195,7 +195,7 @@ function MockTool() {
 
 function MockChatWindow() {
   return (
-    <Card className="w-[460px] max-h-[420px] flex flex-col shadow-2xl border-2 bg-card/95 backdrop-blur-sm">
+    <Card className="w-[320px] sm:w-[460px] max-h-[420px] flex flex-col shadow-2xl border-2 bg-card/95 backdrop-blur-sm">
       {/* Scrollable messages area */}
       <div className="flex-1 overflow-y-auto p-5 space-y-4">
         <MockMessage role="user">
@@ -285,14 +285,14 @@ export function Demo() {
 
         {/* Mock UI showcase - Overlapping cards layout */}
         <div className="relative mb-16 flex items-center justify-center">
-          <div className="relative w-full max-w-4xl h-[460px] flex items-center justify-center">
-            {/* Login card - Left side, rotated */}
-            <div className="absolute left-[42%] top-[55%] -translate-y-1/2 -translate-x-1/2 transition-all duration-500 ease-out -rotate-6 hover:rotate-0 hover:scale-105 z-10 hover:z-30">
+          <div className="relative w-full max-w-4xl h-[880px] md:h-[460px] flex items-center justify-center">
+            {/* Login card - Top on mobile, Left side on desktop, rotated */}
+            <div className="absolute left-1/2 top-[22%] -translate-x-1/2 -translate-y-1/2 md:left-[42%] md:top-[55%] md:-translate-y-1/2 md:-translate-x-1/2 transition-all duration-500 ease-out -rotate-3 md:-rotate-6 hover:rotate-0 hover:scale-105 z-10 hover:z-30">
               <MockLoginCard />
             </div>
 
-            {/* Chat window - Right side, rotated, overlapping */}
-            <div className="absolute right-[42%] top-[55%] -translate-y-1/2 translate-x-1/2 transition-all duration-500 ease-out rotate-3 hover:rotate-0 hover:scale-105 z-20 hover:z-30">
+            {/* Chat window - Bottom on mobile, Right side on desktop, rotated, overlapping */}
+            <div className="absolute left-1/2 top-[73%] -translate-x-1/2 -translate-y-1/2 md:left-auto md:right-[42%] md:top-[55%] md:-translate-y-1/2 md:translate-x-1/2 transition-all duration-500 ease-out rotate-2 md:rotate-3 hover:rotate-0 hover:scale-105 z-20 hover:z-30">
               <MockChatWindow />
             </div>
           </div>

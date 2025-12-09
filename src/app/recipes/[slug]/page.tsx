@@ -1,32 +1,35 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
-  getRecipeBySlug,
-  getAllRecipes,
-  getIncludedRecipes,
-  getRequiredRecipes,
+  getAllItems,
+  getItemBySlug,
+  getCookbookRecipes,
+  getRequiredItems,
+  isCookbook,
 } from "@/lib/recipes/data";
 import { loadRecipeContent } from "@/lib/recipes/loader";
 import { RecipeHeader } from "@/components/recipes/header";
 import { MarkdownBlock } from "@/components/docs/markdown-block";
 import { RelatedRecipes } from "@/components/recipes/related";
+import { CookbookRecipes } from "@/components/recipes/cookbook-recipes";
+import { serializeRecipes, serializeItems } from "@/lib/recipes/serialize";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
 export async function generateStaticParams() {
-  const recipes = getAllRecipes();
-  return recipes.map((recipe) => ({
-    slug: recipe.slug,
+  const items = getAllItems();
+  return items.map((item) => ({
+    slug: item.slug,
   }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const recipe = getRecipeBySlug(slug);
+  const item = getItemBySlug(slug);
 
-  if (!recipe) {
+  if (!item) {
     return {
       title: "Recipe Not Found",
       description: "The requested recipe could not be found.",
@@ -34,39 +37,44 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: recipe.title,
-    description: recipe.description,
+    title: item.title,
+    description: item.description,
   };
 }
 
 export default async function RecipePage({ params }: Props) {
   const { slug } = await params;
-  const recipe = getRecipeBySlug(slug);
+  const item = getItemBySlug(slug);
 
-  if (!recipe) {
+  if (!item) {
     notFound();
   }
 
-  const content = await loadRecipeContent(recipe);
-  const requiredRecipes = getRequiredRecipes(recipe);
-  const includedRecipes = getIncludedRecipes(recipe);
+  const content = await loadRecipeContent(item);
+  const requiredItems = getRequiredItems(item);
+  const cookbookRecipes = isCookbook(item) ? getCookbookRecipes(item) : [];
 
   return (
     <div className="min-h-screen bg-background">
       <RecipeHeader
-        title={recipe.title}
-        description={recipe.description}
-        tags={recipe.tags}
-        icon={recipe.icon}
+        title={item.title}
+        description={item.description}
+        tags={item.tags}
+        icon={item.icon}
         markdownContent={content}
+        isCookbook={isCookbook(item)}
+        recipeCount={cookbookRecipes.length}
       />
       <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-        <RelatedRecipes
-          requiredRecipes={requiredRecipes}
-          includedRecipes={includedRecipes}
-        />
-        {(requiredRecipes.length > 0 || includedRecipes.length > 0) && (
+        <RelatedRecipes requiredItems={serializeItems(requiredItems)} />
+        {requiredItems.length > 0 && (
           <div className="my-8 border-t border-border" />
+        )}
+        {isCookbook(item) && cookbookRecipes.length > 0 && (
+          <>
+            <CookbookRecipes recipes={serializeRecipes(cookbookRecipes)} />
+            <div className="my-8 border-t border-border" />
+          </>
         )}
         <MarkdownBlock content={content} />
       </main>

@@ -3,29 +3,29 @@
 import { useState, useMemo } from "react";
 import { RecipeCard } from "@/components/recipes/card";
 import { RecipeSearch } from "@/components/recipes/search";
-import { getAllRecipes } from "@/lib/recipes/data";
+import { getAllItems, isCookbook } from "@/lib/recipes/data";
 import { Button } from "@/components/ui/button";
 import { ListOrdered } from "lucide-react";
 
-const recipes = getAllRecipes();
+const items = getAllItems();
 
-const allTags = Array.from(new Set(recipes.flatMap((r) => r.tags))).sort();
+const allTags = Array.from(new Set(items.flatMap((r) => r.tags))).sort();
 
 export function RecipeGrid() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [inOrder, setInOrder] = useState(false);
 
-  const filteredRecipes = useMemo(() => {
-    const filtered = recipes.filter((recipe) => {
+  const filteredItems = useMemo(() => {
+    const filtered = items.filter((item) => {
       const matchesSearch =
         searchQuery === "" ||
-        recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        recipe.description.toLowerCase().includes(searchQuery.toLowerCase());
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesTags =
         selectedTags.length === 0 ||
-        selectedTags.some((tag) => recipe.tags.includes(tag));
+        selectedTags.some((tag) => item.tags.includes(tag));
 
       return matchesSearch && matchesTags;
     });
@@ -74,14 +74,19 @@ export function RecipeGrid() {
           selectedTags={selectedTags}
           onTagToggle={toggleTag}
           onClearFilters={clearFilters}
-          resultCount={filteredRecipes.length}
-          totalCount={recipes.length}
+          resultCount={filteredItems.length}
+          totalCount={items.length}
         />
 
-        {filteredRecipes.length > 0 ? (
+        {filteredItems.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2">
-            {filteredRecipes.map((recipe) => (
-              <RecipeCard key={recipe.title} {...recipe} />
+            {filteredItems.map((item) => (
+              <RecipeCard
+                key={item.slug}
+                {...item}
+                isCookbook={isCookbook(item)}
+                recipeCount={isCookbook(item) ? item.recipes.length : undefined}
+              />
             ))}
           </div>
         ) : (

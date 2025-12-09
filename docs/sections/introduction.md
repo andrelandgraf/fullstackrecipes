@@ -6,7 +6,7 @@ Fullstackrecipes is a Shadcn registry and collection of step-by-step guides (rec
 
 ## Recipes
 
-Each recipe provides a complete step-by-step guide for adding a specific feature, pattern, or integration to your application. A recipe may build on top of other recipes (prerequisites) or have other requirements for your codebase, such as requiring a database setup.
+Each recipe provides a complete step-by-step guide for adding a specific feature, pattern, or integration to your application. A recipe may build on top of other recipes (prerequisites) or have other requirements for your codebase, such as requiring a database setup. Recipes sometimes are combined into a cookbook like "Base App Setup" which includes multiple recipes to set up a base application.
 
 ---
 
