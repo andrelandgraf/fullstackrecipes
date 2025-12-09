@@ -7,7 +7,6 @@ import { ForgotPasswordEmail } from "./emails/forgot-password";
 import { VerifyEmail } from "./emails/verify-email";
 import { ChangeEmail } from "./emails/change-email";
 import { DeleteAccountEmail } from "./emails/delete-account";
-import * as schema from "./schema";
 
 export const auth = betterAuth({
   secret: authConfig.secret,
@@ -15,12 +14,6 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
     usePlural: true,
-    schema: {
-      user: schema.users,
-      session: schema.sessions,
-      account: schema.accounts,
-      verification: schema.verifications,
-    },
   }),
   socialProviders: {
     ...(authConfig.vercelClientId &&
