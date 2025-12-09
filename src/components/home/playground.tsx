@@ -285,14 +285,14 @@ export function Demo() {
 
         {/* Mock UI showcase - Overlapping cards layout */}
         <div className="relative mb-16 flex items-center justify-center">
-          <div className="relative w-full max-w-4xl h-[880px] md:h-[460px] flex items-center justify-center">
+          <div className="relative w-full max-w-4xl h-[680px] md:h-[460px] flex items-center justify-center">
             {/* Login card - Top on mobile, Left side on desktop, rotated */}
-            <div className="absolute left-1/2 top-[22%] -translate-x-1/2 -translate-y-1/2 md:left-[42%] md:top-[55%] md:-translate-y-1/2 md:-translate-x-1/2 transition-all duration-500 ease-out -rotate-3 md:-rotate-6 hover:rotate-0 hover:scale-105 z-10 hover:z-30">
+            <div className="absolute left-1/2 top-[32%] -translate-x-1/2 -translate-y-1/2 md:left-[42%] md:top-[55%] md:-translate-y-1/2 md:-translate-x-1/2 transition-all duration-500 ease-out -rotate-3 md:-rotate-6 hover:rotate-0 active:rotate-0 hover:scale-105 active:scale-105 z-10 hover:z-30 active:z-30">
               <MockLoginCard />
             </div>
 
             {/* Chat window - Bottom on mobile, Right side on desktop, rotated, overlapping */}
-            <div className="absolute left-1/2 top-[73%] -translate-x-1/2 -translate-y-1/2 md:left-auto md:right-[42%] md:top-[55%] md:-translate-y-1/2 md:translate-x-1/2 transition-all duration-500 ease-out rotate-2 md:rotate-3 hover:rotate-0 hover:scale-105 z-20 hover:z-30">
+            <div className="absolute left-1/2 top-[72%] -translate-x-1/2 -translate-y-1/2 md:left-auto md:right-[42%] md:top-[55%] md:-translate-y-1/2 md:translate-x-1/2 transition-all duration-500 ease-out rotate-2 md:rotate-3 hover:rotate-0 active:rotate-0 hover:scale-105 active:scale-105 z-20 hover:z-30 active:z-30">
               <MockChatWindow />
             </div>
           </div>
