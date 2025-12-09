@@ -12,6 +12,7 @@ import {
   Palette,
   Sparkles,
   Layers,
+  RefreshCw,
 } from "lucide-react";
 
 export type Recipe = {
@@ -281,10 +282,31 @@ const nextConfig: NextConfig = {
 export default withWorkflow(nextConfig);`,
   },
   {
-    slug: "ai-agent-workflow",
-    title: "Resumable AI Agent Workflows",
+    slug: "resumable-ai-streams",
+    title: "Resumable AI Response Streams",
     description:
-      "Build resumable AI agent workflows with durable execution, tool loops, and automatic stream recovery on client reconnection.",
+      "Add automatic stream recovery to AI chat with WorkflowChatTransport, start/resume API endpoints, and the useResumableChat hook.",
+    tags: ["Workflow Dev Kit", "Streaming"],
+    icon: RefreshCw,
+    sections: ["workflow-api-routes.md", "workflow-client.md"],
+    requires: ["workflow-setup"],
+    previewCode: `const { messages, sendMessage } = useResumableChat({
+  chatId,
+  messageHistory,
+  initialRunId, // Resume interrupted streams
+});
+
+// WorkflowChatTransport handles reconnection
+transport: new WorkflowChatTransport({
+  maxConsecutiveErrors: 5,
+})`,
+    registryDeps: ["use-resumable-chat"],
+  },
+  {
+    slug: "ai-agent-workflow",
+    title: "Multi-Agent Workflows",
+    description:
+      "Build resumable multi-agent workflows with durable execution, tool loops, and automatic stream recovery on client reconnection.",
     tags: ["AI", "Agents", "Workflow Dev Kit", "Streaming"],
     icon: Bot,
     sections: [
@@ -298,7 +320,11 @@ export default withWorkflow(nextConfig);`,
       "workflow-concepts.md",
     ],
     requires: ["ai-chat-persistence"],
-    includes: ["workflow-setup", "custom-durable-agent"],
+    includes: [
+      "workflow-setup",
+      "resumable-ai-streams",
+      "custom-durable-agent",
+    ],
     previewCode: `export async function chatWorkflow({ chatId, userMessage }) {
   "use workflow";
   const { workflowRunId } = getWorkflowMetadata();
