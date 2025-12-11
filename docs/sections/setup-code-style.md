@@ -1,6 +1,6 @@
 ## Editor and Linting Setup
 
-We use Prettier for code formatting and TypeScript for typechecking. We're explicitly not using a linter like ESLint or Biome to avoid config hell.
+Set up Prettier for code formatting and TypeScript for typechecking. This recipe doesn't include a linter like ESLint or Biome to avoid config hell.
 
 ### Step 1: Install Prettier
 
@@ -21,7 +21,7 @@ Add these scripts to your `package.json`:
 }
 ```
 
-### Step 3: Install VSCode Extension
+### Step 3: Install VSCode Extension (Optional)
 
 Install the Prettier VSCode extension for automatic formatting:
 
@@ -30,7 +30,7 @@ Install the Prettier VSCode extension for automatic formatting:
 
 Note: The extension may be marked as deprecated (replaced by `prettier.prettier-vscode`), however I've found that at least in Cursor `esbenp.prettier-vscode` works without issues while `prettier.prettier-vscode` has issues formatting .tsx files.
 
-### Step 4: Add .vscode Configuration (Recommended)
+### Step 4: Add .vscode Configuration (Optional)
 
 Create a `.vscode` folder in your project root with the following files:
 

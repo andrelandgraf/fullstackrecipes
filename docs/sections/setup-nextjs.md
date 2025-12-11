@@ -20,7 +20,7 @@ Recommended options to select during the setup:
 
 ### Configure Bun runtime on Vercel (Optional)
 
-Create a `vercel.json` file in your project root to use Bun as the runtime on Vercel:
+Create a `vercel.json` file in your project root to configure Bun as the runtime on Vercel:
 
 ```json
 {
