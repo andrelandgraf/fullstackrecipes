@@ -2,13 +2,9 @@
 
 The persistence layer handles converting between AI SDK's `UIMessage` format and your database tables. This includes type definitions, query helpers, and persistence functions.
 
-### Install Assertion Helper via Registry
+### Prerequisites
 
-```bash
-bunx shadcn@latest add https://fullstackrecipes.com/r/assert.json
-```
-
-This installs the assertion utility to `src/lib/common/assert.ts`, used throughout the persistence layer for runtime type checks.
+- Completed [Assertion Helper](/recipes/assert) setup
 
 ### Chat Types
 
@@ -109,25 +105,6 @@ export type ToolType = (typeof TOOL_TYPES)[number];
 ```
 
 The `TOOL_TYPES` array must match your tool keys prefixed with `tool-` for the database schema's enum constraint.
-
-### Assertion Helper
-
-A simple utility used throughout the persistence layer:
-
-```typescript
-// src/lib/common/assert.ts
-const prefix = "Assertion failed";
-
-export default function assert(
-  condition: unknown,
-  message?: string | (() => string),
-): asserts condition {
-  if (condition) return;
-
-  const provided = typeof message === "function" ? message() : message;
-  throw new Error(provided ? `${prefix}: ${provided}` : prefix);
-}
-```
 
 ### Query Helpers
 

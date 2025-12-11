@@ -8,8 +8,8 @@ To persist AI chat conversations with full support for AI SDK message parts, you
 - Install additional packages:
 
 ```bash
-npm i uuid zod
-npm i -D @types/uuid
+bun add uuid zod
+bun add -D @types/uuid
 ```
 
 ### Why UUID v7?

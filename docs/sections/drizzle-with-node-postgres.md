@@ -83,6 +83,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { databaseConfig } from "./config";
 
+// Replace with your app's existing schemas
 import * as authSchema from "@/lib/auth/schema";
 import * as chatSchema from "@/lib/chat/schema";
 
@@ -156,12 +157,6 @@ The `attachDatabasePool` helper from `@vercel/functions` is the key to efficient
 1. **Without pooling**: Each request opens a new TCP connection (~8 roundtrips), adding latency
 2. **With pooling**: The first request establishes a connection; subsequent requests reuse it instantly
 3. **The helper**: `attachDatabasePool` ensures idle connections close gracefully before function suspension, preventing connection leaks
-
-**Best practices:**
-
-- Define the pool at module scope (globally) so all requests share it
-- Keep minimum pool size at 1 for good concurrency
-- Use Vercel's Rolling releases to avoid connection surges during deployments
 
 ---
 

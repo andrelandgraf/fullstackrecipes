@@ -28,6 +28,8 @@ Install the Prettier VSCode extension for automatic formatting:
 - [Install in Cursor](cursor:extension/esbenp.prettier-vscode)
 - Or via VS Code command line: `ext install esbenp.prettier-vscode`
 
+Note: The extension may be marked as deprecated (replaced by `prettier.prettier-vscode`), however I've found that at least in Cursor `esbenp.prettier-vscode` works without issues while `prettier.prettier-vscode` has issues formatting .tsx files.
+
 ### Step 4: Add .vscode Configuration (Recommended)
 
 Create a `.vscode` folder in your project root with the following files:
@@ -58,9 +60,9 @@ Enable format on save with Prettier as the default formatter:
 }
 ```
 
-### Step 5: Add .editorconfig (Recommended)
+### Step 5: Add .editorconfig (Optional)
 
-Create a `.editorconfig` file in your project root. This is optional as it follows the default Prettier configuration but can be useful for other editors that support it:
+Create a `.editorconfig` file in your project root. This is optional since Prettier already enforces these rules by default, but it ensures consistency when contributors use editors without setting up Prettier:
 
 ```editorconfig
 # Editor config - see http://EditorConfig.org

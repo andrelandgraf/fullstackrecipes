@@ -54,6 +54,7 @@ export const items: (Recipe | Cookbook)[] = [
       "code-style-setup",
       "agent-setup",
       "shadcn-ui-setup",
+      "assert",
       "env-config",
       "neon-drizzle-setup",
       "ai-sdk-setup",
@@ -63,6 +64,7 @@ export const items: (Recipe | Cookbook)[] = [
       "setup-code-style.md",
       "agents-setup.md",
       "setup-shadcn.md",
+      "assert.md",
       "env-config.md",
       "drizzle-with-node-postgres.md",
       "setup-ai-sdk.md",
@@ -123,6 +125,23 @@ bunx --bun shadcn@latest add --all
 <ThemeProvider attribute="class">
   {children}
 </ThemeProvider>`,
+  },
+  {
+    slug: "assert",
+    title: "Assertion Helper",
+    description:
+      "TypeScript assertion function for runtime type narrowing with descriptive error messages. Based on tiny-invariant.",
+    tags: ["Config"],
+    icon: Settings,
+    sections: ["assert.md"],
+    previewCode: `import assert from "@/lib/common/assert";
+
+function processUser(user: User | null) {
+  assert(user, "User must exist");
+  // TypeScript now knows user is User
+  console.log(user.name);
+}`,
+    registryDeps: ["assert"],
   },
   {
     slug: "env-config",

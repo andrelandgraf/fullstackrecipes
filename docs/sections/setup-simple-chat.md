@@ -4,10 +4,9 @@ Create a basic chat interface with streaming responses.
 
 ### Step 1: Create the API route
 
-Create a route handler that streams AI responses:
+Create `src/app/api/chat/route.ts`:
 
 ```typescript
-// src/app/api/chat/route.ts
 import { convertToModelMessages, streamText, UIMessage } from "ai";
 
 export const maxDuration = 30;
@@ -29,10 +28,9 @@ export async function POST(req: Request) {
 
 ### Step 2: Create the chat page
 
-Build a client component that manages the chat state:
+Create `src/app/page.tsx`:
 
 ```tsx
-// src/app/page.tsx
 "use client";
 
 import { useChat } from "@ai-sdk/react";
@@ -106,20 +104,6 @@ bun run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) and start chatting.
-
----
-
-## Info: Chat Status States
-
-The `status` value from `useChat` indicates the current state:
-
-| Status      | Description                    |
-| ----------- | ------------------------------ |
-| `ready`     | Idle, ready to send messages   |
-| `streaming` | Currently receiving a response |
-| `error`     | An error occurred              |
-
-Use these states to show loading indicators and disable inputs appropriately.
 
 ---
 

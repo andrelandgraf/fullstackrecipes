@@ -8,11 +8,7 @@ Add beautiful, accessible components to your Next.js app with Shadcn UI.
 bunx --bun shadcn@latest init
 ```
 
-Follow the prompts to configure your project. The CLI will:
-
-- Create a `components.json` config file
-- Set up your CSS variables in `globals.css`
-- Configure path aliases
+Follow the prompts to configure your project. The CLI will create a `components.json` config file and set up your CSS variables in `globals.css`.
 
 ### Step 2: Add components
 
@@ -30,10 +26,9 @@ Install the theme provider:
 bun add next-themes
 ```
 
-Create a theme provider component:
+Create `src/components/themes/provider.tsx`:
 
 ```tsx
-// src/components/themes/provider.tsx
 "use client";
 
 import { ThemeProvider as NextThemesProvider } from "next-themes";
@@ -43,10 +38,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Wrap your app with the provider in your root layout:
+Wrap your app with the provider in `src/app/layout.tsx`:
 
 ```tsx
-// src/app/layout.tsx
 import { ThemeProvider } from "@/components/themes/provider";
 
 export default function RootLayout({
@@ -60,6 +54,50 @@ export default function RootLayout({
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
+  );
+}
+```
+
+Create `src/components/themes/selector.tsx` to toggle between light, dark, and system themes:
+
+```tsx
+"use client";
+
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+export function ThemeSelector() {
+  const { setTheme } = useTheme();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+          <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          Light
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          System
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 ```
