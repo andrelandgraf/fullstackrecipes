@@ -3,7 +3,12 @@ import { validateConfig, type PreValidate } from "../common/validate-config";
 
 const ResendConfigSchema = z.object({
   apiKey: z.string("RESEND_API_KEY must be defined."),
-  fromEmail: z.string().default("Acme <onboarding@resend.dev>"),
+  fromEmail: z
+    .string("RESEND_FROM_EMAIL must be defined.")
+    .regex(
+      /^.+\s<.+@.+\..+>$/,
+      'RESEND_FROM_EMAIL must match "Name <email@domain.com>" format.',
+    ),
 });
 
 export type ResendConfig = z.infer<typeof ResendConfigSchema>;

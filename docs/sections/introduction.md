@@ -60,8 +60,7 @@ Add the following to your editor's MCP configuration, e.g., the `.cursor/mcp.jso
 {
   "mcpServers": {
     "fullstackrecipes": {
-      "url": "https://fullstackrecipes.com/api/mcp",
-      "headers": {}
+      "url": "https://fullstackrecipes.com/api/mcp"
     }
   }
 }

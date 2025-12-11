@@ -10,8 +10,7 @@ Add the Better Auth MCP server to your `.cursor/mcp.json` for accurate API guida
 {
   "mcpServers": {
     "better-auth": {
-      "url": "https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp",
-      "headers": {}
+      "url": "https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp"
     }
   }
 }

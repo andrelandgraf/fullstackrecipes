@@ -1,6 +1,6 @@
 ## Resend Setup
 
-Set up [Resend](https://resend.com/docs/send-with-nextjs) for transactional emails like password resets.
+Set up [Resend](https://resend.com) for transactional emails like password resets.
 
 ### MCP Server
 
@@ -10,8 +10,7 @@ Add the Resend MCP server to your `.cursor/mcp.json` for accurate API guidance:
 {
   "mcpServers": {
     "resend": {
-      "url": "https://resend.com/docs/mcp",
-      "headers": {}
+      "url": "https://resend.com/docs/mcp"
     }
   }
 }
@@ -48,7 +47,12 @@ import { validateConfig, type PreValidate } from "../common/validate-config";
 
 const ResendConfigSchema = z.object({
   apiKey: z.string("RESEND_API_KEY must be defined."),
-  fromEmail: z.string().default("Acme <onboarding@resend.dev>"),
+  fromEmail: z
+    .string("RESEND_FROM_EMAIL must be defined.")
+    .regex(
+      /^.+\s<.+@.+\..+>$/,
+      'RESEND_FROM_EMAIL must match "Name <email@domain.com>" format.',
+    ),
 });
 
 export type ResendConfig = z.infer<typeof ResendConfigSchema>;
@@ -119,10 +123,11 @@ await sendEmail({
 
 ### Create email templates
 
-Email templates are React components. Create them in `src/lib/auth/emails/` for auth-related emails:
+Email templates are React components colocated with the feature that uses them, following the "everything is a library" pattern. Auth-related emails (password reset, email verification) live in `src/lib/auth/emails/`, while other features would have their own `emails/` subfolder.
+
+For example, a password reset email template should live in `src/lib/auth/emails/forgot-password.tsx`:
 
 ```typescript
-// src/lib/auth/emails/forgot-password.tsx
 interface ForgotPasswordEmailProps {
   resetLink: string;
 }
