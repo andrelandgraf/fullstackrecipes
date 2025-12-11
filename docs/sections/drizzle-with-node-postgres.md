@@ -83,7 +83,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { databaseConfig } from "./config";
 
-// Replace with your app's existing schemas
+// Replace with your app's schemas
 import * as authSchema from "@/lib/auth/schema";
 import * as chatSchema from "@/lib/chat/schema";
 

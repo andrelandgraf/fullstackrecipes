@@ -14,7 +14,12 @@ import {
   Layers,
   RefreshCw,
   BookOpen,
+  Cog,
+  Blocks,
+  Package,
+  Cpu,
 } from "lucide-react";
+import registry from "../../../registry.json";
 
 export type Recipe = {
   slug: string;
@@ -428,4 +433,30 @@ export function getRequiredItems(
 
 export function isCookbook(item: Recipe | Cookbook): item is Cookbook {
   return "isCookbook" in item && item.isCookbook === true;
+}
+
+// Registry items from registry.json
+const REGISTRY_ICONS: Record<string, typeof Database> = {
+  "validate-config": Cog,
+  assert: Blocks,
+  "use-resumable-chat": Package,
+  "durable-agent": Cpu,
+};
+
+export type RegistryItem = {
+  name: string;
+  title: string;
+  description: string;
+  type: "lib" | "hook";
+  icon: typeof Database;
+};
+
+export function getRegistryItems(): RegistryItem[] {
+  return registry.items.map((item) => ({
+    name: item.name,
+    title: item.title,
+    description: item.description,
+    type: item.type.replace("registry:", "") as "lib" | "hook",
+    icon: REGISTRY_ICONS[item.name] ?? Settings,
+  }));
 }

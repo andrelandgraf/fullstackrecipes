@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getRecipeBySlug } from "@/lib/recipes/data";
+import { getItemBySlug } from "@/lib/recipes/data";
 import { loadRecipeContent } from "@/lib/recipes/loader";
 
 export async function GET(
@@ -7,13 +7,13 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
-  const recipe = getRecipeBySlug(slug);
+  const item = getItemBySlug(slug);
 
-  if (!recipe) {
+  if (!item) {
     return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
   }
 
-  const content = await loadRecipeContent(recipe);
+  const content = await loadRecipeContent(item);
 
   return NextResponse.json({ content });
 }
