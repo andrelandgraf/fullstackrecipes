@@ -21,7 +21,12 @@ import {
   ArrowRight,
   Bot,
 } from "lucide-react";
-import { getAllRecipes, type Recipe } from "@/lib/recipes/data";
+import {
+  getAllItems,
+  type Recipe,
+  type Cookbook,
+  isCookbook,
+} from "@/lib/recipes/data";
 import { codeToHtml, type BundledLanguage } from "shiki";
 
 type HighlightedCodeProps = {
@@ -71,7 +76,7 @@ function HighlightedCode({ code, language }: HighlightedCodeProps) {
   );
 }
 
-const recipes = getAllRecipes();
+const items = getAllItems();
 
 const MCP_CONFIG = `{
   "mcpServers": {
@@ -81,8 +86,9 @@ const MCP_CONFIG = `{
   }
 }`;
 
-function getMcpPrompt(recipe: Recipe) {
-  return `Follow the "${recipe.title}" recipe from fullstackrecipes`;
+function getMcpPrompt(item: Recipe | Cookbook) {
+  const type = isCookbook(item) ? "cookbook" : "recipe";
+  return `Follow the "${item.title}" ${type} from fullstackrecipes`;
 }
 
 function getRegistryCommand(registryDep: string) {
@@ -90,14 +96,14 @@ function getRegistryCommand(registryDep: string) {
 }
 
 export function HowItWorks() {
-  const [selectedSlug, setSelectedSlug] = useState(recipes[0].slug);
+  const [selectedSlug, setSelectedSlug] = useState(items[0].slug);
   const [recipeContent, setRecipeContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [copiedState, setCopiedState] = useState<string | null>(null);
 
-  const selectedRecipe = recipes.find((r) => r.slug === selectedSlug)!;
+  const selectedItem = items.find((r) => r.slug === selectedSlug)!;
   const hasRegistry =
-    selectedRecipe.registryDeps && selectedRecipe.registryDeps.length > 0;
+    selectedItem.registryDeps && selectedItem.registryDeps.length > 0;
 
   useEffect(() => {
     async function loadContent() {
@@ -125,7 +131,7 @@ export function HowItWorks() {
     }
   };
 
-  const Icon = selectedRecipe.icon;
+  const Icon = selectedItem.icon;
 
   return (
     <section className="border-b border-border/50 py-24">
@@ -184,9 +190,9 @@ export function HowItWorks() {
                     </span>
                   </SelectTrigger>
                   <SelectContent>
-                    {recipes.map((recipe) => (
-                      <SelectItem key={recipe.slug} value={recipe.slug}>
-                        {recipe.title}
+                    {items.map((item) => (
+                      <SelectItem key={item.slug} value={item.slug}>
+                        {item.title}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -361,14 +367,14 @@ export function HowItWorks() {
 
                   <div className="group relative min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4">
                     <HighlightedCode
-                      code={getMcpPrompt(selectedRecipe)}
+                      code={getMcpPrompt(selectedItem)}
                       language="bash"
                     />
                     <Button
                       size="icon"
                       variant="ghost"
                       onClick={() =>
-                        copyToClipboard(getMcpPrompt(selectedRecipe), "prompt")
+                        copyToClipboard(getMcpPrompt(selectedItem), "prompt")
                       }
                       className="absolute right-2 top-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
                     >
@@ -400,7 +406,7 @@ export function HowItWorks() {
                       </div>
                     </div>
 
-                    {selectedRecipe.registryDeps?.map((dep, index) => (
+                    {selectedItem.registryDeps?.map((dep, index) => (
                       <div
                         key={dep}
                         className="group relative mb-4 min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4"

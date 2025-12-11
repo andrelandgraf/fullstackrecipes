@@ -48,7 +48,7 @@ export const items: (Recipe | Cookbook)[] = [
     description:
       "Complete setup guide for a Next.js app with Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK.",
     tags: ["Cookbook"],
-    icon: BookOpen,
+    icon: Rocket,
     isCookbook: true,
     recipes: [
       "code-style-setup",
@@ -63,10 +63,10 @@ export const items: (Recipe | Cookbook)[] = [
       "setup-nextjs.md",
       "setup-code-style.md",
       "agents-setup.md",
-      "setup-shadcn.md",
       "assert.md",
       "env-config.md",
       "drizzle-with-node-postgres.md",
+      "setup-shadcn.md",
       "setup-ai-sdk.md",
       "setup-simple-chat.md",
     ],
@@ -109,22 +109,6 @@ bun add drizzle-orm @ai-sdk/openai`,
     }
   }
 }`,
-  },
-  {
-    slug: "shadcn-ui-setup",
-    title: "Shadcn UI & Theming",
-    description:
-      "Set up Shadcn UI components with dark mode support using next-themes. Includes theme provider setup and CSS variables configuration.",
-    tags: ["UI Components"],
-    icon: Palette,
-    sections: ["setup-shadcn.md"],
-    previewCode: `bunx --bun shadcn@latest init
-bunx --bun shadcn@latest add --all
-
-// Theme provider with next-themes
-<ThemeProvider attribute="class">
-  {children}
-</ThemeProvider>`,
   },
   {
     slug: "assert",
@@ -175,6 +159,22 @@ import { attachDatabasePool } from "@vercel/functions";
 const pool = new Pool({ connectionString: databaseConfig.url });
 attachDatabasePool(pool);
 export const db = drizzle({ client: pool, schema });`,
+  },
+  {
+    slug: "shadcn-ui-setup",
+    title: "Shadcn UI & Theming",
+    description:
+      "Set up Shadcn UI components with dark mode support using next-themes. Includes theme provider setup and CSS variables configuration.",
+    tags: ["UI Components"],
+    icon: Palette,
+    sections: ["setup-shadcn.md"],
+    previewCode: `bunx --bun shadcn@latest init
+bunx --bun shadcn@latest add --all
+
+// Theme provider with next-themes
+<ThemeProvider attribute="class">
+  {children}
+</ThemeProvider>`,
   },
   {
     slug: "ai-sdk-setup",
