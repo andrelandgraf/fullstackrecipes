@@ -44,6 +44,8 @@ export async function POST(req: Request) {
 
 ```typescript
 // lib/stripe/stripe.ts
+import { logger } from "@/lib/common/logger";
+
 const allowedEventTypes = [
   "checkout.session.completed",
   "checkout.session.async_payment_succeeded",
@@ -80,7 +82,7 @@ export async function processStripeEvent({
   }
 
   if (!isAllowedEventType(event)) {
-    console.warn(`[STRIPE HOOK] Received untracked event: ${event.type}`);
+    logger.warn({ eventType: event.type }, "Received untracked Stripe event");
     return;
   }
 

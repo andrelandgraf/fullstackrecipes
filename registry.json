@@ -4,6 +4,33 @@
   "homepage": "https://fullstackrecipes.com",
   "items": [
     {
+      "name": "assert",
+      "type": "registry:lib",
+      "title": "Assertion Helper",
+      "description": "TypeScript assertion function that narrows types when condition is truthy. Throws with optional message if condition is falsy.",
+      "files": [
+        {
+          "path": "src/lib/common/assert.ts",
+          "type": "registry:lib",
+          "target": "lib/common/assert.ts"
+        }
+      ]
+    },
+    {
+      "name": "logger",
+      "type": "registry:lib",
+      "title": "Pino Logger",
+      "description": "Structured JSON logger with pretty-printing in development. Configurable log level via PINO_LOG_LEVEL env var.",
+      "dependencies": ["pino", "pino-pretty"],
+      "files": [
+        {
+          "path": "src/lib/common/logger.ts",
+          "type": "registry:lib",
+          "target": "lib/common/logger.ts"
+        }
+      ]
+    },
+    {
       "name": "validate-config",
       "type": "registry:lib",
       "title": "Environment Variable Validation",
@@ -14,19 +41,6 @@
           "path": "src/lib/common/validate-config.ts",
           "type": "registry:lib",
           "target": "lib/common/validate-config.ts"
-        }
-      ]
-    },
-    {
-      "name": "assert",
-      "type": "registry:lib",
-      "title": "Assertion Helper",
-      "description": "TypeScript assertion function that narrows types when condition is truthy. Throws with optional message if condition is falsy.",
-      "files": [
-        {
-          "path": "src/lib/common/assert.ts",
-          "type": "registry:lib",
-          "target": "lib/common/assert.ts"
         }
       ]
     },

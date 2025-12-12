@@ -1,5 +1,6 @@
 import { generateObject, convertToModelMessages, type UIMessage } from "ai";
 import { z } from "zod";
+import { logger } from "@/lib/common/logger";
 import { writeProgress } from "./progress";
 
 const routerSystemPrompt = `You are an orchestrator agent for a tweet author system.
@@ -39,7 +40,7 @@ export async function routerStep(
   await writeProgress("Thinking about the next step...", chatId, messageId);
 
   try {
-    console.log("Router: Processing", history.length, "messages");
+    logger.info({ messageCount: history.length }, "Router processing messages");
 
     const result = await generateObject({
       model: "google/gemini-2.5-flash",
@@ -48,12 +49,11 @@ export async function routerStep(
       messages: convertToModelMessages(history),
     });
 
-    console.log("Router decision:", result.object);
+    logger.info({ decision: result.object }, "Router decision");
 
     return result.object;
   } catch (error) {
-    console.error("Router error:", error);
-    console.error("Messages:", JSON.stringify(history, null, 2));
+    logger.error({ error, messages: history }, "Router error");
     throw error;
   }
 }

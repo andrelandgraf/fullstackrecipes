@@ -21,6 +21,7 @@ Create `src/workflows/chat/index.ts`:
 
 ```typescript
 import { getWorkflowMetadata, getWritable } from "workflow";
+import { logger } from "@/lib/common/logger";
 import type { ChatAgentUIMessage } from "./types";
 import {
   persistUserMessage,
@@ -62,7 +63,7 @@ export async function chatWorkflow({
   await startStream(messageId);
 
   const { next, reasoning } = await routerStep(chatId, messageId, history);
-  console.log(`Router: ${next} - ${reasoning}`);
+  logger.info({ next, reasoning }, "Router decision");
 
   const progressText =
     next === "research" ? "Researching topic..." : "Authoring tweet...";

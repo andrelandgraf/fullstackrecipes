@@ -53,6 +53,7 @@ The `stripe.setup.ts` script registers webhook endpoint in Stripe Dashboard:
 ```typescript
 // apps/web/scripts/stripe.setup.ts
 import Stripe from "stripe";
+import { logger } from "@/lib/common/logger";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const url = `${process.env.NEXT_PUBLIC_ORIGIN}/api/stripe`;
@@ -63,7 +64,7 @@ const webhook = await stripe.webhookEndpoints.create({
   description: "Webhook endpoint for production",
 });
 
-console.log("Webhook signing secret:", webhook.secret);
+logger.info({ secret: webhook.secret }, "Webhook signing secret");
 // Add this to your .env as STRIPE_WEBHOOK_SECRET
 ```
 

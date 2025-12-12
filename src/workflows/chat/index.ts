@@ -10,6 +10,7 @@ import {
 import { startStream, finishStream } from "./steps/stream";
 import { routerStep } from "./steps/router";
 import { writeProgress } from "./steps/progress";
+import { log } from "./steps/logger";
 import { researchAgent } from "@/lib/ai/research";
 import { draftingAgent } from "@/lib/ai/drafting";
 
@@ -40,7 +41,7 @@ export async function chatWorkflow({
   await startStream(messageId);
 
   const { next, reasoning } = await routerStep(chatId, messageId, history);
-  console.log(`Router: ${next} - ${reasoning}`);
+  await log("info", "Router decision", { next, reasoning });
 
   const progressText =
     next === "research" ? "Researching topic..." : "Authoring tweet...";

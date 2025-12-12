@@ -34,12 +34,12 @@ The wizard creates these files:
 Add to your `.env.local`:
 
 ```env
-SENTRY_DSN="https://your-dsn@sentry.io/your-project-id"
-SENTRY_PROJECT="your-project-name"
-SENTRY_ORG="your-org-name"
+NEXT_PUBLIC_SENTRY_DSN="https://your-dsn@sentry.io/your-project-id"
+NEXT_PUBLIC_SENTRY_PROJECT="your-project-name"
+NEXT_PUBLIC_SENTRY_ORG="your-org-name"
 ```
 
-Get these values from your Sentry project settings. While not secrets (they're loaded in the client), using env variables keeps them out of your repo.
+Get these values from your Sentry project settings. The `NEXT_PUBLIC_` prefix is required because these values are needed on the client side. They're not secrets - they just tell Sentry where to send data.
 
 ---
 
@@ -52,17 +52,17 @@ import { z } from "zod";
 import { validateConfig, type PreValidate } from "../common/validate-config";
 
 const SentryConfigSchema = z.object({
-  dsn: z.string("SENTRY_DSN must be defined."),
-  project: z.string("SENTRY_PROJECT must be defined."),
-  org: z.string("SENTRY_ORG must be defined."),
+  dsn: z.string("NEXT_PUBLIC_SENTRY_DSN must be defined."),
+  project: z.string("NEXT_PUBLIC_SENTRY_PROJECT must be defined."),
+  org: z.string("NEXT_PUBLIC_SENTRY_ORG must be defined."),
 });
 
 export type SentryConfig = z.infer<typeof SentryConfigSchema>;
 
 const config: PreValidate<SentryConfig> = {
-  dsn: process.env.SENTRY_DSN,
-  project: process.env.SENTRY_PROJECT,
-  org: process.env.SENTRY_ORG,
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  project: process.env.NEXT_PUBLIC_SENTRY_PROJECT,
+  org: process.env.NEXT_PUBLIC_SENTRY_ORG,
 };
 
 export const sentryConfig = validateConfig(SentryConfigSchema, config);
@@ -103,12 +103,11 @@ export function initSentryEdge() {
     tracesSampleRate: 1,
     enableLogs: true,
     sendDefaultPii: true,
-    integrations: [
-      Sentry.pinoIntegration({ log: { levels: ["info", "warn", "error"] } }),
-    ],
   });
 }
 ```
+
+Note: The pino integration is not included for edge because pino uses Node.js modules (`fs`, `events`, `worker_threads`) that aren't available in the edge runtime.
 
 Create `src/lib/sentry/client.ts`:
 
@@ -310,9 +309,9 @@ src/
   instrumentation.ts           # Next.js instrumentation hook (wizard-generated)
   instrumentation-client.ts    # Imports and calls initSentryClient()
   lib/sentry/
-    config.ts                  # Validates SENTRY_DSN, SENTRY_PROJECT, SENTRY_ORG
+    config.ts                  # Validates NEXT_PUBLIC_SENTRY_DSN, NEXT_PUBLIC_SENTRY_PROJECT, NEXT_PUBLIC_SENTRY_ORG
     server.ts                  # initSentryServer() with pino integration
-    edge.ts                    # initSentryEdge() with pino integration
+    edge.ts                    # initSentryEdge() without pino (edge doesn't support Node.js modules)
     client.ts                  # initSentryClient() with replay integration
 .cursor/rules/
   sentry.md                    # AI agent guidelines for Sentry

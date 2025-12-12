@@ -219,6 +219,7 @@ const result = streamText({
 logger.info("Server started", { port: 3000 });
 logger.warn("Rate limit reached", { endpoint: "/api/chat" });
 logger.error(err, "Failed to process request");`,
+    registryDeps: ["logger"],
   },
   {
     slug: "sentry-setup",
@@ -366,7 +367,11 @@ track("signup_completed", { plan: "pro" });`,
       "stripe-ui.md",
       "stripe-deployment.md",
     ],
-    requires: ["neon-drizzle-setup", "feature-flags-setup"],
+    requires: [
+      "neon-drizzle-setup",
+      "feature-flags-setup",
+      "pino-logging-setup",
+    ],
     previewCode: `export async function syncStripeData(customerId: string) {
   const subscriptions = await stripe.subscriptions.list({
     customer: customerId,
@@ -383,6 +388,7 @@ track("signup_completed", { plan: "pro" });`,
     tags: ["Workflow Dev Kit", "Config"],
     icon: Layers,
     sections: ["setup-workflow.md"],
+    requires: ["pino-logging-setup"],
     previewCode: `import { withWorkflow } from "workflow/next";
 
 const nextConfig: NextConfig = {
@@ -449,7 +455,7 @@ transport: new WorkflowChatTransport({
       "workflow-client.md",
       "workflow-concepts.md",
     ],
-    requires: ["ai-chat-persistence"],
+    requires: ["ai-chat-persistence", "pino-logging-setup"],
     previewCode: `export async function chatWorkflow({ chatId, userMessage }) {
   "use workflow";
   const { workflowRunId } = getWorkflowMetadata();
@@ -517,6 +523,7 @@ const REGISTRY_ICONS: Record<string, typeof Database> = {
   assert: Blocks,
   "use-resumable-chat": Package,
   "durable-agent": Cpu,
+  logger: ScrollText,
 };
 
 export type RegistryItem = {

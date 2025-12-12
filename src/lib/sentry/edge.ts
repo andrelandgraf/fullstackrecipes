@@ -7,8 +7,5 @@ export function initSentryEdge() {
     tracesSampleRate: 1,
     enableLogs: true,
     sendDefaultPii: true,
-    integrations: [
-      Sentry.pinoIntegration({ log: { levels: ["info", "warn", "error"] } }),
-    ],
   });
 }

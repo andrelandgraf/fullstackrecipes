@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "logger",
+  "type": "registry:lib",
+  "title": "Pino Logger",
+  "description": "Structured JSON logger with pretty-printing in development. Configurable log level via PINO_LOG_LEVEL env var.",
+  "dependencies": ["pino", "pino-pretty"],
+  "files": [
+    {
+      "path": "src/lib/common/logger.ts",
+      "content": "import pino from \"pino\";\n\nconst isDev = process.env.NODE_ENV === \"development\";\n\nconst transport = isDev\n  ? pino.transport({\n      target: \"pino-pretty\",\n    })\n  : undefined;\n\nexport const logger = pino(\n  {\n    level: process.env.PINO_LOG_LEVEL || \"info\",\n  },\n  transport,\n);\n",
+      "type": "registry:lib",
+      "target": "lib/common/logger.ts"
+    }
+  ]
+}
