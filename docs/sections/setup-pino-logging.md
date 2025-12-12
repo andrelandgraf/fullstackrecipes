@@ -22,9 +22,15 @@ const nextConfig: NextConfig = {
 };
 ```
 
-### Step 3: Create the logger utility
+### Step 3: Add the logger utility
 
-Create `src/lib/common/logger.ts`:
+Install the logger utility using the shadcn CLI:
+
+```bash
+bunx --bun shadcn@latest add https://fullstackrecipes.com/r/logger.json
+```
+
+This creates `src/lib/common/logger.ts`:
 
 ```typescript
 import pino from "pino";
