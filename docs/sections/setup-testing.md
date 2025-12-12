@@ -551,3 +551,52 @@ try {
   expect((e as Error).message).toContain("expected text");
 }
 ```
+
+---
+
+## CI with GitHub Actions
+
+Run tests automatically on every push and pull request using GitHub Actions.
+
+### Create Workflow File
+
+Create `.github/workflows/test.yml`:
+
+```yaml
+name: Test
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run tests
+        run: bun test
+```
+
+This workflow:
+
+- Triggers on push to any branch
+- Triggers on pull requests to any branch
+- Uses the official `oven-sh/setup-bun` action for fast Bun installation
+- Uses `--frozen-lockfile` to ensure reproducible installs
+- Runs all tests with `bun test`
