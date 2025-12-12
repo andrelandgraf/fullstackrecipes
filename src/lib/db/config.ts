@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { validateConfig, type PreValidate } from "../common/validate-config";
+import { validateConfig, type PreValidate } from "@/lib/common/validate-config";
 
 const DatabaseConfigSchema = z.object({
   url: z.string("DATABASE_URL must be defined."),

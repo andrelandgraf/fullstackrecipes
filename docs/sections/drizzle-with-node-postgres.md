@@ -134,7 +134,8 @@ Add these scripts to your `package.json`:
 {
   "scripts": {
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   }
 }
 ```
