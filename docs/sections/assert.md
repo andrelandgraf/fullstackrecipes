@@ -11,20 +11,24 @@ bunx shadcn@latest add https://fullstackrecipes.com/r/assert.json
 This installs the assertion utility to `src/lib/common/assert.ts`:
 
 ```typescript
-const prefix = "Assertion failed";
+const prefix: string = "Assertion failed";
 
 /**
  * TypeScript assertion function that narrows types when condition is truthy.
  * Throws if condition is falsy. Message can be string or lazy function.
  */
 export default function assert(
-  condition: unknown,
+  condition: any,
   message?: string | (() => string),
 ): asserts condition {
-  if (condition) return;
+  if (condition) {
+    return;
+  }
 
-  const provided = typeof message === "function" ? message() : message;
-  throw new Error(provided ? `${prefix}: ${provided}` : prefix);
+  const provided: string | undefined =
+    typeof message === "function" ? message() : message;
+  const value: string = provided ? `${prefix}: ${provided}` : prefix;
+  throw new Error(value);
 }
 ```
 
