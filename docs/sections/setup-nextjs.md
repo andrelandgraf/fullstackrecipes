@@ -28,4 +28,10 @@ Create a `vercel.json` file in your project root to configure Bun as the runtime
 }
 ```
 
+Also add Bun types for better TypeScript support:
+
+```bash
+bun add -D @types/bun
+```
+
 This is optional but using Bun both as the package manager and runtime is a great development experience.

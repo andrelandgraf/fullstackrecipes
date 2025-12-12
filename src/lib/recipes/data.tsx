@@ -22,6 +22,7 @@ import {
   BarChart3,
   ScrollText,
   Activity,
+  FlaskConical,
 } from "lucide-react";
 import registry from "../../../registry.json";
 
@@ -294,6 +295,22 @@ track("signup_completed", { plan: "pro" });`,
     react,
   });
 }`,
+  },
+  {
+    slug: "bun-testing",
+    title: "Testing with Bun",
+    description:
+      "Set up unit testing with Bun's built-in test runner. Fast, Jest-compatible syntax, no additional framework needed.",
+    tags: ["Config", "Testing"],
+    icon: FlaskConical,
+    sections: ["setup-testing.md"],
+    previewCode: `import { describe, it, expect } from "bun:test";
+
+describe("myFunction", () => {
+  it("returns expected value", () => {
+    expect(myFunction()).toBe("expected");
+  });
+});`,
   },
   {
     slug: "better-auth-setup",
