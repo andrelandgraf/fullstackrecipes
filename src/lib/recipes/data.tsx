@@ -18,6 +18,10 @@ import {
   Blocks,
   Package,
   Cpu,
+  Bug,
+  BarChart3,
+  ScrollText,
+  Activity,
 } from "lucide-react";
 import registry from "../../../registry.json";
 
@@ -202,6 +206,78 @@ const result = streamText({
   messages: convertToModelMessages(messages),
 });`,
   },
+  {
+    slug: "pino-logging-setup",
+    title: "Pino Logging Setup",
+    description:
+      "Set up structured logging with Pino. Human-readable output in development, JSON in production.",
+    tags: ["Logging"],
+    icon: ScrollText,
+    sections: ["setup-pino-logging.md"],
+    previewCode: `import { logger } from "@/lib/common/logger";
+
+logger.info("Server started", { port: 3000 });
+logger.warn("Rate limit reached", { endpoint: "/api/chat" });
+logger.error(err, "Failed to process request");`,
+  },
+  {
+    slug: "sentry-setup",
+    title: "Sentry Setup",
+    description:
+      "Set up Sentry for error tracking, performance monitoring, and log aggregation. Integrates with Pino.",
+    tags: ["Monitoring"],
+    icon: Bug,
+    sections: ["setup-sentry.md"],
+    requires: ["pino-logging-setup"],
+    previewCode: `Sentry.init({
+  dsn: "https://your-dsn@sentry.io/project",
+  integrations: [
+    Sentry.pinoIntegration({
+      log: { levels: ["info", "warn", "error"] }
+    }),
+  ],
+});`,
+  },
+  {
+    slug: "vercel-analytics-setup",
+    title: "Vercel Web Analytics",
+    description:
+      "Add privacy-focused web analytics to track page views, visitors, and custom events with zero configuration.",
+    tags: ["Monitoring", "Vercel"],
+    icon: BarChart3,
+    sections: ["setup-vercel-analytics.md"],
+    previewCode: `import { Analytics } from "@vercel/analytics/next";
+import { track } from "@vercel/analytics";
+
+// Add to root layout
+<Analytics />
+
+// Track custom events
+track("signup_completed", { plan: "pro" });`,
+  },
+  {
+    slug: "observability-monitoring",
+    title: "Observability & Monitoring",
+    description:
+      "Complete observability stack with structured logging, error tracking, and web analytics for your Next.js app.",
+    tags: ["Cookbook", "Monitoring", "Logging"],
+    icon: Activity,
+    isCookbook: true,
+    recipes: ["pino-logging-setup", "sentry-setup", "vercel-analytics-setup"],
+    sections: [
+      "setup-pino-logging.md",
+      "setup-sentry.md",
+      "setup-vercel-analytics.md",
+    ],
+    previewCode: `// Structured logging with Pino
+logger.info("Request completed", { duration: 45 });
+
+// Error tracking with Sentry
+Sentry.captureException(error);
+
+// Web analytics with Vercel
+track("signup_completed", { plan: "pro" });`,
+  } satisfies Cookbook,
   {
     slug: "resend-setup",
     title: "Resend Setup",
