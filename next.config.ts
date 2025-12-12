@@ -5,9 +5,8 @@ import { withWorkflow } from "workflow/next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
-  // Externalize pino and related packages to prevent Turbopack from bundling
-  // thread-stream test files that cause build errors
-  serverExternalPackages: ["pino", "pino-pretty", "thread-stream"],
+  // Externalize pino to prevent Turbopack from bundling thread-stream test files
+  serverExternalPackages: ["pino"],
 };
 
 export default withSentryConfig(withWorkflow(nextConfig), {

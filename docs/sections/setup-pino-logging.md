@@ -11,7 +11,18 @@ bun add pino pino-pretty
 - `pino` - Fast JSON logger for Node.js
 - `pino-pretty` - Pretty-prints logs in development
 
-### Step 2: Create the logger utility
+### Step 2: Configure Next.js
+
+Add `pino` to `serverExternalPackages` in `next.config.ts` to prevent Turbopack from bundling pino's dependencies (which include test files that break the build):
+
+```typescript
+const nextConfig: NextConfig = {
+  // Externalize pino to prevent Turbopack from bundling thread-stream test files
+  serverExternalPackages: ["pino"],
+};
+```
+
+### Step 3: Create the logger utility
 
 Create `src/lib/common/logger.ts`:
 
