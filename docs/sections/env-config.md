@@ -1,184 +1,59 @@
 ## Environment Variable Management
 
-Type-safe environment variable validation using Zod with a modular config pattern.
+Type-safe environment variable validation with runtime protection for server-only config.
 
 ### Install via Registry
 
 ```bash
-bunx shadcn@latest add https://fullstackrecipes.com/r/validate-config.json
+bunx shadcn@latest add https://fullstackrecipes.com/r/load-config.json
 ```
 
-This installs the `validate-config.ts` utility to `src/lib/common/validate-config.ts`.
+This installs the `load-config.ts` utility to `src/lib/common/load-config.ts`.
 
 ---
 
 ### Why This Pattern?
 
-- **Type safety**: Catch missing or invalid env vars at startup, not runtime
+- **Type safety**: Full TypeScript inference from env var definitions
+- **Single source of truth**: Define env var name once, get validation + error messages
+- **Runtime protection**: Server-only config throws helpful errors when accessed on client
 - **Modular**: Each feature/lib owns its own config
 - **Clear error messages**: Know exactly which variable is missing
-- **No global config**: Import config directly from the lib that owns it
-
-The goal is twofold: get full TypeScript autocompletion when accessing config values, and surface actionable error messages when configuration is missing or invalid.
 
 When environment variables are missing, you get an error like this:
 
 ```
-Error [InvalidConfigurationError]: Configuration validation error! Did you correctly set all required environment variables in .env file?
- - BETTER_AUTH_SECRET must be defined. (at path: secret)
- - BETTER_AUTH_URL must be defined. (at path: url)
-    at validateConfig (src/lib/common/validate-config.ts:72:11)
-    at module evaluation (src/lib/auth/config.ts:16:41)
+Error [InvalidConfigurationError]: Configuration validation error for Sentry!
+Did you correctly set all required environment variables in .env file?
+ - SENTRY_AUTH_TOKEN must be defined.
 ```
 
-This tells you exactly which variables are missing and where the validation failed, making it easy to fix configuration issues during development or deployment.
+When server-only config is accessed on the client:
 
-### Step 1: Create config utilities
-
-Create `src/lib/common/validate-config.ts` with shared helpers:
-
-````typescript
-import { z } from "zod";
-
-/**
- * Makes all properties potentially undefined, with special handling for string enums.
- * Used to type raw config objects before Zod validation since `process.env.*` returns
- * `string | undefined`.
- *
- * @example
- * ```ts
- * type Config = { url: string; port: number; nested: { key: string } };
- * type Raw = PreValidate<Config>;
- * // Result: { url: string | undefined; port: number | undefined; nested: { key: string | undefined } | undefined }
- * ```
- */
-export type PreValidate<ConfigData> = {
-  [K in keyof ConfigData]: ConfigData[K] extends object
-    ? PreValidate<ConfigData[K]> | undefined
-    : ConfigData[K] extends string
-      ? string | undefined
-      : ConfigData[K] | undefined;
-};
-
-/**
- * Error thrown when configuration validation fails.
- * Provides detailed error messages listing all missing or invalid environment variables.
- *
- * @example
- * ```
- * Error [InvalidConfigurationError]: Configuration validation error! Did you correctly set all required environment variables in .env file?
- *  - DATABASE_URL must be defined. (at path: url)
- *  - API_KEY must be defined. (at path: apiKey)
- * ```
- */
-export class InvalidConfigurationError extends Error {
-  constructor(issues: z.ZodError["issues"]) {
-    let errorMessage =
-      "Configuration validation error! Did you correctly set all required environment variables in .env file?";
-    for (const issue of issues) {
-      errorMessage = `${errorMessage}\n - ${issue.message} (at path: ${issue.path.join(".")})`;
-    }
-    super(errorMessage);
-    this.name = "InvalidConfigurationError";
-  }
-}
-
-/**
- * Validates a config object against a Zod schema.
- * Returns the validated and typed config, or throws `InvalidConfigurationError` if validation fails.
- *
- * @param schema - Zod schema defining the expected config shape and validation rules
- * @param config - Raw config object with values from `process.env`
- * @returns Validated config object with full type safety
- * @throws {InvalidConfigurationError} When any required env vars are missing or invalid
- *
- * @example
- * ```ts
- * // Define a schema for your feature's config
- * const DatabaseConfigSchema = z.object({
- *   url: z.string("DATABASE_URL must be defined."),
- *   poolSize: z.coerce.number().default(10),
- * });
- *
- * type DatabaseConfig = z.infer<typeof DatabaseConfigSchema>;
- *
- * // Create raw config from env vars (PreValidate allows undefined values)
- * const config: PreValidate<DatabaseConfig> = {
- *   url: process.env.DATABASE_URL,
- *   poolSize: process.env.DATABASE_POOL_SIZE,
- * };
- *
- * // Validate and export - throws at startup if DATABASE_URL is missing
- * export const databaseConfig = validateConfig(DatabaseConfigSchema, config);
- *
- * // Now use with full type safety
- * databaseConfig.url;      // string (guaranteed to exist)
- * databaseConfig.poolSize; // number (defaults to 10 if not set)
- * ```
- */
-export function validateConfig<T extends z.ZodTypeAny>(
-  schema: T,
-  config: PreValidate<z.infer<T>>,
-): z.infer<T> {
-  const result = schema.safeParse(config);
-  if (!result.success) {
-    throw new InvalidConfigurationError(result.error.issues);
-  }
-  return result.data;
-}
-````
-
-### Step 2: Create module-level configs
-
-Each feature lib defines its own config file. For example, `src/lib/db/config.ts`:
-
-```typescript
-import { z } from "zod";
-import { validateConfig, type PreValidate } from "../common/validate-config";
-
-const DatabaseConfigSchema = z.object({
-  url: z.string("DATABASE_URL must be defined."),
-});
-
-export type DatabaseConfig = z.infer<typeof DatabaseConfigSchema>;
-
-const config: PreValidate<DatabaseConfig> = {
-  url: process.env.DATABASE_URL,
-};
-
-export const databaseConfig = validateConfig(DatabaseConfigSchema, config);
+```
+Error [ServerConfigClientAccessError]: Attempted to access server-only config 'token' (SENTRY_AUTH_TOKEN) on client.
+Use a NEXT_PUBLIC_* env var to expose to client, or ensure this code only runs on server.
 ```
 
-Similarly for AI config in `src/lib/ai/config.ts`:
+### Basic Usage
+
+Each feature lib defines its own config file:
 
 ```typescript
-import { z } from "zod";
-import { validateConfig, type PreValidate } from "../common/validate-config";
+// src/lib/db/config.ts
+import { loadConfig } from "@/lib/common/load-config";
 
-const AIConfigSchema = z.object({
-  gatewayApiKey: z.string("AI_GATEWAY_API_KEY must be defined."),
+export const databaseConfig = loadConfig({
+  env: {
+    url: "DATABASE_URL",
+  },
 });
-
-export type AIConfig = z.infer<typeof AIConfigSchema>;
-
-const config: PreValidate<AIConfig> = {
-  gatewayApiKey: process.env.AI_GATEWAY_API_KEY,
-};
-
-export const aiConfig = validateConfig(AIConfigSchema, config);
+// Type: { url: string }
 ```
 
-### Step 3: Use the config
-
-Import config directly from the lib that owns it:
+Then import and use it:
 
 ```typescript
-// Before
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
-// After
 import { databaseConfig } from "./config";
 
 const pool = new Pool({
@@ -186,34 +61,143 @@ const pool = new Pool({
 });
 ```
 
+### Optional Feature Configs
+
+Use the `flag` parameter for features that can be enabled/disabled:
+
+```typescript
+// src/lib/sentry/config.ts
+import { loadConfig } from "@/lib/common/load-config";
+
+export const sentryConfig = loadConfig({
+  name: "Sentry",
+  flag: "ENABLE_SENTRY",
+  env: {
+    dsn: "NEXT_PUBLIC_SENTRY_DSN",
+    project: "NEXT_PUBLIC_SENTRY_PROJECT",
+    org: "NEXT_PUBLIC_SENTRY_ORG",
+    token: "SENTRY_AUTH_TOKEN",
+  },
+});
+// Type: FeatureConfig<{ dsn: string; project: string; org: string; token: string }>
+```
+
+Behavior:
+
+- `ENABLE_SENTRY` not set → `{ isEnabled: false }` (no validation, no errors)
+- `ENABLE_SENTRY="true"` → validates all env vars, returns `{ ..., isEnabled: true }`
+- `ENABLE_SENTRY="true"` + missing env → throws `InvalidConfigurationError`
+
+Usage:
+
+```typescript
+// src/instrumentation.ts
+import { sentryConfig } from "./lib/sentry/config";
+
+export async function register() {
+  if (sentryConfig.isEnabled) {
+    const Sentry = await import("@sentry/nextjs");
+    Sentry.init({
+      dsn: sentryConfig.dsn, // ✓ NEXT_PUBLIC_* works on client
+    });
+  }
+}
+```
+
+### Runtime Protection for Server-Only Config
+
+The config object uses a Proxy to protect server-only env vars from being accessed on the client:
+
+```typescript
+// On the server - everything works
+sentryConfig.dsn; // ✓ "https://..."
+sentryConfig.token; // ✓ "secret-token"
+
+// On the client
+sentryConfig.dsn; // ✓ works (NEXT_PUBLIC_*)
+sentryConfig.token; // ✗ throws ServerConfigClientAccessError
+```
+
+This catches accidental client-side access to secrets at runtime with a helpful error message.
+
+### Advanced Validation
+
+For transforms, defaults, or complex validation, use the full form with a Zod schema:
+
+```typescript
+import { z } from "zod";
+import { loadConfig } from "@/lib/common/load-config";
+
+export const databaseConfig = loadConfig({
+  env: {
+    url: "DATABASE_URL",
+    // Transform string to number with default
+    poolSize: {
+      env: "DATABASE_POOL_SIZE",
+      schema: z.coerce.number().default(10),
+    },
+  },
+});
+// Type: { url: string; poolSize: number }
+```
+
+More examples:
+
+```typescript
+export const config = loadConfig({
+  env: {
+    // Required string (shorthand)
+    apiKey: "API_KEY",
+
+    // Optional string
+    debugMode: { env: "DEBUG_MODE", schema: z.string().optional() },
+
+    // String with regex validation
+    fromEmail: {
+      env: "FROM_EMAIL",
+      schema: z
+        .string()
+        .regex(/^.+\s<.+@.+\..+>$/, 'Must match "Name <email>" format'),
+    },
+
+    // Enum with default
+    nodeEnv: {
+      env: "NODE_ENV",
+      schema: z
+        .enum(["development", "production", "test"])
+        .default("development"),
+    },
+
+    // Boolean
+    enableFeature: {
+      env: "ENABLE_FEATURE",
+      schema: z.coerce.boolean().default(false),
+    },
+  },
+});
+```
+
 ### Adding New Environment Variables
 
 When adding a new feature that needs env vars:
 
-1. Create `src/lib/<feature>/config.ts` with the Zod schema
-2. Import and use it within that feature's lib
-3. Access via `<feature>Config.<variable>`
+1. Create `src/lib/<feature>/config.ts`
+2. Use `loadConfig` with the env var mappings
+3. Import and use the config within that feature
 
 Example for adding Stripe:
 
 ```typescript
 // src/lib/stripe/config.ts
-import { z } from "zod";
-import { validateConfig, type PreValidate } from "../common/validate-config";
+import { loadConfig } from "@/lib/common/load-config";
 
-const StripeConfigSchema = z.object({
-  secretKey: z.string("STRIPE_SECRET_KEY must be defined."),
-  webhookSecret: z.string("STRIPE_WEBHOOK_SECRET must be defined."),
+export const stripeConfig = loadConfig({
+  env: {
+    secretKey: "STRIPE_SECRET_KEY",
+    webhookSecret: "STRIPE_WEBHOOK_SECRET",
+    publicKey: "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+  },
 });
-
-export type StripeConfig = z.infer<typeof StripeConfigSchema>;
-
-const config: PreValidate<StripeConfig> = {
-  secretKey: process.env.STRIPE_SECRET_KEY,
-  webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
-};
-
-export const stripeConfig = validateConfig(StripeConfigSchema, config);
 ```
 
 Then use it in your Stripe client:
@@ -226,22 +210,25 @@ import { stripeConfig } from "./config";
 export const stripe = new Stripe(stripeConfig.secretKey);
 ```
 
-### Advanced Validation
-
-Zod supports complex validations:
+### API Reference
 
 ```typescript
-const ConfigSchema = z.object({
-  // URL validation
-  apiUrl: z.url("API_URL must be a valid URL."),
-
-  // String length validation
-  encryptionKey: z.string().length(64, "ENCRYPTION_KEY must be 64 characters."),
-
-  // Optional with default
-  nodeEnv: z.enum(["development", "production", "test"]).default("development"),
-
-  // Transform string to number
-  port: z.coerce.number().default(3000),
-});
+function loadConfig(options: {
+  /** Optional name for error messages (e.g., "Sentry") */
+  name?: string;
+  /** Env var name for feature flag (e.g., "ENABLE_SENTRY") */
+  flag?: string;
+  /** Map of config keys to env var definitions */
+  env: Record<string, string | { env: string; schema: z.ZodTypeAny }>;
+}): Config | FeatureConfig<Config>;
 ```
+
+**Env value formats:**
+
+- `string` - Env var name, validates as required string
+- `{ env: string; schema: ZodSchema }` - Full form with custom Zod schema
+
+**Return types:**
+
+- Without `flag`: `{ [key]: value }` - Plain config object
+- With `flag`: `{ isEnabled: true; ... } | { isEnabled: false }` - Discriminated union

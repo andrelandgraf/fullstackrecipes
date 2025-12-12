@@ -80,7 +80,7 @@ bunx shadcn@latest add https://fullstackrecipes.com/r/<item-name>.json
 
 | Item                 | Description                                                    |
 | -------------------- | -------------------------------------------------------------- |
-| `validate-config`    | Type-safe environment variable validation with Zod             |
+| `load-config`        | Type-safe environment variable loading with runtime protection |
 | `assert`             | TypeScript assertion helper for runtime type narrowing         |
 | `use-resumable-chat` | React hook for workflow-compatible chat with stream resumption |
 | `durable-agent`      | AI agent class with tool loops and workflow step durability    |
@@ -100,7 +100,7 @@ You can also configure the fullstackrecipes registry as a namespace in your `com
 Then install items using the namespace:
 
 ```bash
-bunx shadcn@latest add @fsr/validate-config
+bunx shadcn@latest add @fsr/load-config
 ```
 
 ---

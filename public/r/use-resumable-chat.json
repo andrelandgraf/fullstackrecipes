@@ -1,7 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "use-resumable-chat",
-  "type": "registry:hook",
   "title": "Resumable Chat Hook",
   "description": "React hook wrapping useChat with WorkflowChatTransport for automatic stream resumption. Handles reconnection to interrupted workflow streams.",
   "dependencies": ["@ai-sdk/react", "@workflow/ai", "uuid"],
@@ -13,5 +12,6 @@
       "target": "hooks/use-resumable-chat.ts"
     }
   ],
-  "docs": "This hook requires a ChatAgentUIMessage type definition. Update the import path to match your project structure."
+  "docs": "This hook requires a ChatAgentUIMessage type definition. Update the import path to match your project structure.",
+  "type": "registry:hook"
 }

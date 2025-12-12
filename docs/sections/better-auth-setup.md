@@ -44,22 +44,14 @@ openssl rand -base64 32
 Create `src/lib/auth/config.ts` following the [Environment Variable Management](/recipes/env-config) pattern:
 
 ```typescript
-import { z } from "zod";
-import { validateConfig, type PreValidate } from "../common/validate-config";
+import { loadConfig } from "../common/load-config";
 
-const AuthConfigSchema = z.object({
-  secret: z.string("BETTER_AUTH_SECRET must be defined."),
-  url: z.string("BETTER_AUTH_URL must be defined."),
+export const authConfig = loadConfig({
+  env: {
+    secret: "BETTER_AUTH_SECRET",
+    url: "BETTER_AUTH_URL",
+  },
 });
-
-export type AuthConfig = z.infer<typeof AuthConfigSchema>;
-
-const config: PreValidate<AuthConfig> = {
-  secret: process.env.BETTER_AUTH_SECRET,
-  url: process.env.BETTER_AUTH_URL,
-};
-
-export const authConfig = validateConfig(AuthConfigSchema, config);
 ```
 
 ### Step 4: Update package.json scripts

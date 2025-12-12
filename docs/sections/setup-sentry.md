@@ -53,30 +53,23 @@ You can find your Sentry DSN, project name, and org name in your Sentry project 
 Create `src/lib/sentry/config.ts`:
 
 ```typescript
-import { z } from "zod";
-import { validateConfig, type PreValidate } from "../common/validate-config";
+import { loadConfig } from "../common/load-config";
 
-const SentryConfigSchema = z.object({
-  dsn: z.string("NEXT_PUBLIC_SENTRY_DSN must be defined."),
-  project: z.string("NEXT_PUBLIC_SENTRY_PROJECT must be defined."),
-  org: z.string("NEXT_PUBLIC_SENTRY_ORG must be defined."),
-  // SENTRY_AUTH_TOKEN is picked up by the Sentry Build Plugin and used for authentication when uploading source maps.
-  token: z.string("SENTRY_AUTH_TOKEN must be defined."),
+export const sentryConfig = loadConfig({
+  name: "Sentry",
+  flag: "ENABLE_SENTRY",
+  env: {
+    dsn: "NEXT_PUBLIC_SENTRY_DSN",
+    project: "NEXT_PUBLIC_SENTRY_PROJECT",
+    org: "NEXT_PUBLIC_SENTRY_ORG",
+    // SENTRY_AUTH_TOKEN is picked up by the Sentry Build Plugin for source maps upload.
+    // Accessing this on the client will throw ServerConfigClientAccessError.
+    token: "SENTRY_AUTH_TOKEN",
+  },
 });
-
-export type SentryConfig = z.infer<typeof SentryConfigSchema>;
-
-const config: PreValidate<SentryConfig> = {
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  project: process.env.NEXT_PUBLIC_SENTRY_PROJECT,
-  org: process.env.NEXT_PUBLIC_SENTRY_ORG,
-  token: process.env.SENTRY_AUTH_TOKEN,
-};
-
-export const sentryConfig = validateConfig(SentryConfigSchema, config);
 ```
 
-We use the `validateConfig` utility to validate the configuration and throw an error if any of the required environment variables are missing.
+We use the `loadConfig` utility to validate the configuration and throw an error if any of the required environment variables are missing. The config also includes runtime protection - accessing `token` on the client will throw a helpful error.
 
 ---
 

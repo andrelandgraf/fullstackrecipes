@@ -144,14 +144,12 @@ function processUser(user: User | null) {
     tags: ["Config"],
     icon: Settings,
     sections: ["env-config.md"],
-    previewCode: `const DatabaseConfigSchema = z.object({
-  url: z.string("DATABASE_URL must be defined."),
-});
-
-export const databaseConfig = validateConfig(
-  DatabaseConfigSchema, { url: process.env.DATABASE_URL }
-);`,
-    registryDeps: ["validate-config"],
+    previewCode: `export const databaseConfig = loadConfig({
+  env: {
+    url: "DATABASE_URL",
+  },
+});`,
+    registryDeps: ["load-config"],
   },
   {
     slug: "neon-drizzle-setup",
@@ -585,7 +583,7 @@ export function isCookbook(item: Recipe | Cookbook): item is Cookbook {
 
 // Registry items from registry.json
 const REGISTRY_ICONS: Record<string, typeof Database> = {
-  "validate-config": Cog,
+  "load-config": Cog,
   assert: Blocks,
   "use-resumable-chat": Package,
   "durable-agent": Cpu,

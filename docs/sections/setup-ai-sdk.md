@@ -63,20 +63,13 @@ ANTHROPIC_API_KEY="sk-ant-..."
 Instead of accessing `process.env.AI_GATEWAY_API_KEY` directly, use the type-safe config pattern. Create `src/lib/ai/config.ts`:
 
 ```typescript
-import { z } from "zod";
-import { validateConfig, type PreValidate } from "@/lib/common/validate-config";
+import { loadConfig } from "@/lib/common/load-config";
 
-const AIConfigSchema = z.object({
-  gatewayApiKey: z.string("AI_GATEWAY_API_KEY must be defined."),
+export const aiConfig = loadConfig({
+  env: {
+    gatewayApiKey: "AI_GATEWAY_API_KEY",
+  },
 });
-
-export type AIConfig = z.infer<typeof AIConfigSchema>;
-
-const config: PreValidate<AIConfig> = {
-  gatewayApiKey: process.env.AI_GATEWAY_API_KEY,
-};
-
-export const aiConfig = validateConfig(AIConfigSchema, config);
 ```
 
 Then access via `serverConfig.ai.gatewayApiKey` instead of `process.env.AI_GATEWAY_API_KEY`. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.

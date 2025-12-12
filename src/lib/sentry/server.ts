@@ -2,6 +2,8 @@ import * as Sentry from "@sentry/nextjs";
 import { sentryConfig } from "./config";
 
 export function initSentryServer() {
+  if (!sentryConfig.isEnabled) return;
+
   Sentry.init({
     dsn: sentryConfig.dsn,
     tracesSampleRate: 1,

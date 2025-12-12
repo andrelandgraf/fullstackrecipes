@@ -1,14 +1,7 @@
-import { z } from "zod";
-import { validateConfig, type PreValidate } from "@/lib/common/validate-config";
+import { loadConfig } from "@/lib/common/load-config";
 
-const DatabaseConfigSchema = z.object({
-  url: z.string("DATABASE_URL must be defined."),
+export const databaseConfig = loadConfig({
+  env: {
+    url: "DATABASE_URL",
+  },
 });
-
-export type DatabaseConfig = z.infer<typeof DatabaseConfigSchema>;
-
-const config: PreValidate<DatabaseConfig> = {
-  url: process.env.DATABASE_URL,
-};
-
-export const databaseConfig = validateConfig(DatabaseConfigSchema, config);

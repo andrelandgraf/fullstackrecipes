@@ -1,7 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "assert",
-  "type": "registry:lib",
   "title": "Assertion Helper",
   "description": "TypeScript assertion function that narrows types when condition is truthy. Throws with optional message if condition is falsy.",
   "files": [
@@ -11,5 +10,6 @@
       "type": "registry:lib",
       "target": "lib/common/assert.ts"
     }
-  ]
+  ],
+  "type": "registry:lib"
 }

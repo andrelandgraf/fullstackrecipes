@@ -1,7 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "logger",
-  "type": "registry:lib",
   "title": "Pino Logger",
   "description": "Structured JSON logger with pretty-printing in development. Configurable log level via PINO_LOG_LEVEL env var.",
   "dependencies": ["pino", "pino-pretty"],
@@ -12,5 +11,6 @@
       "type": "registry:lib",
       "target": "lib/common/logger.ts"
     }
-  ]
+  ],
+  "type": "registry:lib"
 }

@@ -48,20 +48,13 @@ DATABASE_URL="postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslm
 Instead of accessing `process.env.DATABASE_URL` directly, use the type-safe config pattern. Create `src/lib/db/config.ts`:
 
 ```typescript
-import { z } from "zod";
-import { validateConfig, type PreValidate } from "@/lib/common/validate-config";
+import { loadConfig } from "@/lib/common/load-config";
 
-const DatabaseConfigSchema = z.object({
-  url: z.string("DATABASE_URL must be defined."),
+export const databaseConfig = loadConfig({
+  env: {
+    url: "DATABASE_URL",
+  },
 });
-
-export type DatabaseConfig = z.infer<typeof DatabaseConfigSchema>;
-
-const config: PreValidate<DatabaseConfig> = {
-  url: process.env.DATABASE_URL,
-};
-
-export const databaseConfig = validateConfig(DatabaseConfigSchema, config);
 ```
 
 Then access via `serverConfig.database.url` instead of `process.env.DATABASE_URL`. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.

@@ -1,20 +1,14 @@
 import { z } from "zod";
-import { validateConfig, type PreValidate } from "../common/validate-config";
+import { loadConfig } from "../common/load-config";
 
-const AuthConfigSchema = z.object({
-  secret: z.string("BETTER_AUTH_SECRET must be defined."),
-  url: z.string("BETTER_AUTH_URL must be defined."),
-  vercelClientId: z.string().optional(),
-  vercelClientSecret: z.string().optional(),
+export const authConfig = loadConfig({
+  env: {
+    secret: "BETTER_AUTH_SECRET",
+    url: "BETTER_AUTH_URL",
+    vercelClientId: { env: "VERCEL_CLIENT_ID", schema: z.string().optional() },
+    vercelClientSecret: {
+      env: "VERCEL_CLIENT_SECRET",
+      schema: z.string().optional(),
+    },
+  },
 });
-
-export type AuthConfig = z.infer<typeof AuthConfigSchema>;
-
-const config: PreValidate<AuthConfig> = {
-  secret: process.env.BETTER_AUTH_SECRET,
-  url: process.env.BETTER_AUTH_URL,
-  vercelClientId: process.env.VERCEL_CLIENT_ID,
-  vercelClientSecret: process.env.VERCEL_CLIENT_SECRET,
-};
-
-export const authConfig = validateConfig(AuthConfigSchema, config);

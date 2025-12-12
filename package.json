@@ -14,6 +14,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "test": "bun test",
     "typecheck": "tsc --noEmit",
     "start": "next start",
     "db:auth:generate": "bunx @better-auth/cli@latest generate --config src/lib/auth/server.tsx --output src/lib/auth/schema.ts",

@@ -1,7 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "durable-agent",
-  "type": "registry:lib",
   "title": "Durable Agent",
   "description": "AI agent class that executes streamText in a tool loop with workflow compatibility. Supports provider options, streaming control, and step-level durability via 'use step' directive.",
   "dependencies": ["ai", "@ai-sdk/provider-utils"],
@@ -13,5 +12,6 @@
       "target": "lib/ai/agent.ts"
     }
   ],
-  "docs": "This agent requires tool definitions. Update the import from './tools' to match your project's tool configuration."
+  "docs": "This agent requires tool definitions. Update the import from './tools' to match your project's tool configuration.",
+  "type": "registry:lib"
 }

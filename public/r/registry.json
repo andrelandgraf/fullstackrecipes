@@ -4,20 +4,6 @@
   "homepage": "https://fullstackrecipes.com",
   "items": [
     {
-      "name": "validate-config",
-      "type": "registry:lib",
-      "title": "Environment Variable Validation",
-      "description": "Type-safe environment variable validation using Zod with clear error messages. Validates config at startup and provides full TypeScript autocompletion.",
-      "dependencies": ["zod"],
-      "files": [
-        {
-          "path": "src/lib/common/validate-config.ts",
-          "type": "registry:lib",
-          "target": "lib/common/validate-config.ts"
-        }
-      ]
-    },
-    {
       "name": "assert",
       "type": "registry:lib",
       "title": "Assertion Helper",
@@ -27,6 +13,34 @@
           "path": "src/lib/common/assert.ts",
           "type": "registry:lib",
           "target": "lib/common/assert.ts"
+        }
+      ]
+    },
+    {
+      "name": "logger",
+      "type": "registry:lib",
+      "title": "Pino Logger",
+      "description": "Structured JSON logger with pretty-printing in development. Configurable log level via PINO_LOG_LEVEL env var.",
+      "dependencies": ["pino", "pino-pretty"],
+      "files": [
+        {
+          "path": "src/lib/common/logger.ts",
+          "type": "registry:lib",
+          "target": "lib/common/logger.ts"
+        }
+      ]
+    },
+    {
+      "name": "load-config",
+      "type": "registry:lib",
+      "title": "Environment Config Loader",
+      "description": "Type-safe environment variable loading with Zod validation, runtime protection for server-only config, and full TypeScript inference.",
+      "dependencies": ["zod"],
+      "files": [
+        {
+          "path": "src/lib/common/load-config.ts",
+          "type": "registry:lib",
+          "target": "lib/common/load-config.ts"
         }
       ]
     },
