@@ -5,8 +5,6 @@ import { withWorkflow } from "workflow/next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
-
-  serverExternalPackages: ["pino", "pino-pretty"],
 };
 
 export default withSentryConfig(withWorkflow(nextConfig), {
