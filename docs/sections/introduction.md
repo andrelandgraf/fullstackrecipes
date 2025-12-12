@@ -82,6 +82,7 @@ bunx shadcn@latest add https://fullstackrecipes.com/r/<item-name>.json
 | -------------------- | -------------------------------------------------------------- |
 | `load-config`        | Type-safe environment variable loading with runtime protection |
 | `assert`             | TypeScript assertion helper for runtime type narrowing         |
+| `logger`             | Structured logging with Pino for development and production    |
 | `use-resumable-chat` | React hook for workflow-compatible chat with stream resumption |
 | `durable-agent`      | AI agent class with tool loops and workflow step durability    |
 
