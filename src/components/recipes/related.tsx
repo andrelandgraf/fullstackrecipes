@@ -17,6 +17,7 @@ import {
   RefreshCw,
   BookOpen,
   Circle,
+  ListChecks,
 } from "lucide-react";
 import { CompactRecipeCard } from "./compact-card";
 import type { SerializedItem } from "@/lib/recipes/serialize";
@@ -50,22 +51,31 @@ export function RelatedRecipes({ requiredItems }: RelatedRecipesProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="mb-3 text-sm text-muted-foreground">
-          This recipe requires you to complete:
-        </p>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {requiredItems.map((item) => (
-            <CompactRecipeCard
-              key={item.slug}
-              title={item.title}
-              description={item.description}
-              icon={iconMap[item.iconName] ?? Circle}
-              slug={item.slug}
-            />
-          ))}
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+          <ListChecks className="h-4 w-4 text-primary" />
         </div>
+        <div className="flex-1">
+          <p className="text-sm font-medium">
+            This cookbook requires you to complete {requiredItems.length}{" "}
+            {requiredItems.length === 1 ? "recipe" : "recipes"}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Complete these prerequisites first
+          </p>
+        </div>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {requiredItems.map((item) => (
+          <CompactRecipeCard
+            key={item.slug}
+            title={item.title}
+            description={item.description}
+            icon={iconMap[item.iconName] ?? Circle}
+            slug={item.slug}
+          />
+        ))}
       </div>
     </div>
   );

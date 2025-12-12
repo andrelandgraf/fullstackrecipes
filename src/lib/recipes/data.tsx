@@ -301,19 +301,85 @@ track("signup_completed", { plan: "pro" });`,
     slug: "better-auth-setup",
     title: "Better Auth Setup",
     description:
-      "Add user authentication to your Next.js app using Better Auth with Drizzle ORM and Neon Postgres. Supports email/password and social providers.",
+      "Add user authentication to your Next.js app using Better Auth with Drizzle ORM and Neon Postgres. Base setup with email/password authentication.",
     tags: ["Auth", "Neon", "Drizzle"],
     icon: KeyRound,
     sections: ["better-auth-setup.md"],
-    requires: ["neon-drizzle-setup", "resend-setup"],
+    requires: ["neon-drizzle-setup"],
     previewCode: `export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg" }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
   },
 });`,
   },
+  {
+    slug: "better-auth-emails",
+    title: "Better Auth Emails",
+    description:
+      "Add email verification, password reset, and account management emails to your Better Auth setup using Resend.",
+    tags: ["Auth", "Email"],
+    icon: Mail,
+    sections: ["better-auth-emails.md"],
+    requires: ["better-auth-setup", "resend-setup"],
+    previewCode: `emailAndPassword: {
+  requireEmailVerification: true,
+  async sendResetPassword({ user, url }) {
+    void sendEmail({
+      to: user.email,
+      react: <ForgotPasswordEmail resetLink={url} />,
+    });
+  },
+},`,
+  },
+  {
+    slug: "better-auth-components",
+    title: "Better Auth Components",
+    description:
+      "Add UI components and pages for authentication flows including sign in, sign up, forgot password, reset password, and email verification.",
+    tags: ["Auth", "UI Components"],
+    icon: Layers,
+    sections: ["better-auth-components.md"],
+    requires: ["better-auth-setup", "shadcn-ui-setup"],
+    previewCode: `export function SignIn() {
+  const [email, setEmail] = useState("");
+  await signIn.email({ email, password, rememberMe });
+}
+
+// Pages with server-side session checks
+const session = await auth.api.getSession({
+  headers: await headers(),
+});`,
+  },
+  {
+    slug: "authentication",
+    title: "Authentication",
+    description:
+      "Complete authentication system with Better Auth, email verification, password reset, and polished UI components.",
+    tags: ["Cookbook", "Auth"],
+    icon: KeyRound,
+    isCookbook: true,
+    recipes: [
+      "better-auth-setup",
+      "better-auth-emails",
+      "better-auth-components",
+    ],
+    sections: [
+      "better-auth-setup.md",
+      "better-auth-emails.md",
+      "better-auth-components.md",
+    ],
+    requires: ["neon-drizzle-setup", "resend-setup", "shadcn-ui-setup"],
+    previewCode: `// Complete auth setup
+export const auth = betterAuth({
+  database: drizzleAdapter(db, { provider: "pg" }),
+  emailAndPassword: { requireEmailVerification: true },
+  emailVerification: { sendOnSignUp: true },
+});
+
+// Polished UI components
+<SignIn /> <SignUp /> <ForgotPassword />`,
+  } satisfies Cookbook,
   {
     slug: "feature-flags-setup",
     title: "Feature Flags with Flags SDK",

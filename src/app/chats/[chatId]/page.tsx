@@ -61,21 +61,23 @@ export default async function ChatPage({ params }: PageProps) {
   const history = convertDbMessagesToUIMessages(messagesToConvert);
 
   return (
-    <div className="h-screen bg-gradient-to-b from-background via-background to-muted/20 flex flex-col overflow-hidden">
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+    <div className="h-dvh bg-gradient-to-b from-background via-background to-muted/20 grid grid-rows-[auto_1fr]">
+      <header className="z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+        <div className="container mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link
               href="/chats"
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span className="text-sm font-medium">Back to chats</span>
+              <span className="sr-only sm:not-sr-only text-sm font-medium">
+                Back to chats
+              </span>
             </Link>
-            <span className="text-border">|</span>
+            <span className="text-border hidden sm:inline">|</span>
             <Link
               href="/"
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              className="hidden sm:flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
                 <ChefHat className="h-5 w-5 text-primary-foreground" />
@@ -95,7 +97,7 @@ export default async function ChatPage({ params }: PageProps) {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col min-h-0">
+      <main className="min-h-0 overflow-hidden">
         <SimpleChat
           messageHistory={history}
           chatId={chatId}

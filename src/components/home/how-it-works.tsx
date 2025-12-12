@@ -189,7 +189,7 @@ export function HowItWorks() {
                       <SelectValue />
                     </span>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="sm:max-h-80">
                     {items.map((item) => (
                       <SelectItem key={item.slug} value={item.slug}>
                         {item.title}
