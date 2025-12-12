@@ -74,7 +74,7 @@ Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhanc
       "url": "https://resend.com/docs/mcp"
     },
     "fullstackrecipes": {
-      "url": "http://fullstackrecipes.com/api/mcp"
+      "url": "https://fullstackrecipes.com/api/mcp"
     }
   }
 }
