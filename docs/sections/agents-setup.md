@@ -100,7 +100,7 @@ Some tools benefit from dedicated Cursor rules files that provide detailed API g
 
 #### `.cursor/rules/sentry.md`
 
-```markdown
+````markdown
 These examples should be used as guidance when configuring Sentry functionality within a project.
 
 # Exception Catching
@@ -123,32 +123,32 @@ The `name` and `op` properties should be meaninful for the activities in the cal
 
 Attach attributes based on relevant information and metrics from the request
 
-\`\`\`javascript
+```tsx
 function TestComponent() {
-const handleTestButtonClick = () => {
-// Create a transaction/span to measure performance
-Sentry.startSpan(
-{
-op: "ui.click",
-name: "Test Button Click",
-},
-(span) => {
-const value = "some config";
-const metric = "some metric";
-// Metrics can be added to the span
-span.setAttribute("config", value);
-span.setAttribute("metric", metric);
-doSomething();
-},
-);
-};
-return (
-<button type="button" onClick={handleTestButtonClick}>
-Test Sentry
-</button>
-);
+  const handleTestButtonClick = () => {
+    // Create a transaction/span to measure performance
+    Sentry.startSpan(
+      {
+        op: "ui.click",
+        name: "Test Button Click",
+      },
+      (span) => {
+        const value = "some config";
+        const metric = "some metric";
+        // Metrics can be added to the span
+        span.setAttribute("config", value);
+        span.setAttribute("metric", metric);
+        doSomething();
+      },
+    );
+  };
+  return (
+    <button type="button" onClick={handleTestButtonClick}>
+      Test Sentry
+    </button>
+  );
 }
-\`\`\`
+```
 
 ## Custom span instrumentation in API calls
 
@@ -156,21 +156,21 @@ The `name` and `op` properties should be meaninful for the activities in the cal
 
 Attach attributes based on relevant information and metrics from the request
 
-\`\`\`javascript
+```typescript
 async function fetchUserData(userId) {
-return Sentry.startSpan(
-{
-op: "http.client",
-name: `GET /api/users/${userId}`,
-},
-async () => {
-const response = await fetch(`/api/users/${userId}`);
-const data = await response.json();
-return data;
-},
-);
+  return Sentry.startSpan(
+    {
+      op: "http.client",
+      name: `GET /api/users/${userId}`,
+    },
+    async () => {
+      const response = await fetch(`/api/users/${userId}`);
+      const data = await response.json();
+      return data;
+    },
+  );
 }
-\`\`\`
+```
 
 # Logs
 
@@ -190,49 +190,49 @@ Initialization does not need to be repeated in other files, it only needs to hap
 
 ### Baseline
 
-\`\`\`javascript
-import \* as Sentry from "@sentry/nextjs";
+```typescript
+import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
-dsn: "https://your-dsn@sentry.io/your-project-id",
-enableLogs: true,
+  dsn: "https://your-dsn@sentry.io/your-project-id",
+  enableLogs: true,
 });
-\`\`\`
+```
 
 ### Logger Integration
 
-\`\`\`javascript
+```typescript
 Sentry.init({
-dsn: "https://your-dsn@sentry.io/your-project-id",
-integrations: [
-// send console.log, console.warn, and console.error calls as logs to Sentry
-Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] }),
-],
+  dsn: "https://your-dsn@sentry.io/your-project-id",
+  integrations: [
+    // send console.log, console.warn, and console.error calls as logs to Sentry
+    Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] }),
+  ],
 });
-\`\`\`
+```
 
 ## Logger Examples
 
 `logger.fmt` is a template literal function that should be used to bring variables into the structured logs.
 
-\`\`\`javascript
+```typescript
 logger.trace("Starting database connection", { database: "users" });
 logger.debug(logger.fmt`Cache miss for user: ${userId}`);
 logger.info("Updated profile", { profileId: 345 });
 logger.warn("Rate limit reached for endpoint", {
-endpoint: "/api/results/",
-isEnterprise: false,
+  endpoint: "/api/results/",
+  isEnterprise: false,
 });
 logger.error("Failed to process payment", {
-orderId: "order_123",
-amount: 99.99,
+  orderId: "order_123",
+  amount: 99.99,
 });
 logger.fatal("Database connection pool exhausted", {
-database: "users",
-activeConnections: 100,
+  database: "users",
+  activeConnections: 100,
 });
-\`\`\`
 ```
+````
 
 ---
 

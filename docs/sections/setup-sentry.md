@@ -225,7 +225,7 @@ Sentry.init({
 
 Create `.cursor/rules/sentry.md` to help AI coding agents use Sentry APIs correctly:
 
-```markdown
+````markdown
 These examples should be used as guidance when configuring Sentry functionality within a project.
 
 # Exception Catching
@@ -248,53 +248,53 @@ The `name` and `op` properties should be meaninful for the activities in the cal
 
 Attach attributes based on relevant information and metrics from the request
 
-\`\`\`javascript
+```tsx
 function TestComponent() {
-const handleTestButtonClick = () => {
-Sentry.startSpan(
-{
-op: "ui.click",
-name: "Test Button Click",
-},
-(span) => {
-span.setAttribute("config", "some config");
-span.setAttribute("metric", "some metric");
-doSomething();
-},
-);
-};
-return (
-<button type="button" onClick={handleTestButtonClick}>
-Test Sentry
-</button>
-);
+  const handleTestButtonClick = () => {
+    Sentry.startSpan(
+      {
+        op: "ui.click",
+        name: "Test Button Click",
+      },
+      (span) => {
+        span.setAttribute("config", "some config");
+        span.setAttribute("metric", "some metric");
+        doSomething();
+      },
+    );
+  };
+  return (
+    <button type="button" onClick={handleTestButtonClick}>
+      Test Sentry
+    </button>
+  );
 }
-\`\`\`
+```
 
 ## Custom span instrumentation in API calls
 
-\`\`\`javascript
+```typescript
 async function fetchUserData(userId) {
-return Sentry.startSpan(
-{
-op: "http.client",
-name: `GET /api/users/${userId}`,
-},
-async () => {
-const response = await fetch(`/api/users/${userId}`);
-const data = await response.json();
-return data;
-},
-);
+  return Sentry.startSpan(
+    {
+      op: "http.client",
+      name: `GET /api/users/${userId}`,
+    },
+    async () => {
+      const response = await fetch(`/api/users/${userId}`);
+      const data = await response.json();
+      return data;
+    },
+  );
 }
-\`\`\`
+```
 
 # Configuration
 
 In NextJS the client side Sentry initialization is in `instrumentation-client.(js|ts)`, the server initialization is in `sentry.server.config.ts` and the edge initialization is in `sentry.edge.config.ts`
 
 You should use `import * as Sentry from "@sentry/nextjs"` to reference Sentry functionality
-```
+````
 
 ---
 
