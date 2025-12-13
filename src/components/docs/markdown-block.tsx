@@ -63,6 +63,14 @@ async function CodeBlock({ content, language }: CodeBlockProps) {
 
   return (
     <div className="group relative w-full overflow-hidden rounded-md border bg-background text-foreground my-4">
+      {language && (
+        <div className="flex items-center justify-between border-b bg-muted/50 px-4 py-1.5">
+          <span className="text-xs text-muted-foreground font-mono">
+            {language}
+          </span>
+          <CopyButton text={trimmedContent} />
+        </div>
+      )}
       <div className="relative">
         <div
           className="overflow-x-auto dark:hidden [&>pre]:m-0 [&>pre]:bg-background! [&>pre]:p-4 [&>pre]:text-foreground! [&>pre]:text-sm [&_code]:font-mono [&_code]:text-sm"
@@ -72,14 +80,11 @@ async function CodeBlock({ content, language }: CodeBlockProps) {
           className="hidden overflow-x-auto dark:block [&>pre]:m-0 [&>pre]:bg-background! [&>pre]:p-4 [&>pre]:text-foreground! [&>pre]:text-sm [&_code]:font-mono [&_code]:text-sm"
           dangerouslySetInnerHTML={{ __html: dark }}
         />
-        <div className="absolute top-2 right-2 flex items-center gap-2">
-          {language && (
-            <span className="text-xs text-muted-foreground font-mono">
-              {language}
-            </span>
-          )}
-          <CopyButton text={trimmedContent} />
-        </div>
+        {!language && (
+          <div className="absolute top-2 right-2">
+            <CopyButton text={trimmedContent} />
+          </div>
+        )}
       </div>
     </div>
   );
