@@ -4,7 +4,7 @@ import React, { type AnchorHTMLAttributes, type ReactNode } from "react";
 import { codeToHtml } from "shiki";
 
 import { cn } from "@/lib/utils";
-import { CopyButton } from "./copy-button";
+import { CodeBlockClient } from "./code-block-client";
 
 const SUPPORTED_LANGUAGES = [
   "typescript",
@@ -56,37 +56,70 @@ function normalizeLanguage(language: string): SupportedLanguage {
   return "typescript";
 }
 
+// Patterns for file path comments at the start of code blocks
+// Matches: // path/to/file.tsx or # path/to/file.py or // .env.local etc.
+const FILE_PATH_PATTERNS = [
+  /^\/\/\s*([^\s]+\.[a-zA-Z0-9]+)\s*\n/, // // path/to/file.ext
+  /^#\s*([^\s]+\.[a-zA-Z0-9]+)\s*\n/, // # path/to/file.ext (for bash, python, yaml)
+];
+
+function extractFilePath(content: string): {
+  filePath: string | null;
+  displayContent: string;
+} {
+  for (const pattern of FILE_PATH_PATTERNS) {
+    const match = content.match(pattern);
+    if (match?.[1]) {
+      // Validate it looks like a file path (contains / or . or starts with .)
+      const potentialPath = match[1];
+      if (
+        potentialPath.includes("/") ||
+        potentialPath.startsWith(".") ||
+        /^[a-zA-Z0-9_-]+\.[a-zA-Z0-9]+$/.test(potentialPath)
+      ) {
+        return {
+          filePath: potentialPath,
+          displayContent: content.replace(pattern, ""),
+        };
+      }
+    }
+  }
+  return { filePath: null, displayContent: content };
+}
+
+function getFileExtension(filePath: string): string {
+  const ext = filePath.split(".").pop()?.toLowerCase();
+  if (!ext) return "file";
+
+  // Handle special cases
+  if (filePath.endsWith(".env.local") || filePath.endsWith(".env")) {
+    return "env";
+  }
+
+  return ext;
+}
+
 async function CodeBlock({ content, language }: CodeBlockProps) {
   const lang = normalizeLanguage(language);
   const trimmedContent = content.trim();
-  const { light, dark } = await highlightCode(trimmedContent, lang);
+
+  const { filePath, displayContent } = extractFilePath(trimmedContent);
+  const codeToHighlight = displayContent.trim();
+  const { light, dark } = await highlightCode(codeToHighlight, lang);
+
+  const hasFilePath = !!filePath;
+  const fileExt = filePath ? getFileExtension(filePath) : null;
 
   return (
-    <div className="group relative w-full overflow-hidden rounded-md border bg-background text-foreground my-4">
-      {language && (
-        <div className="flex items-center justify-between border-b bg-muted/50 px-4 py-1.5">
-          <span className="text-xs text-muted-foreground font-mono">
-            {language}
-          </span>
-          <CopyButton text={trimmedContent} />
-        </div>
-      )}
-      <div className="relative">
-        <div
-          className="overflow-x-auto dark:hidden [&>pre]:m-0 [&>pre]:bg-background! [&>pre]:p-4 [&>pre]:text-foreground! [&>pre]:text-sm [&_code]:font-mono [&_code]:text-sm"
-          dangerouslySetInnerHTML={{ __html: light }}
-        />
-        <div
-          className="hidden overflow-x-auto dark:block [&>pre]:m-0 [&>pre]:bg-background! [&>pre]:p-4 [&>pre]:text-foreground! [&>pre]:text-sm [&_code]:font-mono [&_code]:text-sm"
-          dangerouslySetInnerHTML={{ __html: dark }}
-        />
-        {!language && (
-          <div className="absolute top-2 right-2">
-            <CopyButton text={trimmedContent} />
-          </div>
-        )}
-      </div>
-    </div>
+    <CodeBlockClient
+      filePath={filePath}
+      fileExt={fileExt}
+      language={language}
+      code={codeToHighlight}
+      lightHtml={light}
+      darkHtml={dark}
+      hasFilePath={hasFilePath}
+    />
   );
 }
 
