@@ -73,7 +73,20 @@ export const aiConfig = loadConfig({
 });
 ```
 
-Then access via `serverConfig.ai.gatewayApiKey` instead of `process.env.AI_GATEWAY_API_KEY`. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.
+Then access via `aiConfig.gatewayApiKey` instead of `process.env.AI_GATEWAY_API_KEY`. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.
+
+### Step 5: Validate config on server start
+
+Import the config in `instrumentation.ts` to validate the environment variable when the server starts:
+
+```typescript
+// src/instrumentation.ts
+
+// Validate required configs on server start
+import "./lib/ai/config";
+```
+
+This ensures the server fails immediately on startup if `AI_GATEWAY_API_KEY` is missing, rather than failing later when AI features are used.
 
 ---
 

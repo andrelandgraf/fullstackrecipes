@@ -58,16 +58,29 @@ export const databaseConfig = loadConfig({
 });
 ```
 
-Then access via `serverConfig.database.url` instead of `process.env.DATABASE_URL`. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.
+Then access via `databaseConfig.url` instead of `process.env.DATABASE_URL`. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.
 
-### Step 5: Install packages
+### Step 5: Validate config on server start
+
+Import the config in `instrumentation.ts` to validate the environment variable when the server starts:
+
+```typescript
+// src/instrumentation.ts
+
+// Validate required configs on server start
+import "./lib/db/config";
+```
+
+This ensures the server fails immediately on startup if `DATABASE_URL` is missing, rather than failing later when a database query runs.
+
+### Step 6: Install packages
 
 ```bash
 bun add drizzle-orm pg @vercel/functions
 bun add -D drizzle-kit @types/pg
 ```
 
-### Step 6: Create the database client
+### Step 7: Create the database client
 
 Create the Drizzle database client:
 
@@ -101,7 +114,7 @@ The `databaseConfig` import provides type-safe access to the `DATABASE_URL` envi
 
 Each feature library owns its own schema file (e.g., `@/lib/auth/schema`, `@/lib/chat/schema`). Instead of a central `db/schema.ts` aggregation file, schemas are imported directly in `client.ts` and merged into a single object for type-safe queries.
 
-### Step 7: Configure Drizzle Kit
+### Step 8: Configure Drizzle Kit
 
 Create the Drizzle Kit configuration in your project root:
 
@@ -122,7 +135,7 @@ export default defineConfig({
 
 The `schema` glob pattern picks up `schema.ts` files from all feature libraries in `src/lib/`, following the "everything is a library" pattern where each feature owns its own schema. See [Philosophy](/philosophy) for more details.
 
-### Step 8: Add package.json scripts
+### Step 9: Add package.json scripts
 
 Add these scripts to your `package.json`:
 
@@ -136,7 +149,7 @@ Add these scripts to your `package.json`:
 }
 ```
 
-### Step 9: Generate and run migrations
+### Step 10: Generate and run migrations
 
 ```bash
 bun run db:generate

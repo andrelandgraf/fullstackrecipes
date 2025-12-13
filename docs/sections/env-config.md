@@ -177,13 +177,34 @@ export const config = loadConfig({
 });
 ```
 
+### Validating Configs on Server Start
+
+Some environment variables are read internally by packages rather than passed as arguments. To catch missing variables early instead of at runtime, import your configs in `instrumentation.ts`:
+
+```typescript
+// src/instrumentation.ts
+import * as Sentry from "@sentry/nextjs";
+import { sentryConfig } from "./lib/sentry/config";
+
+// Validate required configs on server start
+import "./lib/ai/config";
+import "./lib/db/config";
+
+export async function register() {
+  // ... initialization code
+}
+```
+
+The side-effect imports trigger `loadConfig` validation immediately when the server starts. If any required environment variable is missing, the server fails to start with a clear error rather than failing later when the code path is executed.
+
 ### Adding New Environment Variables
 
 When adding a new feature that needs env vars:
 
 1. Create `src/lib/<feature>/config.ts`
 2. Use `loadConfig` with the env var mappings
-3. Import and use the config within that feature
+3. Import the config in `src/instrumentation.ts` for early validation
+4. Import and use the config within that feature
 
 Example for adding Stripe:
 
