@@ -20,12 +20,12 @@ import {
   FileText,
   ArrowRight,
   Bot,
+  ExternalLink,
 } from "lucide-react";
 import {
   getAllItems,
-  type Recipe,
-  type Cookbook,
-  isCookbook,
+  getItemPromptText,
+  getCursorPromptDeeplink,
 } from "@/lib/recipes/data";
 import { codeToHtml, type BundledLanguage } from "shiki";
 
@@ -85,11 +85,6 @@ const MCP_CONFIG = `{
     }
   }
 }`;
-
-function getMcpPrompt(item: Recipe | Cookbook) {
-  const type = isCookbook(item) ? "cookbook" : "recipe";
-  return `Follow the "${item.title}" ${type} from fullstackrecipes`;
-}
 
 function getRegistryCommand(registryDep: string) {
   return `bunx shadcn@latest add https://fullstackrecipes.com/r/${registryDep}.json`;
@@ -367,14 +362,17 @@ export function HowItWorks() {
 
                   <div className="group relative min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4">
                     <HighlightedCode
-                      code={getMcpPrompt(selectedItem)}
+                      code={getItemPromptText(selectedItem)}
                       language="bash"
                     />
                     <Button
                       size="icon"
                       variant="ghost"
                       onClick={() =>
-                        copyToClipboard(getMcpPrompt(selectedItem), "prompt")
+                        copyToClipboard(
+                          getItemPromptText(selectedItem),
+                          "prompt",
+                        )
                       }
                       className="absolute right-2 top-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
                     >
@@ -383,6 +381,19 @@ export function HowItWorks() {
                       ) : (
                         <Copy className="h-4 w-4" />
                       )}
+                    </Button>
+                  </div>
+
+                  <div className="mt-4 flex justify-end">
+                    <Button asChild variant="outline" className="gap-2">
+                      <a
+                        href={getCursorPromptDeeplink(
+                          getItemPromptText(selectedItem),
+                        )}
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        Prompt Cursor
+                      </a>
                     </Button>
                   </div>
                 </Card>

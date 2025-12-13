@@ -3,6 +3,8 @@ import {
   getAllRecipes,
   getAllCookbooks,
   getCookbookRecipes,
+  getItemResourceUri,
+  getItemPromptText,
 } from "@/lib/recipes/data";
 import { loadRecipeContent } from "@/lib/recipes/loader";
 
@@ -12,11 +14,11 @@ const handler = createMcpHandler(
     const cookbooks = getAllCookbooks();
 
     for (const recipe of recipes) {
-      const recipeUri = `recipe://fullstackrecipes.com/${recipe.slug}`;
+      const resourceUri = getItemResourceUri(recipe);
 
       server.registerResource(
         `recipe-${recipe.slug}`,
-        recipeUri,
+        resourceUri,
         {
           title: recipe.title,
           description: recipe.description,
@@ -47,9 +49,9 @@ const handler = createMcpHandler(
               content: {
                 type: "resource",
                 resource: {
-                  uri: recipeUri,
+                  uri: resourceUri,
                   mimeType: "text/markdown",
-                  text: `Follow the recipe at resource "${recipeUri}" to implement ${recipe.title}.`,
+                  text: getItemPromptText(recipe),
                 },
               },
             },
@@ -59,11 +61,11 @@ const handler = createMcpHandler(
     }
 
     for (const cookbook of cookbooks) {
-      const cookbookUri = `cookbook://fullstackrecipes.com/${cookbook.slug}`;
+      const resourceUri = getItemResourceUri(cookbook);
 
       server.registerResource(
         `cookbook-${cookbook.slug}`,
-        cookbookUri,
+        resourceUri,
         {
           title: cookbook.title,
           description: cookbook.description,
@@ -98,9 +100,9 @@ const handler = createMcpHandler(
               content: {
                 type: "resource",
                 resource: {
-                  uri: cookbookUri,
+                  uri: resourceUri,
                   mimeType: "text/markdown",
-                  text: `Follow the cookbook at resource "${cookbookUri}" to implement ${cookbook.title}.`,
+                  text: getItemPromptText(cookbook),
                 },
               },
             },

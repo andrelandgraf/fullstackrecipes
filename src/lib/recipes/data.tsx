@@ -613,6 +613,26 @@ export function isCookbook(item: Recipe | Cookbook): item is Cookbook {
   return "isCookbook" in item && item.isCookbook === true;
 }
 
+/** Get the MCP resource URI for a recipe or cookbook */
+export function getItemResourceUri(item: Recipe | Cookbook): string {
+  const type = isCookbook(item) ? "cookbook" : "recipe";
+  return `${type}://fullstackrecipes.com/${item.slug}`;
+}
+
+/** Get the prompt text for implementing a recipe or cookbook */
+export function getItemPromptText(item: Recipe | Cookbook): string {
+  const type = isCookbook(item) ? "cookbook" : "recipe";
+  return `Follow the "${item.title}" ${type} from fullstackrecipes`;
+}
+
+/** Generate a Cursor deeplink for a prompt */
+export function getCursorPromptDeeplink(promptText: string): string {
+  const baseUrl = "cursor://anysphere.cursor-deeplink/prompt";
+  const url = new URL(baseUrl);
+  url.searchParams.set("text", promptText);
+  return url.toString();
+}
+
 // Registry items from registry.json
 const REGISTRY_ICONS: Record<string, typeof Database> = {
   "load-config": Cog,
