@@ -5,16 +5,19 @@ import { RecipeCard } from "@/components/recipes/card";
 import { RecipeSearch } from "@/components/recipes/search";
 import { getAllItems, isCookbook } from "@/lib/recipes/data";
 import { Button } from "@/components/ui/button";
-import { ListOrdered } from "lucide-react";
+import { ArrowUp, ArrowDown } from "lucide-react";
 
 const items = getAllItems();
 
-const allTags = Array.from(new Set(items.flatMap((r) => r.tags))).sort();
+const allTags = Array.from(
+  new Set(items.flatMap((r) => r.tags).filter((t) => t !== "Cookbook")),
+).sort();
 
 export function RecipeGrid() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [inOrder, setInOrder] = useState(false);
+  const [sortAscending, setSortAscending] = useState(false);
+  const [cookbooksOnly, setCookbooksOnly] = useState(false);
 
   const filteredItems = useMemo(() => {
     const filtered = items.filter((item) => {
@@ -27,11 +30,13 @@ export function RecipeGrid() {
         selectedTags.length === 0 ||
         selectedTags.some((tag) => item.tags.includes(tag));
 
-      return matchesSearch && matchesTags;
+      const matchesCookbookFilter = !cookbooksOnly || isCookbook(item);
+
+      return matchesSearch && matchesTags && matchesCookbookFilter;
     });
 
-    return inOrder ? filtered : [...filtered].reverse();
-  }, [searchQuery, selectedTags, inOrder]);
+    return sortAscending ? filtered : [...filtered].reverse();
+  }, [searchQuery, selectedTags, sortAscending, cookbooksOnly]);
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
@@ -42,6 +47,7 @@ export function RecipeGrid() {
   const clearFilters = () => {
     setSearchQuery("");
     setSelectedTags([]);
+    setCookbooksOnly(false);
   };
 
   return (
@@ -52,18 +58,31 @@ export function RecipeGrid() {
             <h2 className="mb-2 text-2xl font-bold tracking-tight md:text-3xl">
               All Recipes
             </h2>
-            <p className="text-muted-foreground">
-              Step-by-step guides to ship faster
+            <p className="text-sm text-muted-foreground">
+              Focused recipes for single features, or cookbooks that bundle
+              multiple recipes together
             </p>
           </div>
           <Button
-            variant={inOrder ? "secondary" : "ghost"}
+            variant={sortAscending ? "secondary" : "ghost"}
             size="sm"
-            onClick={() => setInOrder(!inOrder)}
+            onClick={() => setSortAscending(!sortAscending)}
             className="gap-2"
+            title={
+              sortAscending ? "Sorted by setup order" : "Sorted by newest first"
+            }
           >
-            <ListOrdered className="h-4 w-4" />
-            In order
+            {sortAscending ? (
+              <>
+                <ArrowUp className="h-4 w-4" />
+                <span className="hidden sm:inline">Setup order</span>
+              </>
+            ) : (
+              <>
+                <ArrowDown className="h-4 w-4" />
+                <span className="hidden sm:inline">Newest first</span>
+              </>
+            )}
           </Button>
         </div>
 
@@ -76,6 +95,8 @@ export function RecipeGrid() {
           onClearFilters={clearFilters}
           resultCount={filteredItems.length}
           totalCount={items.length}
+          cookbooksOnly={cookbooksOnly}
+          onCookbooksOnlyChange={setCookbooksOnly}
         />
 
         {filteredItems.length > 0 ? (

@@ -21,11 +21,16 @@ import {
   ArrowRight,
   Bot,
   ExternalLink,
+  BookOpen,
+  ScrollText,
 } from "lucide-react";
 import {
   getAllItems,
+  getAllCookbooks,
+  getAllRecipes,
   getItemPromptText,
   getCursorPromptDeeplink,
+  isCookbook,
 } from "@/lib/recipes/data";
 import { codeToHtml, type BundledLanguage } from "shiki";
 
@@ -77,6 +82,8 @@ function HighlightedCode({ code, language }: HighlightedCodeProps) {
 }
 
 const items = getAllItems();
+const cookbooks = getAllCookbooks();
+const recipes = getAllRecipes();
 
 const MCP_CONFIG = `{
   "mcpServers": {
@@ -99,6 +106,7 @@ export function HowItWorks() {
   const selectedItem = items.find((r) => r.slug === selectedSlug)!;
   const hasRegistry =
     selectedItem.registryDeps && selectedItem.registryDeps.length > 0;
+  const Icon = selectedItem.icon;
 
   useEffect(() => {
     async function loadContent() {
@@ -125,8 +133,6 @@ export function HowItWorks() {
       // Silently fail
     }
   };
-
-  const Icon = selectedItem.icon;
 
   return (
     <section className="border-b border-border/50 py-24">
@@ -174,7 +180,11 @@ export function HowItWorks() {
           {/* Left: Recipe Preview */}
           <div className="flex min-w-0 flex-col gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                  isCookbook(selectedItem) ? "bg-primary/10" : "bg-secondary"
+                }`}
+              >
                 <Icon className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1">
@@ -184,8 +194,37 @@ export function HowItWorks() {
                       <SelectValue />
                     </span>
                   </SelectTrigger>
-                  <SelectContent className="sm:max-h-80">
-                    {items.map((item) => (
+                  <SelectContent className="w-[320px] sm:max-h-96">
+                    {/* Cookbooks group */}
+                    <div className="px-2 py-1.5">
+                      <div className="flex items-center gap-2 text-xs font-medium text-primary">
+                        <BookOpen className="h-3.5 w-3.5" />
+                        Cookbooks
+                      </div>
+                      <p className="mt-0.5 text-[10px] leading-tight text-muted-foreground">
+                        Curated bundles of multiple recipes
+                      </p>
+                    </div>
+                    {cookbooks.map((item) => (
+                      <SelectItem key={item.slug} value={item.slug}>
+                        {item.title}
+                      </SelectItem>
+                    ))}
+
+                    {/* Separator */}
+                    <div className="my-1 border-t border-border/50" />
+
+                    {/* Recipes group */}
+                    <div className="px-2 py-1.5">
+                      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                        <ScrollText className="h-3.5 w-3.5" />
+                        Recipes
+                      </div>
+                      <p className="mt-0.5 text-[10px] leading-tight text-muted-foreground">
+                        Focused guides for specific features
+                      </p>
+                    </div>
+                    {recipes.map((item) => (
                       <SelectItem key={item.slug} value={item.slug}>
                         {item.title}
                       </SelectItem>
@@ -193,7 +232,7 @@ export function HowItWorks() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Select a recipe to preview
+                  Select a guide to preview
                 </p>
               </div>
             </div>

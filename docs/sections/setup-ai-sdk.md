@@ -29,11 +29,24 @@ This adds components like:
 
 **Option A: Using Vercel AI Gateway**
 
-Create an API key at [Vercel AI Gateway](https://vercel.com/ai-gateway) and add it to your `.env.local`:
+The AI Gateway supports two authentication methods. Add one of these to your `.env.local`:
 
 ```env
 AI_GATEWAY_API_KEY="your-api-key-here"
+VERCEL_OIDC_TOKEN="your-oidc-token"
 ```
+
+You can create an API key at [Vercel AI Gateway](https://vercel.com/ai-gateway) and add it to your `.env.local` and Vercel project environment variables.
+
+Alternatively, you can get a Vercel OIDC token by logging in via the Vercel CLI:
+
+```bash
+vercel login
+```
+
+This will prompt you to authorize the Vercel CLI to access your Vercel account. Once authorized, you can use the `vercel env pull` command to download your environment variables to your local `.env.local` file, which will include the Vercel OIDC token.
+
+At least one must be set when using the AI Gateway.
 
 **Option B: Using a specific provider**
 
@@ -60,7 +73,7 @@ ANTHROPIC_API_KEY="sk-ant-..."
 
 ### Step 4: Create the AI config
 
-Instead of accessing `process.env.AI_GATEWAY_API_KEY` directly, use the type-safe config pattern:
+Instead of accessing `process.env` directly, use the type-safe config pattern with either-or validation:
 
 ```typescript
 // src/lib/ai/config.ts
@@ -68,16 +81,18 @@ import { loadConfig } from "@/lib/common/load-config";
 
 export const aiConfig = loadConfig({
   env: {
-    gatewayApiKey: "AI_GATEWAY_API_KEY",
+    // Either VERCEL_OIDC_TOKEN or AI_GATEWAY_API_KEY must be set
+    oidcToken: { env: "VERCEL_OIDC_TOKEN", optional: "AI_GATEWAY_API_KEY" },
+    gatewayApiKey: { env: "AI_GATEWAY_API_KEY", optional: "VERCEL_OIDC_TOKEN" },
   },
 });
 ```
 
-Then access via `aiConfig.gatewayApiKey` instead of `process.env.AI_GATEWAY_API_KEY`. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.
+The `optional` parameter creates an either-or relationship: each variable is optional if the other is set, but at least one must be defined. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.
 
 ### Step 5: Validate config on server start
 
-Import the config in `instrumentation.ts` to validate the environment variable when the server starts:
+Import the config in `instrumentation.ts` to validate environment variables when the server starts:
 
 ```typescript
 // src/instrumentation.ts
@@ -86,7 +101,7 @@ Import the config in `instrumentation.ts` to validate the environment variable w
 import "./lib/ai/config";
 ```
 
-This ensures the server fails immediately on startup if `AI_GATEWAY_API_KEY` is missing, rather than failing later when AI features are used.
+This ensures the server fails immediately on startup if neither `VERCEL_OIDC_TOKEN` nor `AI_GATEWAY_API_KEY` is set, rather than failing later when AI features are used.
 
 ---
 

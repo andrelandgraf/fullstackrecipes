@@ -27,17 +27,45 @@ type DisabledConfig = { isEnabled: false };
 /** Optional feature config - either enabled with data or disabled */
 export type FeatureConfig<T> = EnabledConfig<T> | DisabledConfig;
 
-/** Env value: string shorthand or full object with schema */
-type EnvValue = string | { env: string; schema: z.ZodTypeAny };
+/**
+ * Conditional optional: this var is optional if the specified env var(s) are set.
+ * - `true` - always optional
+ * - `false` | `undefined` - required
+ * - `'OTHER_VAR'` - optional if OTHER_VAR is set
+ * - `['VAR_A', 'VAR_B']` - optional if any of the listed vars are set
+ */
+type ConditionalOptional = boolean | string | string[];
+
+/** Full env value object with all options */
+type EnvValueFull = {
+  env: string;
+  schema?: z.ZodTypeAny;
+  optional?: ConditionalOptional;
+};
+
+/** Env value: string shorthand or full object with schema and optional */
+type EnvValue = string | EnvValueFull;
 
 /** Infer the output type from an EnvValue */
 type InferEnvValue<T> = T extends string
   ? string
-  : T extends { schema: infer S }
-    ? S extends z.ZodTypeAny
-      ? z.infer<S>
-      : never
-    : never;
+  : T extends { optional: true }
+    ? T extends { schema: infer S }
+      ? S extends z.ZodTypeAny
+        ? z.infer<S> | undefined
+        : string | undefined
+      : string | undefined
+    : T extends { optional: string | string[] }
+      ? T extends { schema: infer S }
+        ? S extends z.ZodTypeAny
+          ? z.infer<S> | undefined
+          : string | undefined
+        : string | undefined
+      : T extends { schema: infer S }
+        ? S extends z.ZodTypeAny
+          ? z.infer<S>
+          : never
+        : string;
 
 /** Infer the full config type from an env record */
 type InferEnv<T extends Record<string, EnvValue>> = {
@@ -100,13 +128,42 @@ function isFlagEnabled(flag: string | undefined): boolean {
 }
 
 /**
- * Normalizes an EnvValue to { env, schema } form.
+ * Normalizes an EnvValue to full form with env, schema, and optional.
  */
 function normalizeEnvValue(value: EnvValue): {
   env: string;
   schema: z.ZodTypeAny;
+  optional: ConditionalOptional | undefined;
 } {
-  return typeof value === "string" ? { env: value, schema: z.string() } : value;
+  if (typeof value === "string") {
+    return { env: value, schema: z.string(), optional: undefined };
+  }
+  return {
+    env: value.env,
+    schema: value.schema ?? z.string(),
+    optional: value.optional,
+  };
+}
+
+/**
+ * Checks if a conditional optional is satisfied (i.e., the var can be skipped).
+ * Returns true if the variable is optional and may be missing.
+ */
+function isOptionalSatisfied(
+  optional: ConditionalOptional | undefined,
+): boolean {
+  if (optional === undefined || optional === false) {
+    return false; // required
+  }
+  if (optional === true) {
+    return true; // always optional
+  }
+  // Check if any of the fallback env vars are set
+  const fallbacks = Array.isArray(optional) ? optional : [optional];
+  return fallbacks.some((envVar) => {
+    const value = process.env[envVar];
+    return value !== undefined && value !== "";
+  });
 }
 
 /**
@@ -208,19 +265,35 @@ export function loadConfig<T extends Record<string, EnvValue>>(
   const envVarNames: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(env)) {
-    const { env: envVarName, schema } = normalizeEnvValue(value);
+    const { env: envVarName, schema, optional } = normalizeEnvValue(value);
     envVarNames[key] = envVarName;
 
     const rawValue = process.env[envVarName];
+
+    // Check if this var can be skipped (optional or fallback exists)
+    if (rawValue === undefined && isOptionalSatisfied(optional)) {
+      config[key] = undefined;
+      continue;
+    }
+
     const result = schema.safeParse(rawValue);
 
     if (!result.success) {
       const issue = result.error.issues[0];
       // Generate helpful error message
-      const message =
-        rawValue === undefined
-          ? `${envVarName} must be defined.`
-          : `${envVarName} is invalid: ${issue?.message ?? "validation failed"}`;
+      let message: string;
+      if (rawValue === undefined) {
+        // Include fallback info in error message for conditional optionals
+        if (typeof optional === "string") {
+          message = `Either ${envVarName} or ${optional} must be defined.`;
+        } else if (Array.isArray(optional) && optional.length > 0) {
+          message = `Either ${envVarName} or one of [${optional.join(", ")}] must be defined.`;
+        } else {
+          message = `${envVarName} must be defined.`;
+        }
+      } else {
+        message = `${envVarName} is invalid: ${issue?.message ?? "validation failed"}`;
+      }
       throw new InvalidConfigurationError(message, name);
     }
 
@@ -257,6 +330,14 @@ export const databaseConfig = loadConfig({
   },
 });
 // Type: { url: string }
+```
+
+If `DATABASE_URL` is missing, you get a clear error:
+
+```
+Error [InvalidConfigurationError]: Configuration validation error!
+Did you correctly set all required environment variables in .env file?
+ - DATABASE_URL must be defined.
 ```
 
 Then import and use it:
@@ -312,6 +393,43 @@ export async function register() {
 }
 ```
 
+### Either-Or Environment Variables
+
+Use the `optional` parameter to create conditional dependencies between env vars. This is useful when a feature can be configured with alternative credentials.
+
+```typescript
+// src/lib/ai/config.ts
+import { loadConfig } from "@/lib/common/load-config";
+
+export const aiConfig = loadConfig({
+  name: "AI Gateway",
+  flag: "ENABLE_AI_GATEWAY",
+  env: {
+    // Either VERCEL_OIDC_TOKEN or AI_GATEWAY_API_KEY must be set
+    oidcToken: { env: "VERCEL_OIDC_TOKEN", optional: "AI_GATEWAY_API_KEY" },
+    apiKey: { env: "AI_GATEWAY_API_KEY", optional: "VERCEL_OIDC_TOKEN" },
+  },
+});
+// Type: FeatureConfig<{ oidcToken?: string; apiKey?: string }>
+```
+
+The `optional` parameter accepts:
+
+| Value                  | Behavior                                   |
+| ---------------------- | ------------------------------------------ |
+| `undefined` or `false` | Required (default)                         |
+| `true`                 | Optional                                   |
+| `'OTHER_VAR'`          | Optional if `OTHER_VAR` is set             |
+| `['VAR_A', 'VAR_B']`   | Optional if any of the listed vars are set |
+
+Error messages include the alternative:
+
+```
+Error [InvalidConfigurationError]: Configuration validation error for AI Gateway!
+Did you correctly set all required environment variables in .env file?
+ - Either VERCEL_OIDC_TOKEN or AI_GATEWAY_API_KEY must be defined.
+```
+
 ### Client-Side Environment Variables
 
 `NEXT_PUBLIC_*` env vars are allowed to be accessed on the client. The config object uses a Proxy to protect all other vars from being accessed on the client:
@@ -326,7 +444,12 @@ sentryConfig.dsn; // ✓ works (NEXT_PUBLIC_*)
 sentryConfig.token; // ✗ throws ServerConfigClientAccessError
 ```
 
-This catches accidental client-side access to secrets at runtime with a helpful error message.
+This catches accidental client-side access to secrets at runtime:
+
+```
+Error [ServerConfigClientAccessError]: Attempted to access server-only config 'token' (SENTRY_AUTH_TOKEN) on client.
+Use a NEXT_PUBLIC_* env var to expose to client, or ensure this code only runs on server.
+```
 
 ### Advanced Validation
 
@@ -437,23 +560,6 @@ import Stripe from "stripe";
 import { stripeConfig } from "./config";
 
 export const stripe = new Stripe(stripeConfig.secretKey);
-```
-
-### Error Messages
-
-When environment variables are missing, you get an error like this:
-
-```
-Error [InvalidConfigurationError]: Configuration validation error for Sentry!
-Did you correctly set all required environment variables in .env file?
- - SENTRY_AUTH_TOKEN must be defined.
-```
-
-When server-only config is accessed on the client:
-
-```
-Error [ServerConfigClientAccessError]: Attempted to access server-only config 'token' (SENTRY_AUTH_TOKEN) on client.
-Use a NEXT_PUBLIC_* env var to expose to client, or ensure this code only runs on server.
 ```
 
 ### Syncing with Vercel (Optional)

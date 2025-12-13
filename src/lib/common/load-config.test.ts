@@ -339,4 +339,199 @@ describe("loadConfig", () => {
       expect(() => config.token).toThrow(ServerConfigClientAccessError);
     });
   });
+
+  describe("conditional optional (either-or env vars)", () => {
+    it("allows var to be missing when fallback is set (string)", () => {
+      delete process.env.VERCEL_OIDC_TOKEN;
+      process.env.AI_GATEWAY_API_KEY = "api-key-123";
+
+      const config = loadConfig({
+        env: {
+          oidcToken: {
+            env: "VERCEL_OIDC_TOKEN",
+            optional: "AI_GATEWAY_API_KEY",
+          },
+          apiKey: { env: "AI_GATEWAY_API_KEY", optional: "VERCEL_OIDC_TOKEN" },
+        },
+      });
+
+      expect(config.oidcToken).toBeUndefined();
+      expect(config.apiKey).toBe("api-key-123");
+    });
+
+    it("allows var to be missing when fallback is set (array)", () => {
+      delete process.env.PRIMARY_TOKEN;
+      delete process.env.SECONDARY_TOKEN;
+      process.env.TERTIARY_TOKEN = "tertiary-value";
+
+      const config = loadConfig({
+        env: {
+          primary: {
+            env: "PRIMARY_TOKEN",
+            optional: ["SECONDARY_TOKEN", "TERTIARY_TOKEN"],
+          },
+          tertiary: { env: "TERTIARY_TOKEN" },
+        },
+      });
+
+      expect(config.primary).toBeUndefined();
+      expect(config.tertiary).toBe("tertiary-value");
+    });
+
+    it("throws when neither var nor fallback is set", () => {
+      delete process.env.VERCEL_OIDC_TOKEN;
+      delete process.env.AI_GATEWAY_API_KEY;
+
+      expect(() =>
+        loadConfig({
+          env: {
+            oidcToken: {
+              env: "VERCEL_OIDC_TOKEN",
+              optional: "AI_GATEWAY_API_KEY",
+            },
+            apiKey: {
+              env: "AI_GATEWAY_API_KEY",
+              optional: "VERCEL_OIDC_TOKEN",
+            },
+          },
+        }),
+      ).toThrow(InvalidConfigurationError);
+    });
+
+    it("includes both var names in error message for either-or", () => {
+      delete process.env.VAR_A;
+      delete process.env.VAR_B;
+
+      try {
+        loadConfig({
+          env: {
+            varA: { env: "VAR_A", optional: "VAR_B" },
+          },
+        });
+        expect.unreachable("Should have thrown");
+      } catch (e) {
+        expect(e).toBeInstanceOf(InvalidConfigurationError);
+        expect((e as Error).message).toContain(
+          "Either VAR_A or VAR_B must be defined",
+        );
+      }
+    });
+
+    it("includes all fallback var names in error message for array", () => {
+      delete process.env.VAR_A;
+      delete process.env.VAR_B;
+      delete process.env.VAR_C;
+
+      try {
+        loadConfig({
+          env: {
+            varA: { env: "VAR_A", optional: ["VAR_B", "VAR_C"] },
+          },
+        });
+        expect.unreachable("Should have thrown");
+      } catch (e) {
+        expect(e).toBeInstanceOf(InvalidConfigurationError);
+        expect((e as Error).message).toContain(
+          "Either VAR_A or one of [VAR_B, VAR_C] must be defined",
+        );
+      }
+    });
+
+    it("works with both vars set", () => {
+      process.env.VERCEL_OIDC_TOKEN = "oidc-token";
+      process.env.AI_GATEWAY_API_KEY = "api-key";
+
+      const config = loadConfig({
+        env: {
+          oidcToken: {
+            env: "VERCEL_OIDC_TOKEN",
+            optional: "AI_GATEWAY_API_KEY",
+          },
+          apiKey: { env: "AI_GATEWAY_API_KEY", optional: "VERCEL_OIDC_TOKEN" },
+        },
+      });
+
+      expect(config.oidcToken).toBe("oidc-token");
+      expect(config.apiKey).toBe("api-key");
+    });
+
+    it("works with feature flag", () => {
+      process.env.ENABLE_AI = "true";
+      delete process.env.VERCEL_OIDC_TOKEN;
+      process.env.AI_GATEWAY_API_KEY = "api-key";
+
+      const config = loadConfig({
+        flag: "ENABLE_AI",
+        env: {
+          oidcToken: {
+            env: "VERCEL_OIDC_TOKEN",
+            optional: "AI_GATEWAY_API_KEY",
+          },
+          apiKey: { env: "AI_GATEWAY_API_KEY", optional: "VERCEL_OIDC_TOKEN" },
+        },
+      });
+
+      expect(config.isEnabled).toBe(true);
+      if (config.isEnabled) {
+        expect(config.oidcToken).toBeUndefined();
+        expect(config.apiKey).toBe("api-key");
+      }
+    });
+
+    it("skips validation when feature flag is disabled", () => {
+      delete process.env.ENABLE_AI;
+      delete process.env.VERCEL_OIDC_TOKEN;
+      delete process.env.AI_GATEWAY_API_KEY;
+
+      const config = loadConfig({
+        flag: "ENABLE_AI",
+        env: {
+          oidcToken: {
+            env: "VERCEL_OIDC_TOKEN",
+            optional: "AI_GATEWAY_API_KEY",
+          },
+          apiKey: { env: "AI_GATEWAY_API_KEY", optional: "VERCEL_OIDC_TOKEN" },
+        },
+      });
+
+      expect(config.isEnabled).toBe(false);
+    });
+
+    it("treats empty string as not set for fallback check", () => {
+      delete process.env.VAR_A;
+      process.env.VAR_B = "";
+
+      expect(() =>
+        loadConfig({
+          env: {
+            varA: { env: "VAR_A", optional: "VAR_B" },
+          },
+        }),
+      ).toThrow(InvalidConfigurationError);
+    });
+
+    it("works with optional: true (always optional)", () => {
+      delete process.env.OPTIONAL_VAR;
+
+      const config = loadConfig({
+        env: {
+          optionalVar: { env: "OPTIONAL_VAR", optional: true },
+        },
+      });
+
+      expect(config.optionalVar).toBeUndefined();
+    });
+
+    it("works with optional: false (required)", () => {
+      delete process.env.REQUIRED_VAR;
+
+      expect(() =>
+        loadConfig({
+          env: {
+            requiredVar: { env: "REQUIRED_VAR", optional: false },
+          },
+        }),
+      ).toThrow(InvalidConfigurationError);
+    });
+  });
 });

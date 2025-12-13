@@ -68,8 +68,8 @@ export function Registry() {
             shadcn Registry
           </h2>
           <p className="text-sm text-muted-foreground">
-            Install reusable utilities directly into your project via the shadcn
-            CLI.
+            Some recipes include reusable utilities that can be installed
+            directly into your project through the shadcn CLI.
           </p>
         </div>
 

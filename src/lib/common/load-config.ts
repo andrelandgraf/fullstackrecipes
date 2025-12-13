@@ -13,17 +13,45 @@ type DisabledConfig = { isEnabled: false };
 /** Optional feature config - either enabled with data or disabled */
 export type FeatureConfig<T> = EnabledConfig<T> | DisabledConfig;
 
-/** Env value: string shorthand or full object with schema */
-type EnvValue = string | { env: string; schema: z.ZodTypeAny };
+/**
+ * Conditional optional: this var is optional if the specified env var(s) are set.
+ * - `true` - always optional
+ * - `false` | `undefined` - required
+ * - `'OTHER_VAR'` - optional if OTHER_VAR is set
+ * - `['VAR_A', 'VAR_B']` - optional if any of the listed vars are set
+ */
+type ConditionalOptional = boolean | string | string[];
+
+/** Full env value object with all options */
+type EnvValueFull = {
+  env: string;
+  schema?: z.ZodTypeAny;
+  optional?: ConditionalOptional;
+};
+
+/** Env value: string shorthand or full object with schema and optional */
+type EnvValue = string | EnvValueFull;
 
 /** Infer the output type from an EnvValue */
 type InferEnvValue<T> = T extends string
   ? string
-  : T extends { schema: infer S }
-    ? S extends z.ZodTypeAny
-      ? z.infer<S>
-      : never
-    : never;
+  : T extends { optional: true }
+    ? T extends { schema: infer S }
+      ? S extends z.ZodTypeAny
+        ? z.infer<S> | undefined
+        : string | undefined
+      : string | undefined
+    : T extends { optional: string | string[] }
+      ? T extends { schema: infer S }
+        ? S extends z.ZodTypeAny
+          ? z.infer<S> | undefined
+          : string | undefined
+        : string | undefined
+      : T extends { schema: infer S }
+        ? S extends z.ZodTypeAny
+          ? z.infer<S>
+          : never
+        : string;
 
 /** Infer the full config type from an env record */
 type InferEnv<T extends Record<string, EnvValue>> = {
@@ -86,13 +114,42 @@ function isFlagEnabled(flag: string | undefined): boolean {
 }
 
 /**
- * Normalizes an EnvValue to { env, schema } form.
+ * Normalizes an EnvValue to full form with env, schema, and optional.
  */
 function normalizeEnvValue(value: EnvValue): {
   env: string;
   schema: z.ZodTypeAny;
+  optional: ConditionalOptional | undefined;
 } {
-  return typeof value === "string" ? { env: value, schema: z.string() } : value;
+  if (typeof value === "string") {
+    return { env: value, schema: z.string(), optional: undefined };
+  }
+  return {
+    env: value.env,
+    schema: value.schema ?? z.string(),
+    optional: value.optional,
+  };
+}
+
+/**
+ * Checks if a conditional optional is satisfied (i.e., the var can be skipped).
+ * Returns true if the variable is optional and may be missing.
+ */
+function isOptionalSatisfied(
+  optional: ConditionalOptional | undefined,
+): boolean {
+  if (optional === undefined || optional === false) {
+    return false; // required
+  }
+  if (optional === true) {
+    return true; // always optional
+  }
+  // Check if any of the fallback env vars are set
+  const fallbacks = Array.isArray(optional) ? optional : [optional];
+  return fallbacks.some((envVar) => {
+    const value = process.env[envVar];
+    return value !== undefined && value !== "";
+  });
 }
 
 /**
@@ -138,8 +195,9 @@ function createConfigProxy<T extends object>(
  * **Features:**
  * - Type-safe config from env vars with full inference
  * - Optional feature flags for conditional configs
+ * - Conditional optional: "either or" env vars with `optional: 'OTHER_VAR'`
  * - Runtime protection: throws when server-only config accessed on client
- * - Shorthand (string) or full form ({ env, schema }) for each key
+ * - Shorthand (string) or full form ({ env, schema, optional }) for each key
  *
  * @example Required config
  * ```ts
@@ -150,6 +208,19 @@ function createConfigProxy<T extends object>(
  *   },
  * });
  * // Type: { url: string; poolSize: number }
+ * ```
+ *
+ * @example Either-or env vars (at least one required)
+ * ```ts
+ * export const aiConfig = loadConfig({
+ *   flag: 'ENABLE_AI_GATEWAY',
+ *   env: {
+ *     oidcToken: { env: 'VERCEL_OIDC_TOKEN', optional: 'AI_GATEWAY_API_KEY' },
+ *     apiKey: { env: 'AI_GATEWAY_API_KEY', optional: 'VERCEL_OIDC_TOKEN' },
+ *   },
+ * });
+ * // Type: FeatureConfig<{ oidcToken?: string; apiKey?: string }>
+ * // Runtime: at least one is guaranteed to be set
  * ```
  *
  * @example Optional feature config
@@ -194,19 +265,35 @@ export function loadConfig<T extends Record<string, EnvValue>>(
   const envVarNames: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(env)) {
-    const { env: envVarName, schema } = normalizeEnvValue(value);
+    const { env: envVarName, schema, optional } = normalizeEnvValue(value);
     envVarNames[key] = envVarName;
 
     const rawValue = process.env[envVarName];
+
+    // Check if this var can be skipped (optional or fallback exists)
+    if (rawValue === undefined && isOptionalSatisfied(optional)) {
+      config[key] = undefined;
+      continue;
+    }
+
     const result = schema.safeParse(rawValue);
 
     if (!result.success) {
       const issue = result.error.issues[0];
       // Generate helpful error message
-      const message =
-        rawValue === undefined
-          ? `${envVarName} must be defined.`
-          : `${envVarName} is invalid: ${issue?.message ?? "validation failed"}`;
+      let message: string;
+      if (rawValue === undefined) {
+        // Include fallback info in error message for conditional optionals
+        if (typeof optional === "string") {
+          message = `Either ${envVarName} or ${optional} must be defined.`;
+        } else if (Array.isArray(optional) && optional.length > 0) {
+          message = `Either ${envVarName} or one of [${optional.join(", ")}] must be defined.`;
+        } else {
+          message = `${envVarName} must be defined.`;
+        }
+      } else {
+        message = `${envVarName} is invalid: ${issue?.message ?? "validation failed"}`;
+      }
       throw new InvalidConfigurationError(message, name);
     }
 
