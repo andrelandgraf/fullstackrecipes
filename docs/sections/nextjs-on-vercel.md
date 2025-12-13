@@ -29,19 +29,11 @@ vercel login
 Initialize a new Next.js application:
 
 ```bash
-bunx create-next-app@latest my-app
+bunx create-next-app@latest my-app --ts --tailwind --react-compiler --no-linter --src-dir --app --use-bun
 cd my-app
 ```
 
-Recommended options to select during the setup:
-
-- **TypeScript**: Yes
-- **Linter**: No
-- **React Compiler**: Yes
-- **Tailwind CSS**: Yes
-- **src/ directory**: Yes
-- **App Router**: Yes
-- **Customize `@/*` alias**: No
+This command uses the following recommended options: TypeScript and Tailwind CSS for type safety and utility-first styling, enables the React Compiler for automatic optimizations, skips linter configuration (can be added later if needed), organizes code inside a `src/` directory for cleaner project structure, uses the App Router, and bootstraps with Bun as the package manager.
 
 ### Configure Bun Runtime (Optional)
 
