@@ -232,3 +232,57 @@ function loadConfig(options: {
 
 - Without `flag`: `{ [key]: value }` - Plain config object
 - With `flag`: `{ isEnabled: true; ... } | { isEnabled: false }` - Discriminated union
+
+### Syncing with Vercel (Optional)
+
+Use the Vercel CLI to sync environment variables between your local development environment and your Vercel deployment.
+
+#### Pull environment variables from Vercel
+
+Download environment variables from your Vercel project to a local file:
+
+```bash
+# Pull development environment variables to .env.local
+vercel env pull
+
+# Pull to a specific file
+vercel env pull .env.local
+
+# Pull preview environment variables
+vercel env pull --environment=preview
+```
+
+#### Push environment variables to Vercel
+
+Add environment variables to your Vercel project from the command line:
+
+```bash
+# Add interactively (prompts for value)
+vercel env add MY_VAR
+
+# Add to a specific environment
+vercel env add MY_VAR production
+```
+
+#### List and remove environment variables
+
+```bash
+# List all environment variables
+vercel env ls
+
+# List for a specific environment
+vercel env ls production
+
+# Remove an environment variable
+vercel env rm MY_VAR production
+```
+
+#### Workflow
+
+After updating environment variables in the Vercel dashboard or via CLI, pull them locally:
+
+```bash
+vercel env pull .env.local
+```
+
+This keeps your local `.env.local` in sync with your deployment.

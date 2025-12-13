@@ -23,6 +23,7 @@ import {
   ScrollText,
   Activity,
   FlaskConical,
+  Triangle,
 } from "lucide-react";
 import registry from "../../../registry.json";
 
@@ -61,6 +62,7 @@ export const items: (Recipe | Cookbook)[] = [
     icon: Rocket,
     isCookbook: true,
     recipes: [
+      "nextjs-on-vercel",
       "code-style-setup",
       "agent-setup",
       "shadcn-ui-setup",
@@ -70,7 +72,7 @@ export const items: (Recipe | Cookbook)[] = [
       "ai-sdk-setup",
     ],
     sections: [
-      "setup-nextjs.md",
+      "nextjs-on-vercel.md",
       "setup-code-style.md",
       "agents-setup.md",
       "assert.md",
@@ -85,6 +87,19 @@ bunx shadcn@latest init
 bun add drizzle-orm @ai-sdk/openai`,
   } satisfies Cookbook,
   // === RECIPES ===
+  {
+    slug: "nextjs-on-vercel",
+    title: "Next.js on Vercel",
+    description:
+      "Create a Next.js app, initialize a GitHub repository, and deploy to Vercel with automatic deployments on push.",
+    tags: ["Vercel", "Config"],
+    icon: Triangle,
+    sections: ["nextjs-on-vercel.md"],
+    previewCode: `bunx create-next-app@latest my-app
+gh repo create my-app --public --source=. --push
+vercel
+vercel git connect`,
+  },
   {
     slug: "code-style-setup",
     title: "Editor and Linting Setup",
