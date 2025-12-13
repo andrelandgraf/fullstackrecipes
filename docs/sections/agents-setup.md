@@ -60,6 +60,9 @@ Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhanc
 ```json
 {
   "mcpServers": {
+    "vercel": {
+      "url": "https://mcp.vercel.com"
+    },
     "next-devtools": {
       "command": "npx",
       "args": ["-y", "next-devtools-mcp@latest"]
@@ -80,13 +83,16 @@ Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhanc
 }
 ```
 
-| Server             | Description                                                      |
-| ------------------ | ---------------------------------------------------------------- |
-| `next-devtools`    | Next.js development tools for debugging, routing, and build info |
-| `context7`         | Up-to-date documentation lookup for any library                  |
-| `better-auth`      | Better Auth framework documentation and API reference            |
-| `resend`           | Resend email API documentation and examples                      |
-| `fullstackrecipes` | Fullstackrecipes recipes                                         |
+| Server             | Description                                                       |
+| ------------------ | ----------------------------------------------------------------- |
+| `vercel`           | Manage Vercel projects, deployments, and search Vercel docs       |
+| `next-devtools`    | Next.js development tools for debugging, routing, and build info  |
+| `context7`         | Up-to-date documentation lookup for any library                   |
+| `better-auth`      | Better Auth framework documentation and API reference             |
+| `resend`           | Resend email API documentation and examples                       |
+| `fullstackrecipes` | Fullstackrecipes recipes                                          |
+
+> **Vercel MCP:** On first connection, Cursor will show a "Needs login" prompt. Click it to authorize access to your Vercel account. For project-specific context, use `https://mcp.vercel.com/<teamSlug>/<projectSlug>` instead.
 
 > **Note:** Remove any MCP servers for tools you don't plan to use in your project. For example, if you're not using Better Auth for authentication, remove the `better-auth` entry.
 

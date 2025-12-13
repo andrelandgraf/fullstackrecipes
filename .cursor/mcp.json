@@ -7,6 +7,9 @@
     "context7": {
       "url": "https://mcp.context7.com/mcp"
     },
+    "vercel": {
+      "url": "https://mcp.vercel.com"
+    },
     "better-auth": {
       "url": "https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp"
     },
@@ -16,7 +19,7 @@
     "fullstackrecipes": {
       "url": "http://localhost:3000/api/mcp"
     },
-    "Sentry": {
+    "sentry": {
       "url": "https://mcp.sentry.dev/mcp/andre-landgraf/fullstackrecipes"
     }
   }
