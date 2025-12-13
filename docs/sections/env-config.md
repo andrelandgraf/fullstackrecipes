@@ -439,29 +439,6 @@ import { stripeConfig } from "./config";
 export const stripe = new Stripe(stripeConfig.secretKey);
 ```
 
-### API Reference
-
-```typescript
-function loadConfig(options: {
-  /** Optional name for error messages (e.g., "Sentry") */
-  name?: string;
-  /** Env var name for feature flag (e.g., "ENABLE_SENTRY") */
-  flag?: string;
-  /** Map of config keys to env var definitions */
-  env: Record<string, string | { env: string; schema: z.ZodTypeAny }>;
-}): Config | FeatureConfig<Config>;
-```
-
-**Env value formats:**
-
-- `string` - Env var name, validates as required string
-- `{ env: string; schema: ZodSchema }` - Full form with custom Zod schema
-
-**Return types:**
-
-- Without `flag`: `{ [key]: value }` - Plain config object
-- With `flag`: `{ isEnabled: true; ... } | { isEnabled: false }` - Discriminated union
-
 ### Error Messages
 
 When environment variables are missing, you get an error like this:
