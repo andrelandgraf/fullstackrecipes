@@ -38,6 +38,8 @@ Key design decisions:
 
 ## Defining an Agent
 
+Define the agent class with the tool loop:
+
 ```typescript
 // src/lib/ai/agent.ts
 import {

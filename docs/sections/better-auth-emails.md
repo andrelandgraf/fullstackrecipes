@@ -6,9 +6,10 @@ Add email verification, password reset, and account management emails to your Be
 
 Create styled email templates for all auth flows.
 
-**Password Reset** - `src/lib/auth/emails/forgot-password.tsx`:
+**Password Reset**:
 
 ```tsx
+// src/lib/auth/emails/forgot-password.tsx
 interface ForgotPasswordEmailProps {
   resetLink: string;
   userName?: string;
@@ -118,9 +119,10 @@ export function ForgotPasswordEmail({
 }
 ```
 
-**Email Verification** - `src/lib/auth/emails/verify-email.tsx`:
+**Email Verification**:
 
 ```tsx
+// src/lib/auth/emails/verify-email.tsx
 interface VerifyEmailProps {
   verificationLink: string;
   userName?: string;
@@ -228,9 +230,10 @@ export function VerifyEmail({ verificationLink, userName }: VerifyEmailProps) {
 }
 ```
 
-**Change Email Confirmation** - `src/lib/auth/emails/change-email.tsx`:
+**Change Email Confirmation**:
 
 ```tsx
+// src/lib/auth/emails/change-email.tsx
 interface ChangeEmailProps {
   confirmationLink: string;
   newEmail: string;
@@ -381,9 +384,10 @@ export function ChangeEmail({
 }
 ```
 
-**Delete Account Verification** - `src/lib/auth/emails/delete-account.tsx`:
+**Delete Account Verification**:
 
 ```tsx
+// src/lib/auth/emails/delete-account.tsx
 interface DeleteAccountEmailProps {
   confirmationLink: string;
   userName?: string;
@@ -535,9 +539,10 @@ export function DeleteAccountEmail({
 
 ### Step 2: Update the auth server
 
-Update `src/lib/auth/server.tsx` with email verification, change email, and delete account support:
+Update the auth server with email verification, change email, and delete account support:
 
 ```tsx
+// src/lib/auth/server.tsx
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/client";

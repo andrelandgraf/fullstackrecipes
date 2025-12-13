@@ -5,7 +5,7 @@
 The `stripe.dev.ts` script uses Stripe CLI to forward webhooks locally:
 
 ```typescript
-// apps/web/scripts/stripe.dev.ts
+// scripts/stripe.dev.ts
 import { spawn } from "child_process";
 
 const events = [
@@ -51,7 +51,7 @@ bun dev
 The `stripe.setup.ts` script registers webhook endpoint in Stripe Dashboard:
 
 ```typescript
-// apps/web/scripts/stripe.setup.ts
+// scripts/stripe.setup.ts
 import Stripe from "stripe";
 import { logger } from "@/lib/common/logger";
 

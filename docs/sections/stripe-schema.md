@@ -5,7 +5,7 @@
 Links authenticated users to Stripe customer IDs:
 
 ```typescript
-// lib/db/schema.ts
+// src/lib/db/schema.ts
 export const stripeCustomersTable = pgTable(
   "stripe_customers",
   {

@@ -4,9 +4,10 @@ Add UI components and pages for authentication flows including sign in, sign up,
 
 ### Add Toaster to layout
 
-Update `src/app/layout.tsx` to include the toast notification provider:
+Update your layout to include the toast notification provider:
 
 ```tsx
+// src/app/layout.tsx
 import { Toaster } from "@/components/ui/sonner";
 
 export default function RootLayout({
@@ -31,11 +32,10 @@ export default function RootLayout({
 
 ### Sign In Component
 
-`src/components/auth/sign-in.tsx`:
-
 This component handles email/password sign-in with password visibility toggle and input icons. When `requireEmailVerification` is enabled (see [Better Auth Emails](/recipes/better-auth-emails)), it includes an inline resend verification option.
 
 ```tsx
+// src/components/auth/sign-in.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -257,9 +257,8 @@ export function SignIn() {
 
 ### Sign Up Component
 
-`src/components/auth/sign-up.tsx`:
-
 ```tsx
+// src/components/auth/sign-up.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -492,9 +491,8 @@ export function SignUp() {
 
 ### Forgot Password Component
 
-`src/components/auth/forgot-password.tsx`:
-
 ```tsx
+// src/components/auth/forgot-password.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -633,9 +631,8 @@ export function ForgotPassword() {
 
 ### Reset Password Component
 
-`src/components/auth/reset-password.tsx`:
-
 ```tsx
+// src/components/auth/reset-password.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -830,9 +827,8 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
 
 ### Verify Email Result Component
 
-`src/components/auth/verify-email-result.tsx`:
-
 ```tsx
+// src/components/auth/verify-email-result.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -931,9 +927,8 @@ Create pages for all auth flows with server-side session checks.
 
 ### Sign In Page
 
-`src/app/sign-in/page.tsx`:
-
 ```tsx
+// src/app/sign-in/page.tsx
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
@@ -964,9 +959,8 @@ export default async function SignInPage() {
 
 ### Sign Up Page
 
-`src/app/sign-up/page.tsx`:
-
 ```tsx
+// src/app/sign-up/page.tsx
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
@@ -997,9 +991,8 @@ export default async function SignUpPage() {
 
 ### Forgot Password Page
 
-`src/app/forgot-password/page.tsx`:
-
 ```tsx
+// src/app/forgot-password/page.tsx
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
@@ -1030,9 +1023,8 @@ export default async function ForgotPasswordPage() {
 
 ### Reset Password Page
 
-`src/app/reset-password/page.tsx`:
-
 ```tsx
+// src/app/reset-password/page.tsx
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
@@ -1071,9 +1063,8 @@ export default async function ResetPasswordPage({
 
 ### Verify Email Page
 
-`src/app/verify-email/page.tsx`:
-
 ```tsx
+// src/app/verify-email/page.tsx
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth/server";

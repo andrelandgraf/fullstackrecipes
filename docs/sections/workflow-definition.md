@@ -17,9 +17,10 @@ src/workflows/chat/
 
 ### Main Workflow
 
-Create `src/workflows/chat/index.ts`:
+Create the main workflow function:
 
 ```typescript
+// src/workflows/chat/index.ts
 import { getWorkflowMetadata, getWritable } from "workflow";
 import { logger } from "@/lib/common/logger";
 import type { ChatAgentUIMessage } from "./types";

@@ -4,9 +4,10 @@ The API route handles streaming AI responses while persisting messages to the da
 
 ### Route Handler
 
-Create `src/app/api/chats/[chatId]/route.ts`:
+Create the chat route handler:
 
 ```typescript
+// src/app/api/chats/[chatId]/route.ts
 import { streamText, convertToModelMessages, stepCountIs } from "ai";
 import type { ChatAgentUIMessage } from "@/lib/chat/types";
 import { allTools } from "@/lib/ai/tools";

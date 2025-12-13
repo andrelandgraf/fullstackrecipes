@@ -8,9 +8,10 @@ A TypeScript assertion function for runtime type narrowing with descriptive erro
 bunx shadcn@latest add https://fullstackrecipes.com/r/assert.json
 ```
 
-This installs the assertion utility to `src/lib/common/assert.ts`:
+This installs the assertion utility:
 
 ```typescript
+// src/lib/common/assert.ts
 const prefix: string = "Assertion failed";
 
 /**

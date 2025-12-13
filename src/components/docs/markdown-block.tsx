@@ -1,6 +1,6 @@
 import Markdoc, { type RenderableTreeNode, type Tag } from "@markdoc/markdoc";
 import Link from "next/link";
-import React, { type AnchorHTMLAttributes, type ReactNode } from "react";
+import { type AnchorHTMLAttributes, type ReactNode } from "react";
 import { codeToHtml } from "shiki";
 
 import { cn } from "@/lib/utils";

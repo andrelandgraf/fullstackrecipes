@@ -4,9 +4,10 @@ API routes start workflows and handle stream resumption.
 
 ### Start Workflow Endpoint
 
-Create `src/app/api/chats/[chatId]/messages/route.ts`:
+Create the endpoint to start workflow runs:
 
 ```typescript
+// src/app/api/chats/[chatId]/messages/route.ts
 import { headers } from "next/headers";
 import { verifyChatOwnership } from "@/lib/chat/queries";
 import { auth } from "@/lib/auth/server";
@@ -58,9 +59,10 @@ export async function POST(request: Request) {
 
 ### Resume Stream Endpoint
 
-Create `src/app/api/chats/[chatId]/messages/[runId]/stream/route.ts`:
+Create the endpoint to resume workflow streams:
 
 ```typescript
+// src/app/api/chats/[chatId]/messages/[runId]/stream/route.ts
 import { headers } from "next/headers";
 import { getRun } from "workflow/api";
 import { createUIMessageStreamResponse } from "ai";

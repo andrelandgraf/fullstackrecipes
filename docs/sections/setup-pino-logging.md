@@ -30,9 +30,10 @@ Install the logger utility using the shadcn CLI:
 bunx --bun shadcn@latest add https://fullstackrecipes.com/r/logger.json
 ```
 
-This creates `src/lib/common/logger.ts`:
+This creates the logger utility:
 
 ```typescript
+// src/lib/common/logger.ts
 import pino from "pino";
 
 const isDev = process.env.NODE_ENV === "development";

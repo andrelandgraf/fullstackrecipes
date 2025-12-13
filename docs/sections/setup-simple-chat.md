@@ -4,9 +4,10 @@ Create a basic chat interface with streaming responses.
 
 ### Step 1: Create the API route
 
-Create `src/app/api/chat/route.ts`:
+Create the chat API route:
 
 ```typescript
+// src/app/api/chat/route.ts
 import { convertToModelMessages, streamText, UIMessage } from "ai";
 
 export const maxDuration = 30;
@@ -28,9 +29,10 @@ export async function POST(req: Request) {
 
 ### Step 2: Create the chat page
 
-Create `src/app/page.tsx`:
+Create the chat interface:
 
 ```tsx
+// src/app/page.tsx
 "use client";
 
 import { useChat } from "@ai-sdk/react";

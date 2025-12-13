@@ -26,9 +26,10 @@ Install the theme provider:
 bun add next-themes
 ```
 
-Create `src/components/themes/provider.tsx`:
+Create the theme provider component:
 
 ```tsx
+// src/components/themes/provider.tsx
 "use client";
 
 import { ThemeProvider as NextThemesProvider } from "next-themes";
@@ -41,9 +42,10 @@ export function ThemeProvider({
 }
 ```
 
-Wrap your app with the provider in `src/app/layout.tsx`:
+Wrap your app with the provider in your layout:
 
 ```tsx
+// src/app/layout.tsx
 import { ThemeProvider } from "@/components/themes/provider";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -70,9 +72,10 @@ export default function RootLayout({
 }
 ```
 
-Create `src/components/themes/selector.tsx` to toggle between light, dark, and system themes:
+Create the theme selector component to toggle between light, dark, and system themes:
 
 ```tsx
+// src/components/themes/selector.tsx
 "use client";
 
 import { Moon, Sun } from "lucide-react";

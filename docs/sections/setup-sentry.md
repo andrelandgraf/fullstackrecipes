@@ -50,9 +50,10 @@ You can find your Sentry DSN, project name, and org name in your Sentry project 
 
 ### Step 3: Create the Sentry config
 
-Create `src/lib/sentry/config.ts`:
+Create the Sentry config with environment variable validation:
 
 ```typescript
+// src/lib/sentry/config.ts
 import { loadConfig } from "../common/load-config";
 
 export const sentryConfig = loadConfig({
@@ -77,9 +78,10 @@ We use the `loadConfig` utility to validate the configuration and throw an error
 
 Next, we'll refactor the wizard-generated files to use the new Sentry config. We further move the Sentry-related code into the `src/lib/sentry` directory to keep them organized.
 
-Create `src/lib/sentry/server.ts`:
+Create the server initialization helper:
 
 ```typescript
+// src/lib/sentry/server.ts
 import * as Sentry from "@sentry/nextjs";
 import { sentryConfig } from "./config";
 
@@ -96,9 +98,10 @@ export function initSentryServer() {
 }
 ```
 
-Create `src/lib/sentry/edge.ts`:
+Create the edge initialization helper:
 
 ```typescript
+// src/lib/sentry/edge.ts
 import * as Sentry from "@sentry/nextjs";
 import { sentryConfig } from "./config";
 
@@ -114,9 +117,10 @@ export function initSentryEdge() {
 
 Note: The pino integration is not included for edge because pino uses Node.js modules (`fs`, `events`, `worker_threads`) that aren't available in the edge runtime.
 
-Create `src/lib/sentry/client.ts`:
+Create the client initialization helper:
 
 ```typescript
+// src/lib/sentry/client.ts
 import * as Sentry from "@sentry/nextjs";
 import { sentryConfig } from "./config";
 
@@ -141,9 +145,10 @@ export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
 
 Delete the wizard-generated `sentry.server.config.ts` and `sentry.edge.config.ts` files from the project root. We'll import directly from our `src/lib/sentry/` modules instead.
 
-Replace `src/instrumentation.ts`:
+Replace the instrumentation file:
 
 ```typescript
+// src/instrumentation.ts
 import * as Sentry from "@sentry/nextjs";
 
 export async function register() {
@@ -161,9 +166,10 @@ export async function register() {
 export const onRequestError = Sentry.captureRequestError;
 ```
 
-Replace `src/instrumentation-client.ts`:
+Replace the client instrumentation file:
 
 ```typescript
+// src/instrumentation-client.ts
 // This file configures the initialization of Sentry on the client.
 // The added config here will be used whenever a users loads a page in their browser.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/

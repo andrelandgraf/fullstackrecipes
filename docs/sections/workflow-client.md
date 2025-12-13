@@ -14,9 +14,10 @@ This installs the hook to `src/hooks/use-resumable-chat.ts`. You'll need to upda
 
 ### Resumable Chat Hook
 
-Create `src/hooks/use-resumable-chat.ts`:
+Create the resumable chat hook:
 
 ```typescript
+// src/hooks/use-resumable-chat.ts
 "use client";
 
 import { useChat } from "@ai-sdk/react";
@@ -93,9 +94,10 @@ export function useResumableChat({
 
 ### Chat Page with Resumption Detection
 
-Create or update `src/app/[chatId]/page.tsx`:
+Create or update the chat page with resumption detection:
 
 ```typescript
+// src/app/[chatId]/page.tsx
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { Chat } from "@/components/chat/chat";

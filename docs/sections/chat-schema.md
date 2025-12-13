@@ -40,9 +40,10 @@ CREATE EXTENSION IF NOT EXISTS pg_uuidv7;
 
 ### Schema Definition
 
-Create `src/lib/chat/schema.ts`:
+Create the chat database schema:
 
 ```typescript
+// src/lib/chat/schema.ts
 import {
   pgTable,
   text,
@@ -255,9 +256,10 @@ export type NewMessageSourceDocument =
 
 ### Re-export from Central Schema
 
-Update `src/lib/db/schema.ts`:
+Update the central schema file:
 
 ```typescript
+// src/lib/db/schema.ts
 export * from "@/lib/chat/schema";
 ```
 

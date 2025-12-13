@@ -39,9 +39,10 @@ Get your API key from [resend.com/api-keys](https://resend.com/api-keys).
 
 ### Step 3: Create the resend config
 
-Create `src/lib/resend/config.ts`:
+Create the Resend config with email format validation:
 
 ```typescript
+// src/lib/resend/config.ts
 import { z } from "zod";
 import { loadConfig } from "../common/load-config";
 
@@ -63,9 +64,10 @@ export const resendConfig = loadConfig({
 
 ### Step 4: Create the Resend client
 
-Create `src/lib/resend/client.ts`:
+Create the Resend client instance:
 
 ```typescript
+// src/lib/resend/client.ts
 import { Resend } from "resend";
 import { resendConfig } from "./config";
 
@@ -74,9 +76,10 @@ export const resend = new Resend(resendConfig.apiKey);
 
 ### Step 5: Create the send helper
 
-Create `src/lib/resend/send.ts`:
+Create the email sending helper:
 
 ```typescript
+// src/lib/resend/send.ts
 import { resend } from "./client";
 import { resendConfig } from "./config";
 
@@ -121,9 +124,10 @@ await sendEmail({
 
 Email templates are React components colocated with the feature that uses them, following the "everything is a library" pattern. Auth-related emails (password reset, email verification) live in `src/lib/auth/emails/`, while other features would have their own `emails/` subfolder.
 
-For example, a password reset email template should live in `src/lib/auth/emails/forgot-password.tsx`:
+For example, a password reset email template:
 
 ```typescript
+// src/lib/auth/emails/forgot-password.tsx
 interface ForgotPasswordEmailProps {
   resetLink: string;
 }

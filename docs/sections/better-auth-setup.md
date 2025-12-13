@@ -41,9 +41,10 @@ openssl rand -base64 32
 
 ### Step 3: Create the auth config
 
-Create `src/lib/auth/config.ts` following the [Environment Variable Management](/recipes/env-config) pattern:
+Create the auth config following the [Environment Variable Management](/recipes/env-config) pattern:
 
 ```typescript
+// src/lib/auth/config.ts
 import { loadConfig } from "../common/load-config";
 
 export const authConfig = loadConfig({
@@ -72,11 +73,12 @@ The `db:auth:generate` script uses the Better Auth CLI to generate the schema fr
 
 ### Step 5: Create the auth server instance
 
-Create `src/lib/auth/server.tsx` with basic email/password authentication:
+Create the auth server with basic email/password authentication:
 
 > **Note:** We use `.tsx` instead of `.ts` to support JSX email templates when you add [Better Auth Emails](/recipes/better-auth-emails) later.
 
 ```tsx
+// src/lib/auth/server.tsx
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/client";
@@ -97,9 +99,10 @@ export const auth = betterAuth({
 
 ### Step 6: Create the API route handler
 
-Create `src/app/api/auth/[...all]/route.ts`:
+Create the catch-all route handler for auth:
 
 ```typescript
+// src/app/api/auth/[...all]/route.ts
 import { auth } from "@/lib/auth/server";
 import { toNextJsHandler } from "better-auth/next-js";
 
@@ -108,9 +111,10 @@ export const { POST, GET } = toNextJsHandler(auth);
 
 ### Step 7: Create the auth client
 
-Create `src/lib/auth/client.ts`:
+Create the client-side auth hooks:
 
 ```typescript
+// src/lib/auth/client.ts
 "use client";
 
 import { createAuthClient } from "better-auth/react";

@@ -3,7 +3,7 @@
 ### API Route
 
 ```typescript
-// app/api/stripe/route.ts
+// src/app/api/stripe/route.ts
 import { after, NextResponse } from "next/server";
 
 // GET: Post-checkout redirect handler
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
 ### Webhook Event Processing
 
 ```typescript
-// lib/stripe/stripe.ts
+// src/lib/stripe/stripe.ts
 import { logger } from "@/lib/common/logger";
 
 const allowedEventTypes = [

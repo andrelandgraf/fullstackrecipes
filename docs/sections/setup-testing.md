@@ -560,9 +560,10 @@ Run tests automatically on every push and pull request using GitHub Actions.
 
 ### Create Workflow File
 
-Create `.github/workflows/test.yml`:
+Create the GitHub Actions workflow:
 
 ```yaml
+# .github/workflows/test.yml
 name: Test
 
 on:

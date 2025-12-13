@@ -8,9 +8,10 @@ The persistence layer handles converting between AI SDK's `UIMessage` format and
 
 ### Chat Types
 
-Create `src/lib/chat/types.ts` to define types that extend AI SDK's base types with your tools and data parts:
+Define types that extend AI SDK's base types with your tools and data parts:
 
 ```typescript
+// src/lib/chat/types.ts
 import type { UIMessage, UIMessagePart, InferUITools } from "ai";
 import { z } from "zod";
 import { allTools } from "@/lib/ai/tools";
@@ -108,9 +109,10 @@ The `TOOL_TYPES` array must match your tool keys prefixed with `tool-` for the d
 
 ### Query Helpers
 
-Create `src/lib/chat/queries.ts` with functions to persist and retrieve messages:
+Create functions to persist and retrieve messages:
 
 ```typescript
+// src/lib/chat/queries.ts
 import { TOOL_TYPES, type ToolType } from "@/lib/ai/tools";
 import {
   isToolPart,

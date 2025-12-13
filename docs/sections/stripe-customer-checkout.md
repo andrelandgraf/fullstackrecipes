@@ -3,7 +3,7 @@
 ### Database Operations
 
 ```typescript
-// lib/db/stripe-customers.ts
+// src/lib/db/stripe-customers.ts
 export async function createStripeCustomer(
   authenticatedUserId: string,
   newStripeCustomer: NewStripeCustomer,
@@ -42,7 +42,7 @@ export async function getStripeCustomerByCustomerId(
 ### Creating Stripe Customer
 
 ```typescript
-// lib/stripe/stripe.ts
+// src/lib/stripe/stripe.ts
 export async function createStripeCustomer({
   userId,
   email,
@@ -72,7 +72,7 @@ export async function createStripeCustomer({
 ### Redirect to Checkout
 
 ```typescript
-// lib/stripe/stripe.ts
+// src/lib/stripe/stripe.ts
 export async function redirectToCheckout({
   userId,
   email,
@@ -119,7 +119,7 @@ export async function redirectToCheckout({
 ### Server Action for Checkout
 
 ```typescript
-// app/app/settings/actions.ts
+// src/app/app/settings/actions.ts
 "use server";
 
 export async function createCheckoutSession() {

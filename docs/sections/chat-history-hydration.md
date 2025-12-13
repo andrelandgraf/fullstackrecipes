@@ -4,9 +4,10 @@ Hydrate the chat component with previous messages when loading an existing conve
 
 ### Chat Page
 
-Create `src/app/[chatId]/page.tsx`:
+Create the chat page to load history:
 
 ```typescript
+// src/app/[chatId]/page.tsx
 import { Chat } from "@/components/chat";
 import {
   getChatMessages,
@@ -30,9 +31,10 @@ export default async function ChatPage({ params }: Props) {
 
 ### Chat Component
 
-Create `src/components/chat.tsx`:
+Create the chat component:
 
 ```tsx
+// src/components/chat.tsx
 "use client";
 
 import { useChat } from "@ai-sdk/react";

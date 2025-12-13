@@ -60,9 +60,10 @@ ANTHROPIC_API_KEY="sk-ant-..."
 
 ### Step 4: Create the AI config
 
-Instead of accessing `process.env.AI_GATEWAY_API_KEY` directly, use the type-safe config pattern. Create `src/lib/ai/config.ts`:
+Instead of accessing `process.env.AI_GATEWAY_API_KEY` directly, use the type-safe config pattern:
 
 ```typescript
+// src/lib/ai/config.ts
 import { loadConfig } from "@/lib/common/load-config";
 
 export const aiConfig = loadConfig({

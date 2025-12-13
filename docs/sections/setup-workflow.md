@@ -10,6 +10,8 @@ bun add workflow @workflow/ai
 
 ### Step 2: Update Next.js config
 
+Update the Next.js configuration:
+
 ```ts
 // next.config.ts
 import type { NextConfig } from "next";

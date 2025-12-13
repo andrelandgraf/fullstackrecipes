@@ -45,9 +45,10 @@ DATABASE_URL="postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslm
 
 ### Step 4: Create the database config
 
-Instead of accessing `process.env.DATABASE_URL` directly, use the type-safe config pattern. Create `src/lib/db/config.ts`:
+Instead of accessing `process.env.DATABASE_URL` directly, use the type-safe config pattern:
 
 ```typescript
+// src/lib/db/config.ts
 import { loadConfig } from "@/lib/common/load-config";
 
 export const databaseConfig = loadConfig({
@@ -68,9 +69,10 @@ bun add -D drizzle-kit @types/pg
 
 ### Step 6: Create the database client
 
-Create `src/lib/db/client.ts`:
+Create the Drizzle database client:
 
 ```typescript
+// src/lib/db/client.ts
 import { attachDatabasePool } from "@vercel/functions";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
@@ -101,9 +103,10 @@ Each feature library owns its own schema file (e.g., `@/lib/auth/schema`, `@/lib
 
 ### Step 7: Configure Drizzle Kit
 
-Create `drizzle.config.ts` in your project root:
+Create the Drizzle Kit configuration in your project root:
 
 ```typescript
+// drizzle.config.ts
 import { defineConfig } from "drizzle-kit";
 import { databaseConfig } from "./src/lib/db/config";
 

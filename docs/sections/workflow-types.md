@@ -8,9 +8,10 @@ Define types for your chat messages and parts that work with the Workflow SDK.
 
 ### Chat Message Types
 
-Create `src/workflows/chat/types.ts`:
+Create the chat type definitions:
 
 ```typescript
+// src/workflows/chat/types.ts
 import type { UIMessage, UIMessagePart, InferUITools } from "ai";
 import { z } from "zod";
 import { allTools } from "@/lib/ai/tools";

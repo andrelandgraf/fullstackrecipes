@@ -20,9 +20,10 @@ async function myStep(input: string): Promise<string> {
 
 ### History Steps
 
-Create `src/workflows/chat/steps/history.ts`:
+Create the history persistence steps:
 
 ```typescript
+// src/workflows/chat/steps/history.ts
 import type { UIMessage } from "ai";
 import {
   convertDbMessagesToUIMessages,
@@ -110,9 +111,10 @@ export async function persistMessageParts({
 
 ### Stream Steps
 
-Create `src/workflows/chat/steps/stream.ts`:
+Create the stream control steps:
 
 ```typescript
+// src/workflows/chat/steps/stream.ts
 import { getWritable } from "workflow";
 import type { UIMessageChunk } from "ai";
 
@@ -153,9 +155,10 @@ export async function finishStream(): Promise<void> {
 
 ### Progress Step
 
-Create `src/workflows/chat/steps/progress.ts`:
+Create the progress update step:
 
 ```typescript
+// src/workflows/chat/steps/progress.ts
 import { getWritable } from "workflow";
 import type { UIMessageChunk } from "ai";
 import type { ChatDataProgressPart } from "../types";
@@ -192,9 +195,10 @@ export async function writeProgress(
 
 ### Router Step
 
-Create `src/workflows/chat/steps/router.ts`:
+Create the router step for agent selection:
 
 ```typescript
+// src/workflows/chat/steps/router.ts
 import { generateObject, convertToModelMessages, type UIMessage } from "ai";
 import { z } from "zod";
 import { writeProgress } from "./progress";

@@ -3,7 +3,7 @@
 ### Subscription Context Provider
 
 ```typescript
-// lib/stripe/subscription-info.tsx
+// src/lib/stripe/subscription-info.tsx
 "use client"
 
 import { createContext, useContext } from "react"

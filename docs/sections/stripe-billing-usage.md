@@ -3,7 +3,7 @@
 Allow users to manage their subscription:
 
 ```typescript
-// lib/stripe/stripe.ts
+// src/lib/stripe/stripe.ts
 export async function redirectToBillingPortal({ userId }: { userId: string }) {
   const { stripe, config } = getServerContext();
   const customer = await getStripeCustomer(userId);
@@ -24,7 +24,7 @@ export async function redirectToBillingPortal({ userId }: { userId: string }) {
 ### Server Action
 
 ```typescript
-// app/app/settings/actions.ts
+// src/app/app/settings/actions.ts
 export async function createBillingPortalSession() {
   return withAuthenticatedUserContext(async () => {
     const { user } = getAuthenticatedUserContext();
@@ -40,7 +40,7 @@ export async function createBillingPortalSession() {
 ### User Metrics Service
 
 ```typescript
-// lib/user-metrics/service.ts
+// src/lib/user-metrics/service.ts
 import "server-only";
 
 export class UserMetricsService {
@@ -90,7 +90,7 @@ export class UserMetricsService {
 ### Database Operations
 
 ```typescript
-// lib/db/user-metrics.ts
+// src/lib/db/user-metrics.ts
 export async function incrementUserMetrics(
   userId: string,
   month: string,

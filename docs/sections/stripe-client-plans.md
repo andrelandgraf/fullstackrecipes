@@ -3,7 +3,7 @@
 Create a typed Stripe client factory:
 
 ```typescript
-// lib/stripe/client.ts
+// src/lib/stripe/client.ts
 import { Stripe } from "stripe";
 import { type ServerApplicationConfig } from "@/lib/config";
 
@@ -24,7 +24,7 @@ export function createStripeClient({ config }: StripeClientContext) {
 ### Configuration Schema
 
 ```typescript
-// lib/config.ts
+// src/lib/config.ts
 const ConfigSchema = z.object({
   stripe: z.object({
     secretKey: z.string().min(1, "STRIPE_SECRET_KEY is required"),
@@ -42,7 +42,7 @@ const ConfigSchema = z.object({
 Plans are defined using Vercel Flags for easy configuration and testing:
 
 ```typescript
-// lib/stripe/plans.ts
+// src/lib/stripe/plans.ts
 import { flag } from "flags/next"
 
 export function getPlansFlag() {
@@ -105,7 +105,7 @@ export async function getStripePlan(userId: string) {
 Expose flags for Vercel Toolbar testing:
 
 ```typescript
-// app/.well-known/vercel/flags/route.ts
+// src/app/.well-known/vercel/flags/route.ts
 import { verifyAccess, type ApiData } from "flags";
 import { getProviderData } from "flags/next";
 

@@ -4,9 +4,10 @@ Define tools that your agents can use within workflows.
 
 ### Tool Structure
 
-Create `src/lib/ai/tools.ts`:
+Create the tool definitions:
 
 ```typescript
+// src/lib/ai/tools.ts
 import { google } from "@ai-sdk/google";
 import { tool, type Tool } from "ai";
 import { z } from "zod";
