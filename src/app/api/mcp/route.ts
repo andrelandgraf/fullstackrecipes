@@ -12,9 +12,11 @@ const handler = createMcpHandler(
     const cookbooks = getAllCookbooks();
 
     for (const recipe of recipes) {
+      const recipeUri = `recipe://fullstackrecipes.com/${recipe.slug}`;
+
       server.registerResource(
         `recipe-${recipe.slug}`,
-        `recipe://fullstackrecipes.com/${recipe.slug}`,
+        recipeUri,
         {
           title: recipe.title,
           description: recipe.description,
@@ -34,12 +36,34 @@ const handler = createMcpHandler(
           };
         },
       );
+
+      server.registerPrompt(
+        `implement-${recipe.slug}`,
+        { description: `Implement the "${recipe.title}" recipe` },
+        async () => ({
+          messages: [
+            {
+              role: "user",
+              content: {
+                type: "resource",
+                resource: {
+                  uri: recipeUri,
+                  mimeType: "text/markdown",
+                  text: `Follow the recipe at resource "${recipeUri}" to implement ${recipe.title}.`,
+                },
+              },
+            },
+          ],
+        }),
+      );
     }
 
     for (const cookbook of cookbooks) {
+      const cookbookUri = `cookbook://fullstackrecipes.com/${cookbook.slug}`;
+
       server.registerResource(
         `cookbook-${cookbook.slug}`,
-        `cookbook://fullstackrecipes.com/${cookbook.slug}`,
+        cookbookUri,
         {
           title: cookbook.title,
           description: cookbook.description,
@@ -63,11 +87,32 @@ const handler = createMcpHandler(
           };
         },
       );
+
+      server.registerPrompt(
+        `implement-${cookbook.slug}`,
+        { description: `Implement the "${cookbook.title}" cookbook` },
+        async () => ({
+          messages: [
+            {
+              role: "user",
+              content: {
+                type: "resource",
+                resource: {
+                  uri: cookbookUri,
+                  mimeType: "text/markdown",
+                  text: `Follow the cookbook at resource "${cookbookUri}" to implement ${cookbook.title}.`,
+                },
+              },
+            },
+          ],
+        }),
+      );
     }
   },
   {
     capabilities: {
       resources: {},
+      prompts: {},
     },
   },
   { basePath: "/api" },
