@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Copy, Check, Terminal } from "lucide-react";
 import { getRegistryItems } from "@/lib/recipes/data";
 
 const REGISTRY_ITEMS = getRegistryItems();
-const INSTALL_ALL_CMD = `bunx shadcn@latest add ${REGISTRY_ITEMS.map((item) => `https://fullstackrecipes.com/r/${item.name}.json`).join(" ")}`;
 
 function getTypeColor(type: string) {
   switch (type) {
@@ -23,9 +23,33 @@ function getTypeColor(type: string) {
 
 export function Registry() {
   const [copied, setCopied] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(
+    () => new Set(REGISTRY_ITEMS.map((item) => item.name)),
+  );
+
+  const installCommand = useMemo(() => {
+    const selected = REGISTRY_ITEMS.filter((item) =>
+      selectedItems.has(item.name),
+    );
+    if (selected.length === 0) return "# Select items to install";
+    return `bunx shadcn@latest add ${selected.map((item) => `https://fullstackrecipes.com/r/${item.name}.json`).join(" ")}`;
+  }, [selectedItems]);
+
+  const toggleItem = (name: string) => {
+    setSelectedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) {
+        next.delete(name);
+      } else {
+        next.add(name);
+      }
+      return next;
+    });
+  };
 
   const copyCommand = async () => {
-    await navigator.clipboard.writeText(INSTALL_ALL_CMD);
+    if (selectedItems.size === 0) return;
+    await navigator.clipboard.writeText(installCommand);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -53,17 +77,32 @@ export function Registry() {
         <Card className="mb-8 border-border/50 bg-card/50 p-4">
           <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
             <Terminal className="h-3.5 w-3.5" />
-            <span>Install all utilities</span>
+            <span>
+              Install{" "}
+              {selectedItems.size === REGISTRY_ITEMS.length
+                ? "all"
+                : selectedItems.size}{" "}
+              {selectedItems.size === 1 ? "utility" : "utilities"}
+            </span>
           </div>
           <div className="group relative">
             <pre className="overflow-x-auto rounded-lg bg-background p-3 font-mono text-xs leading-relaxed">
-              <code className="text-foreground/90">{INSTALL_ALL_CMD}</code>
+              <code
+                className={
+                  selectedItems.size === 0
+                    ? "text-muted-foreground"
+                    : "text-foreground/90"
+                }
+              >
+                {installCommand}
+              </code>
             </pre>
             <Button
               size="icon"
               variant="ghost"
               onClick={copyCommand}
-              className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100"
+              disabled={selectedItems.size === 0}
+              className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-50"
             >
               {copied ? (
                 <Check className="h-3.5 w-3.5 text-primary" />
@@ -78,10 +117,11 @@ export function Registry() {
         <div className="space-y-3">
           {REGISTRY_ITEMS.map((item) => {
             const Icon = item.icon;
+            const isSelected = selectedItems.has(item.name);
             return (
-              <div
+              <label
                 key={item.name}
-                className="flex items-start gap-4 rounded-lg border border-border/50 bg-card/30 p-4 transition-colors hover:bg-card/60"
+                className="flex cursor-pointer items-start gap-4 rounded-lg border border-border/50 bg-card/30 p-4 transition-colors hover:bg-card/60"
               >
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
                   <Icon className="h-4 w-4 text-muted-foreground" />
@@ -102,7 +142,12 @@ export function Registry() {
                     {item.description}
                   </p>
                 </div>
-              </div>
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => toggleItem(item.name)}
+                  className="mt-1.5 shrink-0"
+                />
+              </label>
             );
           })}
         </div>
