@@ -65,7 +65,7 @@ const webhook = await stripe.webhookEndpoints.create({
 });
 
 logger.info({ secret: webhook.secret }, "Webhook signing secret");
-// Add this to your .env as STRIPE_WEBHOOK_SECRET
+// Add this to your .env.development as STRIPE_WEBHOOK_SECRET and sync with `bun run env:push`
 ```
 
 ### Production Checklist

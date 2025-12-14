@@ -337,7 +337,7 @@ describe("myFunction", () => {
     tags: ["Auth", "Neon", "Drizzle"],
     icon: KeyRound,
     sections: ["better-auth-setup.md"],
-    requires: ["neon-drizzle-setup"],
+    requires: ["env-config", "neon-drizzle-setup"],
     previewCode: `export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg" }),
   emailAndPassword: {
@@ -461,6 +461,7 @@ if (!session) redirect("/sign-in");
     tags: ["Config", "Vercel"],
     icon: Flag,
     sections: ["feature-flags-setup.md"],
+    requires: ["env-config"],
     previewCode: `export const stripeFlag = flag({
   key: "stripe-enabled",
   decide() {

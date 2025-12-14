@@ -101,14 +101,24 @@ This links your local Git repository to your Vercel project, enabling:
 
 ### Pull Environment Variables
 
-After setting up environment variables in the Vercel dashboard, pull them locally:
+After setting up environment variables in the Vercel dashboard, add these scripts to your `package.json`:
 
-```bash
-# Pull development environment variables to .env
-vercel env pull .env
+```json
+{
+  "scripts": {
+    "env:pull": "vercel env pull .env.development --environment=development",
+    "env:push": "vercel env push .env.development --environment=development"
+  }
+}
 ```
 
-See the [Environment Variable Management](/recipes/env-config) recipe for type-safe env var handling.
+Then pull your environment variables:
+
+```bash
+bun run env:pull
+```
+
+We write to `.env.development` (not `.env.local`) so that local overrides in `.env.local` aren't deleted when pulling from Vercel. See the [Environment Variable Management](/recipes/env-config) recipe for the full setup.
 
 ### Deployment Workflow
 

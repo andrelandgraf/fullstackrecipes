@@ -28,12 +28,14 @@ The `@react-email/components` package is required for Resend to render React ema
 
 ### Step 2: Add environment variables
 
-Add to your `.env`:
+Add to your `.env.development`:
 
 ```env
 RESEND_API_KEY="re_your_api_key"
 RESEND_FROM_EMAIL="Your App <noreply@yourdomain.com>"
 ```
+
+Then sync to Vercel with `bun run env:push`.
 
 Get your API key from [resend.com/api-keys](https://resend.com/api-keys).
 

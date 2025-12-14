@@ -96,7 +96,7 @@ export class InvalidConfigurationError extends Error {
   constructor(message: string, featureName?: string) {
     const feature = featureName ? ` for ${featureName}` : "";
     super(
-      `Configuration validation error${feature}! Did you correctly set all required environment variables in .env file?\n - ${message}`,
+      `Configuration validation error${feature}! Did you correctly set all required environment variables in your .env* file?\n - ${message}`,
     );
     this.name = "InvalidConfigurationError";
   }
@@ -316,6 +316,60 @@ export function loadConfig<T extends Record<string, EnvValue>>(
 
 ---
 
+### Environment Files
+
+We use `.env.local` for local environment secrets. This file is git-ignored and should contain any secrets or local overrides.
+
+#### Next.js Load Order
+
+Next.js loads environment variables in the following order, stopping once each variable is found:
+
+1. `process.env`
+2. `.env.$(NODE_ENV).local`
+3. `.env.local` (not checked when `NODE_ENV` is `test`)
+4. `.env.$(NODE_ENV)`
+5. `.env`
+
+For example, if `NODE_ENV` is `development` and you define a variable in both `.env.development.local` and `.env`, the value in `.env.development.local` will be used.
+
+> **Note**: The allowed values for `NODE_ENV` are `production`, `development`, and `test`.
+
+#### Syncing with Vercel
+
+When getting started, local, development, and production environments often share third-party resources like databases to move faster. Use the Vercel CLI to keep environment variables in sync.
+
+We write to `.env.development` (not `.env.local`) so that local overrides in `.env.local` aren't deleted when pulling from Vercel.
+
+Add these scripts to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "env:pull": "vercel env pull .env.development --environment=development",
+    "env:push": "vercel env push .env.development --environment=development"
+  }
+}
+```
+
+#### Local Overrides
+
+Some variables differ between local and deployed environments (e.g., `BETTER_AUTH_URL` is `http://localhost:3000` locally). Use `.env.local` to override specific variables from `.env.development`:
+
+```
+.env.development     <- shared config from Vercel (DATABASE_URL, API keys, etc.)
+.env.local           <- local overrides (BETTER_AUTH_URL, local-only settings)
+```
+
+Since `.local` files always take precedence over their non-local counterparts, your local overrides will be applied automatically.
+
+#### Workflow
+
+1. Run `bun run env:pull` to sync shared variables from Vercel to `.env.development`
+2. Add local-only overrides to `.env.local`
+3. When adding new shared variables, update `.env.development` and run `bun run env:push`
+
+---
+
 ### Basic Usage
 
 Each feature lib defines its own config file:
@@ -336,7 +390,7 @@ If `DATABASE_URL` is missing, you get a clear error:
 
 ```
 Error [InvalidConfigurationError]: Configuration validation error!
-Did you correctly set all required environment variables in .env file?
+Did you correctly set all required environment variables in your .env* file?
  - DATABASE_URL must be defined.
 ```
 
@@ -350,7 +404,7 @@ const pool = new Pool({
 });
 ```
 
-### Optional Environment Variable
+### Optional Feature Flags
 
 Use the `flag` parameter for features that can be enabled/disabled:
 
@@ -426,7 +480,7 @@ Error messages include the alternative:
 
 ```
 Error [InvalidConfigurationError]: Configuration validation error for AI Gateway!
-Did you correctly set all required environment variables in .env file?
+Did you correctly set all required environment variables in your .env* file?
  - Either VERCEL_OIDC_TOKEN or AI_GATEWAY_API_KEY must be defined.
 ```
 
@@ -561,54 +615,3 @@ import { stripeConfig } from "./config";
 
 export const stripe = new Stripe(stripeConfig.secretKey);
 ```
-
-### Syncing with Vercel (Optional)
-
-Use the Vercel CLI to sync environment variables between your local development environment and your Vercel deployment.
-
-#### Pull environment variables from Vercel
-
-Download environment variables from your Vercel project to a local file:
-
-```bash
-# Pull development environment variables to .env
-vercel env pull .env
-
-# Pull preview environment variables
-vercel env pull --environment=preview
-```
-
-#### Push environment variables to Vercel
-
-Add environment variables to your Vercel project from the command line:
-
-```bash
-# Add interactively (prompts for value)
-vercel env add MY_VAR
-
-# Add to a specific environment
-vercel env add MY_VAR production
-```
-
-#### List and remove environment variables
-
-```bash
-# List all environment variables
-vercel env ls
-
-# List for a specific environment
-vercel env ls production
-
-# Remove an environment variable
-vercel env rm MY_VAR production
-```
-
-#### Workflow
-
-After updating environment variables in the Vercel dashboard or via CLI, pull them locally:
-
-```bash
-vercel env pull .env
-```
-
-This keeps your local `.env` in sync with your deployment.

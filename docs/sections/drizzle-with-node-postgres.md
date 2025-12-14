@@ -35,11 +35,13 @@ Use an existing Neon project or create a new one, either through the [Neon Dashb
 1. Go to the [Neon Dashboard](https://console.neon.tech/)
 2. Select your project
 3. Copy the connection string from the **Connection Details** widget
-4. Add it to your `.env`:
+4. Add it to your `.env.development`:
 
 ```env
 DATABASE_URL="postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require"
 ```
+
+Then sync to Vercel with `bun run env:push`. See [Environment Variable Management](/recipes/env-config) for the full setup.
 
 > **Tip**: Use the **pooled** connection string for production workloads to improve performance and handle more concurrent connections.
 
@@ -77,8 +79,10 @@ This ensures the server fails immediately on startup if `DATABASE_URL` is missin
 
 ```bash
 bun add drizzle-orm pg @vercel/functions
-bun add -D drizzle-kit @types/pg
+bun add -D drizzle-kit @types/pg @next/env
 ```
+
+The `@next/env` package loads environment variables in the same order as Next.js, ensuring your `.env.development` and `.env.local` variables are available when running Drizzle Kit commands outside of the Next.js runtime.
 
 ### Step 7: Create the database client
 
@@ -120,6 +124,9 @@ Create the Drizzle Kit configuration in your project root:
 
 ```typescript
 // drizzle.config.ts
+import { loadEnvConfig } from "@next/env";
+loadEnvConfig(process.cwd());
+
 import { defineConfig } from "drizzle-kit";
 import { databaseConfig } from "./src/lib/db/config";
 
@@ -133,23 +140,41 @@ export default defineConfig({
 });
 ```
 
+The `loadEnvConfig` call at the top loads environment variables from `.env.development`, `.env.local`, and other `.env` files in the same order as Next.js. This ensures your `DATABASE_URL` is available when running Drizzle Kit commands like `drizzle-kit generate` or `drizzle-kit migrate`.
+
 The `schema` glob pattern picks up `schema.ts` files from all feature libraries in `src/lib/`, following the "everything is a library" pattern where each feature owns its own schema. See [Philosophy](/philosophy) for more details.
 
-### Step 9: Add package.json scripts
+### Step 9: Create the generate script
+
+Create a script to run schema generation:
+
+```typescript
+// scripts/db/generate-schema.ts
+import { $ } from "bun";
+import { loadEnvConfig } from "@next/env";
+
+loadEnvConfig(process.cwd());
+
+await $`drizzle-kit generate`;
+```
+
+This script loads environment variables before running Drizzle Kit, ensuring your database config can access `DATABASE_URL` from `.env.development`.
+
+### Step 10: Add package.json scripts
 
 Add these scripts to your `package.json`:
 
 ```json
 {
   "scripts": {
-    "db:generate": "drizzle-kit generate",
+    "db:generate": "bun run scripts/db/generate-schema.ts",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"
   }
 }
 ```
 
-### Step 10: Generate and run migrations
+### Step 11: Generate and run migrations
 
 ```bash
 bun run db:generate

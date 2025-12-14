@@ -26,11 +26,10 @@ bun add better-auth
 
 ### Step 2: Add environment variables
 
-Add to your `.env`:
+Add the secret to your `.env.development` (synced to Vercel):
 
 ```env
 BETTER_AUTH_SECRET="your-random-secret-at-least-32-chars"
-BETTER_AUTH_URL="http://localhost:3000"
 ```
 
 Generate a secret using:
@@ -38,6 +37,14 @@ Generate a secret using:
 ```bash
 openssl rand -base64 32
 ```
+
+Add the URL to your `.env.local` (local override):
+
+```env
+BETTER_AUTH_URL="http://localhost:3000"
+```
+
+The `BETTER_AUTH_URL` differs between local (`http://localhost:3000`) and deployed environments, so it belongs in `.env.local`. On Vercel, set `BETTER_AUTH_URL` to your production URL in the dashboard.
 
 ### Step 3: Create the auth config
 
@@ -55,21 +62,25 @@ export const authConfig = loadConfig({
 });
 ```
 
-### Step 4: Update package.json scripts
+### Step 4: Update the generate script
 
-Update your `package.json` scripts to generate the auth schema before running Drizzle migrations:
+Update `scripts/db/generate-schema.ts` to generate the Better Auth schema before running Drizzle migrations:
 
-```json
-{
-  "scripts": {
-    "db:auth:generate": "bunx @better-auth/cli@latest generate --config src/lib/auth/server.tsx --output src/lib/auth/schema.ts",
-    "db:generate": "bun run db:auth:generate && drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
-  }
-}
+```typescript
+// scripts/db/generate-schema.ts
+import { $ } from "bun";
+import { loadEnvConfig } from "@next/env";
+
+loadEnvConfig(process.cwd());
+
+await $`bunx @better-auth/cli@latest generate --config src/lib/auth/server.tsx --output src/lib/auth/schema.ts`;
+
+await $`drizzle-kit generate`;
 ```
 
-The `db:auth:generate` script uses the Better Auth CLI to generate the schema from your server config. The `db:generate` script chains both commands so your auth schema is always in sync before generating Drizzle migrations.
+The Better Auth CLI generates `schema.ts` from your server config. Running it before `drizzle-kit generate` ensures your auth schema is always in sync when creating Drizzle migrations.
+
+See [Neon + Drizzle Setup](/recipes/drizzle-with-node-postgres) for the initial script setup and `package.json` scripts.
 
 ### Step 5: Create the auth server instance
 
@@ -241,39 +252,50 @@ src/app/api/auth/
 
 ## Adding Social Providers
 
-To add OAuth providers like GitHub, Google, or Vercel, configure them conditionally based on environment variables:
+To add OAuth providers like GitHub, Google, or Vercel, first add them as fields in your auth config:
+
+```typescript
+// src/lib/auth/config.ts
+import { loadConfig } from "../common/load-config";
+
+export const authConfig = loadConfig({
+  env: {
+    secret: "BETTER_AUTH_SECRET",
+    url: "BETTER_AUTH_URL",
+    vercelClientId: { env: "VERCEL_CLIENT_ID", optional: true },
+    vercelClientSecret: {
+      env: "VERCEL_CLIENT_SECRET",
+      optional: true,
+    },
+  },
+});
+```
+
+Then configure them in the server:
 
 ```tsx
 // src/lib/auth/server.tsx
 export const auth = betterAuth({
   // ...existing config
   socialProviders: {
-    // Conditionally enable based on env vars
-    ...(process.env.GITHUB_CLIENT_ID &&
-      process.env.GITHUB_CLIENT_SECRET && {
-        github: {
-          clientId: process.env.GITHUB_CLIENT_ID,
-          clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        },
-      }),
-    ...(process.env.VERCEL_CLIENT_ID &&
-      process.env.VERCEL_CLIENT_SECRET && {
+    ...(authConfig.vercelClientId &&
+      authConfig.vercelClientSecret && {
         vercel: {
-          clientId: process.env.VERCEL_CLIENT_ID,
-          clientSecret: process.env.VERCEL_CLIENT_SECRET,
+          clientId: authConfig.vercelClientId,
+          clientSecret: authConfig.vercelClientSecret,
         },
       }),
   },
 });
 ```
 
+Here we're doing it conditionally and treat Vercel Sign In as an optional feature.
+
 Then use on the client:
 
 ```typescript
-await signIn.social({ provider: "github", callbackURL: "/chats" });
+await signIn.social({ provider: "vercel", callbackURL: "/chats" });
 ```
-
-Use feature flags to conditionally show OAuth buttons in your UI. See [Better Auth Components](/recipes/better-auth-components) for the UI implementation.
 
 ---
 

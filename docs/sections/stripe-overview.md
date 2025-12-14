@@ -35,7 +35,7 @@ Required packages in `package.json`:
 
 ## Environment Variables
 
-Add these to your `.env` files:
+Add these to your `.env.development` (synced to Vercel):
 
 ```bash
 # Stripe Configuration

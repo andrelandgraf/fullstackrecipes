@@ -82,7 +82,7 @@ export class InvalidConfigurationError extends Error {
   constructor(message: string, featureName?: string) {
     const feature = featureName ? ` for ${featureName}` : "";
     super(
-      `Configuration validation error${feature}! Did you correctly set all required environment variables in .env file?\n - ${message}`,
+      `Configuration validation error${feature}! Did you correctly set all required environment variables in your .env* file?\n - ${message}`,
     );
     this.name = "InvalidConfigurationError";
   }

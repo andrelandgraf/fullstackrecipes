@@ -57,7 +57,7 @@ function normalizeLanguage(language: string): SupportedLanguage {
 }
 
 // Patterns for file path comments at the start of code blocks
-// Matches: // path/to/file.tsx or # path/to/file.py or // .env etc.
+// Matches: // path/to/file.tsx or # path/to/file.py or // .env.local etc.
 const FILE_PATH_PATTERNS = [
   /^\/\/\s*([^\s]+\.[a-zA-Z0-9]+)\s*\n/, // // path/to/file.ext
   /^#\s*([^\s]+\.[a-zA-Z0-9]+)\s*\n/, // # path/to/file.ext (for bash, python, yaml)

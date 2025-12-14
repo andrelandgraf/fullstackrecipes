@@ -14,14 +14,15 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "test": "bun test",
-    "typecheck": "tsc --noEmit",
     "start": "next start",
-    "db:auth:generate": "bunx @better-auth/cli@latest generate --config src/lib/auth/server.tsx --output src/lib/auth/schema.ts",
-    "db:generate": "bun run db:auth:generate && drizzle-kit generate",
+    "fmt": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "env:pull": "vercel env pull .env.development --environment=development",
+    "env:push": "vercel env push .env.development --environment=development",
+    "db:generate": "bun run scripts/db/generate-schema.ts",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "fmt": "prettier --write .",
     "workflow:dev": "workflow inspect runs --web",
     "registry:build": "bunx --bun shadcn@latest build"
   },
@@ -104,6 +105,7 @@
     "zod": "^4"
   },
   "devDependencies": {
+    "@next/env": "^16.0.10",
     "@tailwindcss/postcss": "^4",
     "@types/bun": "^1.3.4",
     "@types/node": "^20",

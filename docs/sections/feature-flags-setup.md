@@ -97,6 +97,42 @@ export const stripeFlag = flag({
 });
 ```
 
+### Flags with Validated Config
+
+For flags that depend on validated environment variables, combine with the [loadConfig](/recipes/env-config) pattern. Create a config file that uses the feature flag pattern:
+
+```ts
+// src/lib/stripe/config.ts
+import { loadConfig } from "@/lib/common/load-config";
+
+export const stripeConfig = loadConfig({
+  name: "Stripe",
+  flag: "ENABLE_STRIPE", // Only validate when flag is set
+  env: {
+    secretKey: "STRIPE_SECRET_KEY",
+    webhookSecret: "STRIPE_WEBHOOK_SECRET",
+  },
+});
+// Type: FeatureConfig<{ secretKey: string; webhookSecret: string }>
+```
+
+Then create a flag that checks the config:
+
+```ts
+// src/lib/stripe/flags.ts
+import { flag } from "flags/next";
+import { stripeConfig } from "./config";
+
+export const stripeFlag = flag({
+  key: "stripe-enabled",
+  decide() {
+    return stripeConfig.isEnabled;
+  },
+});
+```
+
+This approach validates all required env vars when the feature is enabled, giving clear error messages if any are missing.
+
 ### Percentage Rollout
 
 Gradually roll out features to a percentage of users:
@@ -139,20 +175,21 @@ The Flags SDK automatically respects overrides set by the Flags Explorer.
 
 ## Project Structure
 
-Organize flags by domain, colocated with related code:
+Organize flags by domain, colocated with related code and config:
 
 ```
 src/lib/
 ├── auth/
+│   ├── config.ts     # Auth environment config
 │   ├── flags.ts      # Auth-related flags
 │   ├── client.ts
 │   └── server.tsx
-├── chat/
-│   ├── flags.ts      # Chat-related flags
-│   └── queries.ts
-└── recipes/
-    ├── flags.ts      # Recipe-related flags
-    └── data.tsx
+├── stripe/
+│   ├── config.ts     # Stripe environment config (with flag)
+│   ├── flags.ts      # Stripe-related flags
+│   └── client.ts
+└── common/
+    └── load-config.ts  # Shared config loader
 ```
 
 ## References

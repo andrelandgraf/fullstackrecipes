@@ -1,0 +1,17 @@
+---
+alwaysApply: true
+---
+
+fullstackrecipes.com is a collection of step-by-step guides for building full-stack web apps and agentic applications. Each recipes is made up of a set of markdown files in the `docs/sections/` directory.
+
+These recipes are used to build the fullstackrecipes.com website. Ensure a technical writing style is used in the recipes.
+
+Several recipes are grouped into cookbooks. A cookbook is a collection of recipes that are related to each other. For example, the "Base App Setup" cookbook includes recipes for setting up a base application with Next.js, Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK.
+
+All meta data for the recipes and cookbooks is stored in /src/lib/recipes/data.tsx.
+
+Some code utilities are further exposed through our shadcn registry. The registry is a collection of shadcn components that are used to build the fullstackrecipes.com website. The registry is stored in /registry.json. Run `bun run registry:build` to build the registry and generate the files in `public/r/`.
+
+This app further includes a demo application that is used to showcase the recipes and cookbooks in action. We also use the demo app to verify the guides are complete and accurate. It is very important to keep the demo app up to date with the recipes and cookbooks. The code should ideally be 1-to-1 with the demo app. Sometimes we may add code comments to recipe code examples that aren't part of the demo app. Also recipes may leave out code that is included in future recipes but not yet implemented in the current recipe. This is fine.
+
+Always highlight if the recipe and demo code are not 1-to-1 so we can work out a solution and see what is out of sync (stale demo code or stale recipe examples).
