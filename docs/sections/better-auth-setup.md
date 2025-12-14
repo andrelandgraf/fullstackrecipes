@@ -26,7 +26,7 @@ bun add better-auth
 
 ### Step 2: Add environment variables
 
-Add to your `.env.local`:
+Add to your `.env`:
 
 ```env
 BETTER_AUTH_SECRET="your-random-secret-at-least-32-chars"

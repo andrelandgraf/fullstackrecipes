@@ -35,7 +35,7 @@ Use an existing Neon project or create a new one, either through the [Neon Dashb
 1. Go to the [Neon Dashboard](https://console.neon.tech/)
 2. Select your project
 3. Copy the connection string from the **Connection Details** widget
-4. Add it to your `.env.local`:
+4. Add it to your `.env`:
 
 ```env
 DATABASE_URL="postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require"

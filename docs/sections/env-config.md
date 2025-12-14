@@ -571,11 +571,8 @@ Use the Vercel CLI to sync environment variables between your local development 
 Download environment variables from your Vercel project to a local file:
 
 ```bash
-# Pull development environment variables to .env.local
-vercel env pull
-
-# Pull to a specific file
-vercel env pull .env.local
+# Pull development environment variables to .env
+vercel env pull .env
 
 # Pull preview environment variables
 vercel env pull --environment=preview
@@ -611,7 +608,7 @@ vercel env rm MY_VAR production
 After updating environment variables in the Vercel dashboard or via CLI, pull them locally:
 
 ```bash
-vercel env pull .env.local
+vercel env pull .env
 ```
 
-This keeps your local `.env.local` in sync with your deployment.
+This keeps your local `.env` in sync with your deployment.

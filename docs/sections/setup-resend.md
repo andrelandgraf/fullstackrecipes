@@ -28,7 +28,7 @@ The `@react-email/components` package is required for Resend to render React ema
 
 ### Step 2: Add environment variables
 
-Add to your `.env.local`:
+Add to your `.env`:
 
 ```env
 RESEND_API_KEY="re_your_api_key"

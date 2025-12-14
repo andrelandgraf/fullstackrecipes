@@ -29,14 +29,14 @@ This adds components like:
 
 **Option A: Using Vercel AI Gateway**
 
-The AI Gateway supports two authentication methods. Add one of these to your `.env.local`:
+The AI Gateway supports two authentication methods. Add one of these to your `.env`:
 
 ```env
 AI_GATEWAY_API_KEY="your-api-key-here"
 VERCEL_OIDC_TOKEN="your-oidc-token"
 ```
 
-You can create an API key at [Vercel AI Gateway](https://vercel.com/ai-gateway) and add it to your `.env.local` and Vercel project environment variables.
+You can create an API key at [Vercel AI Gateway](https://vercel.com/ai-gateway) and add it to your `.env` and Vercel project environment variables.
 
 Alternatively, you can get a Vercel OIDC token by logging in via the Vercel CLI:
 
@@ -44,7 +44,7 @@ Alternatively, you can get a Vercel OIDC token by logging in via the Vercel CLI:
 vercel login
 ```
 
-This will prompt you to authorize the Vercel CLI to access your Vercel account. Once authorized, you can use the `vercel env pull` command to download your environment variables to your local `.env.local` file, which will include the Vercel OIDC token.
+This will prompt you to authorize the Vercel CLI to access your Vercel account. Once authorized, you can use the `vercel env pull .env` command to download your environment variables to your local `.env` file, which will include the Vercel OIDC token.
 
 At least one must be set when using the AI Gateway.
 
@@ -63,7 +63,7 @@ bun add @ai-sdk/anthropic
 bun add @ai-sdk/google
 ```
 
-Add your API key to `.env.local`:
+Add your API key to `.env`:
 
 ```env
 OPENAI_API_KEY="sk-..."
