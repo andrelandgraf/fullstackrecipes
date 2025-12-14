@@ -19,7 +19,6 @@ Create an `agents.md` file in your project root. This file provides coding guide
 - Use Bun instead of Node.js, npm, pnpm, or vite.
 - Use `bun install` instead of `npm install` or `yarn install` or `pnpm install`.
 - Use `bun run <script>` instead of `npm run <script>` or `yarn run <script>` or `pnpm run <script>`.
-- Bun automatically loads .env, so don't use dotenv.
 
 ## TypeScript
 
