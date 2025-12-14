@@ -55,7 +55,7 @@ Create an `agents.md` file in your project root. This file provides coding guide
 
 ### Step 2: Configure MCP Servers
 
-Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhance your coding agent's capabilities. Different recipes may introduce additional MCP servers. For now, start by adding these to your `.cursor/mcp.json`:
+Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhance your coding agent's capabilities. Different recipes may introduce additional MCP servers. For now, start by adding these foundational MCP servers to your `.cursor/mcp.json`:
 
 ```json
 {
@@ -70,12 +70,6 @@ Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhanc
     "context7": {
       "url": "https://mcp.context7.com/mcp"
     },
-    "better-auth": {
-      "url": "https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp"
-    },
-    "resend": {
-      "url": "https://resend.com/docs/mcp"
-    },
     "fullstackrecipes": {
       "url": "https://fullstackrecipes.com/api/mcp"
     }
@@ -88,8 +82,6 @@ Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhanc
 | `vercel`           | Manage Vercel projects, deployments, and search Vercel docs      |
 | `next-devtools`    | Next.js development tools for debugging, routing, and build info |
 | `context7`         | Up-to-date documentation lookup for any library                  |
-| `better-auth`      | Better Auth framework documentation and API reference            |
-| `resend`           | Resend email API documentation and examples                      |
 | `fullstackrecipes` | Fullstackrecipes recipes                                         |
 
 > **Vercel MCP:** On first connection, Cursor will show a "Needs login" prompt. Click it to authorize access to your Vercel account. For project-specific context, use `https://mcp.vercel.com/<teamSlug>/<projectSlug>` instead.
