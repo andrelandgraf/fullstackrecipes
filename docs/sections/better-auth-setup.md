@@ -55,9 +55,9 @@ Create the auth config following the [Environment Variable Management](/recipes/
 import { loadConfig } from "../common/load-config";
 
 export const authConfig = loadConfig({
-  env: {
-    secret: "BETTER_AUTH_SECRET",
-    url: "BETTER_AUTH_URL",
+  server: {
+    secret: process.env.BETTER_AUTH_SECRET,
+    url: process.env.BETTER_AUTH_URL,
   },
 });
 ```
@@ -96,8 +96,8 @@ import { db } from "../db/client";
 import { authConfig } from "./config";
 
 export const auth = betterAuth({
-  secret: authConfig.secret,
-  baseURL: authConfig.url,
+  secret: authConfig.server.secret,
+  baseURL: authConfig.server.url,
   database: drizzleAdapter(db, {
     provider: "pg",
     usePlural: true,
@@ -259,12 +259,12 @@ To add OAuth providers like GitHub, Google, or Vercel, first add them as fields 
 import { loadConfig } from "../common/load-config";
 
 export const authConfig = loadConfig({
-  env: {
-    secret: "BETTER_AUTH_SECRET",
-    url: "BETTER_AUTH_URL",
-    vercelClientId: { env: "VERCEL_CLIENT_ID", optional: true },
+  server: {
+    secret: process.env.BETTER_AUTH_SECRET,
+    url: process.env.BETTER_AUTH_URL,
+    vercelClientId: { value: process.env.VERCEL_CLIENT_ID, optional: true },
     vercelClientSecret: {
-      env: "VERCEL_CLIENT_SECRET",
+      value: process.env.VERCEL_CLIENT_SECRET,
       optional: true,
     },
   },
@@ -278,11 +278,11 @@ Then configure them in the server:
 export const auth = betterAuth({
   // ...existing config
   socialProviders: {
-    ...(authConfig.vercelClientId &&
-      authConfig.vercelClientSecret && {
+    ...(authConfig.server.vercelClientId &&
+      authConfig.server.vercelClientSecret && {
         vercel: {
-          clientId: authConfig.vercelClientId,
-          clientSecret: authConfig.vercelClientSecret,
+          clientId: authConfig.server.vercelClientId,
+          clientSecret: authConfig.server.vercelClientSecret,
         },
       }),
   },

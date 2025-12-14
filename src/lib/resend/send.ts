@@ -10,7 +10,7 @@ type SendEmailParams = {
 
 export async function sendEmail({ to, subject, react, from }: SendEmailParams) {
   const { data, error } = await resend.emails.send({
-    from: from ?? resendConfig.fromEmail,
+    from: from ?? resendConfig.server.fromEmail,
     to: Array.isArray(to) ? to : [to],
     subject,
     react,

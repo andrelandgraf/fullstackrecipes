@@ -49,10 +49,10 @@ import { z } from "zod";
 import { loadConfig } from "../common/load-config";
 
 export const resendConfig = loadConfig({
-  env: {
-    apiKey: "RESEND_API_KEY",
+  server: {
+    apiKey: process.env.RESEND_API_KEY,
     fromEmail: {
-      env: "RESEND_FROM_EMAIL",
+      value: process.env.RESEND_FROM_EMAIL,
       schema: z
         .string()
         .regex(
@@ -73,7 +73,7 @@ Create the Resend client instance:
 import { Resend } from "resend";
 import { resendConfig } from "./config";
 
-export const resend = new Resend(resendConfig.apiKey);
+export const resend = new Resend(resendConfig.server.apiKey);
 ```
 
 ### Step 5: Create the send helper
@@ -94,7 +94,7 @@ type SendEmailParams = {
 
 export async function sendEmail({ to, subject, react, from }: SendEmailParams) {
   const { data, error } = await resend.emails.send({
-    from: from ?? resendConfig.fromEmail,
+    from: from ?? resendConfig.server.fromEmail,
     to: Array.isArray(to) ? to : [to],
     subject,
     react,

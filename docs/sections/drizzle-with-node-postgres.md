@@ -54,13 +54,13 @@ Instead of accessing `process.env.DATABASE_URL` directly, use the type-safe conf
 import { loadConfig } from "@/lib/common/load-config";
 
 export const databaseConfig = loadConfig({
-  env: {
-    url: "DATABASE_URL",
+  server: {
+    url: process.env.DATABASE_URL,
   },
 });
 ```
 
-Then access via `databaseConfig.url` instead of `process.env.DATABASE_URL`. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.
+Then access via `databaseConfig.server.url` instead of `process.env.DATABASE_URL`. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.
 
 ### Step 5: Validate config on server start
 

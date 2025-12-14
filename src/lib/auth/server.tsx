@@ -9,18 +9,18 @@ import { ChangeEmail } from "./emails/change-email";
 import { DeleteAccountEmail } from "./emails/delete-account";
 
 export const auth = betterAuth({
-  secret: authConfig.secret,
-  baseURL: authConfig.url,
+  secret: authConfig.server.secret,
+  baseURL: authConfig.server.url,
   database: drizzleAdapter(db, {
     provider: "pg",
     usePlural: true,
   }),
   socialProviders: {
-    ...(authConfig.vercelClientId &&
-      authConfig.vercelClientSecret && {
+    ...(authConfig.server.vercelClientId &&
+      authConfig.server.vercelClientSecret && {
         vercel: {
-          clientId: authConfig.vercelClientId,
-          clientSecret: authConfig.vercelClientSecret,
+          clientId: authConfig.server.vercelClientId,
+          clientSecret: authConfig.server.vercelClientSecret,
         },
       }),
   },

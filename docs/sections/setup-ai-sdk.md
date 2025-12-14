@@ -80,15 +80,21 @@ Instead of accessing `process.env` directly, use the type-safe config pattern wi
 import { loadConfig } from "@/lib/common/load-config";
 
 export const aiConfig = loadConfig({
-  env: {
-    // Either VERCEL_OIDC_TOKEN or AI_GATEWAY_API_KEY must be set
-    oidcToken: { env: "VERCEL_OIDC_TOKEN", optional: "AI_GATEWAY_API_KEY" },
-    gatewayApiKey: { env: "AI_GATEWAY_API_KEY", optional: "VERCEL_OIDC_TOKEN" },
+  server: {
+    // Either oidcToken or gatewayApiKey must be set
+    oidcToken: {
+      value: process.env.VERCEL_OIDC_TOKEN,
+      optional: "gatewayApiKey",
+    },
+    gatewayApiKey: {
+      value: process.env.AI_GATEWAY_API_KEY,
+      optional: "oidcToken",
+    },
   },
 });
 ```
 
-The `optional` parameter creates an either-or relationship: each variable is optional if the other is set, but at least one must be defined. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.
+The `optional` parameter creates an either-or relationship: each key is optional if the other has a value, but at least one must be defined. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.
 
 ### Step 5: Validate config on server start
 

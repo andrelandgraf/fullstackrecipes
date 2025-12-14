@@ -107,13 +107,13 @@ import { loadConfig } from "@/lib/common/load-config";
 
 export const stripeConfig = loadConfig({
   name: "Stripe",
-  flag: "ENABLE_STRIPE", // Only validate when flag is set
-  env: {
-    secretKey: "STRIPE_SECRET_KEY",
-    webhookSecret: "STRIPE_WEBHOOK_SECRET",
+  flag: process.env.ENABLE_STRIPE, // Only validate when flag is set
+  server: {
+    secretKey: process.env.STRIPE_SECRET_KEY,
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
   },
 });
-// Type: FeatureConfig<{ secretKey: string; webhookSecret: string }>
+// Type: FeatureConfig<...>
 ```
 
 Then create a flag that checks the config:

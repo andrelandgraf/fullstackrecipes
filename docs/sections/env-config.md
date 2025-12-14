@@ -1,6 +1,6 @@
 ## Environment Variable Management
 
-Type-safe server and client environment variable validation with clear error messages if variables are missing, invalid, or accessed on the client.
+Type-safe server and client environment variable validation with explicit `server` and `public` sections. Clear error messages if variables are missing, invalid, or accessed on the client.
 
 ### Install via Registry
 
@@ -8,311 +8,7 @@ Type-safe server and client environment variable validation with clear error mes
 bunx shadcn@latest add https://fullstackrecipes.com/r/load-config.json
 ```
 
-This installs the `load-config.ts` utility:
-
-````typescript
-// src/lib/common/load-config.ts
-import { z } from "zod";
-
-// =============================================================================
-// Types
-// =============================================================================
-
-/** Config with feature flag enabled - includes validated config data */
-type EnabledConfig<T> = T & { isEnabled: true };
-
-/** Config with feature flag disabled - no config data available */
-type DisabledConfig = { isEnabled: false };
-
-/** Optional feature config - either enabled with data or disabled */
-export type FeatureConfig<T> = EnabledConfig<T> | DisabledConfig;
-
-/**
- * Conditional optional: this var is optional if the specified env var(s) are set.
- * - `true` - always optional
- * - `false` | `undefined` - required
- * - `'OTHER_VAR'` - optional if OTHER_VAR is set
- * - `['VAR_A', 'VAR_B']` - optional if any of the listed vars are set
- */
-type ConditionalOptional = boolean | string | string[];
-
-/** Full env value object with all options */
-type EnvValueFull = {
-  env: string;
-  schema?: z.ZodTypeAny;
-  optional?: ConditionalOptional;
-};
-
-/** Env value: string shorthand or full object with schema and optional */
-type EnvValue = string | EnvValueFull;
-
-/** Infer the output type from an EnvValue */
-type InferEnvValue<T> = T extends string
-  ? string
-  : T extends { optional: true }
-    ? T extends { schema: infer S }
-      ? S extends z.ZodTypeAny
-        ? z.infer<S> | undefined
-        : string | undefined
-      : string | undefined
-    : T extends { optional: string | string[] }
-      ? T extends { schema: infer S }
-        ? S extends z.ZodTypeAny
-          ? z.infer<S> | undefined
-          : string | undefined
-        : string | undefined
-      : T extends { schema: infer S }
-        ? S extends z.ZodTypeAny
-          ? z.infer<S>
-          : never
-        : string;
-
-/** Infer the full config type from an env record */
-type InferEnv<T extends Record<string, EnvValue>> = {
-  [K in keyof T]: InferEnvValue<T[K]>;
-};
-
-/** Options for loadConfig without a feature flag (required config) */
-type LoadConfigOptionsRequired<T extends Record<string, EnvValue>> = {
-  name?: string;
-  env: T;
-};
-
-/** Options for loadConfig with a feature flag (optional config) */
-type LoadConfigOptionsOptional<T extends Record<string, EnvValue>> = {
-  name?: string;
-  flag: string;
-  env: T;
-};
-
-// =============================================================================
-// Errors
-// =============================================================================
-
-/**
- * Error thrown when configuration validation fails.
- */
-export class InvalidConfigurationError extends Error {
-  constructor(message: string, featureName?: string) {
-    const feature = featureName ? ` for ${featureName}` : "";
-    super(
-      `Configuration validation error${feature}! Did you correctly set all required environment variables in your .env* file?\n - ${message}`,
-    );
-    this.name = "InvalidConfigurationError";
-  }
-}
-
-/**
- * Error thrown when server-only config is accessed on the client.
- */
-export class ServerConfigClientAccessError extends Error {
-  constructor(key: string, envVarName: string) {
-    super(
-      `Attempted to access server-only config '${key}' (${envVarName}) on client. ` +
-        `Use a NEXT_PUBLIC_* env var to expose to client, or ensure this code only runs on server.`,
-    );
-    this.name = "ServerConfigClientAccessError";
-  }
-}
-
-// =============================================================================
-// Helpers
-// =============================================================================
-
-/**
- * Checks if a flag env var is set to a truthy value.
- */
-function isFlagEnabled(flag: string | undefined): boolean {
-  if (!flag) return false;
-  return ["true", "1", "yes"].includes(flag.toLowerCase());
-}
-
-/**
- * Normalizes an EnvValue to full form with env, schema, and optional.
- */
-function normalizeEnvValue(value: EnvValue): {
-  env: string;
-  schema: z.ZodTypeAny;
-  optional: ConditionalOptional | undefined;
-} {
-  if (typeof value === "string") {
-    return { env: value, schema: z.string(), optional: undefined };
-  }
-  return {
-    env: value.env,
-    schema: value.schema ?? z.string(),
-    optional: value.optional,
-  };
-}
-
-/**
- * Checks if a conditional optional is satisfied (i.e., the var can be skipped).
- * Returns true if the variable is optional and may be missing.
- */
-function isOptionalSatisfied(
-  optional: ConditionalOptional | undefined,
-): boolean {
-  if (optional === undefined || optional === false) {
-    return false; // required
-  }
-  if (optional === true) {
-    return true; // always optional
-  }
-  // Check if any of the fallback env vars are set
-  const fallbacks = Array.isArray(optional) ? optional : [optional];
-  return fallbacks.some((envVar) => {
-    const value = process.env[envVar];
-    return value !== undefined && value !== "";
-  });
-}
-
-/**
- * Creates a Proxy that throws when server-only config is accessed on client.
- */
-function createConfigProxy<T extends object>(
-  data: T,
-  envVarNames: Record<string, string>,
-): T {
-  // On server, no proxy needed
-  if (typeof window === "undefined") {
-    return data;
-  }
-
-  return new Proxy(data, {
-    get(target, prop, receiver) {
-      // Allow symbols, isEnabled, and prototype methods
-      if (
-        typeof prop === "symbol" ||
-        prop === "isEnabled" ||
-        !(prop in target)
-      ) {
-        return Reflect.get(target, prop, receiver);
-      }
-
-      const envVarName = envVarNames[prop];
-      if (envVarName && !envVarName.startsWith("NEXT_PUBLIC_")) {
-        throw new ServerConfigClientAccessError(prop, envVarName);
-      }
-
-      return Reflect.get(target, prop, receiver);
-    },
-  });
-}
-
-// =============================================================================
-// loadConfig
-// =============================================================================
-
-/**
- * Loads and validates environment configuration with type safety and runtime protection.
- *
- * **Features:**
- * - Type-safe config from env vars with full inference
- * - Optional feature flags for conditional configs
- * - Runtime protection: throws when server-only config accessed on client
- * - Shorthand (string) or full form ({ env, schema }) for each key
- *
- * @example Required config
- * ```ts
- * export const databaseConfig = loadConfig({
- *   env: {
- *     url: 'DATABASE_URL',
- *     poolSize: { env: 'DATABASE_POOL_SIZE', schema: z.coerce.number().default(10) },
- *   },
- * });
- * // Type: { url: string; poolSize: number }
- * ```
- *
- * @example Optional feature config
- * ```ts
- * export const sentryConfig = loadConfig({
- *   name: 'Sentry',
- *   flag: 'ENABLE_SENTRY',
- *   env: {
- *     dsn: 'NEXT_PUBLIC_SENTRY_DSN',
- *     project: 'NEXT_PUBLIC_SENTRY_PROJECT',
- *     token: 'SENTRY_AUTH_TOKEN',
- *   },
- * });
- * // Type: FeatureConfig<{ dsn: string; project: string; token: string }>
- *
- * // Usage
- * if (sentryConfig.isEnabled) {
- *   initSentry(sentryConfig.dsn); // ✓ works (NEXT_PUBLIC_*)
- *   console.log(sentryConfig.token); // ✗ throws on client (server-only)
- * }
- * ```
- */
-export function loadConfig<T extends Record<string, EnvValue>>(
-  options: LoadConfigOptionsRequired<T>,
-): InferEnv<T>;
-export function loadConfig<T extends Record<string, EnvValue>>(
-  options: LoadConfigOptionsOptional<T>,
-): FeatureConfig<InferEnv<T>>;
-export function loadConfig<T extends Record<string, EnvValue>>(
-  options: LoadConfigOptionsRequired<T> | LoadConfigOptionsOptional<T>,
-): InferEnv<T> | FeatureConfig<InferEnv<T>> {
-  const { name, env } = options;
-  const flag = "flag" in options ? options.flag : undefined;
-
-  // If feature flag provided and not enabled, return disabled
-  if (flag !== undefined && !isFlagEnabled(process.env[flag])) {
-    return { isEnabled: false };
-  }
-
-  // Build config object and track env var names for proxy
-  const config: Record<string, unknown> = {};
-  const envVarNames: Record<string, string> = {};
-
-  for (const [key, value] of Object.entries(env)) {
-    const { env: envVarName, schema, optional } = normalizeEnvValue(value);
-    envVarNames[key] = envVarName;
-
-    const rawValue = process.env[envVarName];
-
-    // Check if this var can be skipped (optional or fallback exists)
-    if (rawValue === undefined && isOptionalSatisfied(optional)) {
-      config[key] = undefined;
-      continue;
-    }
-
-    const result = schema.safeParse(rawValue);
-
-    if (!result.success) {
-      const issue = result.error.issues[0];
-      // Generate helpful error message
-      let message: string;
-      if (rawValue === undefined) {
-        // Include fallback info in error message for conditional optionals
-        if (typeof optional === "string") {
-          message = `Either ${envVarName} or ${optional} must be defined.`;
-        } else if (Array.isArray(optional) && optional.length > 0) {
-          message = `Either ${envVarName} or one of [${optional.join(", ")}] must be defined.`;
-        } else {
-          message = `${envVarName} must be defined.`;
-        }
-      } else {
-        message = `${envVarName} is invalid: ${issue?.message ?? "validation failed"}`;
-      }
-      throw new InvalidConfigurationError(message, name);
-    }
-
-    config[key] = result.data;
-  }
-
-  // Wrap with proxy for client-side protection
-  const proxiedConfig = createConfigProxy(config, envVarNames);
-
-  // Return with isEnabled if feature flag was provided
-  if (flag !== undefined) {
-    return Object.assign(proxiedConfig, {
-      isEnabled: true as const,
-    }) as FeatureConfig<InferEnv<T>>;
-  }
-
-  return proxiedConfig as InferEnv<T>;
-}
-````
+This installs the `load-config.ts` utility.
 
 ---
 
@@ -372,18 +68,18 @@ Since `.local` files always take precedence over their non-local counterparts, y
 
 ### Basic Usage
 
-Each feature lib defines its own config file:
+Each feature lib defines its own config file with explicit `server` and `public` sections:
 
 ```typescript
 // src/lib/db/config.ts
 import { loadConfig } from "@/lib/common/load-config";
 
 export const databaseConfig = loadConfig({
-  env: {
-    url: "DATABASE_URL",
+  server: {
+    url: process.env.DATABASE_URL,
   },
 });
-// Type: { url: string }
+// Type: { server: { url: string } }
 ```
 
 If `DATABASE_URL` is missing, you get a clear error:
@@ -391,7 +87,7 @@ If `DATABASE_URL` is missing, you get a clear error:
 ```
 Error [InvalidConfigurationError]: Configuration validation error!
 Did you correctly set all required environment variables in your .env* file?
- - DATABASE_URL must be defined.
+ - server.url must be defined.
 ```
 
 Then import and use it:
@@ -400,9 +96,33 @@ Then import and use it:
 import { databaseConfig } from "./config";
 
 const pool = new Pool({
-  connectionString: databaseConfig.url,
+  connectionString: databaseConfig.server.url,
 });
 ```
+
+### Server vs Public Sections
+
+The API explicitly separates server-only and client-accessible variables:
+
+```typescript
+export const sentryConfig = loadConfig({
+  name: "Sentry",
+  flag: process.env.NEXT_PUBLIC_ENABLE_SENTRY,
+  server: {
+    // Server-only values - throws if accessed on client
+    token: process.env.SENTRY_AUTH_TOKEN,
+  },
+  public: {
+    // Client-accessible values - work everywhere
+    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    project: process.env.NEXT_PUBLIC_SENTRY_PROJECT,
+  },
+});
+```
+
+**Why pass values directly?**
+
+Next.js only inlines `NEXT_PUBLIC_*` environment variables when accessed statically (like `process.env.NEXT_PUBLIC_DSN`). Dynamic lookups like `process.env[varName]` don't work on the client. By passing values directly, the static references are preserved and properly inlined at build time.
 
 ### Optional Feature Flags
 
@@ -414,22 +134,26 @@ import { loadConfig } from "@/lib/common/load-config";
 
 export const sentryConfig = loadConfig({
   name: "Sentry",
-  flag: "ENABLE_SENTRY",
-  env: {
-    dsn: "NEXT_PUBLIC_SENTRY_DSN",
-    project: "NEXT_PUBLIC_SENTRY_PROJECT",
-    org: "NEXT_PUBLIC_SENTRY_ORG",
-    token: "SENTRY_AUTH_TOKEN",
+  flag: process.env.NEXT_PUBLIC_ENABLE_SENTRY,
+  server: {
+    token: process.env.SENTRY_AUTH_TOKEN,
+  },
+  public: {
+    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    project: process.env.NEXT_PUBLIC_SENTRY_PROJECT,
+    org: process.env.NEXT_PUBLIC_SENTRY_ORG,
   },
 });
-// Type: FeatureConfig<{ dsn: string; project: string; org: string; token: string }>
+// Type: FeatureConfig<...>
 ```
+
+> **Important:** If your config has a `public` section, the `flag` must also use a `NEXT_PUBLIC_*` variable. Otherwise, the flag will be `undefined` on the client (since non-public env vars aren't inlined), causing `isEnabled` to always be `false` in client code even when the feature is enabled on the server.
 
 Behavior:
 
-- `ENABLE_SENTRY` not set → `{ isEnabled: false }` (no validation, no errors)
-- `ENABLE_SENTRY="true"` → validates all env vars, returns `{ ..., isEnabled: true }`
-- `ENABLE_SENTRY="true"` + missing env → throws `InvalidConfigurationError`
+- Flag not set or falsy → `{ isEnabled: false }` (no validation, no errors)
+- Flag is `"true"`, `"1"`, or `"yes"` → validates all values, returns `{ ..., isEnabled: true }`
+- Flag truthy + missing value → throws `InvalidConfigurationError`
 
 Usage:
 
@@ -441,105 +165,109 @@ export async function register() {
   if (sentryConfig.isEnabled) {
     const Sentry = await import("@sentry/nextjs");
     Sentry.init({
-      dsn: sentryConfig.dsn,
+      dsn: sentryConfig.public.dsn,
     });
   }
 }
 ```
 
-### Either-Or Environment Variables
+### Either-Or Values
 
-Use the `optional` parameter to create conditional dependencies between env vars. This is useful when a feature can be configured with alternative credentials.
+Use the `optional` parameter to create conditional dependencies between values. This is useful when a feature can be configured with alternative credentials.
 
 ```typescript
 // src/lib/ai/config.ts
 import { loadConfig } from "@/lib/common/load-config";
 
 export const aiConfig = loadConfig({
-  name: "AI Gateway",
-  flag: "ENABLE_AI_GATEWAY",
-  env: {
-    // Either VERCEL_OIDC_TOKEN or AI_GATEWAY_API_KEY must be set
-    oidcToken: { env: "VERCEL_OIDC_TOKEN", optional: "AI_GATEWAY_API_KEY" },
-    apiKey: { env: "AI_GATEWAY_API_KEY", optional: "VERCEL_OIDC_TOKEN" },
+  server: {
+    // Either oidcToken or gatewayApiKey must be set
+    oidcToken: {
+      value: process.env.VERCEL_OIDC_TOKEN,
+      optional: "gatewayApiKey",
+    },
+    gatewayApiKey: {
+      value: process.env.AI_GATEWAY_API_KEY,
+      optional: "oidcToken",
+    },
   },
 });
-// Type: FeatureConfig<{ oidcToken?: string; apiKey?: string }>
+// Type: { server: { oidcToken?: string; gatewayApiKey?: string } }
 ```
 
 The `optional` parameter accepts:
 
-| Value                  | Behavior                                   |
-| ---------------------- | ------------------------------------------ |
-| `undefined` or `false` | Required (default)                         |
-| `true`                 | Optional                                   |
-| `'OTHER_VAR'`          | Optional if `OTHER_VAR` is set             |
-| `['VAR_A', 'VAR_B']`   | Optional if any of the listed vars are set |
+| Value                  | Behavior                                         |
+| ---------------------- | ------------------------------------------------ |
+| `undefined` or `false` | Required (default)                               |
+| `true`                 | Always optional                                  |
+| `'otherKey'`           | Optional if `otherKey` in same section has value |
+| `['keyA', 'keyB']`     | Optional if any of the listed keys have values   |
 
 Error messages include the alternative:
 
 ```
-Error [InvalidConfigurationError]: Configuration validation error for AI Gateway!
+Error [InvalidConfigurationError]: Configuration validation error!
 Did you correctly set all required environment variables in your .env* file?
- - Either VERCEL_OIDC_TOKEN or AI_GATEWAY_API_KEY must be defined.
+ - Either server.oidcToken or server.gatewayApiKey must be defined.
 ```
 
-### Client-Side Environment Variables
+### Client-Side Protection
 
-`NEXT_PUBLIC_*` env vars are allowed to be accessed on the client. The config object uses a Proxy to protect all other vars from being accessed on the client:
+The `server` section uses a Proxy to protect values from being accessed on the client:
 
 ```typescript
 // On the server - everything works
-sentryConfig.dsn; // ✓ "https://..."
-sentryConfig.token; // ✓ "secret-token"
+sentryConfig.public.dsn; // ✓ "https://..."
+sentryConfig.server.token; // ✓ "secret-token"
 
 // On the client
-sentryConfig.dsn; // ✓ works (NEXT_PUBLIC_*)
-sentryConfig.token; // ✗ throws ServerConfigClientAccessError
+sentryConfig.public.dsn; // ✓ works (public section)
+sentryConfig.server.token; // ✗ throws ServerConfigClientAccessError
 ```
 
 This catches accidental client-side access to secrets at runtime:
 
 ```
-Error [ServerConfigClientAccessError]: Attempted to access server-only config 'token' (SENTRY_AUTH_TOKEN) on client.
-Use a NEXT_PUBLIC_* env var to expose to client, or ensure this code only runs on server.
+Error [ServerConfigClientAccessError]: Attempted to access server-only config 'server.token' on client.
+Move this value to 'public' if it needs client access, or ensure this code only runs on server.
 ```
 
 ### Advanced Validation
 
-For transforms, defaults, or complex validation, pass in a custom Zod schema:
+For transforms, defaults, or complex validation, pass a full object with `value` and `schema`:
 
 ```typescript
 import { z } from "zod";
 import { loadConfig } from "@/lib/common/load-config";
 
 export const databaseConfig = loadConfig({
-  env: {
-    url: "DATABASE_URL",
+  server: {
+    url: process.env.DATABASE_URL,
     // Transform string to number with default
     poolSize: {
-      env: "DATABASE_POOL_SIZE",
+      value: process.env.DATABASE_POOL_SIZE,
       schema: z.coerce.number().default(10),
     },
   },
 });
-// Type: { url: string; poolSize: number }
+// Type: { server: { url: string; poolSize: number } }
 ```
 
 More examples:
 
 ```typescript
 export const config = loadConfig({
-  env: {
-    // Required string (shorthand)
-    apiKey: "API_KEY",
+  server: {
+    // Required string (simple)
+    apiKey: process.env.API_KEY,
 
     // Optional string
-    debugMode: { env: "DEBUG_MODE", schema: z.string().optional() },
+    debugMode: { value: process.env.DEBUG_MODE, schema: z.string().optional() },
 
     // String with regex validation
     fromEmail: {
-      env: "FROM_EMAIL",
+      value: process.env.FROM_EMAIL,
       schema: z
         .string()
         .regex(/^.+\s<.+@.+\..+>$/, 'Must match "Name <email>" format'),
@@ -547,7 +275,7 @@ export const config = loadConfig({
 
     // Enum with default
     nodeEnv: {
-      env: "NODE_ENV",
+      value: process.env.NODE_ENV,
       schema: z
         .enum(["development", "production", "test"])
         .default("development"),
@@ -555,7 +283,7 @@ export const config = loadConfig({
 
     // Boolean
     enableFeature: {
-      env: "ENABLE_FEATURE",
+      value: process.env.ENABLE_FEATURE,
       schema: z.coerce.boolean().default(false),
     },
   },
@@ -587,7 +315,7 @@ The side-effect imports trigger `loadConfig` validation immediately when the ser
 When adding a new feature that needs env vars:
 
 1. Create `src/lib/<feature>/config.ts`
-2. Use `loadConfig` with the env var mappings
+2. Use `loadConfig` with `server` and/or `public` sections
 3. Import the config in `src/instrumentation.ts` for early validation
 4. Import and use the config within that feature
 
@@ -598,10 +326,12 @@ Example for adding Stripe:
 import { loadConfig } from "@/lib/common/load-config";
 
 export const stripeConfig = loadConfig({
-  env: {
-    secretKey: "STRIPE_SECRET_KEY",
-    webhookSecret: "STRIPE_WEBHOOK_SECRET",
-    publicKey: "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+  server: {
+    secretKey: process.env.STRIPE_SECRET_KEY,
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+  },
+  public: {
+    publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
   },
 });
 ```
@@ -613,5 +343,5 @@ Then use it in your Stripe client:
 import Stripe from "stripe";
 import { stripeConfig } from "./config";
 
-export const stripe = new Stripe(stripeConfig.secretKey);
+export const stripe = new Stripe(stripeConfig.server.secretKey);
 ```

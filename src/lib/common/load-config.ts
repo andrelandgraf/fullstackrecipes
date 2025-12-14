@@ -4,72 +4,104 @@ import { z } from "zod";
 // Types
 // =============================================================================
 
-/** Config with feature flag enabled - includes validated config data */
-type EnabledConfig<T> = T & { isEnabled: true };
-
-/** Config with feature flag disabled - no config data available */
-type DisabledConfig = { isEnabled: false };
-
-/** Optional feature config - either enabled with data or disabled */
-export type FeatureConfig<T> = EnabledConfig<T> | DisabledConfig;
+/** Simple env value: just the value from process.env */
+type EnvValueSimple = string | undefined;
 
 /**
- * Conditional optional: this var is optional if the specified env var(s) are set.
+ * Conditional optional: this var is optional if the condition is met.
  * - `true` - always optional
  * - `false` | `undefined` - required
- * - `'OTHER_VAR'` - optional if OTHER_VAR is set
- * - `['VAR_A', 'VAR_B']` - optional if any of the listed vars are set
+ * - `string` - optional if that key in the same section has a value
+ * - `string[]` - optional if any of those keys have values
  */
 type ConditionalOptional = boolean | string | string[];
 
 /** Full env value object with all options */
 type EnvValueFull = {
-  env: string;
+  value: string | undefined;
   schema?: z.ZodTypeAny;
   optional?: ConditionalOptional;
 };
 
-/** Env value: string shorthand or full object with schema and optional */
-type EnvValue = string | EnvValueFull;
+/** Env value: simple (just the value) or full object with schema and optional */
+type EnvValue = EnvValueSimple | EnvValueFull;
+
+/** Record of env values */
+type EnvRecord = Record<string, EnvValue>;
 
 /** Infer the output type from an EnvValue */
 type InferEnvValue<T> = T extends string
   ? string
-  : T extends { optional: true }
-    ? T extends { schema: infer S }
-      ? S extends z.ZodTypeAny
-        ? z.infer<S> | undefined
-        : string | undefined
-      : string | undefined
-    : T extends { optional: string | string[] }
+  : T extends undefined
+    ? string // Required by default, will throw if undefined
+    : T extends { optional: true }
       ? T extends { schema: infer S }
         ? S extends z.ZodTypeAny
           ? z.infer<S> | undefined
           : string | undefined
         : string | undefined
-      : T extends { schema: infer S }
-        ? S extends z.ZodTypeAny
-          ? z.infer<S>
-          : never
-        : string;
+      : T extends { optional: string | string[] }
+        ? T extends { schema: infer S }
+          ? S extends z.ZodTypeAny
+            ? z.infer<S> | undefined
+            : string | undefined
+          : string | undefined
+        : T extends { schema: infer S }
+          ? S extends z.ZodTypeAny
+            ? z.infer<S>
+            : never
+          : string;
 
 /** Infer the full config type from an env record */
-type InferEnv<T extends Record<string, EnvValue>> = {
+type InferEnvRecord<T extends EnvRecord> = {
   [K in keyof T]: InferEnvValue<T[K]>;
 };
 
-/** Options for loadConfig without a feature flag (required config) */
-type LoadConfigOptionsRequired<T extends Record<string, EnvValue>> = {
+/** Base options for loadConfig */
+type LoadConfigOptionsBase<
+  TServer extends EnvRecord = EnvRecord,
+  TPublic extends EnvRecord = EnvRecord,
+> = {
   name?: string;
-  env: T;
+  server?: TServer;
+  public?: TPublic;
 };
 
+/** Options for loadConfig without a feature flag (required config) */
+type LoadConfigOptionsRequired<
+  TServer extends EnvRecord = EnvRecord,
+  TPublic extends EnvRecord = EnvRecord,
+> = LoadConfigOptionsBase<TServer, TPublic>;
+
 /** Options for loadConfig with a feature flag (optional config) */
-type LoadConfigOptionsOptional<T extends Record<string, EnvValue>> = {
-  name?: string;
-  flag: string;
-  env: T;
+type LoadConfigOptionsOptional<
+  TServer extends EnvRecord = EnvRecord,
+  TPublic extends EnvRecord = EnvRecord,
+> = LoadConfigOptionsBase<TServer, TPublic> & {
+  flag: string | undefined;
 };
+
+/** Config result with server and public sections */
+type ConfigResult<
+  TServer extends EnvRecord,
+  TPublic extends EnvRecord,
+> = (TServer extends EnvRecord ? { server: InferEnvRecord<TServer> } : object) &
+  (TPublic extends EnvRecord ? { public: InferEnvRecord<TPublic> } : object);
+
+/** Config with feature flag enabled */
+type EnabledConfig<
+  TServer extends EnvRecord,
+  TPublic extends EnvRecord,
+> = ConfigResult<TServer, TPublic> & { isEnabled: true };
+
+/** Config with feature flag disabled */
+type DisabledConfig = { isEnabled: false };
+
+/** Optional feature config */
+export type FeatureConfig<
+  TServer extends EnvRecord,
+  TPublic extends EnvRecord,
+> = EnabledConfig<TServer, TPublic> | DisabledConfig;
 
 // =============================================================================
 // Errors
@@ -92,10 +124,10 @@ export class InvalidConfigurationError extends Error {
  * Error thrown when server-only config is accessed on the client.
  */
 export class ServerConfigClientAccessError extends Error {
-  constructor(key: string, envVarName: string) {
+  constructor(key: string) {
     super(
-      `Attempted to access server-only config '${key}' (${envVarName}) on client. ` +
-        `Use a NEXT_PUBLIC_* env var to expose to client, or ensure this code only runs on server.`,
+      `Attempted to access server-only config 'server.${key}' on client. ` +
+        `Move this value to 'public' if it needs client access, or ensure this code only runs on server.`,
     );
     this.name = "ServerConfigClientAccessError";
   }
@@ -106,7 +138,7 @@ export class ServerConfigClientAccessError extends Error {
 // =============================================================================
 
 /**
- * Checks if a flag env var is set to a truthy value.
+ * Checks if a flag value is truthy.
  */
 function isFlagEnabled(flag: string | undefined): boolean {
   if (!flag) return false;
@@ -114,29 +146,31 @@ function isFlagEnabled(flag: string | undefined): boolean {
 }
 
 /**
- * Normalizes an EnvValue to full form with env, schema, and optional.
+ * Normalizes an EnvValue to full form with value, schema, and optional.
  */
 function normalizeEnvValue(value: EnvValue): {
-  env: string;
+  value: string | undefined;
   schema: z.ZodTypeAny;
   optional: ConditionalOptional | undefined;
 } {
-  if (typeof value === "string") {
-    return { env: value, schema: z.string(), optional: undefined };
+  if (typeof value === "string" || value === undefined) {
+    return { value, schema: z.string(), optional: undefined };
   }
   return {
-    env: value.env,
+    value: value.value,
     schema: value.schema ?? z.string(),
     optional: value.optional,
   };
 }
 
 /**
- * Checks if a conditional optional is satisfied (i.e., the var can be skipped).
- * Returns true if the variable is optional and may be missing.
+ * Checks if a conditional optional is satisfied.
+ * @param optional - The optional condition
+ * @param sectionValues - The values in the same section to check against
  */
 function isOptionalSatisfied(
   optional: ConditionalOptional | undefined,
+  sectionValues: Record<string, string | undefined>,
 ): boolean {
   if (optional === undefined || optional === false) {
     return false; // required
@@ -144,21 +178,18 @@ function isOptionalSatisfied(
   if (optional === true) {
     return true; // always optional
   }
-  // Check if any of the fallback env vars are set
+  // Check if any of the fallback keys in the same section have values
   const fallbacks = Array.isArray(optional) ? optional : [optional];
-  return fallbacks.some((envVar) => {
-    const value = process.env[envVar];
+  return fallbacks.some((key) => {
+    const value = sectionValues[key];
     return value !== undefined && value !== "";
   });
 }
 
 /**
- * Creates a Proxy that throws when server-only config is accessed on client.
+ * Creates a Proxy that throws when server config is accessed on client.
  */
-function createConfigProxy<T extends object>(
-  data: T,
-  envVarNames: Record<string, string>,
-): T {
+function createServerProxy<T extends object>(data: T): T {
   // On server, no proxy needed
   if (typeof window === "undefined") {
     return data;
@@ -166,23 +197,69 @@ function createConfigProxy<T extends object>(
 
   return new Proxy(data, {
     get(target, prop, receiver) {
-      // Allow symbols, isEnabled, and prototype methods
-      if (
-        typeof prop === "symbol" ||
-        prop === "isEnabled" ||
-        !(prop in target)
-      ) {
+      // Allow symbols and prototype methods
+      if (typeof prop === "symbol" || !(prop in target)) {
         return Reflect.get(target, prop, receiver);
       }
 
-      const envVarName = envVarNames[prop];
-      if (envVarName && !envVarName.startsWith("NEXT_PUBLIC_")) {
-        throw new ServerConfigClientAccessError(prop, envVarName);
-      }
-
-      return Reflect.get(target, prop, receiver);
+      throw new ServerConfigClientAccessError(String(prop));
     },
   });
+}
+
+/**
+ * Processes an env record section and returns validated values.
+ */
+function processSection(
+  section: EnvRecord,
+  sectionName: "server" | "public",
+  featureName?: string,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+
+  // First pass: collect raw values for conditional optional checks
+  const rawValues: Record<string, string | undefined> = {};
+  for (const [key, envValue] of Object.entries(section)) {
+    const { value } = normalizeEnvValue(envValue);
+    rawValues[key] = value;
+  }
+
+  // Second pass: validate and transform
+  for (const [key, envValue] of Object.entries(section)) {
+    const { value, schema, optional } = normalizeEnvValue(envValue);
+
+    // Check if this var can be skipped (optional or fallback exists)
+    if (value === undefined && isOptionalSatisfied(optional, rawValues)) {
+      result[key] = undefined;
+      continue;
+    }
+
+    const parseResult = schema.safeParse(value);
+
+    if (!parseResult.success) {
+      const issue = parseResult.error.issues[0];
+      let message: string;
+
+      if (value === undefined) {
+        if (typeof optional === "string") {
+          message = `Either ${sectionName}.${key} or ${sectionName}.${optional} must be defined.`;
+        } else if (Array.isArray(optional) && optional.length > 0) {
+          const fallbackKeys = optional.map((k) => `${sectionName}.${k}`);
+          message = `Either ${sectionName}.${key} or one of [${fallbackKeys.join(", ")}] must be defined.`;
+        } else {
+          message = `${sectionName}.${key} must be defined.`;
+        }
+      } else {
+        message = `${sectionName}.${key} is invalid: ${issue?.message ?? "validation failed"}`;
+      }
+
+      throw new InvalidConfigurationError(message, featureName);
+    }
+
+    result[key] = parseResult.data;
+  }
+
+  return result;
 }
 
 // =============================================================================
@@ -193,122 +270,101 @@ function createConfigProxy<T extends object>(
  * Loads and validates environment configuration with type safety and runtime protection.
  *
  * **Features:**
- * - Type-safe config from env vars with full inference
+ * - Explicit `server` and `public` sections for clarity
+ * - Type-safe config with full inference
  * - Optional feature flags for conditional configs
- * - Conditional optional: "either or" env vars with `optional: 'OTHER_VAR'`
- * - Runtime protection: throws when server-only config accessed on client
- * - Shorthand (string) or full form ({ env, schema, optional }) for each key
+ * - Conditional optional: "either or" values with `optional: 'otherKey'`
+ * - Runtime protection: throws when `server.*` accessed on client
+ * - Values passed directly, so `NEXT_PUBLIC_*` vars are properly inlined by Next.js
  *
- * @example Required config
+ * @example Basic config (no flag)
  * ```ts
- * export const databaseConfig = loadConfig({
- *   env: {
- *     url: 'DATABASE_URL',
- *     poolSize: { env: 'DATABASE_POOL_SIZE', schema: z.coerce.number().default(10) },
+ * export const dbConfig = loadConfig({
+ *   server: {
+ *     url: process.env.DATABASE_URL,
+ *     poolSize: { value: process.env.DB_POOL_SIZE, schema: z.coerce.number().default(10) },
  *   },
  * });
- * // Type: { url: string; poolSize: number }
+ * // Type: { server: { url: string; poolSize: number } }
  * ```
  *
- * @example Either-or env vars (at least one required)
- * ```ts
- * export const aiConfig = loadConfig({
- *   flag: 'ENABLE_AI_GATEWAY',
- *   env: {
- *     oidcToken: { env: 'VERCEL_OIDC_TOKEN', optional: 'AI_GATEWAY_API_KEY' },
- *     apiKey: { env: 'AI_GATEWAY_API_KEY', optional: 'VERCEL_OIDC_TOKEN' },
- *   },
- * });
- * // Type: FeatureConfig<{ oidcToken?: string; apiKey?: string }>
- * // Runtime: at least one is guaranteed to be set
- * ```
- *
- * @example Optional feature config
+ * @example Feature flag with mixed server/public
  * ```ts
  * export const sentryConfig = loadConfig({
  *   name: 'Sentry',
- *   flag: 'ENABLE_SENTRY',
- *   env: {
- *     dsn: 'NEXT_PUBLIC_SENTRY_DSN',
- *     project: 'NEXT_PUBLIC_SENTRY_PROJECT',
- *     token: 'SENTRY_AUTH_TOKEN',
+ *   flag: process.env.NEXT_PUBLIC_ENABLE_SENTRY,
+ *   server: {
+ *     token: process.env.SENTRY_AUTH_TOKEN,
+ *   },
+ *   public: {
+ *     dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+ *     project: process.env.NEXT_PUBLIC_SENTRY_PROJECT,
  *   },
  * });
- * // Type: FeatureConfig<{ dsn: string; project: string; token: string }>
+ * // Type: FeatureConfig<...>
  *
- * // Usage
  * if (sentryConfig.isEnabled) {
- *   initSentry(sentryConfig.dsn); // ✓ works (NEXT_PUBLIC_*)
- *   console.log(sentryConfig.token); // ✗ throws on client (server-only)
+ *   sentryConfig.public.dsn;     // ✓ works everywhere
+ *   sentryConfig.server.token;   // ✓ server only, throws on client
  * }
  * ```
+ *
+ * @example Either-or values
+ * ```ts
+ * export const aiConfig = loadConfig({
+ *   server: {
+ *     oidcToken: { value: process.env.VERCEL_OIDC_TOKEN, optional: 'apiKey' },
+ *     apiKey: { value: process.env.AI_API_KEY, optional: 'oidcToken' },
+ *   },
+ * });
+ * // At least one of oidcToken or apiKey must be defined
+ * ```
  */
-export function loadConfig<T extends Record<string, EnvValue>>(
-  options: LoadConfigOptionsRequired<T>,
-): InferEnv<T>;
-export function loadConfig<T extends Record<string, EnvValue>>(
-  options: LoadConfigOptionsOptional<T>,
-): FeatureConfig<InferEnv<T>>;
-export function loadConfig<T extends Record<string, EnvValue>>(
-  options: LoadConfigOptionsRequired<T> | LoadConfigOptionsOptional<T>,
-): InferEnv<T> | FeatureConfig<InferEnv<T>> {
-  const { name, env } = options;
+export function loadConfig<
+  TServer extends EnvRecord = Record<string, never>,
+  TPublic extends EnvRecord = Record<string, never>,
+>(
+  options: LoadConfigOptionsRequired<TServer, TPublic>,
+): ConfigResult<TServer, TPublic>;
+export function loadConfig<
+  TServer extends EnvRecord = Record<string, never>,
+  TPublic extends EnvRecord = Record<string, never>,
+>(
+  options: LoadConfigOptionsOptional<TServer, TPublic>,
+): FeatureConfig<TServer, TPublic>;
+export function loadConfig<
+  TServer extends EnvRecord = Record<string, never>,
+  TPublic extends EnvRecord = Record<string, never>,
+>(
+  options:
+    | LoadConfigOptionsRequired<TServer, TPublic>
+    | LoadConfigOptionsOptional<TServer, TPublic>,
+): ConfigResult<TServer, TPublic> | FeatureConfig<TServer, TPublic> {
+  const { name, server, public: publicEnv } = options;
   const flag = "flag" in options ? options.flag : undefined;
+  const hasFlag = "flag" in options;
 
   // If feature flag provided and not enabled, return disabled
-  if (flag !== undefined && !isFlagEnabled(process.env[flag])) {
+  if (hasFlag && !isFlagEnabled(flag)) {
     return { isEnabled: false };
   }
 
-  // Build config object and track env var names for proxy
-  const config: Record<string, unknown> = {};
-  const envVarNames: Record<string, string> = {};
+  // Build config
+  const result: Record<string, unknown> = {};
 
-  for (const [key, value] of Object.entries(env)) {
-    const { env: envVarName, schema, optional } = normalizeEnvValue(value);
-    envVarNames[key] = envVarName;
-
-    const rawValue = process.env[envVarName];
-
-    // Check if this var can be skipped (optional or fallback exists)
-    if (rawValue === undefined && isOptionalSatisfied(optional)) {
-      config[key] = undefined;
-      continue;
-    }
-
-    const result = schema.safeParse(rawValue);
-
-    if (!result.success) {
-      const issue = result.error.issues[0];
-      // Generate helpful error message
-      let message: string;
-      if (rawValue === undefined) {
-        // Include fallback info in error message for conditional optionals
-        if (typeof optional === "string") {
-          message = `Either ${envVarName} or ${optional} must be defined.`;
-        } else if (Array.isArray(optional) && optional.length > 0) {
-          message = `Either ${envVarName} or one of [${optional.join(", ")}] must be defined.`;
-        } else {
-          message = `${envVarName} must be defined.`;
-        }
-      } else {
-        message = `${envVarName} is invalid: ${issue?.message ?? "validation failed"}`;
-      }
-      throw new InvalidConfigurationError(message, name);
-    }
-
-    config[key] = result.data;
+  if (server && Object.keys(server).length > 0) {
+    const serverData = processSection(server, "server", name);
+    result.server = createServerProxy(serverData);
   }
 
-  // Wrap with proxy for client-side protection
-  const proxiedConfig = createConfigProxy(config, envVarNames);
+  if (publicEnv && Object.keys(publicEnv).length > 0) {
+    result.public = processSection(publicEnv, "public", name);
+  }
 
   // Return with isEnabled if feature flag was provided
-  if (flag !== undefined) {
-    return Object.assign(proxiedConfig, {
-      isEnabled: true as const,
-    }) as FeatureConfig<InferEnv<T>>;
+  if (hasFlag) {
+    return { ...result, isEnabled: true } as FeatureConfig<TServer, TPublic>;
   }
 
-  return proxiedConfig as InferEnv<T>;
+  return result as ConfigResult<TServer, TPublic>;
 }

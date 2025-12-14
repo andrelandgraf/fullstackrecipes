@@ -181,7 +181,7 @@ function processUser(user: User | null) {
     previewCode: `import { drizzle } from "drizzle-orm/node-postgres";
 import { attachDatabasePool } from "@vercel/functions";
 
-const pool = new Pool({ connectionString: databaseConfig.url });
+const pool = new Pool({ connectionString: databaseConfig.server.url });
 attachDatabasePool(pool);
 export const db = drizzle({ client: pool, schema });`,
   },
@@ -306,7 +306,7 @@ track("signup_completed", { plan: "pro" });`,
     requires: ["env-config"],
     previewCode: `export async function sendEmail({ to, subject, react }) {
   const { data, error } = await resend.emails.send({
-    from: resendConfig.fromEmail,
+    from: resendConfig.server.fromEmail,
     to: Array.isArray(to) ? to : [to],
     subject,
     react,

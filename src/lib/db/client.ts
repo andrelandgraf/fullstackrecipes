@@ -12,7 +12,7 @@ const schema = {
 };
 
 const pool = new Pool({
-  connectionString: databaseConfig.url,
+  connectionString: databaseConfig.server.url,
 });
 attachDatabasePool(pool);
 

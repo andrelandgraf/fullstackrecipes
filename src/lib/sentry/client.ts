@@ -3,9 +3,8 @@ import { sentryConfig } from "./config";
 
 export function initSentryClient() {
   if (!sentryConfig.isEnabled) return;
-
   Sentry.init({
-    dsn: sentryConfig.dsn,
+    dsn: sentryConfig.public.dsn,
     integrations: [Sentry.replayIntegration()],
     tracesSampleRate: 1,
     enableLogs: true,

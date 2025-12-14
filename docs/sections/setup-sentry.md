@@ -36,6 +36,7 @@ The wizard creates and updates the following TypeScript files:
 Add to your `.env.development`:
 
 ```env
+NEXT_PUBLIC_ENABLE_SENTRY="true"
 NEXT_PUBLIC_SENTRY_DSN="https://your-dsn@sentry.io/your-project-id"
 NEXT_PUBLIC_SENTRY_PROJECT="your-project-name"
 NEXT_PUBLIC_SENTRY_ORG="your-org-name"
@@ -60,19 +61,24 @@ import { loadConfig } from "../common/load-config";
 
 export const sentryConfig = loadConfig({
   name: "Sentry",
-  flag: "ENABLE_SENTRY",
-  env: {
-    dsn: "NEXT_PUBLIC_SENTRY_DSN",
-    project: "NEXT_PUBLIC_SENTRY_PROJECT",
-    org: "NEXT_PUBLIC_SENTRY_ORG",
+  flag: process.env.NEXT_PUBLIC_ENABLE_SENTRY,
+  server: {
     // SENTRY_AUTH_TOKEN is picked up by the Sentry Build Plugin for source maps upload.
     // Accessing this on the client will throw ServerConfigClientAccessError.
-    token: "SENTRY_AUTH_TOKEN",
+    token: process.env.SENTRY_AUTH_TOKEN,
+  },
+  public: {
+    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    project: process.env.NEXT_PUBLIC_SENTRY_PROJECT,
+    org: process.env.NEXT_PUBLIC_SENTRY_ORG,
   },
 });
 ```
 
-We use the `loadConfig` utility to validate the configuration and throw an error if any of the required environment variables are missing. The config also includes runtime protection - accessing `token` on the client will throw a helpful error.
+We use the `loadConfig` utility to validate the configuration and throw an error if any of the required environment variables are missing. The config separates `server` and `public` sections:
+
+- `server.*` values are only accessible on the server - accessing them on the client throws a helpful error
+- `public.*` values work everywhere (Next.js inlines `NEXT_PUBLIC_*` vars at build time)
 
 ---
 
@@ -91,7 +97,7 @@ export function initSentryServer() {
   if (!sentryConfig.isEnabled) return;
 
   Sentry.init({
-    dsn: sentryConfig.dsn,
+    dsn: sentryConfig.public.dsn,
     tracesSampleRate: 1,
     enableLogs: true,
     sendDefaultPii: true,
@@ -113,7 +119,7 @@ export function initSentryEdge() {
   if (!sentryConfig.isEnabled) return;
 
   Sentry.init({
-    dsn: sentryConfig.dsn,
+    dsn: sentryConfig.public.dsn,
     tracesSampleRate: 1,
     enableLogs: true,
     sendDefaultPii: true,
@@ -134,7 +140,7 @@ export function initSentryClient() {
   if (!sentryConfig.isEnabled) return;
 
   Sentry.init({
-    dsn: sentryConfig.dsn,
+    dsn: sentryConfig.public.dsn,
     integrations: [Sentry.replayIntegration()],
     tracesSampleRate: 1,
     enableLogs: true,

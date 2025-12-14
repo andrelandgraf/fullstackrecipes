@@ -5,7 +5,7 @@ export function initSentryEdge() {
   if (!sentryConfig.isEnabled) return;
 
   Sentry.init({
-    dsn: sentryConfig.dsn,
+    dsn: sentryConfig.public.dsn,
     tracesSampleRate: 1,
     enableLogs: true,
     sendDefaultPii: true,
