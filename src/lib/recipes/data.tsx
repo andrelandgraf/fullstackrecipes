@@ -390,6 +390,7 @@ const session = await auth.api.getSession({
     icon: KeyRound,
     isCookbook: true,
     recipes: [
+      "resend-setup",
       "better-auth-setup",
       "better-auth-emails",
       "better-auth-components",
@@ -399,7 +400,7 @@ const session = await auth.api.getSession({
       "better-auth-emails.md",
       "better-auth-components.md",
     ],
-    requires: ["neon-drizzle-setup", "resend-setup", "shadcn-ui-setup"],
+    requires: ["neon-drizzle-setup", "shadcn-ui-setup"],
     previewCode: `// Complete auth setup
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg" }),
