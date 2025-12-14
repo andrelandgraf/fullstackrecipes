@@ -647,7 +647,7 @@ import { authClient } from "@/lib/auth/client";
 
 await authClient.sendVerificationEmail({
   email: "user@example.com",
-  callbackURL: "/dashboard",
+  callbackURL: "/chats",
 });
 ```
 

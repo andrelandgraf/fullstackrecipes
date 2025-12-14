@@ -24,6 +24,8 @@ import {
   Activity,
   FlaskConical,
   Triangle,
+  UserCog,
+  ShieldCheck,
 } from "lucide-react";
 import registry from "../../../registry.json";
 
@@ -382,10 +384,47 @@ const session = await auth.api.getSession({
 });`,
   },
   {
+    slug: "better-auth-profile",
+    title: "Better Auth Profile & Account",
+    description:
+      "Add a complete account settings page with profile editing, password changes, email updates, session management, and account deletion.",
+    tags: ["Auth", "UI Components"],
+    icon: UserCog,
+    sections: ["better-auth-profile.md"],
+    requires: ["better-auth-emails", "shadcn-ui-setup"],
+    previewCode: `// Profile page with all account management
+<ProfileHeader />     {/* Edit name & avatar */}
+<ChangeEmail />       {/* Update email */}
+<ChangePassword />    {/* Change password */}
+<Sessions />          {/* Revoke other sessions */}
+<DeleteAccount />     {/* Delete with confirmation */}`,
+  },
+  {
+    slug: "better-auth-protected-routes",
+    title: "Better Auth Protected Routes",
+    description:
+      "Add server-side route protection to enforce authentication on specific pages while keeping others public.",
+    tags: ["Auth"],
+    icon: ShieldCheck,
+    sections: ["better-auth-protected-routes.md"],
+    requires: ["better-auth-setup"],
+    previewCode: `// Protected page pattern
+const session = await auth.api.getSession({
+  headers: await headers(),
+});
+
+if (!session) {
+  redirect("/sign-in");
+}
+
+// User is authenticated
+return <Dashboard user={session.user} />;`,
+  },
+  {
     slug: "authentication",
     title: "Authentication",
     description:
-      "Complete authentication system with Better Auth, email verification, password reset, and polished UI components.",
+      "Complete authentication system with Better Auth, email verification, password reset, protected routes, and account management.",
     tags: ["Cookbook", "Auth"],
     icon: KeyRound,
     isCookbook: true,
@@ -394,22 +433,25 @@ const session = await auth.api.getSession({
       "better-auth-setup",
       "better-auth-emails",
       "better-auth-components",
+      "better-auth-profile",
+      "better-auth-protected-routes",
     ],
     sections: [
       "better-auth-setup.md",
       "better-auth-emails.md",
       "better-auth-components.md",
+      "better-auth-profile.md",
+      "better-auth-protected-routes.md",
     ],
     requires: ["neon-drizzle-setup", "shadcn-ui-setup"],
-    previewCode: `// Complete auth setup
-export const auth = betterAuth({
-  database: drizzleAdapter(db, { provider: "pg" }),
-  emailAndPassword: { requireEmailVerification: true },
-  emailVerification: { sendOnSignUp: true },
+    previewCode: `// Protected route pattern
+const session = await auth.api.getSession({
+  headers: await headers(),
 });
+if (!session) redirect("/sign-in");
 
-// Polished UI components
-<SignIn /> <SignUp /> <ForgotPassword />`,
+<ProfileHeader /> <ChangePassword />
+<Sessions /> <DeleteAccount />`,
   } satisfies Cookbook,
   {
     slug: "feature-flags-setup",

@@ -29,7 +29,11 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export function SignUp({ showVercelSignIn }: { showVercelSignIn: boolean }) {
+export function SignUp({
+  showVercelSignIn = false,
+}: {
+  showVercelSignIn?: boolean;
+} = {}) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");

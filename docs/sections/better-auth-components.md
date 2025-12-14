@@ -113,7 +113,7 @@ export function SignIn() {
         email,
         password,
         rememberMe,
-        callbackURL: "/dashboard",
+        callbackURL: "/chats",
       },
       {
         onRequest: () => setLoading(true),
@@ -129,7 +129,7 @@ export function SignIn() {
             toast.error(ctx.error.message);
           }
         },
-        onSuccess: () => router.push("/dashboard"),
+        onSuccess: () => router.push("/chats"),
       },
     );
   };
@@ -273,7 +273,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { Loader2, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import {
+  Loader2,
+  X,
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  Upload,
+} from "lucide-react";
 import { signUp } from "@/lib/auth/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -287,9 +297,23 @@ export function SignUp() {
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -314,6 +338,7 @@ export function SignUp() {
         email,
         password,
         name: `${firstName} ${lastName}`.trim(),
+        image: image ? await convertImageToBase64(image) : undefined,
       },
       {
         onRequest: () => setLoading(true),
@@ -464,6 +489,47 @@ export function SignUp() {
               </button>
             </div>
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="image">Profile photo (optional)</Label>
+            <div className="flex items-center gap-4">
+              {imagePreview ? (
+                <div className="relative size-16 shrink-0 rounded-full overflow-hidden ring-2 ring-border">
+                  <Image
+                    src={imagePreview}
+                    alt="Profile preview"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-muted">
+                  <Upload className="size-6 text-muted-foreground" />
+                </div>
+              )}
+              <div className="flex flex-1 items-center gap-2">
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="flex-1"
+                />
+                {imagePreview && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => {
+                      setImage(null);
+                      setImagePreview(null);
+                    }}
+                  >
+                    <X className="size-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <Loader2 className="size-4 animate-spin" />
@@ -486,6 +552,15 @@ export function SignUp() {
       </CardFooter>
     </Card>
   );
+}
+
+async function convertImageToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 ```
 
@@ -946,7 +1021,7 @@ export default async function SignInPage() {
   });
 
   if (session) {
-    redirect("/dashboard");
+    redirect("/chats");
   }
 
   return (
@@ -978,7 +1053,7 @@ export default async function SignUpPage() {
   });
 
   if (session) {
-    redirect("/dashboard");
+    redirect("/chats");
   }
 
   return (
@@ -1001,7 +1076,8 @@ import { ForgotPassword } from "@/components/auth/forgot-password";
 
 export const metadata: Metadata = {
   title: "Forgot Password",
-  description: "Reset your password by entering your email address.",
+  description:
+    "Reset your password by entering your email address. We'll send you a link to create a new one.",
 };
 
 export default async function ForgotPasswordPage() {
@@ -1010,7 +1086,7 @@ export default async function ForgotPasswordPage() {
   });
 
   if (session) {
-    redirect("/dashboard");
+    redirect("/chats");
   }
 
   return (
@@ -1048,7 +1124,7 @@ export default async function ResetPasswordPage({
   });
 
   if (session) {
-    redirect("/dashboard");
+    redirect("/chats");
   }
 
   const { token, error } = await searchParams;
@@ -1114,6 +1190,73 @@ export default async function VerifyEmailPage({
   );
 }
 ```
+
+---
+
+## Extending with OAuth Providers
+
+To add social sign-in buttons (like GitHub, Google, or Vercel), you can extend the SignIn and SignUp components with a `showSocialSignIn` prop:
+
+```tsx
+// Extended SignIn with optional OAuth
+export function SignIn({
+  showVercelSignIn = false,
+}: {
+  showVercelSignIn?: boolean;
+} = {}) {
+  // ... existing state
+
+  const handleVercelSignIn = async () => {
+    await signIn.social(
+      { provider: "vercel", callbackURL: "/chats" },
+      {
+        onRequest: () => setSocialLoading(true),
+        onResponse: () => setSocialLoading(false),
+        onError: (ctx) => toast.error(ctx.error.message),
+      },
+    );
+  };
+
+  return (
+    <Card>
+      {/* Add OAuth button before the form */}
+      {showVercelSignIn && (
+        <>
+          <Button variant="outline" onClick={handleVercelSignIn}>
+            Sign in with Vercel
+          </Button>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">
+                Or continue with email
+              </span>
+            </div>
+          </div>
+        </>
+      )}
+      {/* Rest of the form */}
+    </Card>
+  );
+}
+```
+
+Use with a feature flag to conditionally show OAuth based on environment configuration:
+
+```tsx
+// src/app/sign-in/page.tsx
+import { vercelSignInFlag } from "@/lib/auth/flags";
+
+export default async function SignInPage() {
+  const showVercelSignIn = await vercelSignInFlag();
+
+  return <SignIn showVercelSignIn={showVercelSignIn} />;
+}
+```
+
+See the [Feature Flags](/recipes/feature-flags-setup) recipe for setting up the Flags SDK.
 
 ---
 

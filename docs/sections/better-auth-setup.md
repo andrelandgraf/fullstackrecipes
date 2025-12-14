@@ -241,21 +241,28 @@ src/app/api/auth/
 
 ## Adding Social Providers
 
-To add OAuth providers like GitHub or Google:
+To add OAuth providers like GitHub, Google, or Vercel, configure them conditionally based on environment variables:
 
 ```tsx
 // src/lib/auth/server.tsx
 export const auth = betterAuth({
   // ...existing config
   socialProviders: {
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    },
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    },
+    // Conditionally enable based on env vars
+    ...(process.env.GITHUB_CLIENT_ID &&
+      process.env.GITHUB_CLIENT_SECRET && {
+        github: {
+          clientId: process.env.GITHUB_CLIENT_ID,
+          clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        },
+      }),
+    ...(process.env.VERCEL_CLIENT_ID &&
+      process.env.VERCEL_CLIENT_SECRET && {
+        vercel: {
+          clientId: process.env.VERCEL_CLIENT_ID,
+          clientSecret: process.env.VERCEL_CLIENT_SECRET,
+        },
+      }),
   },
 });
 ```
@@ -263,8 +270,10 @@ export const auth = betterAuth({
 Then use on the client:
 
 ```typescript
-await signIn.social({ provider: "github" });
+await signIn.social({ provider: "github", callbackURL: "/chats" });
 ```
+
+Use feature flags to conditionally show OAuth buttons in your UI. See [Better Auth Components](/recipes/better-auth-components) for the UI implementation.
 
 ---
 

@@ -28,7 +28,11 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-export function SignIn({ showVercelSignIn }: { showVercelSignIn: boolean }) {
+export function SignIn({
+  showVercelSignIn = false,
+}: {
+  showVercelSignIn?: boolean;
+} = {}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -99,7 +103,6 @@ export function SignIn({ showVercelSignIn }: { showVercelSignIn: boolean }) {
         onRequest: () => setLoading(true),
         onResponse: () => setLoading(false),
         onError: (ctx) => {
-          console.log(ctx.error);
           const errorMessage = ctx.error.message.toLowerCase();
           if (
             errorMessage.includes("email not verified") ||
