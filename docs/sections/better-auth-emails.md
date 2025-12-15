@@ -554,8 +554,8 @@ import { ChangeEmail } from "./emails/change-email";
 import { DeleteAccountEmail } from "./emails/delete-account";
 
 export const auth = betterAuth({
-  secret: authConfig.secret,
-  baseURL: authConfig.url,
+  secret: authConfig.server.secret,
+  baseURL: authConfig.server.url,
   database: drizzleAdapter(db, {
     provider: "pg",
     usePlural: true,

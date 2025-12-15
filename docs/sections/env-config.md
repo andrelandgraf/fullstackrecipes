@@ -64,6 +64,44 @@ Since `.local` files always take precedence over their non-local counterparts, y
 2. Add local-only overrides to `.env.local`
 3. When adding new shared variables, update `.env.development` and run `bun run env:push`
 
+#### Loading Environment Variables in Scripts
+
+Scripts and config files that run outside of Next.js (like Drizzle migrations or custom build scripts) don't have environment variables automatically loaded. Use `loadEnvConfig` from `@next/env` to load them manually:
+
+```typescript
+// scripts/db/generate-schema.ts
+import { $ } from "bun";
+import { loadEnvConfig } from "@next/env";
+
+loadEnvConfig(process.cwd());
+
+await $`bunx @better-auth/cli@latest generate --config src/lib/auth/server.tsx --output src/lib/auth/schema.ts`;
+
+await $`drizzle-kit generate`;
+```
+
+The same pattern applies to config files like `drizzle.config.ts`:
+
+```typescript
+// drizzle.config.ts
+import { loadEnvConfig } from "@next/env";
+loadEnvConfig(process.cwd());
+
+import { defineConfig } from "drizzle-kit";
+import { databaseConfig } from "./src/lib/db/config";
+
+export default defineConfig({
+  schema: "./src/lib/*/schema.ts",
+  out: "./src/lib/db/migrations",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: databaseConfig.server.url,
+  },
+});
+```
+
+> **Important:** Call `loadEnvConfig` before importing any modules that access `process.env`. Environment variables must be loaded before they're read.
+
 ---
 
 ### Basic Usage
@@ -93,6 +131,7 @@ Did you correctly set all required environment variables in your .env* file?
 Then import and use it:
 
 ```typescript
+// src/lib/db/client.ts
 import { databaseConfig } from "./config";
 
 const pool = new Pool({

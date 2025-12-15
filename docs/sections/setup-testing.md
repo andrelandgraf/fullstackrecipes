@@ -181,55 +181,49 @@ afterEach(() => {
 });
 
 describe("loadConfig", () => {
-  describe("required config (no flag)", () => {
-    it("loads string values from env", () => {
-      process.env.DATABASE_URL = "postgres://localhost:5432/test";
-
+  describe("server section", () => {
+    it("loads string values", () => {
       const config = loadConfig({
-        env: {
-          url: "DATABASE_URL",
+        server: {
+          url: "postgres://localhost:5432/test",
         },
       });
 
-      expect(config.url).toBe("postgres://localhost:5432/test");
+      expect(config.server.url).toBe("postgres://localhost:5432/test");
     });
 
-    it("throws when required env var is missing", () => {
-      delete process.env.DATABASE_URL;
-
+    it("throws when required value is undefined", () => {
       expect(() =>
         loadConfig({
-          env: {
-            url: "DATABASE_URL",
+          server: {
+            url: undefined,
           },
         }),
       ).toThrow(InvalidConfigurationError);
     });
 
-    it("includes env var name in error message", () => {
-      delete process.env.MY_SECRET_KEY;
-
+    it("includes key path in error message", () => {
       try {
         loadConfig({
-          env: {
-            secret: "MY_SECRET_KEY",
+          server: {
+            secretKey: undefined,
           },
         });
         expect.unreachable("Should have thrown");
       } catch (e) {
         expect(e).toBeInstanceOf(InvalidConfigurationError);
-        expect((e as Error).message).toContain("MY_SECRET_KEY must be defined");
+        expect((e as Error).message).toContain(
+          "server.secretKey must be defined",
+        );
       }
     });
 
     it("includes feature name in error message when provided", () => {
-      delete process.env.API_KEY;
-
       try {
         loadConfig({
           name: "Stripe",
-          env: {
-            apiKey: "API_KEY",
+          server: {
+            apiKey: undefined,
           },
         });
         expect.unreachable("Should have thrown");
@@ -239,52 +233,66 @@ describe("loadConfig", () => {
     });
   });
 
+  describe("public section", () => {
+    it("loads string values", () => {
+      const config = loadConfig({
+        public: {
+          dsn: "https://sentry.io/123",
+        },
+      });
+
+      expect(config.public.dsn).toBe("https://sentry.io/123");
+    });
+
+    it("throws when required value is undefined", () => {
+      expect(() =>
+        loadConfig({
+          public: {
+            dsn: undefined,
+          },
+        }),
+      ).toThrow(InvalidConfigurationError);
+    });
+  });
+
   describe("custom schemas", () => {
     it("coerces string to number", () => {
-      process.env.PORT = "3000";
-
       const config = loadConfig({
-        env: {
-          port: { env: "PORT", schema: z.coerce.number() },
+        server: {
+          port: { value: "3000", schema: z.coerce.number() },
         },
       });
 
-      expect(config.port).toBe(3000);
-      expect(typeof config.port).toBe("number");
+      expect(config.server.port).toBe(3000);
+      expect(typeof config.server.port).toBe("number");
     });
 
-    it("uses default value when env var is missing", () => {
-      delete process.env.POOL_SIZE;
-
+    it("uses default value when undefined", () => {
       const config = loadConfig({
-        env: {
-          poolSize: { env: "POOL_SIZE", schema: z.coerce.number().default(10) },
+        server: {
+          poolSize: { value: undefined, schema: z.coerce.number().default(10) },
         },
       });
 
-      expect(config.poolSize).toBe(10);
+      expect(config.server.poolSize).toBe(10);
     });
 
-    it("allows optional values", () => {
-      delete process.env.OPTIONAL_VAR;
-
+    it("allows optional values with schema", () => {
       const config = loadConfig({
-        env: {
-          optional: { env: "OPTIONAL_VAR", schema: z.string().optional() },
+        server: {
+          optional: { value: undefined, schema: z.string().optional() },
         },
       });
 
-      expect(config.optional).toBeUndefined();
+      expect(config.server.optional).toBeUndefined();
     });
 
     it("validates with custom schema and shows error", () => {
-      process.env.EMAIL = "invalid-email";
-
       try {
         loadConfig({
-          env: {
+          public: {
             email: {
-              env: "EMAIL",
+              value: "invalid-email",
               schema: z.string().email("Must be a valid email"),
             },
           },
@@ -292,19 +300,17 @@ describe("loadConfig", () => {
         expect.unreachable("Should have thrown");
       } catch (e) {
         expect(e).toBeInstanceOf(InvalidConfigurationError);
-        expect((e as Error).message).toContain("EMAIL is invalid");
+        expect((e as Error).message).toContain("public.email is invalid");
       }
     });
   });
 
   describe("feature flags", () => {
-    it("returns isEnabled: false when flag is not set", () => {
-      delete process.env.ENABLE_FEATURE;
-
+    it("returns isEnabled: false when flag is undefined", () => {
       const config = loadConfig({
-        flag: "ENABLE_FEATURE",
-        env: {
-          apiKey: "API_KEY",
+        flag: undefined,
+        server: {
+          apiKey: "key",
         },
       });
 
@@ -312,12 +318,10 @@ describe("loadConfig", () => {
     });
 
     it("returns isEnabled: false when flag is 'false'", () => {
-      process.env.ENABLE_FEATURE = "false";
-
       const config = loadConfig({
-        flag: "ENABLE_FEATURE",
-        env: {
-          apiKey: "API_KEY",
+        flag: "false",
+        server: {
+          apiKey: "key",
         },
       });
 
@@ -325,32 +329,25 @@ describe("loadConfig", () => {
     });
 
     it("validates and returns config when flag is 'true'", () => {
-      process.env.ENABLE_FEATURE = "true";
-      process.env.API_KEY = "secret-key";
-
       const config = loadConfig({
-        flag: "ENABLE_FEATURE",
-        env: {
-          apiKey: "API_KEY",
+        flag: "true",
+        server: {
+          apiKey: "secret-key",
         },
       });
 
       expect(config.isEnabled).toBe(true);
       if (config.isEnabled) {
-        expect(config.apiKey).toBe("secret-key");
+        expect(config.server.apiKey).toBe("secret-key");
       }
     });
 
     it("accepts '1' and 'yes' as truthy flag values", () => {
-      process.env.API_KEY = "test";
-
       for (const value of ["1", "yes", "YES", "True", "TRUE"]) {
-        process.env.ENABLE_FEATURE = value;
-
         const config = loadConfig({
-          flag: "ENABLE_FEATURE",
-          env: {
-            apiKey: "API_KEY",
+          flag: value,
+          server: {
+            apiKey: "test",
           },
         });
 
@@ -358,29 +355,23 @@ describe("loadConfig", () => {
       }
     });
 
-    it("throws when flag is enabled but env var is missing", () => {
-      process.env.ENABLE_FEATURE = "true";
-      delete process.env.API_KEY;
-
+    it("throws when flag is enabled but value is undefined", () => {
       expect(() =>
         loadConfig({
-          flag: "ENABLE_FEATURE",
-          env: {
-            apiKey: "API_KEY",
+          flag: "true",
+          server: {
+            apiKey: undefined,
           },
         }),
       ).toThrow(InvalidConfigurationError);
     });
 
-    it("skips validation when flag is disabled (no error for missing vars)", () => {
-      delete process.env.ENABLE_FEATURE;
-      delete process.env.API_KEY;
-
-      // Should NOT throw even though API_KEY is missing
+    it("skips validation when flag is disabled", () => {
+      // Should NOT throw even though apiKey is undefined
       const config = loadConfig({
-        flag: "ENABLE_FEATURE",
-        env: {
-          apiKey: "API_KEY",
+        flag: undefined,
+        server: {
+          apiKey: undefined,
         },
       });
 
@@ -389,70 +380,63 @@ describe("loadConfig", () => {
   });
 
   describe("client-side proxy protection", () => {
-    it("allows access to NEXT_PUBLIC_ vars on client", () => {
-      process.env.NEXT_PUBLIC_DSN = "https://sentry.io/123";
+    it("allows access to public vars on client", () => {
       // Simulate client environment
       // @ts-expect-error - intentionally manipulating global for tests
       globalThis.window = {};
 
       const config = loadConfig({
-        env: {
-          dsn: "NEXT_PUBLIC_DSN",
+        public: {
+          dsn: "https://sentry.io/123",
         },
       });
 
       // Should not throw
-      expect(config.dsn).toBe("https://sentry.io/123");
+      expect(config.public.dsn).toBe("https://sentry.io/123");
     });
 
-    it("throws when accessing server-only var on client", () => {
-      process.env.SECRET_TOKEN = "super-secret";
+    it("throws when accessing server var on client", () => {
       // Simulate client environment
       // @ts-expect-error - intentionally manipulating global for tests
       globalThis.window = {};
 
       const config = loadConfig({
-        env: {
-          token: "SECRET_TOKEN",
+        server: {
+          token: "super-secret",
         },
       });
 
-      expect(() => config.token).toThrow(ServerConfigClientAccessError);
+      expect(() => config.server.token).toThrow(ServerConfigClientAccessError);
     });
 
-    it("includes helpful message in client access error", () => {
-      process.env.AUTH_TOKEN = "secret";
+    it("includes key name in client access error", () => {
       // @ts-expect-error - intentionally manipulating global for tests
       globalThis.window = {};
 
       const config = loadConfig({
-        env: {
-          authToken: "AUTH_TOKEN",
+        server: {
+          authToken: "secret",
         },
       });
 
       try {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        config.authToken;
+        config.server.authToken;
         expect.unreachable("Should have thrown");
       } catch (e) {
         expect(e).toBeInstanceOf(ServerConfigClientAccessError);
-        expect((e as Error).message).toContain("authToken");
-        expect((e as Error).message).toContain("AUTH_TOKEN");
-        expect((e as Error).message).toContain("NEXT_PUBLIC_");
+        expect((e as Error).message).toContain("server.authToken");
       }
     });
 
     it("allows isEnabled access on client", () => {
-      process.env.ENABLE_FEATURE = "true";
-      process.env.NEXT_PUBLIC_KEY = "public";
       // @ts-expect-error - intentionally manipulating global for tests
       globalThis.window = {};
 
       const config = loadConfig({
-        flag: "ENABLE_FEATURE",
-        env: {
-          key: "NEXT_PUBLIC_KEY",
+        flag: "true",
+        public: {
+          key: "public-value",
         },
       });
 
@@ -461,41 +445,40 @@ describe("loadConfig", () => {
     });
 
     it("does not use proxy on server (no window)", () => {
-      process.env.SECRET_TOKEN = "super-secret";
       // Ensure window is undefined (server)
       // @ts-expect-error - intentionally manipulating global for tests
       delete globalThis.window;
 
       const config = loadConfig({
-        env: {
-          token: "SECRET_TOKEN",
+        server: {
+          token: "super-secret",
         },
       });
 
       // Should work fine on server
-      expect(config.token).toBe("super-secret");
+      expect(config.server.token).toBe("super-secret");
     });
   });
 
-  describe("mixed public and private config", () => {
-    it("allows public vars and blocks private vars on client", () => {
-      process.env.NEXT_PUBLIC_DSN = "https://sentry.io";
-      process.env.AUTH_TOKEN = "secret";
+  describe("mixed public and server on client", () => {
+    it("allows public and blocks server on client", () => {
       // @ts-expect-error - intentionally manipulating global for tests
       globalThis.window = {};
 
       const config = loadConfig({
-        env: {
-          dsn: "NEXT_PUBLIC_DSN",
-          token: "AUTH_TOKEN",
+        server: {
+          token: "secret",
+        },
+        public: {
+          dsn: "https://sentry.io",
         },
       });
 
-      // Public var works
-      expect(config.dsn).toBe("https://sentry.io");
+      // Public works
+      expect(config.public.dsn).toBe("https://sentry.io");
 
-      // Private var throws
-      expect(() => config.token).toThrow(ServerConfigClientAccessError);
+      // Server throws
+      expect(() => config.server.token).toThrow(ServerConfigClientAccessError);
     });
   });
 });

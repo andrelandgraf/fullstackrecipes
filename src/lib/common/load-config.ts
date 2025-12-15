@@ -197,11 +197,12 @@ function createServerProxy<T extends object>(data: T): T {
 
   return new Proxy(data, {
     get(target, prop, receiver) {
-      // Allow symbols and prototype methods
-      if (typeof prop === "symbol" || !(prop in target)) {
+      // Allow symbols (for prototype methods like toString, valueOf, etc.)
+      if (typeof prop === "symbol") {
         return Reflect.get(target, prop, receiver);
       }
 
+      // All string property accesses throw on client
       throw new ServerConfigClientAccessError(String(prop));
     },
   });
@@ -351,10 +352,17 @@ export function loadConfig<
 
   // Build config
   const result: Record<string, unknown> = {};
+  const isClient = typeof window !== "undefined";
 
   if (server && Object.keys(server).length > 0) {
-    const serverData = processSection(server, "server", name);
-    result.server = createServerProxy(serverData);
+    // On client, skip validation - server vars aren't available
+    // Just create a proxy that throws on any access
+    if (isClient) {
+      result.server = createServerProxy({});
+    } else {
+      const serverData = processSection(server, "server", name);
+      result.server = createServerProxy(serverData);
+    }
   }
 
   if (publicEnv && Object.keys(publicEnv).length > 0) {

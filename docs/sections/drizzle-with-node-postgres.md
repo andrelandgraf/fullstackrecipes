@@ -105,7 +105,7 @@ const schema = {
 };
 
 const pool = new Pool({
-  connectionString: databaseConfig.url,
+  connectionString: databaseConfig.server.url,
 });
 attachDatabasePool(pool);
 
@@ -135,7 +135,7 @@ export default defineConfig({
   out: "./src/lib/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
-    url: databaseConfig.url,
+    url: databaseConfig.server.url,
   },
 });
 ```

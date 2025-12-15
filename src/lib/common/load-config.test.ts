@@ -366,6 +366,167 @@ describe("loadConfig", () => {
     });
   });
 
+  describe("client-side validation behavior", () => {
+    it("skips server validation on client (undefined server vars don't throw)", () => {
+      // @ts-expect-error - intentionally manipulating global for tests
+      globalThis.window = {};
+
+      // Should NOT throw even though server vars are undefined
+      // because on client, server section is not validated
+      const config = loadConfig({
+        server: {
+          apiKey: undefined,
+          secretToken: undefined,
+        },
+        public: {
+          dsn: "https://sentry.io",
+        },
+      });
+
+      // Public still works
+      expect(config.public.dsn).toBe("https://sentry.io");
+
+      // Server access throws (proxy protection)
+      expect(() => config.server.apiKey).toThrow(ServerConfigClientAccessError);
+    });
+
+    it("still validates public section on client", () => {
+      // @ts-expect-error - intentionally manipulating global for tests
+      globalThis.window = {};
+
+      // Should throw because public vars are undefined on client
+      expect(() =>
+        loadConfig({
+          server: {
+            apiKey: undefined, // Should not cause error on client
+          },
+          public: {
+            dsn: undefined, // Should cause error
+          },
+        }),
+      ).toThrow(InvalidConfigurationError);
+    });
+
+    it("public validation error message is correct on client", () => {
+      // @ts-expect-error - intentionally manipulating global for tests
+      globalThis.window = {};
+
+      try {
+        loadConfig({
+          server: {
+            apiKey: undefined,
+          },
+          public: {
+            analyticsId: undefined,
+          },
+        });
+        expect.unreachable("Should have thrown");
+      } catch (e) {
+        expect(e).toBeInstanceOf(InvalidConfigurationError);
+        expect((e as Error).message).toContain(
+          "public.analyticsId must be defined",
+        );
+      }
+    });
+
+    it("skips server schema validation on client", () => {
+      // @ts-expect-error - intentionally manipulating global for tests
+      globalThis.window = {};
+
+      // Invalid schema value for server should not throw on client
+      const config = loadConfig({
+        server: {
+          port: { value: "not-a-number", schema: z.coerce.number() },
+        },
+        public: {
+          key: "value",
+        },
+      });
+
+      expect(config.public.key).toBe("value");
+      expect(() => config.server.port).toThrow(ServerConfigClientAccessError);
+    });
+
+    it("still validates public schema on client", () => {
+      // @ts-expect-error - intentionally manipulating global for tests
+      globalThis.window = {};
+
+      // Invalid schema value for public should throw on client
+      expect(() =>
+        loadConfig({
+          server: {
+            apiKey: undefined,
+          },
+          public: {
+            email: {
+              value: "invalid-email",
+              schema: z.string().email(),
+            },
+          },
+        }),
+      ).toThrow(InvalidConfigurationError);
+    });
+
+    it("works with feature flag on client", () => {
+      // @ts-expect-error - intentionally manipulating global for tests
+      globalThis.window = {};
+
+      const config = loadConfig({
+        flag: "true",
+        server: {
+          apiKey: undefined, // Would throw on server, not on client
+        },
+        public: {
+          dsn: "https://sentry.io",
+        },
+      });
+
+      expect(config.isEnabled).toBe(true);
+      if (config.isEnabled) {
+        expect(config.public.dsn).toBe("https://sentry.io");
+        expect(() => config.server.apiKey).toThrow(
+          ServerConfigClientAccessError,
+        );
+      }
+    });
+
+    it("skips conditional optional validation for server on client", () => {
+      // @ts-expect-error - intentionally manipulating global for tests
+      globalThis.window = {};
+
+      // Both undefined would throw on server, but not on client
+      const config = loadConfig({
+        server: {
+          oidcToken: { value: undefined, optional: "apiKey" },
+          apiKey: { value: undefined, optional: "oidcToken" },
+        },
+        public: {
+          dsn: "https://sentry.io",
+        },
+      });
+
+      expect(config.public.dsn).toBe("https://sentry.io");
+      expect(() => config.server.oidcToken).toThrow(
+        ServerConfigClientAccessError,
+      );
+    });
+
+    it("validates on server (control test)", () => {
+      // Ensure window is undefined (server)
+      // @ts-expect-error - intentionally manipulating global for tests
+      delete globalThis.window;
+
+      // Should throw on server because apiKey is undefined
+      expect(() =>
+        loadConfig({
+          server: {
+            apiKey: undefined,
+          },
+        }),
+      ).toThrow(InvalidConfigurationError);
+    });
+  });
+
   describe("conditional optional (either-or values)", () => {
     it("allows value to be undefined when fallback key has value", () => {
       const config = loadConfig({
