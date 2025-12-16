@@ -23,7 +23,6 @@ import {
   BookOpen,
   ScrollText,
 } from "lucide-react";
-import Image from "next/image";
 import {
   getAllItems,
   getAllCookbooks,
@@ -32,68 +31,14 @@ import {
   getCursorPromptDeeplink,
   isCookbook,
 } from "@/lib/recipes/data";
-import { codeToHtml, type BundledLanguage } from "shiki";
-import { CodeBlockClient } from "@/components/docs/code-block-client";
-
-type CodeBlockProps = {
-  code: string;
-  language: BundledLanguage;
-  filePath?: string;
-};
-
-function getFileExtension(filePath: string): string {
-  const ext = filePath.split(".").pop()?.toLowerCase();
-  return ext ?? "file";
-}
-
-function useHighlightedCode(code: string, language: BundledLanguage) {
-  const [html, setHtml] = useState<{ light: string; dark: string } | null>(
-    null,
-  );
-
-  useEffect(() => {
-    let mounted = true;
-    Promise.all([
-      codeToHtml(code, { lang: language, theme: "one-light" }),
-      codeToHtml(code, { lang: language, theme: "one-dark-pro" }),
-    ]).then(([light, dark]) => {
-      if (mounted) {
-        setHtml({ light, dark });
-      }
-    });
-    return () => {
-      mounted = false;
-    };
-  }, [code, language]);
-
-  return html;
-}
-
-function CodeBlock({ code, language, filePath }: CodeBlockProps) {
-  const html = useHighlightedCode(code, language);
-
-  if (!html) {
-    return (
-      <div className="rounded-md border bg-background p-4">
-        <pre className="overflow-x-auto font-mono text-sm">
-          <code>{code}</code>
-        </pre>
-      </div>
-    );
-  }
-
-  return (
-    <CodeBlockClient
-      filePath={filePath ?? null}
-      fileExt={filePath ? getFileExtension(filePath) : null}
-      language={language}
-      code={code}
-      lightHtml={html.light}
-      darkHtml={html.dark}
-      hasFilePath={!!filePath}
-    />
-  );
-}
+import type { BundledLanguage } from "shiki";
+import {
+  useHighlightedCode,
+  McpCodeBlock,
+  McpConfigSection,
+  CursorButton,
+  type McpClient,
+} from "@/components/home/mcp";
 
 // Simple inline code highlighting for previews (no container/header)
 function InlineHighlightedCode({
@@ -131,84 +76,8 @@ const items = getAllItems();
 const cookbooks = getAllCookbooks();
 const recipes = getAllRecipes();
 
-const MCP_CONFIG = `{
-  "mcpServers": {
-    "fullstackrecipes": {
-      "url": "https://fullstackrecipes.com/api/mcp"
-    }
-  }
-}`;
-
-const CURSOR_MCP_INSTALL_URL =
-  "https://cursor.com/en-US/install-mcp?name=fullstackrecipes&config=eyJ1cmwiOiJodHRwczovL2Z1bGxzdGFja3JlY2lwZXMuY29tL2FwaS9tY3AifQ%3D%3D";
-
-const CLAUDE_CODE_MCP_COMMAND =
-  "claude mcp add --transport http fullstackrecipes https://fullstackrecipes.com/api/mcp";
-
-const VSCODE_MCP_CONFIG = `{
-  "servers": {
-    "fullstackrecipes": {
-      "type": "http",
-      "url": "https://fullstackrecipes.com/api/mcp"
-    }
-  }
-}`;
-
-const VSCODE_MCP_INSTALL_URL = `vscode:mcp/install?${encodeURIComponent(
-  JSON.stringify({
-    fullstackrecipes: {
-      type: "http",
-      url: "https://fullstackrecipes.com/api/mcp",
-    },
-  }),
-)}`;
-
 function getRegistryCommand(registryDep: string) {
   return `bunx shadcn@latest add https://fullstackrecipes.com/r/${registryDep}.json`;
-}
-
-function CursorButton({ href, children }: { href: string; children: string }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
-    >
-      <Image
-        src="/assets/cursor-logo-light.svg"
-        alt="Cursor"
-        width={18}
-        height={18}
-        className="dark:hidden"
-      />
-      <Image
-        src="/assets/cursor-logo-dark.svg"
-        alt="Cursor"
-        width={18}
-        height={18}
-        className="hidden dark:block"
-      />
-      {children}
-    </a>
-  );
-}
-
-function VSCodeButton({ href, children }: { href: string; children: string }) {
-  return (
-    <a
-      href={href}
-      className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
-    >
-      <Image
-        src="/assets/vscode-logo.svg"
-        alt="VS Code"
-        width={18}
-        height={18}
-      />
-      {children}
-    </a>
-  );
 }
 
 export function HowItWorks() {
@@ -216,9 +85,7 @@ export function HowItWorks() {
   const [recipeContent, setRecipeContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [copiedState, setCopiedState] = useState<string | null>(null);
-  const [mcpClient, setMcpClient] = useState<
-    "cursor" | "claude-code" | "vscode"
-  >("cursor");
+  const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
 
   const selectedItem = items.find((r) => r.slug === selectedSlug)!;
   const hasRegistry =
@@ -494,71 +361,12 @@ export function HowItWorks() {
                       </div>
                     </div>
 
-                    {/* MCP Client Tabs */}
-                    <div className="mt-4 flex gap-1 rounded-lg border border-border bg-secondary/30 p-1">
-                      <button
-                        onClick={() => setMcpClient("cursor")}
-                        className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                          mcpClient === "cursor"
-                            ? "bg-background text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        Cursor
-                      </button>
-                      <button
-                        onClick={() => setMcpClient("vscode")}
-                        className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                          mcpClient === "vscode"
-                            ? "bg-background text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        VS Code
-                      </button>
-                      <button
-                        onClick={() => setMcpClient("claude-code")}
-                        className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                          mcpClient === "claude-code"
-                            ? "bg-background text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        Claude Code
-                      </button>
+                    <div className="mt-4">
+                      <McpConfigSection
+                        mcpClient={mcpClient}
+                        setMcpClient={setMcpClient}
+                      />
                     </div>
-
-                    {mcpClient === "cursor" && (
-                      <CodeBlock
-                        code={MCP_CONFIG}
-                        language="json"
-                        filePath=".cursor/mcp.json"
-                      />
-                    )}
-                    {mcpClient === "vscode" && (
-                      <CodeBlock
-                        code={VSCODE_MCP_CONFIG}
-                        language="json"
-                        filePath=".vscode/mcp.json"
-                      />
-                    )}
-                    {mcpClient === "claude-code" && (
-                      <CodeBlock
-                        code={CLAUDE_CODE_MCP_COMMAND}
-                        language="bash"
-                      />
-                    )}
-
-                    {mcpClient === "cursor" && (
-                      <CursorButton href={CURSOR_MCP_INSTALL_URL}>
-                        Add to Cursor
-                      </CursorButton>
-                    )}
-                    {mcpClient === "vscode" && (
-                      <VSCodeButton href={VSCODE_MCP_INSTALL_URL}>
-                        Add to VS Code
-                      </VSCodeButton>
-                    )}
                   </div>
 
                   {/* Step 2: Ask your coding agent */}
@@ -577,10 +385,38 @@ export function HowItWorks() {
                       </div>
                     </div>
 
-                    <CodeBlock
-                      code={getItemPromptText(selectedItem)}
-                      language="bash"
-                    />
+                    <div className="mt-4 rounded-lg border border-dashed border-border bg-secondary/30 p-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="truncate font-mono text-sm text-muted-foreground">
+                          {getItemPromptText(selectedItem)}
+                        </span>
+                        <Button
+                          size="sm"
+                          variant={
+                            copiedState === "prompt" ? "secondary" : "default"
+                          }
+                          onClick={() =>
+                            copyToClipboard(
+                              getItemPromptText(selectedItem),
+                              "prompt",
+                            )
+                          }
+                          className="shrink-0 gap-2"
+                        >
+                          {copiedState === "prompt" ? (
+                            <>
+                              <Check className="h-4 w-4" />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-4 w-4" />
+                              Copy
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
 
                     {mcpClient === "cursor" && (
                       <CursorButton
@@ -617,7 +453,7 @@ export function HowItWorks() {
                       </div>
 
                       {selectedItem.registryDeps?.map((dep) => (
-                        <CodeBlock
+                        <McpCodeBlock
                           key={dep}
                           code={getRegistryCommand(dep)}
                           language="bash"

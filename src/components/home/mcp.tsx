@@ -1,0 +1,295 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { codeToHtml, type BundledLanguage } from "shiki";
+import { CodeBlockClient } from "@/components/docs/code-block-client";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Server } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+// MCP Configuration Constants
+export const MCP_CONFIG = `{
+  "mcpServers": {
+    "fullstackrecipes": {
+      "url": "https://fullstackrecipes.com/api/mcp"
+    }
+  }
+}`;
+
+export const CURSOR_MCP_INSTALL_URL =
+  "https://cursor.com/en-US/install-mcp?name=fullstackrecipes&config=eyJ1cmwiOiJodHRwczovL2Z1bGxzdGFja3JlY2lwZXMuY29tL2FwaS9tY3AifQ%3D%3D";
+
+export const CLAUDE_CODE_MCP_COMMAND =
+  "claude mcp add --transport http fullstackrecipes https://fullstackrecipes.com/api/mcp";
+
+export const VSCODE_MCP_CONFIG = `{
+  "servers": {
+    "fullstackrecipes": {
+      "type": "http",
+      "url": "https://fullstackrecipes.com/api/mcp"
+    }
+  }
+}`;
+
+export const VSCODE_MCP_INSTALL_URL = `vscode:mcp/install?${encodeURIComponent(
+  JSON.stringify({
+    fullstackrecipes: {
+      type: "http",
+      url: "https://fullstackrecipes.com/api/mcp",
+    },
+  }),
+)}`;
+
+// Shared Hooks
+export function useHighlightedCode(code: string, language: BundledLanguage) {
+  const [html, setHtml] = useState<{ light: string; dark: string } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let mounted = true;
+    Promise.all([
+      codeToHtml(code, { lang: language, theme: "one-light" }),
+      codeToHtml(code, { lang: language, theme: "one-dark-pro" }),
+    ]).then(([light, dark]) => {
+      if (mounted) {
+        setHtml({ light, dark });
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [code, language]);
+
+  return html;
+}
+
+// Utility Functions
+function getFileExtension(filePath: string): string {
+  const ext = filePath.split(".").pop()?.toLowerCase();
+  return ext ?? "file";
+}
+
+// Shared Components
+type CodeBlockProps = {
+  code: string;
+  language: BundledLanguage;
+  filePath?: string;
+};
+
+export function McpCodeBlock({ code, language, filePath }: CodeBlockProps) {
+  const html = useHighlightedCode(code, language);
+
+  if (!html) {
+    return (
+      <div className="rounded-md border bg-background p-4">
+        <pre className="overflow-x-auto font-mono text-sm">
+          <code>{code}</code>
+        </pre>
+      </div>
+    );
+  }
+
+  return (
+    <CodeBlockClient
+      filePath={filePath ?? null}
+      fileExt={filePath ? getFileExtension(filePath) : null}
+      language={language}
+      code={code}
+      lightHtml={html.light}
+      darkHtml={html.dark}
+      hasFilePath={!!filePath}
+    />
+  );
+}
+
+export function CursorButton({
+  href,
+  children,
+}: {
+  href: string;
+  children: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+    >
+      <Image
+        src="/assets/cursor-logo-light.svg"
+        alt="Cursor"
+        width={18}
+        height={18}
+        className="dark:hidden"
+      />
+      <Image
+        src="/assets/cursor-logo-dark.svg"
+        alt="Cursor"
+        width={18}
+        height={18}
+        className="hidden dark:block"
+      />
+      {children}
+    </a>
+  );
+}
+
+export function VSCodeButton({
+  href,
+  children,
+}: {
+  href: string;
+  children: string;
+}) {
+  return (
+    <a
+      href={href}
+      className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+    >
+      <Image
+        src="/assets/vscode-logo.svg"
+        alt="VS Code"
+        width={18}
+        height={18}
+      />
+      {children}
+    </a>
+  );
+}
+
+// MCP Client Types
+export type McpClient = "cursor" | "claude-code" | "vscode";
+
+// Reusable MCP Config Section Component
+type McpConfigSectionProps = {
+  mcpClient: McpClient;
+  setMcpClient: (client: McpClient) => void;
+  showAddButtons?: boolean;
+};
+
+export function McpConfigSection({
+  mcpClient,
+  setMcpClient,
+  showAddButtons = true,
+}: McpConfigSectionProps) {
+  return (
+    <div className="flex min-w-0 flex-col gap-4">
+      {/* MCP Client Tabs */}
+      <div className="flex gap-1 rounded-lg border border-border bg-secondary/30 p-1">
+        <button
+          onClick={() => setMcpClient("cursor")}
+          className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            mcpClient === "cursor"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Cursor
+        </button>
+        <button
+          onClick={() => setMcpClient("vscode")}
+          className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            mcpClient === "vscode"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          VS Code
+        </button>
+        <button
+          onClick={() => setMcpClient("claude-code")}
+          className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            mcpClient === "claude-code"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Claude Code
+        </button>
+      </div>
+
+      {/* Config Display */}
+      <div className="min-w-0">
+        {mcpClient === "cursor" && (
+          <McpCodeBlock
+            code={MCP_CONFIG}
+            language="json"
+            filePath=".cursor/mcp.json"
+          />
+        )}
+        {mcpClient === "vscode" && (
+          <McpCodeBlock
+            code={VSCODE_MCP_CONFIG}
+            language="json"
+            filePath=".vscode/mcp.json"
+          />
+        )}
+        {mcpClient === "claude-code" && (
+          <McpCodeBlock code={CLAUDE_CODE_MCP_COMMAND} language="bash" />
+        )}
+      </div>
+
+      {/* Add Buttons */}
+      {showAddButtons && (
+        <div>
+          {mcpClient === "cursor" && (
+            <CursorButton href={CURSOR_MCP_INSTALL_URL}>
+              Add to Cursor
+            </CursorButton>
+          )}
+          {mcpClient === "vscode" && (
+            <VSCodeButton href={VSCODE_MCP_INSTALL_URL}>
+              Add to VS Code
+            </VSCodeButton>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Add MCP Dialog Component
+type AddMcpDialogProps = {
+  trigger?: React.ReactNode;
+  children?: React.ReactNode;
+};
+
+export function AddMcpDialog({ trigger, children }: AddMcpDialogProps) {
+  const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        {trigger ?? (
+          <Button variant="outline" size="lg" className="gap-2 font-medium">
+            <Server className="h-4 w-4" />
+            Add MCP Server
+          </Button>
+        )}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Server className="h-5 w-5 text-primary" />
+            Add MCP Server
+          </DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground">
+          Add the fullstackrecipes MCP server to your coding agent&apos;s
+          configuration
+        </p>
+        <McpConfigSection mcpClient={mcpClient} setMcpClient={setMcpClient} />
+        {children}
+      </DialogContent>
+    </Dialog>
+  );
+}

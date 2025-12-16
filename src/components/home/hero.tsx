@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BookOpen } from "lucide-react";
-import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { getAllItems } from "@/lib/recipes/data";
+import { AddMcpDialog } from "@/components/home/mcp";
 
 const items = getAllItems();
 
@@ -39,17 +39,7 @@ export function Hero() {
               </a>
             </Button>
 
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="gap-2 font-medium"
-            >
-              <Link href="/intro">
-                <BookOpen className="h-4 w-4" />
-                Get Started
-              </Link>
-            </Button>
+            <AddMcpDialog />
           </div>
         </div>
 
