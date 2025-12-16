@@ -20,10 +20,10 @@ import {
   FileText,
   ArrowRight,
   Bot,
-  ExternalLink,
   BookOpen,
   ScrollText,
 } from "lucide-react";
+import Image from "next/image";
 import {
   getAllItems,
   getAllCookbooks,
@@ -93,8 +93,76 @@ const MCP_CONFIG = `{
   }
 }`;
 
+const CURSOR_MCP_INSTALL_URL =
+  "https://cursor.com/en-US/install-mcp?name=fullstackrecipes&config=eyJ1cmwiOiJodHRwczovL2Z1bGxzdGFja3JlY2lwZXMuY29tL2FwaS9tY3AifQ%3D%3D";
+
+const CLAUDE_CODE_MCP_COMMAND =
+  "claude mcp add --transport http fullstackrecipes https://fullstackrecipes.com/api/mcp";
+
+const VSCODE_MCP_CONFIG = `{
+  "servers": {
+    "fullstackrecipes": {
+      "type": "http",
+      "url": "https://fullstackrecipes.com/api/mcp"
+    }
+  }
+}`;
+
+const VSCODE_MCP_INSTALL_URL = `vscode:mcp/install?${encodeURIComponent(
+  JSON.stringify({
+    fullstackrecipes: {
+      type: "http",
+      url: "https://fullstackrecipes.com/api/mcp",
+    },
+  }),
+)}`;
+
 function getRegistryCommand(registryDep: string) {
   return `bunx shadcn@latest add https://fullstackrecipes.com/r/${registryDep}.json`;
+}
+
+function CursorButton({ href, children }: { href: string; children: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+    >
+      <Image
+        src="/assets/cursor-logo-light.svg"
+        alt="Cursor"
+        width={18}
+        height={18}
+        className="dark:hidden"
+      />
+      <Image
+        src="/assets/cursor-logo-dark.svg"
+        alt="Cursor"
+        width={18}
+        height={18}
+        className="hidden dark:block"
+      />
+      {children}
+    </a>
+  );
+}
+
+function VSCodeButton({ href, children }: { href: string; children: string }) {
+  return (
+    <a
+      href={href}
+      className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+    >
+      <Image
+        src="/assets/vscode-logo.svg"
+        alt="VS Code"
+        width={18}
+        height={18}
+      />
+      {children}
+    </a>
+  );
 }
 
 export function HowItWorks() {
@@ -102,6 +170,9 @@ export function HowItWorks() {
   const [recipeContent, setRecipeContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [copiedState, setCopiedState] = useState<string | null>(null);
+  const [mcpClient, setMcpClient] = useState<
+    "cursor" | "claude-code" | "vscode"
+  >("cursor");
 
   const selectedItem = items.find((r) => r.slug === selectedSlug)!;
   const hasRegistry =
@@ -363,27 +434,123 @@ export function HowItWorks() {
                     <div>
                       <h4 className="font-medium">Add the MCP server</h4>
                       <p className="text-sm text-muted-foreground">
-                        Add to your coding agent's MCP config (Cursor, Claude
-                        Code, or VS Code MCP config)
+                        Add to your coding agent&apos;s MCP config
                       </p>
                     </div>
                   </div>
 
-                  <div className="group relative mb-6 min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4">
-                    <HighlightedCode code={MCP_CONFIG} language="json" />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => copyToClipboard(MCP_CONFIG, "mcp")}
-                      className="absolute right-2 top-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
-                    >
-                      {copiedState === "mcp" ? (
-                        <Check className="h-4 w-4 text-primary" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
+                  {/* MCP Client Tabs */}
+                  <div className="mb-4">
+                    <div className="mb-3 flex gap-1 rounded-lg border border-border bg-secondary/30 p-1">
+                      <button
+                        onClick={() => setMcpClient("cursor")}
+                        className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                          mcpClient === "cursor"
+                            ? "bg-background text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        Cursor
+                      </button>
+                      <button
+                        onClick={() => setMcpClient("vscode")}
+                        className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                          mcpClient === "vscode"
+                            ? "bg-background text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        VS Code
+                      </button>
+                      <button
+                        onClick={() => setMcpClient("claude-code")}
+                        className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                          mcpClient === "claude-code"
+                            ? "bg-background text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        Claude Code
+                      </button>
+                    </div>
+
+                    {mcpClient === "cursor" && (
+                      <div className="group relative min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4">
+                        <HighlightedCode code={MCP_CONFIG} language="json" />
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => copyToClipboard(MCP_CONFIG, "mcp")}
+                          className="absolute right-2 top-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
+                        >
+                          {copiedState === "mcp" ? (
+                            <Check className="h-4 w-4 text-primary" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                    {mcpClient === "vscode" && (
+                      <div className="group relative min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4">
+                        <HighlightedCode
+                          code={VSCODE_MCP_CONFIG}
+                          language="json"
+                        />
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() =>
+                            copyToClipboard(VSCODE_MCP_CONFIG, "vscode")
+                          }
+                          className="absolute right-2 top-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
+                        >
+                          {copiedState === "vscode" ? (
+                            <Check className="h-4 w-4 text-primary" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                    {mcpClient === "claude-code" && (
+                      <div className="group relative min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4">
+                        <HighlightedCode
+                          code={CLAUDE_CODE_MCP_COMMAND}
+                          language="bash"
+                        />
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() =>
+                            copyToClipboard(CLAUDE_CODE_MCP_COMMAND, "claude")
+                          }
+                          className="absolute right-2 top-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
+                        >
+                          {copiedState === "claude" ? (
+                            <Check className="h-4 w-4 text-primary" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    )}
                   </div>
+
+                  {mcpClient === "cursor" && (
+                    <div className="mb-6 flex justify-start">
+                      <CursorButton href={CURSOR_MCP_INSTALL_URL}>
+                        Add to Cursor
+                      </CursorButton>
+                    </div>
+                  )}
+                  {mcpClient === "vscode" && (
+                    <div className="mb-6 flex justify-start">
+                      <VSCodeButton href={VSCODE_MCP_INSTALL_URL}>
+                        Add to VS Code
+                      </VSCodeButton>
+                    </div>
+                  )}
 
                   <div className="mb-4 flex items-start gap-3">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
@@ -423,18 +590,17 @@ export function HowItWorks() {
                     </Button>
                   </div>
 
-                  <div className="mt-4 flex justify-end">
-                    <Button asChild variant="outline" className="gap-2">
-                      <a
+                  {mcpClient === "cursor" && (
+                    <div className="mt-4 flex justify-start">
+                      <CursorButton
                         href={getCursorPromptDeeplink(
                           getItemPromptText(selectedItem),
                         )}
                       >
-                        <ExternalLink className="h-4 w-4" />
                         Prompt Cursor
-                      </a>
-                    </Button>
-                  </div>
+                      </CursorButton>
+                    </div>
+                  )}
                 </Card>
               </TabsContent>
 
