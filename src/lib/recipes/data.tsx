@@ -531,25 +531,6 @@ const [renameId, setRenameId] = useQueryState("rename");
 <Dialog open={!!renameId} onOpenChange={...}>`,
   },
   {
-    slug: "chat-naming",
-    title: "Automatic Chat Naming",
-    description:
-      "Automatically generate descriptive chat titles from the user's first message using a fast LLM. Runs as a background step after the main response.",
-    tags: ["AI", "Agents"],
-    icon: MessageSquare,
-    sections: ["chat-naming.md"],
-    requires: ["ai-chat-persistence"],
-    previewCode: `const { text } = await generateText({
-  model: "google/gemini-2.5-flash",
-  system: namingSystemPrompt,
-  prompt: userMessageText,
-});
-
-await db.update(chats)
-  .set({ title: text.trim() })
-  .where(eq(chats.id, chatId));`,
-  },
-  {
     slug: "stripe-sync",
     title: "Stripe Subscriptions DB Sync",
     description:
@@ -633,6 +614,25 @@ transport: new WorkflowChatTransport({
 
 // Tool loop continues until finishReason !== "tool-calls"`,
     registryDeps: ["durable-agent"],
+  },
+  {
+    slug: "chat-naming",
+    title: "Automatic Chat Naming",
+    description:
+      "Automatically generate descriptive chat titles from the user's first message using a fast LLM. Runs as a background workflow step after the main response.",
+    tags: ["AI", "Agents", "Workflow Dev Kit"],
+    icon: MessageSquare,
+    sections: ["chat-naming.md"],
+    requires: ["workflow-setup", "ai-chat-persistence"],
+    previewCode: `const { text } = await generateText({
+  model: "google/gemini-2.5-flash",
+  system: namingSystemPrompt,
+  prompt: userMessageText,
+});
+
+await db.update(chats)
+  .set({ title: text.trim() })
+  .where(eq(chats.id, chatId));`,
   },
   // === COOKBOOKS (that depend on recipes above) ===
   {
