@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useQueryState, parseAsBoolean } from "nuqs";
 import { codeToHtml, type BundledLanguage } from "shiki";
 import { CodeBlock } from "@/components/recipes/code-block";
 import {
@@ -265,9 +266,17 @@ type AddMcpDialogProps = {
 
 export function AddMcpDialog({ trigger, children }: AddMcpDialogProps) {
   const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
+  const [isOpen, setIsOpen] = useQueryState(
+    "mcp",
+    parseAsBoolean.withDefault(false),
+  );
+
+  function handleOpenChange(open: boolean) {
+    setIsOpen(open || null);
+  }
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger ?? (
           <Button variant="outline" size="lg" className="gap-2 font-medium">

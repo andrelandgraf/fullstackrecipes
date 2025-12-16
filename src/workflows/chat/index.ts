@@ -11,6 +11,7 @@ import { startStream, finishStream } from "./steps/stream";
 import { routerStep } from "./steps/router";
 import { writeProgress } from "./steps/progress";
 import { log } from "./steps/logger";
+import { nameChatStep } from "./steps/name-chat";
 import { researchAgent } from "@/lib/ai/research";
 import { draftingAgent } from "@/lib/ai/drafting";
 
@@ -59,4 +60,6 @@ export async function chatWorkflow({
   await finishStream();
 
   await removeRunId(messageId);
+
+  await nameChatStep(chatId, userMessage);
 }

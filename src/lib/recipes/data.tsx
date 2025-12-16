@@ -26,6 +26,8 @@ import {
   Triangle,
   UserCog,
   ShieldCheck,
+  Link2,
+  List,
 } from "lucide-react";
 import registry from "../../../registry.json";
 
@@ -193,6 +195,7 @@ export const db = drizzle({ client: pool, schema });`,
     tags: ["UI Components"],
     icon: Palette,
     sections: ["setup-shadcn.md"],
+    requires: ["nextjs-on-vercel"],
     previewCode: `bunx --bun shadcn@latest init
 bunx --bun shadcn@latest add --all
 
@@ -263,6 +266,7 @@ logger.error(err, "Failed to process request");`,
     tags: ["Monitoring", "Vercel"],
     icon: BarChart3,
     sections: ["setup-vercel-analytics.md"],
+    requires: ["nextjs-on-vercel"],
     previewCode: `import { Analytics } from "@vercel/analytics/next";
 import { track } from "@vercel/analytics";
 
@@ -470,6 +474,26 @@ if (!session) redirect("/sign-in");
 });`,
   },
   {
+    slug: "nuqs-setup",
+    title: "URL State with nuqs",
+    description:
+      "Sync React state to URL query parameters for shareable filters, search, and deep links to modal dialogs using nuqs.",
+    tags: ["Config", "UI Components"],
+    icon: Link2,
+    sections: ["setup-nuqs.md"],
+    requires: ["nextjs-on-vercel"],
+    previewCode: `const [search, setSearch] = useQueryState(
+  "q",
+  parseAsString.withDefault(""),
+);
+const [deleteId, setDeleteId] = useQueryState(
+  "delete",
+  parseAsString,
+);
+
+// Deep link: /chats?q=auth&delete=abc123`,
+  },
+  {
     slug: "ai-chat-persistence",
     title: "AI Chat Persistence with Neon",
     description:
@@ -489,6 +513,41 @@ if (!session) redirect("/sign-in");
   title: text("title").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });`,
+  },
+  {
+    slug: "chat-list",
+    title: "Chat List & Management",
+    description:
+      "Build a chat list page with search, rename, and delete functionality. Uses nuqs for URL-synced filters and deep-linkable modal dialogs.",
+    tags: ["AI", "UI Components"],
+    icon: List,
+    sections: ["chat-list.md"],
+    requires: ["nuqs-setup", "ai-chat-persistence"],
+    previewCode: `const [deleteId, setDeleteId] = useQueryState("delete");
+const [renameId, setRenameId] = useQueryState("rename");
+
+// Deep links: /chats?delete=abc or /chats?rename=xyz
+<AlertDialog open={!!deleteId} onOpenChange={...}>
+<Dialog open={!!renameId} onOpenChange={...}>`,
+  },
+  {
+    slug: "chat-naming",
+    title: "Automatic Chat Naming",
+    description:
+      "Automatically generate descriptive chat titles from the user's first message using a fast LLM. Runs as a background step after the main response.",
+    tags: ["AI", "Agents"],
+    icon: MessageSquare,
+    sections: ["chat-naming.md"],
+    requires: ["ai-chat-persistence"],
+    previewCode: `const { text } = await generateText({
+  model: "google/gemini-2.5-flash",
+  system: namingSystemPrompt,
+  prompt: userMessageText,
+});
+
+await db.update(chats)
+  .set({ title: text.trim() })
+  .where(eq(chats.id, chatId));`,
   },
   {
     slug: "stripe-sync",

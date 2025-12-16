@@ -1,3 +1,86 @@
+# Chat List & Management
+
+Build a chat list page where users can view, search, rename, and delete their conversations. Modal dialogs are controlled via URL parameters for deep linking.
+
+## Server Actions
+
+Create server actions for chat management operations:
+
+```ts title="src/lib/chat/actions.ts"
+"use server";
+
+import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth/server";
+import {
+  deleteChat as deleteChatQuery,
+  renameChat as renameChatQuery,
+} from "./queries";
+import { v7 as uuidv7 } from "uuid";
+
+export async function deleteChatAction(chatId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return { error: "Unauthorized" };
+  }
+
+  const success = await deleteChatQuery(chatId, session.user.id);
+
+  if (!success) {
+    return { error: "Chat not found" };
+  }
+
+  revalidatePath("/chats");
+  return { success: true };
+}
+
+export async function createNewChat() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/sign-in");
+  }
+
+  const chatId = uuidv7();
+  redirect(`/chats/${chatId}`);
+}
+
+export async function renameChatAction(chatId: string, newTitle: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return { error: "Unauthorized" };
+  }
+
+  const trimmedTitle = newTitle.trim();
+  if (!trimmedTitle) {
+    return { error: "Title cannot be empty" };
+  }
+
+  const success = await renameChatQuery(chatId, session.user.id, trimmedTitle);
+
+  if (!success) {
+    return { error: "Chat not found" };
+  }
+
+  revalidatePath("/chats");
+  return { success: true, title: trimmedTitle };
+}
+```
+
+## Chat List Component
+
+The chat list uses nuqs for URL-synced search and modal state:
+
+```tsx title="src/components/chats/chat-list.tsx"
 "use client";
 
 import { useState, useMemo } from "react";
@@ -117,6 +200,7 @@ export function ChatList({
   initialChats: ChatWithPreview[];
 }) {
   const [chats, setChats] = useState(initialChats);
+  // URL-synced state for search and modals
   const [searchQuery, setSearchQuery] = useQueryState(
     "q",
     parseAsString.withDefault(""),
@@ -260,6 +344,7 @@ export function ChatList({
         </div>
       )}
 
+      {/* Delete confirmation - URL: ?delete=chatId */}
       <AlertDialog
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
@@ -285,6 +370,7 @@ export function ChatList({
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Rename dialog - URL: ?rename=chatId */}
       <Dialog
         open={!!renameId}
         onOpenChange={(open) => {
@@ -336,3 +422,62 @@ export function ChatList({
     </div>
   );
 }
+```
+
+## Chats Page
+
+Create a protected page that fetches and displays the user's chats:
+
+```tsx title="src/app/chats/page.tsx"
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth/server";
+import { getUserChats } from "@/lib/chat/queries";
+import { ChatList } from "@/components/chats/chat-list";
+
+export const metadata: Metadata = {
+  title: "Your Chats",
+  description: "View and manage your AI conversations.",
+  alternates: {
+    canonical: "/chats",
+  },
+};
+
+export default async function ChatsPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/sign-in");
+  }
+
+  const chats = await getUserChats(session.user.id);
+
+  return (
+    <main className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Your Chats</h1>
+        <p className="text-muted-foreground mt-1">
+          View and manage your conversations
+        </p>
+      </div>
+
+      <ChatList initialChats={chats} />
+    </main>
+  );
+}
+```
+
+## Deep Linkable URLs
+
+The chat list supports these deep links:
+
+- `/chats` - Default view
+- `/chats?q=react` - Search for "react"
+- `/chats?delete=abc123` - Open delete dialog for chat abc123
+- `/chats?rename=abc123` - Open rename dialog for chat abc123
+- `/chats?q=react&delete=abc123` - Combined search and delete dialog
+
+Users can share these URLs or bookmark specific actions. Browser back/forward navigation preserves the UI state.
