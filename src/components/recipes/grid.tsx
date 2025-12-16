@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
+import {
+  useQueryState,
+  parseAsBoolean,
+  parseAsArrayOf,
+  parseAsString,
+} from "nuqs";
 import { RecipeCard } from "@/components/recipes/card";
 import { RecipeSearch } from "@/components/recipes/search";
 import { getAllItems, isCookbook } from "@/lib/recipes/data";
@@ -14,10 +20,22 @@ const allTags = Array.from(
 ).sort();
 
 export function RecipeGrid() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [sortAscending, setSortAscending] = useState(false);
-  const [cookbooksOnly, setCookbooksOnly] = useState(false);
+  const [searchQuery, setSearchQuery] = useQueryState(
+    "q",
+    parseAsString.withDefault(""),
+  );
+  const [selectedTags, setSelectedTags] = useQueryState(
+    "tags",
+    parseAsArrayOf(parseAsString).withDefault([]),
+  );
+  const [sortAscending, setSortAscending] = useQueryState(
+    "asc",
+    parseAsBoolean.withDefault(false),
+  );
+  const [cookbooksOnly, setCookbooksOnly] = useQueryState(
+    "cookbooks",
+    parseAsBoolean.withDefault(false),
+  );
 
   const filteredItems = useMemo(() => {
     const filtered = items.filter((item) => {
@@ -45,9 +63,17 @@ export function RecipeGrid() {
   };
 
   const clearFilters = () => {
-    setSearchQuery("");
-    setSelectedTags([]);
-    setCookbooksOnly(false);
+    setSearchQuery(null);
+    setSelectedTags(null);
+    setCookbooksOnly(null);
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query || null);
+  };
+
+  const handleCookbooksOnlyChange = (value: boolean) => {
+    setCookbooksOnly(value || null);
   };
 
   return (
@@ -89,7 +115,7 @@ export function RecipeGrid() {
 
         <RecipeSearch
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={handleSearchChange}
           allTags={allTags}
           selectedTags={selectedTags}
           onTagToggle={toggleTag}
@@ -97,7 +123,7 @@ export function RecipeGrid() {
           resultCount={filteredItems.length}
           totalCount={items.length}
           cookbooksOnly={cookbooksOnly}
-          onCookbooksOnlyChange={setCookbooksOnly}
+          onCookbooksOnlyChange={handleCookbooksOnlyChange}
         />
 
         {filteredItems.length > 0 ? (

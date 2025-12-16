@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { ThemeSelector } from "@/components/themes/selector";
 import { CopyMarkdownButton } from "@/components/recipes/copy-markdown-button";
-import { ArrowLeft, BookOpen, type LucideIcon } from "lucide-react";
-import Link from "next/link";
+import { BackButton } from "@/components/recipes/back-button";
+import { BookOpen, type LucideIcon } from "lucide-react";
 
 interface RecipeHeaderProps {
   title: string;
@@ -27,13 +27,7 @@ export function RecipeHeader({
     <header className="border-b border-border/50 bg-card/50">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center justify-between">
-          <Link
-            href="/#recipes"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to recipes
-          </Link>
+          <BackButton />
           <div className="flex items-center gap-2">
             {markdownContent && (
               <CopyMarkdownButton content={markdownContent} />
