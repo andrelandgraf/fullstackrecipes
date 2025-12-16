@@ -12,7 +12,7 @@ Each recipe provides a complete step-by-step guide for adding a specific feature
 
 ## Shadcn & Open Code
 
-Fullstackrecipes isn't a library you install. Instead, it follows [Shadcn's Open Code philosophy](https://ui.shadcn.com/docs). When following a recipe, you copy and paste code and install dependencies step by step into your codebase—fully owning the resulting code and free to make adjustments as you see fit. Additionally, Fullstackrecipes serves as a Shadcn registry; more information below.
+Fullstackrecipes follows [Shadcn's Open Code philosophy](https://ui.shadcn.com/docs). Each recipe contains all code required to implement the recipe in your codebase. Additionally, Fullstackrecipes also serves as a Shadcn registry; more information below.
 
 ---
 

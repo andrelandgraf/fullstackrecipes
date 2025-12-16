@@ -33,13 +33,20 @@ import {
   isCookbook,
 } from "@/lib/recipes/data";
 import { codeToHtml, type BundledLanguage } from "shiki";
+import { CodeBlockClient } from "@/components/docs/code-block-client";
 
-type HighlightedCodeProps = {
+type CodeBlockProps = {
   code: string;
   language: BundledLanguage;
+  filePath?: string;
 };
 
-function HighlightedCode({ code, language }: HighlightedCodeProps) {
+function getFileExtension(filePath: string): string {
+  const ext = filePath.split(".").pop()?.toLowerCase();
+  return ext ?? "file";
+}
+
+function useHighlightedCode(code: string, language: BundledLanguage) {
   const [html, setHtml] = useState<{ light: string; dark: string } | null>(
     null,
   );
@@ -58,6 +65,45 @@ function HighlightedCode({ code, language }: HighlightedCodeProps) {
       mounted = false;
     };
   }, [code, language]);
+
+  return html;
+}
+
+function CodeBlock({ code, language, filePath }: CodeBlockProps) {
+  const html = useHighlightedCode(code, language);
+
+  if (!html) {
+    return (
+      <div className="rounded-md border bg-background p-4">
+        <pre className="overflow-x-auto font-mono text-sm">
+          <code>{code}</code>
+        </pre>
+      </div>
+    );
+  }
+
+  return (
+    <CodeBlockClient
+      filePath={filePath ?? null}
+      fileExt={filePath ? getFileExtension(filePath) : null}
+      language={language}
+      code={code}
+      lightHtml={html.light}
+      darkHtml={html.dark}
+      hasFilePath={!!filePath}
+    />
+  );
+}
+
+// Simple inline code highlighting for previews (no container/header)
+function InlineHighlightedCode({
+  code,
+  language,
+}: {
+  code: string;
+  language: BundledLanguage;
+}) {
+  const html = useHighlightedCode(code, language);
 
   if (!html) {
     return (
@@ -327,7 +373,10 @@ export function HowItWorks() {
                   </div>
                 ) : (
                   <div className="min-w-0 overflow-hidden text-xs leading-relaxed [&>pre]:whitespace-pre-wrap [&_code]:text-xs">
-                    <HighlightedCode code={recipeContent} language="markdown" />
+                    <InlineHighlightedCode
+                      code={recipeContent}
+                      language="markdown"
+                    />
                   </div>
                 )}
               </div>
@@ -362,51 +411,55 @@ export function HowItWorks() {
 
               {/* Copy Markdown Tab */}
               <TabsContent value="copy" className="mt-0">
-                <Card className="border-border/50 p-6">
-                  <div className="mb-4 flex items-start gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                      1
+                <Card className="flex flex-col gap-8 border-border/50 p-6">
+                  {/* Step 1 */}
+                  <div>
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                        1
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Copy recipe as Markdown</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Each recipe page has a &quot;Copy as Markdown&quot;
+                          button
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-medium">Copy recipe as Markdown</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Each recipe page has a &quot;Copy as Markdown&quot;
-                        button
-                      </p>
+
+                    <div className="mt-4 rounded-lg border border-dashed border-border bg-secondary/30 p-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="truncate font-mono text-sm text-muted-foreground">
+                          {selectedSlug}.md
+                        </span>
+                        <Button
+                          size="sm"
+                          variant={
+                            copiedState === "markdown" ? "secondary" : "default"
+                          }
+                          onClick={() =>
+                            copyToClipboard(recipeContent, "markdown")
+                          }
+                          className="shrink-0 gap-2"
+                          disabled={isLoading}
+                        >
+                          {copiedState === "markdown" ? (
+                            <>
+                              <Check className="h-4 w-4" />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-4 w-4" />
+                              Copy
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mb-6 rounded-lg border border-dashed border-border bg-secondary/30 p-4">
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="truncate font-mono text-sm text-muted-foreground">
-                        {selectedSlug}.md
-                      </span>
-                      <Button
-                        size="sm"
-                        variant={
-                          copiedState === "markdown" ? "secondary" : "default"
-                        }
-                        onClick={() =>
-                          copyToClipboard(recipeContent, "markdown")
-                        }
-                        className="shrink-0 gap-2"
-                        disabled={isLoading}
-                      >
-                        {copiedState === "markdown" ? (
-                          <>
-                            <Check className="h-4 w-4" />
-                            Copied
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="h-4 w-4" />
-                            Copy
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
+                  {/* Step 2 */}
                   <div className="flex items-start gap-3">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                       2
@@ -426,22 +479,23 @@ export function HowItWorks() {
 
               {/* MCP Server Tab */}
               <TabsContent value="mcp" className="mt-0">
-                <Card className="border-border/50 p-6">
-                  <div className="mb-4 flex items-start gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                      1
+                <Card className="flex flex-col gap-8 border-border/50 p-6">
+                  {/* Step 1: Add the MCP server */}
+                  <div>
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                        1
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Add the MCP server</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Add to your coding agent&apos;s MCP config
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-medium">Add the MCP server</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Add to your coding agent&apos;s MCP config
-                      </p>
-                    </div>
-                  </div>
 
-                  {/* MCP Client Tabs */}
-                  <div className="mb-4">
-                    <div className="mb-3 flex gap-1 rounded-lg border border-border bg-secondary/30 p-1">
+                    {/* MCP Client Tabs */}
+                    <div className="mt-4 flex gap-1 rounded-lg border border-border bg-secondary/30 p-1">
                       <button
                         onClick={() => setMcpClient("cursor")}
                         className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
@@ -475,123 +529,60 @@ export function HowItWorks() {
                     </div>
 
                     {mcpClient === "cursor" && (
-                      <div className="group relative min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4">
-                        <HighlightedCode code={MCP_CONFIG} language="json" />
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => copyToClipboard(MCP_CONFIG, "mcp")}
-                          className="absolute right-2 top-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
-                        >
-                          {copiedState === "mcp" ? (
-                            <Check className="h-4 w-4 text-primary" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
+                      <CodeBlock
+                        code={MCP_CONFIG}
+                        language="json"
+                        filePath=".cursor/mcp.json"
+                      />
                     )}
                     {mcpClient === "vscode" && (
-                      <div className="group relative min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4">
-                        <HighlightedCode
-                          code={VSCODE_MCP_CONFIG}
-                          language="json"
-                        />
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() =>
-                            copyToClipboard(VSCODE_MCP_CONFIG, "vscode")
-                          }
-                          className="absolute right-2 top-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
-                        >
-                          {copiedState === "vscode" ? (
-                            <Check className="h-4 w-4 text-primary" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
+                      <CodeBlock
+                        code={VSCODE_MCP_CONFIG}
+                        language="json"
+                        filePath=".vscode/mcp.json"
+                      />
                     )}
                     {mcpClient === "claude-code" && (
-                      <div className="group relative min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4">
-                        <HighlightedCode
-                          code={CLAUDE_CODE_MCP_COMMAND}
-                          language="bash"
-                        />
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() =>
-                            copyToClipboard(CLAUDE_CODE_MCP_COMMAND, "claude")
-                          }
-                          className="absolute right-2 top-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
-                        >
-                          {copiedState === "claude" ? (
-                            <Check className="h-4 w-4 text-primary" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
+                      <CodeBlock
+                        code={CLAUDE_CODE_MCP_COMMAND}
+                        language="bash"
+                      />
                     )}
-                  </div>
 
-                  {mcpClient === "cursor" && (
-                    <div className="mb-6 flex justify-start">
+                    {mcpClient === "cursor" && (
                       <CursorButton href={CURSOR_MCP_INSTALL_URL}>
                         Add to Cursor
                       </CursorButton>
-                    </div>
-                  )}
-                  {mcpClient === "vscode" && (
-                    <div className="mb-6 flex justify-start">
+                    )}
+                    {mcpClient === "vscode" && (
                       <VSCodeButton href={VSCODE_MCP_INSTALL_URL}>
                         Add to VS Code
                       </VSCodeButton>
-                    </div>
-                  )}
-
-                  <div className="mb-4 flex items-start gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                      2
-                    </div>
-                    <div>
-                      <h4 className="font-medium">
-                        Ask your coding agent to follow the recipe
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        The agent can fetch recipes directly via MCP resources
-                      </p>
-                    </div>
+                    )}
                   </div>
 
-                  <div className="group relative min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4">
-                    <HighlightedCode
+                  {/* Step 2: Ask your coding agent */}
+                  <div>
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                        2
+                      </div>
+                      <div>
+                        <h4 className="font-medium">
+                          Ask your coding agent to follow the recipe
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          The agent can fetch recipes directly via MCP resources
+                        </p>
+                      </div>
+                    </div>
+
+                    <CodeBlock
                       code={getItemPromptText(selectedItem)}
                       language="bash"
                     />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() =>
-                        copyToClipboard(
-                          getItemPromptText(selectedItem),
-                          "prompt",
-                        )
-                      }
-                      className="absolute right-2 top-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
-                    >
-                      {copiedState === "prompt" ? (
-                        <Check className="h-4 w-4 text-primary" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
 
-                  {mcpClient === "cursor" && (
-                    <div className="mt-4 flex justify-start">
+                    {mcpClient === "cursor" && (
                       <CursorButton
                         href={getCursorPromptDeeplink(
                           getItemPromptText(selectedItem),
@@ -599,58 +590,42 @@ export function HowItWorks() {
                       >
                         Prompt Cursor
                       </CursorButton>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </Card>
               </TabsContent>
 
               {/* Registry Tab */}
               {hasRegistry && (
                 <TabsContent value="registry" className="mt-0">
-                  <Card className="border-border/50 p-6">
-                    <div className="mb-4 flex items-start gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                        1
+                  <Card className="flex flex-col gap-8 border-border/50 p-6">
+                    {/* Step 1 */}
+                    <div>
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                          1
+                        </div>
+                        <div>
+                          <h4 className="font-medium">
+                            Install via shadcn registry
+                          </h4>
+                          <p className="text-sm text-muted-foreground">
+                            This recipe has reusable code you can install
+                            directly
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-medium">
-                          Install via shadcn registry
-                        </h4>
-                        <p className="text-sm text-muted-foreground">
-                          This recipe has reusable code you can install directly
-                        </p>
-                      </div>
-                    </div>
 
-                    {selectedItem.registryDeps?.map((dep, index) => (
-                      <div
-                        key={dep}
-                        className="group relative mb-4 min-w-0 overflow-hidden rounded-lg border border-border bg-background p-4"
-                      >
-                        <HighlightedCode
+                      {selectedItem.registryDeps?.map((dep) => (
+                        <CodeBlock
+                          key={dep}
                           code={getRegistryCommand(dep)}
                           language="bash"
                         />
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() =>
-                            copyToClipboard(
-                              getRegistryCommand(dep),
-                              `registry-${index}`,
-                            )
-                          }
-                          className="absolute right-2 top-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
-                        >
-                          {copiedState === `registry-${index}` ? (
-                            <Check className="h-4 w-4 text-primary" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
 
+                    {/* Step 2 */}
                     <div className="flex items-start gap-3">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                         2
