@@ -65,11 +65,21 @@ export function Registry() {
             </div>
           </div>
           <h2 className="mb-3 text-2xl font-bold tracking-tight">
-            shadcn Registry
+            Shadcn Registry
           </h2>
-          <p className="text-sm text-muted-foreground">
-            Some recipes include reusable utilities that can be installed
-            directly into your project through the shadcn CLI.
+          <p className="text-muted-foreground">
+            Fullstackrecipes follows{" "}
+            <a
+              href="https://ui.shadcn.com/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              Shadcn&apos;s Open Code approach
+            </a>
+            —you own the code. Each recipe provides complete, copy-paste
+            instructions for your AI assistant. Some recipes also include
+            reusable utilities you can install directly via the shadcn CLI.
           </p>
         </div>
 

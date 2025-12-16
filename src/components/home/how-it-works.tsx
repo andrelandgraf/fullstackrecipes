@@ -419,13 +419,15 @@ export function HowItWorks() {
                     </div>
 
                     {mcpClient === "cursor" && (
-                      <CursorButton
-                        href={getCursorPromptDeeplink(
-                          getItemPromptText(selectedItem),
-                        )}
-                      >
-                        Prompt Cursor
-                      </CursorButton>
+                      <div className="mt-4">
+                        <CursorButton
+                          href={getCursorPromptDeeplink(
+                            getItemPromptText(selectedItem),
+                          )}
+                        >
+                          Prompt Cursor
+                        </CursorButton>
+                      </div>
                     )}
                   </div>
                 </Card>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { codeToHtml, type BundledLanguage } from "shiki";
-import { CodeBlockClient } from "@/components/docs/code-block-client";
+import { CodeBlock } from "@/components/recipes/code-block";
 import {
   Dialog,
   DialogContent,
@@ -98,7 +98,7 @@ export function McpCodeBlock({ code, language, filePath }: CodeBlockProps) {
   }
 
   return (
-    <CodeBlockClient
+    <CodeBlock
       filePath={filePath ?? null}
       fileExt={filePath ? getFileExtension(filePath) : null}
       language={language}
@@ -182,7 +182,7 @@ export function McpConfigSection({
   showAddButtons = true,
 }: McpConfigSectionProps) {
   return (
-    <div className="flex min-w-0 flex-col gap-4">
+    <div className="flex min-w-0 flex-col">
       {/* MCP Client Tabs */}
       <div className="flex gap-1 rounded-lg border border-border bg-secondary/30 p-1">
         <button
@@ -218,7 +218,7 @@ export function McpConfigSection({
       </div>
 
       {/* Config Display */}
-      <div className="min-w-0">
+      <div className="mt-4 min-w-0">
         {mcpClient === "cursor" && (
           <McpCodeBlock
             code={MCP_CONFIG}
@@ -240,7 +240,7 @@ export function McpConfigSection({
 
       {/* Add Buttons */}
       {showAddButtons && (
-        <div>
+        <div className="mt-4">
           {mcpClient === "cursor" && (
             <CursorButton href={CURSOR_MCP_INSTALL_URL}>
               Add to Cursor

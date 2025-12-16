@@ -59,8 +59,9 @@ export function RecipeGrid() {
               All Recipes
             </h2>
             <p className="text-sm text-muted-foreground">
-              Focused recipes for single features, or cookbooks that bundle
-              multiple recipes together
+              Browse recipes for single features, or start with a cookbook that
+              bundles multiple recipes. Follow recipes in order—from basic setup
+              to AI agents—to build a complete app.
             </p>
           </div>
           <Button
