@@ -21,7 +21,6 @@ const allTags = Array.from(
 ).sort();
 
 function RecipeGridInner() {
-  console.log(aiConfig.server.oidcToken);
   const [searchQuery, setSearchQuery] = useQueryState(
     "q",
     parseAsString.withDefault(""),
