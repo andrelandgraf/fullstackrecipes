@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, Suspense } from "react";
 import {
   useQueryState,
   parseAsBoolean,
@@ -19,7 +19,7 @@ const allTags = Array.from(
   new Set(items.flatMap((r) => r.tags).filter((t) => t !== "Cookbook")),
 ).sort();
 
-export function RecipeGrid() {
+function RecipeGridInner() {
   const [searchQuery, setSearchQuery] = useQueryState(
     "q",
     parseAsString.withDefault(""),
@@ -152,5 +152,13 @@ export function RecipeGrid() {
         )}
       </div>
     </section>
+  );
+}
+
+export function RecipeGrid() {
+  return (
+    <Suspense>
+      <RecipeGridInner />
+    </Suspense>
   );
 }

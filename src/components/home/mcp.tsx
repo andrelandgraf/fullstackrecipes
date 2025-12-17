@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { codeToHtml, type BundledLanguage } from "shiki";
@@ -264,7 +264,7 @@ type AddMcpDialogProps = {
   children?: React.ReactNode;
 };
 
-export function AddMcpDialog({ trigger, children }: AddMcpDialogProps) {
+function AddMcpDialogInner({ trigger, children }: AddMcpDialogProps) {
   const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
   const [isOpen, setIsOpen] = useQueryState(
     "mcp",
@@ -300,5 +300,20 @@ export function AddMcpDialog({ trigger, children }: AddMcpDialogProps) {
         {children}
       </DialogContent>
     </Dialog>
+  );
+}
+
+export function AddMcpDialog(props: AddMcpDialogProps) {
+  return (
+    <Suspense
+      fallback={
+        <Button variant="outline" size="lg" className="gap-2 font-medium">
+          <Server className="h-4 w-4" />
+          Add MCP Server
+        </Button>
+      }
+    >
+      <AddMcpDialogInner {...props} />
+    </Suspense>
   );
 }

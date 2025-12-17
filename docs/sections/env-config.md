@@ -30,6 +30,8 @@ For example, if `NODE_ENV` is `development` and you define a variable in both `.
 
 > **Note**: The allowed values for `NODE_ENV` are `production`, `development`, and `test`.
 
+Note `next build` and `next start` will use the production environment variables while `next dev` will use the development environment variables.
+
 #### Syncing with Vercel
 
 When getting started, local, development, and production environments often share third-party resources like databases to move faster. Use the Vercel CLI to keep environment variables in sync.
@@ -57,6 +59,25 @@ Some variables differ between local and deployed environments (e.g., `BETTER_AUT
 ```
 
 Since `.local` files always take precedence over their non-local counterparts, your local overrides will be applied automatically.
+
+#### Build vs Development Mode
+
+Next.js commands run in different modes, which affects which env files are loaded:
+
+| File                     | `next dev` | `next build` / `next start` |
+| ------------------------ | ---------- | --------------------------- |
+| `.env.development.local` | ✅         | ❌                          |
+| `.env.development`       | ✅         | ❌                          |
+| `.env.production.local`  | ❌         | ✅                          |
+| `.env.production`        | ❌         | ✅                          |
+| `.env.local`             | ✅         | ✅                          |
+| `.env`                   | ✅         | ✅                          |
+
+Pull the project's production environment variables if you want to build your project locally with `next build`:
+
+```bash
+vercel env pull .env.production --environment=production
+```
 
 #### Workflow
 
