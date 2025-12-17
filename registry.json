@@ -50,7 +50,9 @@
       "title": "Validate Environment",
       "description": "CLI script to validate all config.ts files against .env files. Finds missing variables, reports validation errors, and warns about unused env vars.",
       "dependencies": ["@next/env"],
-      "registryDependencies": ["config-schema"],
+      "registryDependencies": [
+        "https://fullstackrecipes.com/r/config-schema.json"
+      ],
       "files": [
         {
           "path": "scripts/validate-env.ts",
