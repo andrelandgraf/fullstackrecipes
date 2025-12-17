@@ -1,15 +1,13 @@
-import { loadConfig } from "@/lib/common/load-config";
+import { configSchema, server, oneOf } from "@/lib/config/schema";
 
-export const aiConfig = loadConfig({
-  server: {
+export const aiConfig = configSchema(
+  "AI",
+  {
     // Either oidcToken or gatewayApiKey must be set
-    oidcToken: {
-      value: process.env.VERCEL_OIDC_TOKEN,
-      optional: "gatewayApiKey",
-    },
-    gatewayApiKey: {
-      value: process.env.AI_GATEWAY_API_KEY,
-      optional: "oidcToken",
-    },
+    oidcToken: server({ env: "VERCEL_OIDC_TOKEN" }),
+    gatewayApiKey: server({ env: "AI_GATEWAY_API_KEY" }),
   },
-});
+  {
+    constraints: (s) => [oneOf([s.oidcToken, s.gatewayApiKey])],
+  },
+);

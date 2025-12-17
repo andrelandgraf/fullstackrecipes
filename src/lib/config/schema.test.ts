@@ -1,10 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { z } from "zod";
 import {
-  loadConfig,
+  configSchema,
+  server,
+  pub,
+  oneOf,
   InvalidConfigurationError,
   ServerConfigClientAccessError,
-} from "./load-config";
+} from "./schema";
 
 // Store original env to restore after tests
 let originalEnv: NodeJS.ProcessEnv;
@@ -21,13 +24,11 @@ afterEach(() => {
   delete globalThis.window;
 });
 
-describe("loadConfig", () => {
+describe("configSchema", () => {
   describe("server section", () => {
     it("loads string values", () => {
-      const config = loadConfig({
-        server: {
-          url: "postgres://localhost:5432/test",
-        },
+      const config = configSchema("Test", {
+        url: server({ env: "URL", value: "postgres://localhost:5432/test" }),
       });
 
       expect(config.server.url).toBe("postgres://localhost:5432/test");
@@ -35,20 +36,16 @@ describe("loadConfig", () => {
 
     it("throws when required value is undefined", () => {
       expect(() =>
-        loadConfig({
-          server: {
-            url: undefined,
-          },
+        configSchema("Test", {
+          url: server({ env: "URL", value: undefined }),
         }),
       ).toThrow(InvalidConfigurationError);
     });
 
     it("includes key path in error message", () => {
       try {
-        loadConfig({
-          server: {
-            secretKey: undefined,
-          },
+        configSchema("Test", {
+          secretKey: server({ env: "SECRET_KEY", value: undefined }),
         });
         expect.unreachable("Should have thrown");
       } catch (e) {
@@ -59,13 +56,10 @@ describe("loadConfig", () => {
       }
     });
 
-    it("includes feature name in error message when provided", () => {
+    it("includes schema name in error message when provided", () => {
       try {
-        loadConfig({
-          name: "Stripe",
-          server: {
-            apiKey: undefined,
-          },
+        configSchema("Stripe", {
+          apiKey: server({ env: "API_KEY", value: undefined }),
         });
         expect.unreachable("Should have thrown");
       } catch (e) {
@@ -76,10 +70,11 @@ describe("loadConfig", () => {
 
   describe("public section", () => {
     it("loads string values", () => {
-      const config = loadConfig({
-        public: {
-          dsn: "https://sentry.io/123",
-        },
+      const config = configSchema("Test", {
+        dsn: pub({
+          env: "NEXT_PUBLIC_DSN",
+          value: "https://sentry.io/123",
+        }),
       });
 
       expect(config.public.dsn).toBe("https://sentry.io/123");
@@ -87,20 +82,19 @@ describe("loadConfig", () => {
 
     it("throws when required value is undefined", () => {
       expect(() =>
-        loadConfig({
-          public: {
-            dsn: undefined,
-          },
+        configSchema("Test", {
+          dsn: pub({ env: "NEXT_PUBLIC_DSN", value: undefined }),
         }),
       ).toThrow(InvalidConfigurationError);
     });
 
     it("includes key path in error message", () => {
       try {
-        loadConfig({
-          public: {
-            analyticsId: undefined,
-          },
+        configSchema("Test", {
+          analyticsId: pub({
+            env: "NEXT_PUBLIC_ANALYTICS_ID",
+            value: undefined,
+          }),
         });
         expect.unreachable("Should have thrown");
       } catch (e) {
@@ -114,13 +108,9 @@ describe("loadConfig", () => {
 
   describe("mixed server and public", () => {
     it("loads both sections", () => {
-      const config = loadConfig({
-        server: {
-          token: "secret-token",
-        },
-        public: {
-          dsn: "https://example.com",
-        },
+      const config = configSchema("Test", {
+        token: server({ env: "TOKEN", value: "secret-token" }),
+        dsn: pub({ env: "NEXT_PUBLIC_DSN", value: "https://example.com" }),
       });
 
       expect(config.server.token).toBe("secret-token");
@@ -130,10 +120,8 @@ describe("loadConfig", () => {
 
   describe("custom schemas", () => {
     it("coerces string to number", () => {
-      const config = loadConfig({
-        server: {
-          port: { value: "3000", schema: z.coerce.number() },
-        },
+      const config = configSchema("Test", {
+        port: server({ env: "PORT", value: "3000", schema: z.coerce.number() }),
       });
 
       expect(config.server.port).toBe(3000);
@@ -141,20 +129,24 @@ describe("loadConfig", () => {
     });
 
     it("uses default value when undefined", () => {
-      const config = loadConfig({
-        server: {
-          poolSize: { value: undefined, schema: z.coerce.number().default(10) },
-        },
+      const config = configSchema("Test", {
+        poolSize: server({
+          env: "POOL_SIZE",
+          value: undefined,
+          schema: z.coerce.number().default(10),
+        }),
       });
 
       expect(config.server.poolSize).toBe(10);
     });
 
     it("allows optional values with schema", () => {
-      const config = loadConfig({
-        server: {
-          optional: { value: undefined, schema: z.string().optional() },
-        },
+      const config = configSchema("Test", {
+        optional: server({
+          env: "OPTIONAL",
+          value: undefined,
+          schema: z.string().optional(),
+        }),
       });
 
       expect(config.server.optional).toBeUndefined();
@@ -162,13 +154,12 @@ describe("loadConfig", () => {
 
     it("validates with custom schema and shows error", () => {
       try {
-        loadConfig({
-          public: {
-            email: {
-              value: "invalid-email",
-              schema: z.string().email("Must be a valid email"),
-            },
-          },
+        configSchema("Test", {
+          email: pub({
+            env: "NEXT_PUBLIC_EMAIL",
+            value: "invalid-email",
+            schema: z.string().email("Must be a valid email"),
+          }),
         });
         expect.unreachable("Should have thrown");
       } catch (e) {
@@ -179,46 +170,58 @@ describe("loadConfig", () => {
   });
 
   describe("feature flags", () => {
-    it("returns isEnabled: false when flag is undefined", () => {
-      const config = loadConfig({
-        flag: undefined,
-        server: {
-          apiKey: "key",
+    it("returns isEnabled: false when flag value is undefined", () => {
+      const config = configSchema(
+        "Test",
+        {
+          apiKey: server({ env: "API_KEY", value: "key" }),
         },
-      });
+        {
+          flag: { env: "ENABLE_FEATURE", value: undefined },
+        },
+      );
 
       expect(config.isEnabled).toBe(false);
     });
 
-    it("returns isEnabled: false when flag is empty string", () => {
-      const config = loadConfig({
-        flag: "",
-        server: {
-          apiKey: "key",
+    it("returns isEnabled: false when flag value is empty string", () => {
+      const config = configSchema(
+        "Test",
+        {
+          apiKey: server({ env: "API_KEY", value: "key" }),
         },
-      });
+        {
+          flag: { env: "ENABLE_FEATURE", value: "" },
+        },
+      );
 
       expect(config.isEnabled).toBe(false);
     });
 
-    it("returns isEnabled: false when flag is 'false'", () => {
-      const config = loadConfig({
-        flag: "false",
-        server: {
-          apiKey: "key",
+    it("returns isEnabled: false when flag value is 'false'", () => {
+      const config = configSchema(
+        "Test",
+        {
+          apiKey: server({ env: "API_KEY", value: "key" }),
         },
-      });
+        {
+          flag: { env: "ENABLE_FEATURE", value: "false" },
+        },
+      );
 
       expect(config.isEnabled).toBe(false);
     });
 
-    it("validates and returns config when flag is 'true'", () => {
-      const config = loadConfig({
-        flag: "true",
-        server: {
-          apiKey: "secret-key",
+    it("validates and returns config when flag value is 'true'", () => {
+      const config = configSchema(
+        "Test",
+        {
+          apiKey: server({ env: "API_KEY", value: "secret-key" }),
         },
-      });
+        {
+          flag: { env: "ENABLE_FEATURE", value: "true" },
+        },
+      );
 
       expect(config.isEnabled).toBe(true);
       if (config.isEnabled) {
@@ -228,12 +231,15 @@ describe("loadConfig", () => {
 
     it("accepts '1' and 'yes' as truthy flag values", () => {
       for (const value of ["1", "yes", "YES", "True", "TRUE"]) {
-        const config = loadConfig({
-          flag: value,
-          server: {
-            apiKey: "test",
+        const config = configSchema(
+          "Test",
+          {
+            apiKey: server({ env: "API_KEY", value: "test" }),
           },
-        });
+          {
+            flag: { env: "ENABLE_FEATURE", value },
+          },
+        );
 
         expect(config.isEnabled).toBe(true);
       }
@@ -241,25 +247,51 @@ describe("loadConfig", () => {
 
     it("throws when flag is enabled but value is undefined", () => {
       expect(() =>
-        loadConfig({
-          flag: "true",
-          server: {
-            apiKey: undefined,
+        configSchema(
+          "Test",
+          {
+            apiKey: server({ env: "API_KEY", value: undefined }),
           },
-        }),
+          {
+            flag: { env: "ENABLE_FEATURE", value: "true" },
+          },
+        ),
       ).toThrow(InvalidConfigurationError);
     });
 
     it("skips validation when flag is disabled", () => {
       // Should NOT throw even though apiKey is undefined
-      const config = loadConfig({
-        flag: undefined,
-        server: {
-          apiKey: undefined,
+      const config = configSchema(
+        "Test",
+        {
+          apiKey: server({ env: "API_KEY", value: undefined }),
         },
-      });
+        {
+          flag: { env: "ENABLE_FEATURE", value: undefined },
+        },
+      );
 
       expect(config.isEnabled).toBe(false);
+    });
+
+    it("works with flag + constraints", () => {
+      const config = configSchema(
+        "Test",
+        {
+          oidcToken: server({ env: "OIDC_TOKEN", value: undefined }),
+          apiKey: server({ env: "API_KEY", value: "api-key" }),
+        },
+        {
+          flag: { env: "ENABLE_FEATURE", value: "true" },
+          constraints: (s) => [oneOf([s.oidcToken, s.apiKey])],
+        },
+      );
+
+      expect(config.isEnabled).toBe(true);
+      if (config.isEnabled) {
+        expect(config.server.oidcToken).toBeUndefined();
+        expect(config.server.apiKey).toBe("api-key");
+      }
     });
   });
 
@@ -269,10 +301,8 @@ describe("loadConfig", () => {
       // @ts-expect-error - intentionally manipulating global for tests
       globalThis.window = {};
 
-      const config = loadConfig({
-        public: {
-          dsn: "https://sentry.io/123",
-        },
+      const config = configSchema("Test", {
+        dsn: pub({ env: "NEXT_PUBLIC_DSN", value: "https://sentry.io/123" }),
       });
 
       // Should not throw
@@ -284,10 +314,8 @@ describe("loadConfig", () => {
       // @ts-expect-error - intentionally manipulating global for tests
       globalThis.window = {};
 
-      const config = loadConfig({
-        server: {
-          token: "super-secret",
-        },
+      const config = configSchema("Test", {
+        token: server({ env: "TOKEN", value: "super-secret" }),
       });
 
       expect(() => config.server.token).toThrow(ServerConfigClientAccessError);
@@ -297,10 +325,8 @@ describe("loadConfig", () => {
       // @ts-expect-error - intentionally manipulating global for tests
       globalThis.window = {};
 
-      const config = loadConfig({
-        server: {
-          authToken: "secret",
-        },
+      const config = configSchema("Test", {
+        authToken: server({ env: "AUTH_TOKEN", value: "secret" }),
       });
 
       try {
@@ -317,12 +343,15 @@ describe("loadConfig", () => {
       // @ts-expect-error - intentionally manipulating global for tests
       globalThis.window = {};
 
-      const config = loadConfig({
-        flag: "true",
-        public: {
-          key: "public-value",
+      const config = configSchema(
+        "Test",
+        {
+          key: pub({ env: "NEXT_PUBLIC_KEY", value: "public-value" }),
         },
-      });
+        {
+          flag: { env: "ENABLE_FEATURE", value: "true" },
+        },
+      );
 
       // Should not throw when accessing isEnabled
       expect(config.isEnabled).toBe(true);
@@ -333,10 +362,8 @@ describe("loadConfig", () => {
       // @ts-expect-error - intentionally manipulating global for tests
       delete globalThis.window;
 
-      const config = loadConfig({
-        server: {
-          token: "super-secret",
-        },
+      const config = configSchema("Test", {
+        token: server({ env: "TOKEN", value: "super-secret" }),
       });
 
       // Should work fine on server
@@ -349,13 +376,9 @@ describe("loadConfig", () => {
       // @ts-expect-error - intentionally manipulating global for tests
       globalThis.window = {};
 
-      const config = loadConfig({
-        server: {
-          token: "secret",
-        },
-        public: {
-          dsn: "https://sentry.io",
-        },
+      const config = configSchema("Test", {
+        token: server({ env: "TOKEN", value: "secret" }),
+        dsn: pub({ env: "NEXT_PUBLIC_DSN", value: "https://sentry.io" }),
       });
 
       // Public works
@@ -373,14 +396,10 @@ describe("loadConfig", () => {
 
       // Should NOT throw even though server vars are undefined
       // because on client, server section is not validated
-      const config = loadConfig({
-        server: {
-          apiKey: undefined,
-          secretToken: undefined,
-        },
-        public: {
-          dsn: "https://sentry.io",
-        },
+      const config = configSchema("Test", {
+        apiKey: server({ env: "API_KEY", value: undefined }),
+        secretToken: server({ env: "SECRET_TOKEN", value: undefined }),
+        dsn: pub({ env: "NEXT_PUBLIC_DSN", value: "https://sentry.io" }),
       });
 
       // Public still works
@@ -396,13 +415,9 @@ describe("loadConfig", () => {
 
       // Should throw because public vars are undefined on client
       expect(() =>
-        loadConfig({
-          server: {
-            apiKey: undefined, // Should not cause error on client
-          },
-          public: {
-            dsn: undefined, // Should cause error
-          },
+        configSchema("Test", {
+          apiKey: server({ env: "API_KEY", value: undefined }), // Should not cause error on client
+          dsn: pub({ env: "NEXT_PUBLIC_DSN", value: undefined }), // Should cause error
         }),
       ).toThrow(InvalidConfigurationError);
     });
@@ -412,13 +427,12 @@ describe("loadConfig", () => {
       globalThis.window = {};
 
       try {
-        loadConfig({
-          server: {
-            apiKey: undefined,
-          },
-          public: {
-            analyticsId: undefined,
-          },
+        configSchema("Test", {
+          apiKey: server({ env: "API_KEY", value: undefined }),
+          analyticsId: pub({
+            env: "NEXT_PUBLIC_ANALYTICS_ID",
+            value: undefined,
+          }),
         });
         expect.unreachable("Should have thrown");
       } catch (e) {
@@ -434,13 +448,13 @@ describe("loadConfig", () => {
       globalThis.window = {};
 
       // Invalid schema value for server should not throw on client
-      const config = loadConfig({
-        server: {
-          port: { value: "not-a-number", schema: z.coerce.number() },
-        },
-        public: {
-          key: "value",
-        },
+      const config = configSchema("Test", {
+        port: server({
+          env: "PORT",
+          value: "not-a-number",
+          schema: z.coerce.number(),
+        }),
+        key: pub({ env: "NEXT_PUBLIC_KEY", value: "value" }),
       });
 
       expect(config.public.key).toBe("value");
@@ -453,16 +467,13 @@ describe("loadConfig", () => {
 
       // Invalid schema value for public should throw on client
       expect(() =>
-        loadConfig({
-          server: {
-            apiKey: undefined,
-          },
-          public: {
-            email: {
-              value: "invalid-email",
-              schema: z.string().email(),
-            },
-          },
+        configSchema("Test", {
+          apiKey: server({ env: "API_KEY", value: undefined }),
+          email: pub({
+            env: "NEXT_PUBLIC_EMAIL",
+            value: "invalid-email",
+            schema: z.string().email(),
+          }),
         }),
       ).toThrow(InvalidConfigurationError);
     });
@@ -471,15 +482,16 @@ describe("loadConfig", () => {
       // @ts-expect-error - intentionally manipulating global for tests
       globalThis.window = {};
 
-      const config = loadConfig({
-        flag: "true",
-        server: {
-          apiKey: undefined, // Would throw on server, not on client
+      const config = configSchema(
+        "Test",
+        {
+          apiKey: server({ env: "API_KEY", value: undefined }), // Would throw on server, not on client
+          dsn: pub({ env: "NEXT_PUBLIC_DSN", value: "https://sentry.io" }),
         },
-        public: {
-          dsn: "https://sentry.io",
+        {
+          flag: { env: "ENABLE_FEATURE", value: "true" },
         },
-      });
+      );
 
       expect(config.isEnabled).toBe(true);
       if (config.isEnabled) {
@@ -495,15 +507,17 @@ describe("loadConfig", () => {
       globalThis.window = {};
 
       // Both undefined would throw on server, but not on client
-      const config = loadConfig({
-        server: {
-          oidcToken: { value: undefined, optional: "apiKey" },
-          apiKey: { value: undefined, optional: "oidcToken" },
+      const config = configSchema(
+        "Test",
+        {
+          oidcToken: server({ env: "OIDC_TOKEN", value: undefined }),
+          apiKey: server({ env: "API_KEY", value: undefined }),
+          dsn: pub({ env: "NEXT_PUBLIC_DSN", value: "https://sentry.io" }),
         },
-        public: {
-          dsn: "https://sentry.io",
+        {
+          constraints: (s) => [oneOf([s.oidcToken, s.apiKey])],
         },
-      });
+      );
 
       expect(config.public.dsn).toBe("https://sentry.io");
       expect(() => config.server.oidcToken).toThrow(
@@ -518,60 +532,82 @@ describe("loadConfig", () => {
 
       // Should throw on server because apiKey is undefined
       expect(() =>
-        loadConfig({
-          server: {
-            apiKey: undefined,
-          },
+        configSchema("Test", {
+          apiKey: server({ env: "API_KEY", value: undefined }),
         }),
       ).toThrow(InvalidConfigurationError);
     });
   });
 
-  describe("conditional optional (either-or values)", () => {
+  describe("oneOf constraints (either-or values)", () => {
     it("allows value to be undefined when fallback key has value", () => {
-      const config = loadConfig({
-        server: {
-          oidcToken: { value: undefined, optional: "apiKey" },
-          apiKey: { value: "api-key-123", optional: "oidcToken" },
+      const config = configSchema(
+        "Test",
+        {
+          oidcToken: server({ env: "OIDC_TOKEN", value: undefined }),
+          apiKey: server({ env: "API_KEY", value: "api-key-123" }),
         },
-      });
+        {
+          constraints: (s) => [oneOf([s.oidcToken, s.apiKey])],
+        },
+      );
 
+      // No isEnabled property (no flag)
+      expect("isEnabled" in config).toBe(false);
       expect(config.server.oidcToken).toBeUndefined();
       expect(config.server.apiKey).toBe("api-key-123");
     });
 
     it("allows value to be undefined when any fallback key has value (array)", () => {
-      const config = loadConfig({
-        server: {
-          primary: { value: undefined, optional: ["secondary", "tertiary"] },
-          secondary: { value: undefined, optional: true },
-          tertiary: { value: "tertiary-value" },
+      const config = configSchema(
+        "Test",
+        {
+          primary: server({ env: "PRIMARY", value: undefined }),
+          secondary: server({
+            env: "SECONDARY",
+            value: undefined,
+            optional: true,
+          }),
+          tertiary: server({ env: "TERTIARY", value: "tertiary-value" }),
         },
-      });
+        {
+          constraints: (s) => [oneOf([s.primary, s.secondary, s.tertiary])],
+        },
+      );
 
+      // No isEnabled property (no flag)
+      expect("isEnabled" in config).toBe(false);
       expect(config.server.primary).toBeUndefined();
       expect(config.server.tertiary).toBe("tertiary-value");
     });
 
     it("throws when neither value nor fallback has value", () => {
       expect(() =>
-        loadConfig({
-          server: {
-            oidcToken: { value: undefined, optional: "apiKey" },
-            apiKey: { value: undefined, optional: "oidcToken" },
+        configSchema(
+          "Test",
+          {
+            oidcToken: server({ env: "OIDC_TOKEN", value: undefined }),
+            apiKey: server({ env: "API_KEY", value: undefined }),
           },
-        }),
+          {
+            constraints: (s) => [oneOf([s.oidcToken, s.apiKey])],
+          },
+        ),
       ).toThrow(InvalidConfigurationError);
     });
 
     it("includes both key names in error message", () => {
       try {
-        loadConfig({
-          server: {
-            varA: { value: undefined, optional: "varB" },
-            varB: { value: undefined, optional: "varA" },
+        configSchema(
+          "Test",
+          {
+            varA: server({ env: "VAR_A", value: undefined }),
+            varB: server({ env: "VAR_B", value: undefined }),
           },
-        });
+          {
+            constraints: (s) => [oneOf([s.varA, s.varB])],
+          },
+        );
         expect.unreachable("Should have thrown");
       } catch (e) {
         expect(e).toBeInstanceOf(InvalidConfigurationError);
@@ -583,13 +619,17 @@ describe("loadConfig", () => {
 
     it("includes all fallback keys in error message (array)", () => {
       try {
-        loadConfig({
-          server: {
-            varA: { value: undefined, optional: ["varB", "varC"] },
-            varB: { value: undefined, optional: true },
-            varC: { value: undefined, optional: true },
+        configSchema(
+          "Test",
+          {
+            varA: server({ env: "VAR_A", value: undefined }),
+            varB: server({ env: "VAR_B", value: undefined, optional: true }),
+            varC: server({ env: "VAR_C", value: undefined, optional: true }),
           },
-        });
+          {
+            constraints: (s) => [oneOf([s.varA, s.varB, s.varC])],
+          },
+        );
         expect.unreachable("Should have thrown");
       } catch (e) {
         expect(e).toBeInstanceOf(InvalidConfigurationError);
@@ -600,25 +640,35 @@ describe("loadConfig", () => {
     });
 
     it("works with both values set", () => {
-      const config = loadConfig({
-        server: {
-          oidcToken: { value: "oidc-token", optional: "apiKey" },
-          apiKey: { value: "api-key", optional: "oidcToken" },
+      const config = configSchema(
+        "Test",
+        {
+          oidcToken: server({ env: "OIDC_TOKEN", value: "oidc-token" }),
+          apiKey: server({ env: "API_KEY", value: "api-key" }),
         },
-      });
+        {
+          constraints: (s) => [oneOf([s.oidcToken, s.apiKey])],
+        },
+      );
 
+      // No isEnabled property (no flag)
+      expect("isEnabled" in config).toBe(false);
       expect(config.server.oidcToken).toBe("oidc-token");
       expect(config.server.apiKey).toBe("api-key");
     });
 
-    it("works with feature flag", () => {
-      const config = loadConfig({
-        flag: "true",
-        server: {
-          oidcToken: { value: undefined, optional: "apiKey" },
-          apiKey: { value: "api-key", optional: "oidcToken" },
+    it("works with feature flag and constraints", () => {
+      const config = configSchema(
+        "Test",
+        {
+          oidcToken: server({ env: "OIDC_TOKEN", value: undefined }),
+          apiKey: server({ env: "API_KEY", value: "api-key" }),
         },
-      });
+        {
+          flag: { env: "ENABLE_FEATURE", value: "true" },
+          constraints: (s) => [oneOf([s.oidcToken, s.apiKey])],
+        },
+      );
 
       expect(config.isEnabled).toBe(true);
       if (config.isEnabled) {
@@ -628,33 +678,43 @@ describe("loadConfig", () => {
     });
 
     it("skips validation when feature flag is disabled", () => {
-      const config = loadConfig({
-        flag: undefined,
-        server: {
-          oidcToken: { value: undefined, optional: "apiKey" },
-          apiKey: { value: undefined, optional: "oidcToken" },
+      const config = configSchema(
+        "Test",
+        {
+          oidcToken: server({ env: "OIDC_TOKEN", value: undefined }),
+          apiKey: server({ env: "API_KEY", value: undefined }),
         },
-      });
+        {
+          flag: { env: "ENABLE_FEATURE", value: undefined },
+          constraints: (s) => [oneOf([s.oidcToken, s.apiKey])],
+        },
+      );
 
       expect(config.isEnabled).toBe(false);
     });
 
     it("treats empty string as not having a value", () => {
       expect(() =>
-        loadConfig({
-          server: {
-            varA: { value: undefined, optional: "varB" },
-            varB: { value: "" },
+        configSchema(
+          "Test",
+          {
+            varA: server({ env: "VAR_A", value: undefined }),
+            varB: server({ env: "VAR_B", value: "" }),
           },
-        }),
+          {
+            constraints: (s) => [oneOf([s.varA, s.varB])],
+          },
+        ),
       ).toThrow(InvalidConfigurationError);
     });
 
     it("works with optional: true (always optional)", () => {
-      const config = loadConfig({
-        server: {
-          optionalVar: { value: undefined, optional: true },
-        },
+      const config = configSchema("Test", {
+        optionalVar: server({
+          env: "OPTIONAL_VAR",
+          value: undefined,
+          optional: true,
+        }),
       });
 
       expect(config.server.optionalVar).toBeUndefined();
@@ -662,10 +722,12 @@ describe("loadConfig", () => {
 
     it("works with optional: false (required)", () => {
       expect(() =>
-        loadConfig({
-          server: {
-            requiredVar: { value: undefined, optional: false },
-          },
+        configSchema("Test", {
+          requiredVar: server({
+            env: "REQUIRED_VAR",
+            value: undefined,
+            optional: false,
+          }),
         }),
       ).toThrow(InvalidConfigurationError);
     });
@@ -673,18 +735,27 @@ describe("loadConfig", () => {
 
   describe("real-world usage patterns", () => {
     it("works like the Sentry config example", () => {
-      const config = loadConfig({
-        name: "Sentry",
-        flag: "true",
-        server: {
-          token: "sentry-auth-token",
+      const config = configSchema(
+        "Sentry",
+        {
+          token: server({
+            env: "SENTRY_AUTH_TOKEN",
+            value: "sentry-auth-token",
+          }),
+          dsn: pub({
+            env: "NEXT_PUBLIC_SENTRY_DSN",
+            value: "https://abc@sentry.io/123",
+          }),
+          project: pub({
+            env: "NEXT_PUBLIC_SENTRY_PROJECT",
+            value: "my-project",
+          }),
+          org: pub({ env: "NEXT_PUBLIC_SENTRY_ORG", value: "my-org" }),
         },
-        public: {
-          dsn: "https://abc@sentry.io/123",
-          project: "my-project",
-          org: "my-org",
+        {
+          flag: { env: "NEXT_PUBLIC_ENABLE_SENTRY", value: "true" },
         },
-      });
+      );
 
       expect(config.isEnabled).toBe(true);
       if (config.isEnabled) {
@@ -696,23 +767,45 @@ describe("loadConfig", () => {
     });
 
     it("works with server-only config (no public)", () => {
-      const config = loadConfig({
-        server: {
-          url: "postgres://localhost",
-        },
+      const config = configSchema("Database", {
+        url: server({ env: "DATABASE_URL", value: "postgres://localhost" }),
       });
 
       expect(config.server.url).toBe("postgres://localhost");
     });
 
     it("works with public-only config (no server)", () => {
-      const config = loadConfig({
-        public: {
-          analyticsId: "UA-123456",
-        },
+      const config = configSchema("Analytics", {
+        analyticsId: pub({
+          env: "NEXT_PUBLIC_ANALYTICS_ID",
+          value: "UA-123456",
+        }),
       });
 
       expect(config.public.analyticsId).toBe("UA-123456");
+    });
+
+    it("works with oneOf constraint (no flag, no isEnabled)", () => {
+      const config = configSchema(
+        "AI",
+        {
+          oidcToken: server({ env: "VERCEL_OIDC_TOKEN", value: undefined }),
+          gatewayApiKey: server({
+            env: "AI_GATEWAY_API_KEY",
+            value: "gateway-key",
+          }),
+        },
+        {
+          constraints: (s) => [oneOf([s.oidcToken, s.gatewayApiKey])],
+        },
+      );
+
+      // Type check: config should NOT have isEnabled
+      expect("isEnabled" in config).toBe(false);
+
+      // Access properties directly
+      expect(config.server.oidcToken).toBeUndefined();
+      expect(config.server.gatewayApiKey).toBe("gateway-key");
     });
   });
 });

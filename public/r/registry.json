@@ -31,16 +31,16 @@
       ]
     },
     {
-      "name": "load-config",
+      "name": "config-schema",
       "type": "registry:lib",
-      "title": "Environment Config Loader",
-      "description": "Type-safe environment variable loading with Zod validation, runtime protection for server-only config, and full TypeScript inference.",
+      "title": "Config Schema",
+      "description": "Drizzle-like API for type-safe environment variable configuration with Zod validation, runtime protection for server-only config, and full TypeScript inference.",
       "dependencies": ["zod"],
       "files": [
         {
-          "path": "src/lib/common/load-config.ts",
+          "path": "src/lib/config/schema.ts",
           "type": "registry:lib",
-          "target": "lib/common/load-config.ts"
+          "target": "lib/config/schema.ts"
         }
       ]
     },

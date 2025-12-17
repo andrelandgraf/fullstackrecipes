@@ -1,17 +1,15 @@
 import { z } from "zod";
-import { loadConfig } from "../common/load-config";
+import { configSchema, server } from "@/lib/config/schema";
 
-export const resendConfig = loadConfig({
-  server: {
-    apiKey: process.env.RESEND_API_KEY,
-    fromEmail: {
-      value: process.env.RESEND_FROM_EMAIL,
-      schema: z
-        .string()
-        .regex(
-          /^.+\s<.+@.+\..+>$/,
-          'Must match "Name <email@domain.com>" format.',
-        ),
-    },
-  },
+export const resendConfig = configSchema("Resend", {
+  apiKey: server({ env: "RESEND_API_KEY" }),
+  fromEmail: server({
+    env: "RESEND_FROM_EMAIL",
+    schema: z
+      .string()
+      .regex(
+        /^.+\s<.+@.+\..+>$/,
+        'Must match "Name <email@domain.com>" format.',
+      ),
+  }),
 });

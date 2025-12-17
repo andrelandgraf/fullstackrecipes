@@ -1,14 +1,14 @@
 ## Environment Variable Management
 
-Type-safe server and client environment variable validation with explicit `server` and `public` sections. Clear error messages if variables are missing, invalid, or accessed on the client.
+Type-safe server and client environment variable validation with a Drizzle-like schema API. Clear error messages if variables are missing, invalid, or accessed on the client.
 
 ### Install via Registry
 
 ```bash
-bunx shadcn@latest add https://fullstackrecipes.com/r/load-config.json
+bunx shadcn@latest add https://fullstackrecipes.com/r/config-schema.json
 ```
 
-This installs the `load-config.ts` utility.
+This installs the `config/schema.ts` utility.
 
 ---
 
@@ -127,16 +127,14 @@ export default defineConfig({
 
 ### Basic Usage
 
-Each feature lib defines its own config file with explicit `server` and `public` sections:
+The API uses a Drizzle-like schema pattern with `server()` and `pub()` field builders:
 
 ```typescript
 // src/lib/db/config.ts
-import { loadConfig } from "@/lib/common/load-config";
+import { configSchema, server } from "@/lib/config/schema";
 
-export const databaseConfig = loadConfig({
-  server: {
-    url: process.env.DATABASE_URL,
-  },
+export const databaseConfig = configSchema("Database", {
+  url: server({ env: "DATABASE_URL" }),
 });
 // Type: { server: { url: string } }
 ```
@@ -144,7 +142,7 @@ export const databaseConfig = loadConfig({
 If `DATABASE_URL` is missing, you get a clear error:
 
 ```
-Error [InvalidConfigurationError]: Configuration validation error!
+Error [InvalidConfigurationError]: Configuration validation error for Database!
 Did you correctly set all required environment variables in your .env* file?
  - server.url must be defined.
 ```
@@ -160,60 +158,85 @@ const pool = new Pool({
 });
 ```
 
-### Server vs Public Sections
+### Server vs Public Fields
 
-The API explicitly separates server-only and client-accessible variables:
+Use `server()` for server-only secrets and `pub()` for client-accessible values:
 
 ```typescript
-export const sentryConfig = loadConfig({
-  name: "Sentry",
-  flag: process.env.NEXT_PUBLIC_ENABLE_SENTRY,
-  server: {
-    // Server-only values - throws if accessed on client
-    token: process.env.SENTRY_AUTH_TOKEN,
+import { configSchema, server, pub } from "@/lib/config/schema";
+
+export const sentryConfig = configSchema(
+  "Sentry",
+  {
+    // Server-only - throws if accessed on client
+    token: server({ env: "SENTRY_AUTH_TOKEN" }),
+    // Client-accessible - work everywhere
+    dsn: pub({
+      env: "NEXT_PUBLIC_SENTRY_DSN",
+      value: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    }),
+    project: pub({
+      env: "NEXT_PUBLIC_SENTRY_PROJECT",
+      value: process.env.NEXT_PUBLIC_SENTRY_PROJECT,
+    }),
   },
-  public: {
-    // Client-accessible values - work everywhere
-    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-    project: process.env.NEXT_PUBLIC_SENTRY_PROJECT,
+  {
+    flag: {
+      env: "NEXT_PUBLIC_ENABLE_SENTRY",
+      value: process.env.NEXT_PUBLIC_ENABLE_SENTRY,
+    },
   },
-});
+);
 ```
 
-**Why pass values directly?**
+**Why pass `value` for public fields?**
 
-Next.js only inlines `NEXT_PUBLIC_*` environment variables when accessed statically (like `process.env.NEXT_PUBLIC_DSN`). Dynamic lookups like `process.env[varName]` don't work on the client. By passing values directly, the static references are preserved and properly inlined at build time.
+Next.js only inlines `NEXT_PUBLIC_*` environment variables when accessed statically (like `process.env.NEXT_PUBLIC_DSN`). Dynamic lookups like `process.env[varName]` don't work on the client. By passing `value` directly, the static references are preserved and properly inlined at build time.
 
-### Optional Feature Flags
+Server fields can omit `value` since they use `process.env[env]` internally and are only accessed on the server.
 
-Use the `flag` parameter for features that can be enabled/disabled:
+### Feature Flags
+
+Use the `flag` option for features that can be enabled/disabled:
 
 ```typescript
 // src/lib/sentry/config.ts
-import { loadConfig } from "@/lib/common/load-config";
+import { configSchema, server, pub } from "@/lib/config/schema";
 
-export const sentryConfig = loadConfig({
-  name: "Sentry",
-  flag: process.env.NEXT_PUBLIC_ENABLE_SENTRY,
-  server: {
-    token: process.env.SENTRY_AUTH_TOKEN,
+export const sentryConfig = configSchema(
+  "Sentry",
+  {
+    token: server({ env: "SENTRY_AUTH_TOKEN" }),
+    dsn: pub({
+      env: "NEXT_PUBLIC_SENTRY_DSN",
+      value: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    }),
+    project: pub({
+      env: "NEXT_PUBLIC_SENTRY_PROJECT",
+      value: process.env.NEXT_PUBLIC_SENTRY_PROJECT,
+    }),
+    org: pub({
+      env: "NEXT_PUBLIC_SENTRY_ORG",
+      value: process.env.NEXT_PUBLIC_SENTRY_ORG,
+    }),
   },
-  public: {
-    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-    project: process.env.NEXT_PUBLIC_SENTRY_PROJECT,
-    org: process.env.NEXT_PUBLIC_SENTRY_ORG,
+  {
+    flag: {
+      env: "NEXT_PUBLIC_ENABLE_SENTRY",
+      value: process.env.NEXT_PUBLIC_ENABLE_SENTRY,
+    },
   },
-});
-// Type: FeatureConfig<...>
+);
+// Type: FeatureConfig<...> (has isEnabled)
 ```
 
-> **Important:** If your config has a `public` section, the `flag` must also use a `NEXT_PUBLIC_*` variable. Otherwise, the flag will be `undefined` on the client (since non-public env vars aren't inlined), causing `isEnabled` to always be `false` in client code even when the feature is enabled on the server.
+> **Important:** If your config has public fields, the flag must also use a `NEXT_PUBLIC_*` variable. Otherwise, the flag will be `undefined` on the client (since non-public env vars aren't inlined), causing `isEnabled` to always be `false` in client code even when the feature is enabled on the server.
 
 Behavior:
 
-- Flag not set or falsy → `{ isEnabled: false }` (no validation, no errors)
-- Flag is `"true"`, `"1"`, or `"yes"` → validates all values, returns `{ ..., isEnabled: true }`
-- Flag truthy + missing value → throws `InvalidConfigurationError`
+- Flag not set or falsy: `{ isEnabled: false }` (no validation, no errors)
+- Flag is `"true"`, `"1"`, or `"yes"`: validates all values, returns `{ ..., isEnabled: true }`
+- Flag truthy + missing value: throws `InvalidConfigurationError`
 
 Usage:
 
@@ -233,57 +256,78 @@ export async function register() {
 
 ### Either-Or Values
 
-Use the `optional` parameter to create conditional dependencies between values. This is useful when a feature can be configured with alternative credentials.
+Use the `oneOf` constraint when a feature can be configured with alternative credentials:
 
 ```typescript
 // src/lib/ai/config.ts
-import { loadConfig } from "@/lib/common/load-config";
+import { configSchema, server, oneOf } from "@/lib/config/schema";
 
-export const aiConfig = loadConfig({
-  server: {
-    // Either oidcToken or gatewayApiKey must be set
-    oidcToken: {
-      value: process.env.VERCEL_OIDC_TOKEN,
-      optional: "gatewayApiKey",
-    },
-    gatewayApiKey: {
-      value: process.env.AI_GATEWAY_API_KEY,
-      optional: "oidcToken",
-    },
+export const aiConfig = configSchema(
+  "AI",
+  {
+    oidcToken: server({ env: "VERCEL_OIDC_TOKEN" }),
+    gatewayApiKey: server({ env: "AI_GATEWAY_API_KEY" }),
   },
-});
+  {
+    constraints: (s) => [oneOf([s.oidcToken, s.gatewayApiKey])],
+  },
+);
 // Type: { server: { oidcToken?: string; gatewayApiKey?: string } }
+// Note: No isEnabled property (no flag used)
 ```
 
-The `optional` parameter accepts:
-
-| Value                  | Behavior                                         |
-| ---------------------- | ------------------------------------------------ |
-| `undefined` or `false` | Required (default)                               |
-| `true`                 | Always optional                                  |
-| `'otherKey'`           | Optional if `otherKey` in same section has value |
-| `['keyA', 'keyB']`     | Optional if any of the listed keys have values   |
-
-Error messages include the alternative:
+At least one of the specified fields must have a value. Error messages include the alternatives:
 
 ```
-Error [InvalidConfigurationError]: Configuration validation error!
+Error [InvalidConfigurationError]: Configuration validation error for AI!
 Did you correctly set all required environment variables in your .env* file?
  - Either server.oidcToken or server.gatewayApiKey must be defined.
 ```
 
+### Combining Flag and Constraints
+
+You can use both `flag` and `constraints` together:
+
+```typescript
+export const myConfig = configSchema(
+  "MyFeature",
+  {
+    token: server({ env: "TOKEN" }),
+    backupToken: server({ env: "BACKUP_TOKEN" }),
+  },
+  {
+    flag: { env: "ENABLE_FEATURE", value: process.env.ENABLE_FEATURE },
+    constraints: (s) => [oneOf([s.token, s.backupToken])],
+  },
+);
+// Type: FeatureConfig<...> (has isEnabled because flag is used)
+```
+
+### Optional Fields
+
+Use `optional: true` for fields that are always optional:
+
+```typescript
+export const authConfig = configSchema("Auth", {
+  secret: server({ env: "BETTER_AUTH_SECRET" }),
+  url: server({ env: "BETTER_AUTH_URL" }),
+  vercelClientId: server({ env: "VERCEL_CLIENT_ID", optional: true }),
+  vercelClientSecret: server({ env: "VERCEL_CLIENT_SECRET", optional: true }),
+});
+```
+
 ### Client-Side Protection
 
-The `server` section uses a Proxy to protect values from being accessed on the client:
+Server fields use a Proxy to protect values from being accessed on the client:
 
 ```typescript
 // On the server - everything works
-sentryConfig.public.dsn; // ✓ "https://..."
-sentryConfig.server.token; // ✓ "secret-token"
+sentryConfig.public.dsn; // "https://..."
+sentryConfig.server.token; // "secret-token"
 
 // On the client
-sentryConfig.public.dsn; // ✓ works (public section)
-sentryConfig.server.token; // ✗ throws ServerConfigClientAccessError
+sentryConfig.public.dsn; // works (public field)
+sentryConfig.server.token; // throws ServerConfigClientAccessError
 ```
 
 This catches accidental client-side access to secrets at runtime:
@@ -293,23 +337,21 @@ Error [ServerConfigClientAccessError]: Attempted to access server-only config 's
 Move this value to 'public' if it needs client access, or ensure this code only runs on server.
 ```
 
-### Advanced Validation
+### Custom Validation
 
-For transforms, defaults, or complex validation, pass a full object with `value` and `schema`:
+For transforms, defaults, or complex validation, pass a `schema` option with a Zod schema:
 
 ```typescript
 import { z } from "zod";
-import { loadConfig } from "@/lib/common/load-config";
+import { configSchema, server } from "@/lib/config/schema";
 
-export const databaseConfig = loadConfig({
-  server: {
-    url: process.env.DATABASE_URL,
-    // Transform string to number with default
-    poolSize: {
-      value: process.env.DATABASE_POOL_SIZE,
-      schema: z.coerce.number().default(10),
-    },
-  },
+export const databaseConfig = configSchema("Database", {
+  url: server({ env: "DATABASE_URL" }),
+  // Transform string to number with default
+  poolSize: server({
+    env: "DATABASE_POOL_SIZE",
+    schema: z.coerce.number().default(10),
+  }),
 });
 // Type: { server: { url: string; poolSize: number } }
 ```
@@ -317,36 +359,40 @@ export const databaseConfig = loadConfig({
 More examples:
 
 ```typescript
-export const config = loadConfig({
-  server: {
-    // Required string (simple)
-    apiKey: process.env.API_KEY,
+import { z } from "zod";
+import { configSchema, server } from "@/lib/config/schema";
 
-    // Optional string
-    debugMode: { value: process.env.DEBUG_MODE, schema: z.string().optional() },
+export const config = configSchema("App", {
+  // Required string (default)
+  apiKey: server({ env: "API_KEY" }),
 
-    // String with regex validation
-    fromEmail: {
-      value: process.env.FROM_EMAIL,
-      schema: z
-        .string()
-        .regex(/^.+\s<.+@.+\..+>$/, 'Must match "Name <email>" format'),
-    },
+  // Optional string
+  debugMode: server({
+    env: "DEBUG_MODE",
+    schema: z.string().optional(),
+  }),
 
-    // Enum with default
-    nodeEnv: {
-      value: process.env.NODE_ENV,
-      schema: z
-        .enum(["development", "production", "test"])
-        .default("development"),
-    },
+  // String with regex validation
+  fromEmail: server({
+    env: "FROM_EMAIL",
+    schema: z
+      .string()
+      .regex(/^.+\s<.+@.+\..+>$/, 'Must match "Name <email>" format'),
+  }),
 
-    // Boolean
-    enableFeature: {
-      value: process.env.ENABLE_FEATURE,
-      schema: z.coerce.boolean().default(false),
-    },
-  },
+  // Enum with default
+  nodeEnv: server({
+    env: "NODE_ENV",
+    schema: z
+      .enum(["development", "production", "test"])
+      .default("development"),
+  }),
+
+  // Boolean
+  enableFeature: server({
+    env: "ENABLE_FEATURE",
+    schema: z.coerce.boolean().default(false),
+  }),
 });
 ```
 
@@ -368,31 +414,32 @@ export async function register() {
 }
 ```
 
-The side-effect imports trigger `loadConfig` validation immediately when the server starts. If any required environment variable is missing, the server fails to start with a clear error rather than failing later when the code path is executed.
+The side-effect imports trigger `configSchema` validation immediately when the server starts. If any required environment variable is missing, the server fails to start with a clear error rather than failing later when the code path is executed.
 
 ### Adding New Environment Variables
 
 When adding a new feature that needs env vars:
 
 1. Create `src/lib/<feature>/config.ts`
-2. Use `loadConfig` with `server` and/or `public` sections
-3. Import the config in `src/instrumentation.ts` for early validation
-4. Import and use the config within that feature
+2. Use `configSchema` with `server()` and/or `pub()` fields
+3. Add `flag` option if the feature should be toggleable
+4. Add `constraints` option with `oneOf()` for either-or validation
+5. Import the config in `src/instrumentation.ts` for early validation
+6. Import and use the config within that feature
 
 Example for adding Stripe:
 
 ```typescript
 // src/lib/stripe/config.ts
-import { loadConfig } from "@/lib/common/load-config";
+import { configSchema, server, pub } from "@/lib/config/schema";
 
-export const stripeConfig = loadConfig({
-  server: {
-    secretKey: process.env.STRIPE_SECRET_KEY,
-    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
-  },
-  public: {
-    publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-  },
+export const stripeConfig = configSchema("Stripe", {
+  secretKey: server({ env: "STRIPE_SECRET_KEY" }),
+  webhookSecret: server({ env: "STRIPE_WEBHOOK_SECRET" }),
+  publishableKey: pub({
+    env: "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+    value: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+  }),
 });
 ```
 
