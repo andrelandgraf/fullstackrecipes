@@ -129,9 +129,9 @@ export class InvalidConfigurationError extends Error {
  * Error thrown when server-only config is accessed on the client.
  */
 export class ServerConfigClientAccessError extends Error {
-  constructor(key: string) {
+  constructor(schemaName: string, key: string, envName: string) {
     super(
-      `Attempted to access server-only config 'server.${key}' on client. ` +
+      `[${schemaName}] Attempted to access server-only config 'server.${key}' (${envName}) on client. ` +
         `Move this value to 'public' if it needs client access, or ensure this code only runs on server.`,
     );
     this.name = "ServerConfigClientAccessError";
@@ -290,7 +290,11 @@ function isFlagEnabled(flag: string | undefined): boolean {
 /**
  * Creates a Proxy that throws when server config is accessed on client.
  */
-function createServerProxy<T extends object>(data: T): T {
+function createServerProxy<T extends object>(
+  data: T,
+  schemaName: string,
+  fieldEnvMap: Record<string, string>,
+): T {
   if (typeof window === "undefined") {
     return data;
   }
@@ -300,7 +304,9 @@ function createServerProxy<T extends object>(data: T): T {
       if (typeof prop === "symbol") {
         return Reflect.get(target, prop, receiver);
       }
-      throw new ServerConfigClientAccessError(String(prop));
+      const key = String(prop);
+      const envName = fieldEnvMap[key] ?? "UNKNOWN";
+      throw new ServerConfigClientAccessError(schemaName, key, envName);
     },
   });
 }
@@ -518,7 +524,14 @@ export function configSchema<T extends SchemaFields>(
   const hasPublic = Object.values(fields).some((f) => f._type === "public");
 
   if (hasServer) {
-    result.server = createServerProxy(serverFields);
+    // Build env name map for server fields (used for client-side error messages)
+    const serverFieldEnvMap: Record<string, string> = {};
+    for (const [key, field] of Object.entries(fields)) {
+      if (field._type === "server") {
+        serverFieldEnvMap[key] = field.env;
+      }
+    }
+    result.server = createServerProxy(serverFields, name, serverFieldEnvMap);
   }
 
   if (hasPublic) {

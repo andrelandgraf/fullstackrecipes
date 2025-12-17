@@ -419,11 +419,11 @@ describe("configSchema", () => {
       expect(() => config.server.token).toThrow(ServerConfigClientAccessError);
     });
 
-    it("includes key name in client access error", () => {
+    it("includes schema name, key, and env name in client access error", () => {
       // @ts-expect-error - intentionally manipulating global for tests
       globalThis.window = {};
 
-      const config = configSchema("Test", {
+      const config = configSchema("Auth", {
         authToken: server({ env: "AUTH_TOKEN", value: "secret" }),
       });
 
@@ -433,7 +433,10 @@ describe("configSchema", () => {
         expect.unreachable("Should have thrown");
       } catch (e) {
         expect(e).toBeInstanceOf(ServerConfigClientAccessError);
-        expect((e as Error).message).toContain("server.authToken");
+        const message = (e as Error).message;
+        expect(message).toContain("[Auth]");
+        expect(message).toContain("server.authToken");
+        expect(message).toContain("AUTH_TOKEN");
       }
     });
 
