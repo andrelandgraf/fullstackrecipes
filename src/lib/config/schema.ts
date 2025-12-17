@@ -387,6 +387,23 @@ export function configSchema<T extends SchemaFields>(
   const constraintsFn = options?.constraints;
   const hasFlag = flagOptions !== undefined;
 
+  // Check if config has public fields
+  const hasPublicFields = Object.values(fields).some(
+    (f) => f._type === "public",
+  );
+
+  // Enforce: if config has public fields and a flag, flag must be NEXT_PUBLIC_*
+  if (hasFlag && hasPublicFields) {
+    const flagEnv = flagOptions.env;
+    if (!flagEnv.startsWith("NEXT_PUBLIC_")) {
+      throw new InvalidConfigurationError(
+        `Flag "${flagEnv}" must use a NEXT_PUBLIC_* variable when config has public fields. ` +
+          `Otherwise, isEnabled will always be false on the client.`,
+        name,
+      );
+    }
+  }
+
   // If flag exists and is disabled, return early
   if (hasFlag && !isFlagEnabled(flagOptions.value)) {
     return { isEnabled: false };
@@ -465,20 +482,23 @@ export function configSchema<T extends SchemaFields>(
           if (relevantOneOf) {
             const otherFields = relevantOneOf.fields
               .filter((f) => f !== key)
-              .map((f) => `${section}.${String(f)}`);
+              .map((f) => {
+                const otherField = fields[f as string];
+                return `${section}.${String(f)} (${otherField.env})`;
+              });
             if (otherFields.length === 1) {
-              message = `Either ${section}.${key} or ${otherFields[0]} must be defined.`;
+              message = `Either ${section}.${key} (${field.env}) or ${otherFields[0]} must be defined.`;
             } else {
-              message = `Either ${section}.${key} or one of [${otherFields.join(", ")}] must be defined.`;
+              message = `Either ${section}.${key} (${field.env}) or one of [${otherFields.join(", ")}] must be defined.`;
             }
           } else {
-            message = `${section}.${key} must be defined.`;
+            message = `${section}.${key} (${field.env}) must be defined.`;
           }
         } else {
-          message = `${section}.${key} must be defined.`;
+          message = `${section}.${key} (${field.env}) must be defined.`;
         }
       } else {
-        message = `${section}.${key} is invalid: ${issue?.message ?? "validation failed"}`;
+        message = `${section}.${key} (${field.env}) is invalid: ${issue?.message ?? "validation failed"}`;
       }
 
       throw new InvalidConfigurationError(message, name);

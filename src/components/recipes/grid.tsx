@@ -12,6 +12,7 @@ import { RecipeSearch } from "@/components/recipes/search";
 import { getAllItems, isCookbook } from "@/lib/recipes/data";
 import { Button } from "@/components/ui/button";
 import { ArrowUp, ArrowDown } from "lucide-react";
+import { aiConfig } from "@/lib/ai/config";
 
 const items = getAllItems();
 
@@ -20,6 +21,7 @@ const allTags = Array.from(
 ).sort();
 
 function RecipeGridInner() {
+  console.log(aiConfig.server.oidcToken);
   const [searchQuery, setSearchQuery] = useQueryState(
     "q",
     parseAsString.withDefault(""),

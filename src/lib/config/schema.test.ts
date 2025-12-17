@@ -51,7 +51,7 @@ describe("configSchema", () => {
       } catch (e) {
         expect(e).toBeInstanceOf(InvalidConfigurationError);
         expect((e as Error).message).toContain(
-          "server.secretKey must be defined",
+          "server.secretKey (SECRET_KEY) must be defined",
         );
       }
     });
@@ -100,7 +100,7 @@ describe("configSchema", () => {
       } catch (e) {
         expect(e).toBeInstanceOf(InvalidConfigurationError);
         expect((e as Error).message).toContain(
-          "public.analyticsId must be defined",
+          "public.analyticsId (NEXT_PUBLIC_ANALYTICS_ID) must be defined",
         );
       }
     });
@@ -164,7 +164,9 @@ describe("configSchema", () => {
         expect.unreachable("Should have thrown");
       } catch (e) {
         expect(e).toBeInstanceOf(InvalidConfigurationError);
-        expect((e as Error).message).toContain("public.email is invalid");
+        expect((e as Error).message).toContain(
+          "public.email (NEXT_PUBLIC_EMAIL) is invalid",
+        );
       }
     });
   });
@@ -293,6 +295,71 @@ describe("configSchema", () => {
         expect(config.server.apiKey).toBe("api-key");
       }
     });
+
+    it("throws when flag is not NEXT_PUBLIC_* but config has public fields", () => {
+      expect(() =>
+        configSchema(
+          "Test",
+          {
+            token: server({ env: "TOKEN", value: "secret" }),
+            dsn: pub({ env: "NEXT_PUBLIC_DSN", value: "https://example.com" }),
+          },
+          {
+            flag: { env: "ENABLE_FEATURE", value: "true" },
+          },
+        ),
+      ).toThrow(InvalidConfigurationError);
+    });
+
+    it("includes helpful message when flag is not NEXT_PUBLIC_* with public fields", () => {
+      try {
+        configSchema(
+          "Sentry",
+          {
+            dsn: pub({ env: "NEXT_PUBLIC_DSN", value: "https://example.com" }),
+          },
+          {
+            flag: { env: "ENABLE_SENTRY", value: "true" },
+          },
+        );
+        expect.unreachable("Should have thrown");
+      } catch (e) {
+        expect(e).toBeInstanceOf(InvalidConfigurationError);
+        expect((e as Error).message).toContain("ENABLE_SENTRY");
+        expect((e as Error).message).toContain("NEXT_PUBLIC_*");
+        expect((e as Error).message).toContain(
+          "isEnabled will always be false",
+        );
+      }
+    });
+
+    it("allows non-NEXT_PUBLIC_* flag when config has only server fields", () => {
+      const config = configSchema(
+        "Test",
+        {
+          apiKey: server({ env: "API_KEY", value: "secret" }),
+        },
+        {
+          flag: { env: "ENABLE_FEATURE", value: "true" },
+        },
+      );
+
+      expect(config.isEnabled).toBe(true);
+    });
+
+    it("allows NEXT_PUBLIC_* flag when config has public fields", () => {
+      const config = configSchema(
+        "Test",
+        {
+          dsn: pub({ env: "NEXT_PUBLIC_DSN", value: "https://example.com" }),
+        },
+        {
+          flag: { env: "NEXT_PUBLIC_ENABLE_FEATURE", value: "true" },
+        },
+      );
+
+      expect(config.isEnabled).toBe(true);
+    });
   });
 
   describe("client-side proxy protection", () => {
@@ -349,7 +416,7 @@ describe("configSchema", () => {
           key: pub({ env: "NEXT_PUBLIC_KEY", value: "public-value" }),
         },
         {
-          flag: { env: "ENABLE_FEATURE", value: "true" },
+          flag: { env: "NEXT_PUBLIC_ENABLE_FEATURE", value: "true" },
         },
       );
 
@@ -438,7 +505,7 @@ describe("configSchema", () => {
       } catch (e) {
         expect(e).toBeInstanceOf(InvalidConfigurationError);
         expect((e as Error).message).toContain(
-          "public.analyticsId must be defined",
+          "public.analyticsId (NEXT_PUBLIC_ANALYTICS_ID) must be defined",
         );
       }
     });
@@ -489,7 +556,7 @@ describe("configSchema", () => {
           dsn: pub({ env: "NEXT_PUBLIC_DSN", value: "https://sentry.io" }),
         },
         {
-          flag: { env: "ENABLE_FEATURE", value: "true" },
+          flag: { env: "NEXT_PUBLIC_ENABLE_FEATURE", value: "true" },
         },
       );
 
@@ -612,7 +679,7 @@ describe("configSchema", () => {
       } catch (e) {
         expect(e).toBeInstanceOf(InvalidConfigurationError);
         expect((e as Error).message).toContain(
-          "Either server.varA or server.varB must be defined",
+          "Either server.varA (VAR_A) or server.varB (VAR_B) must be defined",
         );
       }
     });
@@ -634,7 +701,7 @@ describe("configSchema", () => {
       } catch (e) {
         expect(e).toBeInstanceOf(InvalidConfigurationError);
         expect((e as Error).message).toContain(
-          "Either server.varA or one of [server.varB, server.varC] must be defined",
+          "Either server.varA (VAR_A) or one of [server.varB (VAR_B), server.varC (VAR_C)] must be defined",
         );
       }
     });
