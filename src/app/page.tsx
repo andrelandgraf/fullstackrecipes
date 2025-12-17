@@ -22,9 +22,7 @@ export default function Home() {
         <HowItWorks />
         <Registry />
         <Demo />
-        <Suspense>
-          <RecipeGrid />
-        </Suspense>
+        <RecipeGrid />
       </main>
       <Footer />
     </div>
