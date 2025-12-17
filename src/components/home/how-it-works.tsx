@@ -76,8 +76,11 @@ const items = getAllItems();
 const cookbooks = getAllCookbooks();
 const recipes = getAllRecipes();
 
-function getRegistryCommand(registryDep: string) {
-  return `bunx shadcn@latest add https://fullstackrecipes.com/r/${registryDep}.json`;
+function getRegistryCommand(registryDeps: string[]) {
+  const urls = registryDeps
+    .map((dep) => `https://fullstackrecipes.com/r/${dep}.json`)
+    .join(" ");
+  return `bunx shadcn@latest add ${urls}`;
 }
 
 export function HowItWorks() {
@@ -454,13 +457,13 @@ export function HowItWorks() {
                         </div>
                       </div>
 
-                      {selectedItem.registryDeps?.map((dep) => (
-                        <McpCodeBlock
-                          key={dep}
-                          code={getRegistryCommand(dep)}
-                          language="bash"
-                        />
-                      ))}
+                      {selectedItem.registryDeps &&
+                        selectedItem.registryDeps.length > 0 && (
+                          <McpCodeBlock
+                            code={getRegistryCommand(selectedItem.registryDeps)}
+                            language="bash"
+                          />
+                        )}
                     </div>
 
                     {/* Step 2 */}

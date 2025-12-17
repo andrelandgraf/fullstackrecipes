@@ -2,13 +2,7 @@
 
 A TypeScript assertion function for runtime type narrowing with descriptive error messages.
 
-### Install via Registry
-
-```bash
-bunx shadcn@latest add https://fullstackrecipes.com/r/assert.json
-```
-
-This installs the assertion utility:
+### The Utility
 
 ```typescript
 // src/lib/common/assert.ts

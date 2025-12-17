@@ -2,14 +2,6 @@
 
 A custom durable AI agent abstraction for running `streamText` in a tool loop; composable with the Workflow Development Kit.
 
-### Install via Registry
-
-```bash
-bunx shadcn@latest add https://fullstackrecipes.com/r/durable-agent.json
-```
-
-This installs `agent.ts` to `src/lib/ai/agent.ts`. You'll need to update the `./tools` import to match your project's tool configuration.
-
 ## Why a Custom Agent?
 
 The Workflow Development Kit provides a built-in [`DurableAgent`](https://useworkflow.dev/docs/api-reference/workflow-ai/durable-agent) class from `@workflow/ai/agent`. While it handles durable execution and tool loops, it currently lacks configuration options that `streamText` and `toUIMessageStream` expose:

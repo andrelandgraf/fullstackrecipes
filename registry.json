@@ -45,6 +45,22 @@
       ]
     },
     {
+      "name": "validate-env",
+      "type": "registry:lib",
+      "title": "Validate Environment",
+      "description": "CLI script to validate all config.ts files against .env files. Finds missing variables, reports validation errors, and warns about unused env vars.",
+      "dependencies": ["@next/env"],
+      "registryDependencies": ["config-schema"],
+      "files": [
+        {
+          "path": "scripts/validate-env.ts",
+          "type": "registry:lib",
+          "target": "scripts/validate-env.ts"
+        }
+      ],
+      "docs": "Add 'env:validate': 'bun run scripts/validate-env.ts' to your package.json scripts. Run with --environment=development or --environment=production."
+    },
+    {
       "name": "use-resumable-chat",
       "type": "registry:hook",
       "title": "Resumable Chat Hook",

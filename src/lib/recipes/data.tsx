@@ -160,16 +160,16 @@ function processUser(user: User | null) {
     slug: "env-config",
     title: "Environment Variable Management",
     description:
-      "Type-safe environment variable validation using Zod with a modular config pattern for clean, maintainable configuration.",
+      "Type-safe environment variable validation using Zod with a Drizzle-like schema API for clean, maintainable configuration.",
     tags: ["Config"],
     icon: Settings,
     sections: ["env-config.md"],
-    previewCode: `export const databaseConfig = loadConfig({
-  env: {
-    url: "DATABASE_URL",
-  },
-});`,
-    registryDeps: ["load-config"],
+    previewCode: `export const databaseConfig = configSchema("Database", {
+  url: server({ env: "DATABASE_URL" }),
+});
+
+// bun run env:validate --environment=production`,
+    registryDeps: ["config-schema", "validate-env"],
   },
   {
     slug: "neon-drizzle-setup",
@@ -738,7 +738,8 @@ export function getCursorPromptDeeplink(promptText: string): string {
 
 // Registry items from registry.json
 const REGISTRY_ICONS: Record<string, typeof Database> = {
-  "load-config": Cog,
+  "config-schema": Cog,
+  "validate-env": FlaskConical,
   assert: Blocks,
   "use-resumable-chat": Package,
   "durable-agent": Cpu,
@@ -761,4 +762,21 @@ export function getRegistryItems(): RegistryItem[] {
     type: item.type.replace("registry:", "") as "lib" | "hook",
     icon: REGISTRY_ICONS[item.name] ?? Settings,
   }));
+}
+
+/** Get registry items by their names (for recipe pages) */
+export function getRegistryItemsByNames(
+  names: string[],
+): { name: string; title: string; description: string }[] {
+  return names
+    .map((name) => {
+      const item = registry.items.find((i) => i.name === name);
+      if (!item) return null;
+      return {
+        name: item.name,
+        title: item.title,
+        description: item.description,
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => item !== null);
 }
