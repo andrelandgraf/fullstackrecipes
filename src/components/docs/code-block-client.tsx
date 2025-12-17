@@ -1,6 +1,6 @@
 "use client";
 
-import { CodeBlock } from "@/components/recipes/code-block";
+import { CodeBlock } from "@/components/code/code-block";
 
 type CodeBlockClientProps = {
   filePath: string | null;

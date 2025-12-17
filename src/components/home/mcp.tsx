@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { codeToHtml, type BundledLanguage } from "shiki";
-import { CodeBlock } from "@/components/recipes/code-block";
+import { CodeBlock } from "@/components/code/code-block";
+import { TabbedCodeBlock } from "@/components/code/tabbed-code-block";
 import {
   Dialog,
   DialogContent,
@@ -79,18 +80,24 @@ function getFileExtension(filePath: string): string {
 }
 
 // Shared Components
-type CodeBlockProps = {
+type McpCodeBlockProps = {
   code: string;
   language: BundledLanguage;
   filePath?: string;
+  className?: string;
 };
 
-export function McpCodeBlock({ code, language, filePath }: CodeBlockProps) {
+export function McpCodeBlock({
+  code,
+  language,
+  filePath,
+  className,
+}: McpCodeBlockProps) {
   const html = useHighlightedCode(code, language);
 
   if (!html) {
     return (
-      <div className="rounded-md border bg-background p-4">
+      <div className={`rounded-md border bg-background p-4 ${className ?? ""}`}>
         <pre className="overflow-x-auto font-mono text-sm">
           <code>{code}</code>
         </pre>
@@ -107,6 +114,7 @@ export function McpCodeBlock({ code, language, filePath }: CodeBlockProps) {
       lightHtml={html.light}
       darkHtml={html.dark}
       hasFilePath={!!filePath}
+      className={className}
     />
   );
 }
@@ -170,6 +178,29 @@ export function VSCodeButton({
 // MCP Client Types
 export type McpClient = "cursor" | "claude-code" | "vscode";
 
+const MCP_TABS = [
+  {
+    id: "cursor" as const,
+    label: "Cursor",
+    code: MCP_CONFIG,
+    language: "json" as const,
+    filePath: ".cursor/mcp.json",
+  },
+  {
+    id: "vscode" as const,
+    label: "VS Code",
+    code: VSCODE_MCP_CONFIG,
+    language: "json" as const,
+    filePath: ".vscode/mcp.json",
+  },
+  {
+    id: "claude-code" as const,
+    label: "Claude Code",
+    code: CLAUDE_CODE_MCP_COMMAND,
+    language: "bash" as const,
+  },
+];
+
 // Reusable MCP Config Section Component
 type McpConfigSectionProps = {
   mcpClient: McpClient;
@@ -184,60 +215,11 @@ export function McpConfigSection({
 }: McpConfigSectionProps) {
   return (
     <div className="flex min-w-0 flex-col">
-      {/* MCP Client Tabs */}
-      <div className="flex gap-1 rounded-lg border border-border bg-secondary/30 p-1">
-        <button
-          onClick={() => setMcpClient("cursor")}
-          className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-            mcpClient === "cursor"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Cursor
-        </button>
-        <button
-          onClick={() => setMcpClient("vscode")}
-          className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-            mcpClient === "vscode"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          VS Code
-        </button>
-        <button
-          onClick={() => setMcpClient("claude-code")}
-          className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-            mcpClient === "claude-code"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Claude Code
-        </button>
-      </div>
-
-      {/* Config Display */}
-      <div className="mt-4 min-w-0">
-        {mcpClient === "cursor" && (
-          <McpCodeBlock
-            code={MCP_CONFIG}
-            language="json"
-            filePath=".cursor/mcp.json"
-          />
-        )}
-        {mcpClient === "vscode" && (
-          <McpCodeBlock
-            code={VSCODE_MCP_CONFIG}
-            language="json"
-            filePath=".vscode/mcp.json"
-          />
-        )}
-        {mcpClient === "claude-code" && (
-          <McpCodeBlock code={CLAUDE_CODE_MCP_COMMAND} language="bash" />
-        )}
-      </div>
+      <TabbedCodeBlock
+        tabs={MCP_TABS}
+        activeTab={mcpClient}
+        onTabChange={(tabId) => setMcpClient(tabId as McpClient)}
+      />
 
       {/* Add Buttons */}
       {showAddButtons && (

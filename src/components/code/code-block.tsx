@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { CopyButton, CodeCopyButton } from "@/components/docs/copy-button";
+import { CopyButton, CodeCopyButton } from "@/components/code/copy-button";
 
 type CodeBlockProps = {
   filePath: string | null;
@@ -98,11 +98,11 @@ export function CodeBlock({
       )}
       <div className="relative">
         <div
-          className="overflow-x-auto dark:hidden [&>pre]:m-0 [&>pre]:bg-background! [&>pre]:p-4 [&>pre]:text-foreground! [&>pre]:text-sm [&_code]:font-mono [&_code]:text-sm"
+          className="overflow-x-auto dark:hidden [&>pre]:m-0 [&>pre]:bg-background! [&>pre]:p-4 [&>pre]:text-foreground! [&>pre]:text-sm [&_code]:inline-block [&_code]:min-w-full [&_code]:pr-4 [&_code]:font-mono [&_code]:text-sm"
           dangerouslySetInnerHTML={{ __html: lightHtml }}
         />
         <div
-          className="hidden overflow-x-auto dark:block [&>pre]:m-0 [&>pre]:bg-background! [&>pre]:p-4 [&>pre]:text-foreground! [&>pre]:text-sm [&_code]:font-mono [&_code]:text-sm"
+          className="hidden overflow-x-auto dark:block [&>pre]:m-0 [&>pre]:bg-background! [&>pre]:p-4 [&>pre]:text-foreground! [&>pre]:text-sm [&_code]:inline-block [&_code]:min-w-full [&_code]:pr-4 [&_code]:font-mono [&_code]:text-sm"
           dangerouslySetInnerHTML={{ __html: darkHtml }}
         />
         {!language && !hasFilePath && (

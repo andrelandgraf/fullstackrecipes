@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +38,7 @@ import {
   CursorButton,
   type McpClient,
 } from "@/components/home/mcp";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 // Simple inline code highlighting for previews (no container/header)
 function InlineHighlightedCode({
@@ -258,20 +258,20 @@ export function HowItWorks() {
 
           {/* Right: Methods */}
           <div className="flex min-w-0 flex-col">
-            <Tabs defaultValue="copy" className="w-full">
-              <TabsList className="mb-6 w-full">
-                <TabsTrigger value="copy" className="flex-1 gap-2">
+            <Tabs defaultValue="copy">
+              <TabsList>
+                <TabsTrigger value="copy">
                   <Copy className="h-4 w-4" />
                   <span className="hidden sm:inline">Copy Markdown</span>
                   <span className="sm:hidden">Copy</span>
                 </TabsTrigger>
-                <TabsTrigger value="mcp" className="flex-1 gap-2">
+                <TabsTrigger value="mcp">
                   <Server className="h-4 w-4" />
                   <span className="hidden sm:inline">MCP Server</span>
                   <span className="sm:hidden">MCP</span>
                 </TabsTrigger>
                 {hasRegistry && (
-                  <TabsTrigger value="registry" className="flex-1 gap-2">
+                  <TabsTrigger value="registry">
                     <Terminal className="h-4 w-4" />
                     <span className="hidden sm:inline">Registry</span>
                     <span className="sm:hidden">CLI</span>
@@ -280,8 +280,8 @@ export function HowItWorks() {
               </TabsList>
 
               {/* Copy Markdown Tab */}
-              <TabsContent value="copy" className="mt-0">
-                <Card className="flex flex-col gap-8 border-border/50 p-6">
+              <TabsContent value="copy">
+                <Card className="flex flex-col gap-8 rounded-t-none border-t-0 border-border/50 p-6">
                   {/* Step 1 */}
                   <div>
                     <div className="flex items-start gap-3">
@@ -348,8 +348,8 @@ export function HowItWorks() {
               </TabsContent>
 
               {/* MCP Server Tab */}
-              <TabsContent value="mcp" className="mt-0">
-                <Card className="flex flex-col gap-8 border-border/50 p-6">
+              <TabsContent value="mcp">
+                <Card className="flex flex-col gap-8 rounded-t-none border-t-0 border-border/50 p-6">
                   {/* Step 1: Add the MCP server */}
                   <div>
                     <div className="flex items-start gap-3">
@@ -438,8 +438,8 @@ export function HowItWorks() {
 
               {/* Registry Tab */}
               {hasRegistry && (
-                <TabsContent value="registry" className="mt-0">
-                  <Card className="flex flex-col gap-8 border-border/50 p-6">
+                <TabsContent value="registry">
+                  <Card className="flex flex-col gap-8 rounded-t-none border-t-0 border-border/50 p-6">
                     {/* Step 1 */}
                     <div>
                       <div className="flex items-start gap-3">
