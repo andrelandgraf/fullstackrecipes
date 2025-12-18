@@ -5,14 +5,12 @@ import {
   getItemBySlug,
   getCookbookRecipes,
   getRequiredItems,
-  getRegistryItemsByNames,
   isCookbook,
 } from "@/lib/recipes/data";
-import { loadRecipeContent } from "@/lib/recipes/loader";
+import { loadRecipeContent, loadRecipeMarkdown } from "@/lib/recipes/loader";
 import { RecipeHeader } from "@/components/recipes/header";
 import { MarkdownBlock } from "@/components/docs/markdown-block";
 import { RelatedRecipes } from "@/components/recipes/related";
-import { RegistryInstall } from "@/components/recipes/registry-install";
 import { CookbookRecipes } from "@/components/recipes/cookbook-recipes";
 import { serializeRecipes, serializeItems } from "@/lib/recipes/serialize";
 
@@ -52,15 +50,17 @@ export default async function RecipePage({ params }: Props) {
     notFound();
   }
 
-  const content = await loadRecipeContent(item);
+  // Load both: raw content for rendering, transformed for copy button
+  const [content, markdownContent] = await Promise.all([
+    loadRecipeContent(item),
+    loadRecipeMarkdown(item),
+  ]);
   const requiredItems = getRequiredItems(item);
   const cookbookRecipes = isCookbook(item) ? getCookbookRecipes(item) : [];
-  const registryItems = getRegistryItemsByNames(item.registryDeps ?? []);
 
   const hasPreContent =
     requiredItems.length > 0 ||
-    (isCookbook(item) && cookbookRecipes.length > 0) ||
-    registryItems.length > 0;
+    (isCookbook(item) && cookbookRecipes.length > 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -69,17 +69,13 @@ export default async function RecipePage({ params }: Props) {
         description={item.description}
         tags={item.tags}
         icon={item.icon}
-        markdownContent={content}
+        markdownContent={markdownContent}
         isCookbook={isCookbook(item)}
         recipeCount={cookbookRecipes.length}
       />
       <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
         <RelatedRecipes requiredItems={serializeItems(requiredItems)} />
-        {requiredItems.length > 0 && registryItems.length > 0 && (
-          <div className="my-6" />
-        )}
-        <RegistryInstall registryItems={registryItems} />
-        {(requiredItems.length > 0 || registryItems.length > 0) &&
+        {requiredItems.length > 0 &&
           isCookbook(item) &&
           cookbookRecipes.length > 0 && <div className="my-6" />}
         {isCookbook(item) && cookbookRecipes.length > 0 && (

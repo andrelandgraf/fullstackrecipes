@@ -6,7 +6,7 @@ import {
   getItemResourceUri,
   getItemPromptText,
 } from "@/lib/recipes/data";
-import { loadRecipeContent } from "@/lib/recipes/loader";
+import { loadRecipeMarkdown } from "@/lib/recipes/loader";
 
 const handler = createMcpHandler(
   (server) => {
@@ -25,7 +25,7 @@ const handler = createMcpHandler(
           mimeType: "text/markdown",
         },
         async (uri) => {
-          const content = await loadRecipeContent(recipe);
+          const content = await loadRecipeMarkdown(recipe);
           const frontmatter = `# ${recipe.title}\n\n${recipe.description}\n\nTags: ${recipe.tags.length > 0 ? recipe.tags.join(", ") : "None"}\n\n---\n\n`;
           return {
             contents: [
@@ -72,7 +72,7 @@ const handler = createMcpHandler(
           mimeType: "text/markdown",
         },
         async (uri) => {
-          const content = await loadRecipeContent(cookbook);
+          const content = await loadRecipeMarkdown(cookbook);
           const includedRecipes = getCookbookRecipes(cookbook);
           const recipesList = includedRecipes
             .map((r) => `- ${r.title}`)

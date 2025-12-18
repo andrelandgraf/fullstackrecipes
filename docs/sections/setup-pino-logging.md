@@ -24,33 +24,7 @@ const nextConfig: NextConfig = {
 
 ### Step 3: Add the logger utility
 
-Install the logger utility using the shadcn CLI:
-
-```bash
-bunx --bun shadcn@latest add https://fullstackrecipes.com/r/logger.json
-```
-
-This creates the logger utility:
-
-```typescript
-// src/lib/common/logger.ts
-import pino from "pino";
-
-const isDev = process.env.NODE_ENV === "development";
-
-const transport = isDev
-  ? pino.transport({
-      target: "pino-pretty",
-    })
-  : undefined;
-
-export const logger = pino(
-  {
-    level: process.env.PINO_LOG_LEVEL || "info",
-  },
-  transport,
-);
-```
+{% registry items="logger" /%}
 
 **Key features:**
 

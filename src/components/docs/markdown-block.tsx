@@ -5,6 +5,7 @@ import { codeToHtml } from "shiki";
 
 import { cn } from "@/lib/utils";
 import { CodeBlockClient } from "./code-block-client";
+import { RegistryTag } from "../recipes/registry-tag";
 
 const SUPPORTED_LANGUAGES = [
   "typescript",
@@ -366,6 +367,15 @@ const markdocConfig = {
       },
     },
   },
+  tags: {
+    registry: {
+      render: "RegistryTag",
+      selfClosing: true,
+      attributes: {
+        items: { type: String, required: true },
+      },
+    },
+  },
 };
 
 const components = {
@@ -388,6 +398,7 @@ const components = {
   TableHeaderCell,
   TableCell,
   Image,
+  RegistryTag,
 };
 
 function isTag(node: RenderableTreeNode): node is Tag {

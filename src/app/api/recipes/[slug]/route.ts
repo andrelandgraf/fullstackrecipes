@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getItemBySlug } from "@/lib/recipes/data";
-import { loadRecipeContent } from "@/lib/recipes/loader";
+import { loadRecipeMarkdown } from "@/lib/recipes/loader";
 
 export async function GET(
   _request: Request,
@@ -13,7 +13,8 @@ export async function GET(
     return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
   }
 
-  const content = await loadRecipeContent(item);
+  // Return transformed markdown (custom tags expanded for agent consumption)
+  const content = await loadRecipeMarkdown(item);
 
   return NextResponse.json({ content });
 }
