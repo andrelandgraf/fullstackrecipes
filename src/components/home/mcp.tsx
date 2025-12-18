@@ -13,8 +13,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Server } from "lucide-react";
+import { Server, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getCursorPromptDeeplink } from "@/lib/recipes/data";
 
 // MCP Configuration Constants
 export const MCP_CONFIG = `{
@@ -214,7 +215,7 @@ export function McpConfigSection({
   showAddButtons = true,
 }: McpConfigSectionProps) {
   return (
-    <div className="flex min-w-0 flex-col">
+    <div className="flex min-w-0 flex-col overflow-hidden">
       <TabbedCodeBlock
         tabs={MCP_TABS}
         activeTab={mcpClient}
@@ -223,7 +224,7 @@ export function McpConfigSection({
 
       {/* Add Buttons */}
       {showAddButtons && (
-        <div className="mt-4">
+        <div className="mt-3 sm:mt-4">
           {mcpClient === "cursor" && (
             <CursorButton href={CURSOR_MCP_INSTALL_URL}>
               Add to Cursor
@@ -240,14 +241,109 @@ export function McpConfigSection({
   );
 }
 
+// Reusable MCP Setup Steps Component
+type McpSetupStepsProps = {
+  mcpClient: McpClient;
+  setMcpClient: (client: McpClient) => void;
+  promptText: string;
+  copiedPrompt: boolean;
+  onCopyPrompt: () => void;
+};
+
+export function McpSetupSteps({
+  mcpClient,
+  setMcpClient,
+  promptText,
+  copiedPrompt,
+  onCopyPrompt,
+}: McpSetupStepsProps) {
+  return (
+    <div className="flex min-w-0 flex-col gap-6 sm:gap-8">
+      {/* Step 1: Add the MCP server */}
+      <div className="min-w-0">
+        <div className="flex items-start gap-3">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary sm:h-8 sm:w-8">
+            1
+          </div>
+          <div className="min-w-0">
+            <h4 className="font-medium">Add the MCP server</h4>
+            <p className="text-sm text-muted-foreground">
+              Add to your coding agent&apos;s MCP config
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-3 min-w-0 sm:mt-4">
+          <McpConfigSection mcpClient={mcpClient} setMcpClient={setMcpClient} />
+        </div>
+      </div>
+
+      {/* Step 2: Prompt your agent */}
+      <div className="min-w-0">
+        <div className="flex items-start gap-3">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary sm:h-8 sm:w-8">
+            2
+          </div>
+          <div className="min-w-0">
+            <h4 className="font-medium">
+              Ask your coding agent to follow the recipe
+            </h4>
+            <p className="text-sm text-muted-foreground">
+              The agent can fetch recipes directly via MCP resources
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-3 min-w-0 rounded-lg border border-dashed border-border bg-secondary/30 p-3 sm:mt-4 sm:p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <span className="min-w-0 break-all font-mono text-xs text-muted-foreground sm:truncate sm:text-sm">
+              {promptText}
+            </span>
+            <Button
+              size="sm"
+              variant={copiedPrompt ? "secondary" : "default"}
+              onClick={onCopyPrompt}
+              className="w-full shrink-0 gap-2 sm:w-auto"
+            >
+              {copiedPrompt ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4" />
+                  Copy
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {mcpClient === "cursor" && (
+          <div className="mt-3 sm:mt-4">
+            <CursorButton href={getCursorPromptDeeplink(promptText)}>
+              Prompt Cursor
+            </CursorButton>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Add MCP Dialog Component
 type AddMcpDialogProps = {
   trigger?: React.ReactNode;
   children?: React.ReactNode;
 };
 
+const DEFAULT_PROMPT =
+  'Follow the "Base App Setup" cookbook from fullstackrecipes';
+
 function AddMcpDialogInner({ trigger, children }: AddMcpDialogProps) {
   const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
+  const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [isOpen, setIsOpen] = useQueryState(
     "mcp",
     parseAsBoolean.withDefault(false),
@@ -255,6 +351,16 @@ function AddMcpDialogInner({ trigger, children }: AddMcpDialogProps) {
 
   function handleOpenChange(open: boolean) {
     setIsOpen(open || null);
+  }
+
+  async function copyPrompt() {
+    try {
+      await navigator.clipboard.writeText(DEFAULT_PROMPT);
+      setCopiedPrompt(true);
+      setTimeout(() => setCopiedPrompt(false), 2000);
+    } catch {
+      // Silently fail
+    }
   }
 
   return (
@@ -267,18 +373,22 @@ function AddMcpDialogInner({ trigger, children }: AddMcpDialogProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Server className="h-5 w-5 text-primary" />
             Add MCP Server
           </DialogTitle>
         </DialogHeader>
-        <p className="text-sm text-muted-foreground">
-          Add the fullstackrecipes MCP server to your coding agent&apos;s
-          configuration
-        </p>
-        <McpConfigSection mcpClient={mcpClient} setMcpClient={setMcpClient} />
+
+        <McpSetupSteps
+          mcpClient={mcpClient}
+          setMcpClient={setMcpClient}
+          promptText={DEFAULT_PROMPT}
+          copiedPrompt={copiedPrompt}
+          onCopyPrompt={copyPrompt}
+        />
+
         {children}
       </DialogContent>
     </Dialog>

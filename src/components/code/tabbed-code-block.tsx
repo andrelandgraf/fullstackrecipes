@@ -93,8 +93,8 @@ export function TabbedCodeBlock({
     : { defaultValue: defaultTab ?? tabs[0]?.id, onValueChange: onTabChange };
 
   return (
-    <Tabs {...tabsProps}>
-      <TabsList>
+    <Tabs {...tabsProps} className="min-w-0">
+      <TabsList className="w-full overflow-x-auto">
         {tabs.map((tab) => (
           <TabsTrigger key={tab.id} value={tab.id}>
             {tab.label}
@@ -102,7 +102,7 @@ export function TabbedCodeBlock({
         ))}
       </TabsList>
       {tabs.map((tab) => (
-        <TabsContent key={tab.id} value={tab.id}>
+        <TabsContent key={tab.id} value={tab.id} className="min-w-0">
           <CodeBlockWithHighlight
             code={tab.code}
             language={tab.language}

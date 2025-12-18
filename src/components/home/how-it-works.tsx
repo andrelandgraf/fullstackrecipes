@@ -27,15 +27,13 @@ import {
   getAllCookbooks,
   getAllRecipes,
   getItemPromptText,
-  getCursorPromptDeeplink,
   isCookbook,
 } from "@/lib/recipes/data";
 import type { BundledLanguage } from "shiki";
 import {
   useHighlightedCode,
   McpCodeBlock,
-  McpConfigSection,
-  CursorButton,
+  McpSetupSteps,
   type McpClient,
 } from "@/components/home/mcp";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -349,90 +347,16 @@ export function HowItWorks() {
 
               {/* MCP Server Tab */}
               <TabsContent value="mcp">
-                <Card className="flex flex-col gap-8 rounded-t-none border-t-0 border-border/50 p-6">
-                  {/* Step 1: Add the MCP server */}
-                  <div>
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                        1
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Add the MCP server</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Add to your coding agent&apos;s MCP config
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-4">
-                      <McpConfigSection
-                        mcpClient={mcpClient}
-                        setMcpClient={setMcpClient}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Step 2: Ask your coding agent */}
-                  <div>
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                        2
-                      </div>
-                      <div>
-                        <h4 className="font-medium">
-                          Ask your coding agent to follow the recipe
-                        </h4>
-                        <p className="text-sm text-muted-foreground">
-                          The agent can fetch recipes directly via MCP resources
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 rounded-lg border border-dashed border-border bg-secondary/30 p-4">
-                      <div className="flex items-center justify-between gap-4">
-                        <span className="truncate font-mono text-sm text-muted-foreground">
-                          {getItemPromptText(selectedItem)}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant={
-                            copiedState === "prompt" ? "secondary" : "default"
-                          }
-                          onClick={() =>
-                            copyToClipboard(
-                              getItemPromptText(selectedItem),
-                              "prompt",
-                            )
-                          }
-                          className="shrink-0 gap-2"
-                        >
-                          {copiedState === "prompt" ? (
-                            <>
-                              <Check className="h-4 w-4" />
-                              Copied
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="h-4 w-4" />
-                              Copy
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-
-                    {mcpClient === "cursor" && (
-                      <div className="mt-4">
-                        <CursorButton
-                          href={getCursorPromptDeeplink(
-                            getItemPromptText(selectedItem),
-                          )}
-                        >
-                          Prompt Cursor
-                        </CursorButton>
-                      </div>
-                    )}
-                  </div>
+                <Card className="rounded-t-none border-t-0 border-border/50 p-6">
+                  <McpSetupSteps
+                    mcpClient={mcpClient}
+                    setMcpClient={setMcpClient}
+                    promptText={getItemPromptText(selectedItem)}
+                    copiedPrompt={copiedState === "prompt"}
+                    onCopyPrompt={() =>
+                      copyToClipboard(getItemPromptText(selectedItem), "prompt")
+                    }
+                  />
                 </Card>
               </TabsContent>
 

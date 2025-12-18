@@ -43,7 +43,7 @@ function TabsTrigger({
       data-slot="tabs-trigger"
       className={cn(
         // Base styles
-        "flex flex-1 items-center justify-center gap-2 border-b-2 border-transparent bg-secondary/30 px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all",
+        "flex min-w-0 flex-1 items-center justify-center gap-2 border-b-2 border-transparent bg-secondary/30 px-2 py-2.5 text-xs font-medium text-muted-foreground transition-all sm:px-3 sm:text-sm",
         // Hover state
         "hover:text-foreground",
         // First/last rounding (use first: and last: variants)
