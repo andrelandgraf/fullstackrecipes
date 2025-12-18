@@ -1,28 +1,6 @@
 ## Next.js on Vercel
 
-Complete setup guide for creating a Next.js app, initializing a GitHub repository, and deploying to Vercel with automatic deployments.
-
-### Prerequisites
-
-Install the required CLI tools:
-
-```bash
-# Install GitHub CLI
-brew install gh
-
-# Install Vercel CLI globally
-bun add -g vercel
-```
-
-Authenticate with both services:
-
-```bash
-# Login to GitHub
-gh auth login
-
-# Login to Vercel
-vercel login
-```
+Create a new Next.js app running on Bun, set up your development environment, and deploy to Vercel with automatic deployments.
 
 ### Create the Next.js App
 
@@ -53,6 +31,20 @@ bun add -D @types/bun
 
 Using Bun both as the package manager and runtime provides a consistent development experience.
 
+### Install GitHub CLI
+
+Install the GitHub CLI to manage your GitHub repositories:
+
+```bash
+brew install gh
+```
+
+Login to your GitHub account:
+
+```bash
+gh auth login
+```
+
 ### Create GitHub Repository
 
 Initialize git and create a new GitHub repository inside the project root:
@@ -69,6 +61,20 @@ The `gh repo create` command:
 - Pushes your local code
 
 Use `--private` instead of `--public` for a private repository.
+
+### Install Vercel CLI
+
+Install the Vercel CLI globally to manage your Vercel projects:
+
+```bash
+bun add -g vercel
+```
+
+Authenticate with Vercel:
+
+```bash
+vercel login
+```
 
 ### Deploy to Vercel
 
@@ -98,27 +104,6 @@ This links your local Git repository to your Vercel project, enabling:
 - Automatic deployments on push to main branch
 - Preview deployments for pull requests
 - Deployment status checks on GitHub
-
-### Pull Environment Variables
-
-After setting up environment variables in the Vercel dashboard, add these scripts to your `package.json`:
-
-```json
-{
-  "scripts": {
-    "env:pull": "vercel env pull .env.development --environment=development",
-    "env:push": "vercel env push .env.development --environment=development"
-  }
-}
-```
-
-Then pull your environment variables:
-
-```bash
-bun run env:pull
-```
-
-We write to `.env.development` (not `.env.local`) so that local overrides in `.env.local` aren't deleted when pulling from Vercel. See the [Environment Variable Management](/recipes/env-config) recipe for the full setup.
 
 ### Deployment Workflow
 

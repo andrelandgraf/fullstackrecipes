@@ -53,7 +53,7 @@ interface CookbookRecipesProps {
 }
 
 export function CookbookRecipes({ recipes }: CookbookRecipesProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-3">
