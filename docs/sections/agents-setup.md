@@ -54,7 +54,7 @@ Create an `agents.md` file in your project root. This file provides coding guide
 
 ### Step 2: Configure MCP Servers
 
-Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhance your coding agent's capabilities. Different recipes may introduce additional MCP servers. For now, start by adding these foundational MCP servers to your `.cursor/mcp.json`:
+Use MCP (Model Context Protocol) servers to enhance your coding agent's capabilities. Different recipes may introduce additional MCP servers. For now, start by adding these foundational MCP servers to your `.cursor/mcp.json`:
 
 ```json
 {
@@ -84,5 +84,3 @@ Fullstackrecipes recommends using MCP (Model Context Protocol) servers to enhanc
 | `fullstackrecipes` | Fullstackrecipes recipes                                         |
 
 > **Vercel MCP:** On first connection, Cursor will show a "Needs login" prompt. Click it to authorize access to your Vercel account. For project-specific context, use `https://mcp.vercel.com/<teamSlug>/<projectSlug>` instead.
-
-> **Note:** Remove any MCP servers for tools you don't plan to use in your project. For example, if you're not using Better Auth for authentication, remove the `better-auth` entry.
