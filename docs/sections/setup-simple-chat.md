@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   const result = streamText({
     model: "anthropic/claude-sonnet-4.5",
     system: "You are a helpful assistant.",
-    messages: convertToModelMessages(messages),
+    messages: await convertToModelMessages(messages),
   });
 
   return result.toUIMessageStreamResponse();

@@ -199,7 +199,12 @@ Create the router step for agent selection:
 
 ```typescript
 // src/workflows/chat/steps/router.ts
-import { generateObject, convertToModelMessages, type UIMessage } from "ai";
+import {
+  generateText,
+  convertToModelMessages,
+  Output,
+  type UIMessage,
+} from "ai";
 import { z } from "zod";
 import { writeProgress } from "./progress";
 
@@ -239,14 +244,14 @@ export async function routerStep(
 
   await writeProgress("Thinking about the next step...", chatId, messageId);
 
-  const result = await generateObject({
-    model: "google/gemini-2.5-flash",
+  const { output } = await generateText({
+    model: "openai/gpt-5.1-instant",
     system: routerSystemPrompt,
-    schema: routerSchema,
-    messages: convertToModelMessages(history),
+    output: Output.object({ schema: routerSchema }),
+    messages: await convertToModelMessages(history),
   });
 
-  return result.object;
+  return output;
 }
 ```
 

@@ -109,7 +109,7 @@ export class Agent {
       writable,
     };
 
-    let modelMessages: ModelMessage[] = convertToModelMessages(history);
+    let modelMessages: ModelMessage[] = await convertToModelMessages(history);
     let stepCount = 0;
     let shouldContinue = true;
     let allParts: MessagePart[] = [];
@@ -120,7 +120,7 @@ export class Agent {
       allParts = [...allParts, ...result.responseMessage.parts];
       modelMessages = [
         ...modelMessages,
-        ...convertToModelMessages([result.responseMessage]),
+        ...(await convertToModelMessages([result.responseMessage])),
       ];
 
       shouldContinue = result.shouldContinue;

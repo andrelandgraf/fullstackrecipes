@@ -1,4 +1,9 @@
-import { generateObject, convertToModelMessages, type UIMessage } from "ai";
+import {
+  generateText,
+  convertToModelMessages,
+  Output,
+  type UIMessage,
+} from "ai";
 import { z } from "zod";
 import { logger } from "@/lib/common/logger";
 import { writeProgress } from "./progress";
@@ -42,16 +47,16 @@ export async function routerStep(
   try {
     logger.info({ messageCount: history.length }, "Router processing messages");
 
-    const result = await generateObject({
-      model: "google/gemini-2.5-flash",
+    const { output } = await generateText({
+      model: "openai/gpt-5.1-instant",
       system: routerSystemPrompt,
-      schema: routerSchema,
-      messages: convertToModelMessages(history),
+      output: Output.object({ schema: routerSchema }),
+      messages: await convertToModelMessages(history),
     });
 
-    logger.info({ decision: result.object }, "Router decision");
+    logger.info({ decision: output }, "Router decision");
 
-    return result.object;
+    return output;
   } catch (error) {
     logger.error({ error, messages: history }, "Router error");
     throw error;

@@ -222,7 +222,7 @@ bunx --bun shadcn@latest add --all
 // Stream AI responses
 const result = streamText({
   model: "anthropic/claude-sonnet-4.5",
-  messages: convertToModelMessages(messages),
+  messages: await convertToModelMessages(messages),
 });`,
   },
   {

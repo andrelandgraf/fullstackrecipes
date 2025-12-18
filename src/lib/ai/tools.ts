@@ -1,15 +1,10 @@
 import { google } from "@ai-sdk/google";
-import { tool, type Tool } from "ai";
+import { tool } from "ai";
 import { z } from "zod";
 
-// Cast needed: @ai-sdk/google returns Tool<{}, unknown> but AI SDK expects Tool<any, any>
-function asToolSetCompatible<T>(tool: T): Tool<any, any> {
-  return tool as Tool<any, any>;
-}
-
 export const researchTools = {
-  googleSearch: asToolSetCompatible(google.tools.googleSearch({})),
-  urlContext: asToolSetCompatible(google.tools.urlContext({})),
+  googleSearch: google.tools.googleSearch({}),
+  urlContext: google.tools.urlContext({}),
 };
 
 export const draftingTools = {

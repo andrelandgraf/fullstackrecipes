@@ -9,17 +9,12 @@ Create the tool definitions:
 ```typescript
 // src/lib/ai/tools.ts
 import { google } from "@ai-sdk/google";
-import { tool, type Tool } from "ai";
+import { tool } from "ai";
 import { z } from "zod";
 
-// Cast needed: @ai-sdk/google returns Tool<{}, unknown> but AI SDK expects Tool<any, any>
-function asToolSetCompatible<T>(tool: T): Tool<any, any> {
-  return tool as Tool<any, any>;
-}
-
 export const researchTools = {
-  googleSearch: asToolSetCompatible(google.tools.googleSearch({})),
-  urlContext: asToolSetCompatible(google.tools.urlContext({})),
+  googleSearch: google.tools.googleSearch({}),
+  urlContext: google.tools.urlContext({}),
 };
 
 export const draftingTools = {
@@ -77,13 +72,13 @@ The `TOOL_TYPES` array must match your tool keys prefixed with `tool-` for the d
 
 ### Provider Tools
 
-Some providers offer built-in tools (like Google's `googleSearch`). These need type casting for compatibility:
+Some providers offer built-in tools like Google's `googleSearch` and `urlContext`. These can be used directly with the AI SDK:
 
 ```typescript
-// Google's tools have different type signatures
-function asToolSetCompatible<T>(tool: T): Tool<any, any> {
-  return tool as Tool<any, any>;
-}
+import { google } from "@ai-sdk/google";
 
-const searchTool = asToolSetCompatible(google.tools.googleSearch({}));
+export const researchTools = {
+  googleSearch: google.tools.googleSearch({}),
+  urlContext: google.tools.urlContext({}),
+};
 ```
