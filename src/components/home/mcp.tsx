@@ -17,7 +17,7 @@ import { Server, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getCursorPromptDeeplink } from "@/lib/recipes/data";
 
-// MCP Configuration Constants
+// Direct MCP Configuration Constants
 export const MCP_CONFIG = `{
   "mcpServers": {
     "fullstackrecipes": {
@@ -46,6 +46,39 @@ export const VSCODE_MCP_INSTALL_URL = `vscode:mcp/install?${encodeURIComponent(
     fullstackrecipes: {
       type: "http",
       url: "https://fullstackrecipes.com/api/mcp",
+    },
+  }),
+)}`;
+
+// Context7 MCP Configuration Constants
+export const CONTEXT7_MCP_CONFIG = `{
+  "mcpServers": {
+    "context7": {
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}`;
+
+export const CONTEXT7_CURSOR_MCP_INSTALL_URL =
+  "https://cursor.com/en-US/install-mcp?name=context7&config=eyJ1cmwiOiJodHRwczovL21jcC5jb250ZXh0Ny5jb20vbWNwIn0%3D";
+
+export const CONTEXT7_CLAUDE_CODE_MCP_COMMAND =
+  "claude mcp add --transport http context7 https://mcp.context7.com/mcp";
+
+export const CONTEXT7_VSCODE_MCP_CONFIG = `{
+  "servers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}`;
+
+export const CONTEXT7_VSCODE_MCP_INSTALL_URL = `vscode:mcp/install?${encodeURIComponent(
+  JSON.stringify({
+    context7: {
+      type: "http",
+      url: "https://mcp.context7.com/mcp",
     },
   }),
 )}`;
@@ -179,45 +212,72 @@ export function VSCodeButton({
 // MCP Client Types
 export type McpClient = "cursor" | "claude-code" | "vscode";
 
-const MCP_TABS = [
-  {
-    id: "cursor" as const,
-    label: "Cursor",
-    code: MCP_CONFIG,
-    language: "json" as const,
-    filePath: ".cursor/mcp.json",
-  },
-  {
-    id: "vscode" as const,
-    label: "VS Code",
-    code: VSCODE_MCP_CONFIG,
-    language: "json" as const,
-    filePath: ".vscode/mcp.json",
-  },
-  {
-    id: "claude-code" as const,
-    label: "Claude Code",
-    code: CLAUDE_CODE_MCP_COMMAND,
-    language: "bash" as const,
-  },
-];
+function getMcpTabs(useContext7: boolean) {
+  return [
+    {
+      id: "cursor" as const,
+      label: "Cursor",
+      code: useContext7 ? CONTEXT7_MCP_CONFIG : MCP_CONFIG,
+      language: "json" as const,
+      filePath: ".cursor/mcp.json",
+    },
+    {
+      id: "vscode" as const,
+      label: "VS Code",
+      code: useContext7 ? CONTEXT7_VSCODE_MCP_CONFIG : VSCODE_MCP_CONFIG,
+      language: "json" as const,
+      filePath: ".vscode/mcp.json",
+    },
+    {
+      id: "claude-code" as const,
+      label: "Claude Code",
+      code: useContext7
+        ? CONTEXT7_CLAUDE_CODE_MCP_COMMAND
+        : CLAUDE_CODE_MCP_COMMAND,
+      language: "bash" as const,
+    },
+  ];
+}
 
 // Reusable MCP Config Section Component
 type McpConfigSectionProps = {
   mcpClient: McpClient;
   setMcpClient: (client: McpClient) => void;
+  useContext7: boolean;
+  setUseContext7: (value: boolean) => void;
   showAddButtons?: boolean;
 };
 
 export function McpConfigSection({
   mcpClient,
   setMcpClient,
+  useContext7,
+  setUseContext7,
   showAddButtons = true,
 }: McpConfigSectionProps) {
+  const tabs = getMcpTabs(useContext7);
+  const cursorInstallUrl = useContext7
+    ? CONTEXT7_CURSOR_MCP_INSTALL_URL
+    : CURSOR_MCP_INSTALL_URL;
+  const vscodeInstallUrl = useContext7
+    ? CONTEXT7_VSCODE_MCP_INSTALL_URL
+    : VSCODE_MCP_INSTALL_URL;
+
   return (
     <div className="flex min-w-0 flex-col overflow-hidden">
+      {/* Context7 Toggle */}
+      <label className="mb-3 flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+        <span>Using Context7?</span>
+        <input
+          type="checkbox"
+          checked={useContext7}
+          onChange={(e) => setUseContext7(e.target.checked)}
+          className="h-4 w-4 cursor-pointer rounded border-border accent-primary"
+        />
+      </label>
+
       <TabbedCodeBlock
-        tabs={MCP_TABS}
+        tabs={tabs}
         activeTab={mcpClient}
         onTabChange={(tabId) => setMcpClient(tabId as McpClient)}
       />
@@ -226,14 +286,10 @@ export function McpConfigSection({
       {showAddButtons && (
         <div className="mt-3 sm:mt-4">
           {mcpClient === "cursor" && (
-            <CursorButton href={CURSOR_MCP_INSTALL_URL}>
-              Add to Cursor
-            </CursorButton>
+            <CursorButton href={cursorInstallUrl}>Add to Cursor</CursorButton>
           )}
           {mcpClient === "vscode" && (
-            <VSCodeButton href={VSCODE_MCP_INSTALL_URL}>
-              Add to VS Code
-            </VSCodeButton>
+            <VSCodeButton href={vscodeInstallUrl}>Add to VS Code</VSCodeButton>
           )}
         </div>
       )}
@@ -245,6 +301,8 @@ export function McpConfigSection({
 type McpSetupStepsProps = {
   mcpClient: McpClient;
   setMcpClient: (client: McpClient) => void;
+  useContext7: boolean;
+  setUseContext7: (value: boolean) => void;
   promptText: string;
   copiedPrompt: boolean;
   onCopyPrompt: () => void;
@@ -253,10 +311,17 @@ type McpSetupStepsProps = {
 export function McpSetupSteps({
   mcpClient,
   setMcpClient,
+  useContext7,
+  setUseContext7,
   promptText,
   copiedPrompt,
   onCopyPrompt,
 }: McpSetupStepsProps) {
+  // Append "using Context7" to prompt when Context7 is enabled
+  const displayPrompt = useContext7
+    ? `${promptText} using Context7`
+    : promptText;
+
   return (
     <div className="flex min-w-0 flex-col gap-6 sm:gap-8">
       {/* Step 1: Add the MCP server */}
@@ -266,7 +331,11 @@ export function McpSetupSteps({
             1
           </div>
           <div className="min-w-0">
-            <h4 className="font-medium">Add the MCP server</h4>
+            <h4 className="font-medium">
+              {useContext7
+                ? "Add Context7 MCP server"
+                : "Add fullstackrecipes MCP server"}
+            </h4>
             <p className="text-sm text-muted-foreground">
               Add to your coding agent&apos;s MCP config
             </p>
@@ -274,7 +343,12 @@ export function McpSetupSteps({
         </div>
 
         <div className="mt-3 min-w-0 sm:mt-4">
-          <McpConfigSection mcpClient={mcpClient} setMcpClient={setMcpClient} />
+          <McpConfigSection
+            mcpClient={mcpClient}
+            setMcpClient={setMcpClient}
+            useContext7={useContext7}
+            setUseContext7={setUseContext7}
+          />
         </div>
       </div>
 
@@ -289,16 +363,20 @@ export function McpSetupSteps({
               Ask your coding agent to follow the recipe
             </h4>
             <p className="text-sm text-muted-foreground">
-              The agent can fetch recipes directly via MCP resources
+              {useContext7
+                ? "The agent can fetch recipes directly via the Context7 docs search"
+                : "The agent can fetch recipes directly via MCP resources"}
             </p>
           </div>
         </div>
 
         <div className="mt-3 min-w-0 rounded-lg border border-dashed border-border bg-secondary/30 p-3 sm:mt-4 sm:p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <span className="min-w-0 break-all font-mono text-xs text-muted-foreground sm:truncate sm:text-sm">
-              {promptText}
-            </span>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+            <div className="min-w-0 flex-1 overflow-x-auto">
+              <span className="whitespace-nowrap font-mono text-xs text-muted-foreground sm:text-sm">
+                {displayPrompt}
+              </span>
+            </div>
             <Button
               size="sm"
               variant={copiedPrompt ? "secondary" : "default"}
@@ -322,7 +400,7 @@ export function McpSetupSteps({
 
         {mcpClient === "cursor" && (
           <div className="mt-3 sm:mt-4">
-            <CursorButton href={getCursorPromptDeeplink(promptText)}>
+            <CursorButton href={getCursorPromptDeeplink(displayPrompt)}>
               Prompt Cursor
             </CursorButton>
           </div>
@@ -343,6 +421,7 @@ const DEFAULT_PROMPT =
 
 function AddMcpDialogInner({ trigger, children }: AddMcpDialogProps) {
   const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
+  const [useContext7, setUseContext7] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [isOpen, setIsOpen] = useQueryState(
     "mcp",
@@ -353,9 +432,13 @@ function AddMcpDialogInner({ trigger, children }: AddMcpDialogProps) {
     setIsOpen(open || null);
   }
 
+  const fullPrompt = useContext7
+    ? `${DEFAULT_PROMPT} using Context7`
+    : DEFAULT_PROMPT;
+
   async function copyPrompt() {
     try {
-      await navigator.clipboard.writeText(DEFAULT_PROMPT);
+      await navigator.clipboard.writeText(fullPrompt);
       setCopiedPrompt(true);
       setTimeout(() => setCopiedPrompt(false), 2000);
     } catch {
@@ -373,7 +456,7 @@ function AddMcpDialogInner({ trigger, children }: AddMcpDialogProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl lg:max-w-3xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Server className="h-5 w-5 text-primary" />
@@ -384,6 +467,8 @@ function AddMcpDialogInner({ trigger, children }: AddMcpDialogProps) {
         <McpSetupSteps
           mcpClient={mcpClient}
           setMcpClient={setMcpClient}
+          useContext7={useContext7}
+          setUseContext7={setUseContext7}
           promptText={DEFAULT_PROMPT}
           copiedPrompt={copiedPrompt}
           onCopyPrompt={copyPrompt}

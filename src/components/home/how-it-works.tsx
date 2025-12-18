@@ -87,6 +87,7 @@ export function HowItWorks() {
   const [isLoading, setIsLoading] = useState(true);
   const [copiedState, setCopiedState] = useState<string | null>(null);
   const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
+  const [useContext7, setUseContext7] = useState(false);
 
   const selectedItem = items.find((r) => r.slug === selectedSlug)!;
   const hasRegistry =
@@ -351,11 +352,16 @@ export function HowItWorks() {
                   <McpSetupSteps
                     mcpClient={mcpClient}
                     setMcpClient={setMcpClient}
+                    useContext7={useContext7}
+                    setUseContext7={setUseContext7}
                     promptText={getItemPromptText(selectedItem)}
                     copiedPrompt={copiedState === "prompt"}
-                    onCopyPrompt={() =>
-                      copyToClipboard(getItemPromptText(selectedItem), "prompt")
-                    }
+                    onCopyPrompt={() => {
+                      const prompt = useContext7
+                        ? `${getItemPromptText(selectedItem)} using Context7`
+                        : getItemPromptText(selectedItem);
+                      copyToClipboard(prompt, "prompt");
+                    }}
                   />
                 </Card>
               </TabsContent>
