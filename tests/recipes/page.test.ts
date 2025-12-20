@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "bun:test";
-import { getAllItems } from "@/lib/recipes/data";
+import { getAllItems, recipeRedirects } from "@/lib/recipes/data";
 
 /**
  * E2E tests for recipe pages.
@@ -98,6 +98,32 @@ describe("Recipe Page Tests", () => {
           const hasAtLeastOneTag = item.tags.some((tag) => html.includes(tag));
           expect(hasAtLeastOneTag).toBe(true);
         });
+      });
+    }
+  });
+
+  describe("Redirects for old recipe slugs", () => {
+    for (const [oldSlug, newSlug] of Object.entries(recipeRedirects)) {
+      it(`/recipes/${oldSlug} should redirect to /recipes/${newSlug}`, async () => {
+        if (!serverReachable) return;
+
+        // Fetch without following redirects to verify redirect behavior
+        const response = await fetch(`${BASE_URL}/recipes/${oldSlug}`, {
+          redirect: "manual",
+        });
+
+        // Should be a redirect (307 for Next.js temporary redirect from redirect())
+        expect([301, 302, 307, 308]).toContain(response.status);
+        const location = response.headers.get("location");
+        expect(location).toContain(`/recipes/${newSlug}`);
+      });
+
+      it(`/recipes/${oldSlug} should return 200 when following redirects`, async () => {
+        if (!serverReachable) return;
+
+        // Follow redirects and verify we get a valid page
+        const response = await fetch(`${BASE_URL}/recipes/${oldSlug}`);
+        expect(response.status).toBe(200);
       });
     }
   });

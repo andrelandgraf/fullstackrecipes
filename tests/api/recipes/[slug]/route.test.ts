@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "bun:test";
 import { readdir } from "fs/promises";
 import path from "path";
 import { GET } from "@/app/api/recipes/[slug]/route";
-import { getAllItems } from "@/lib/recipes/data";
+import { getAllItems, recipeRedirects } from "@/lib/recipes/data";
 import { loadRecipeMarkdown } from "@/lib/recipes/loader";
 
 /**
@@ -41,6 +41,19 @@ describe("GET /api/recipes/[slug]", () => {
     expect(response.status).toBe(404);
     const data = await response.json();
     expect(data.error).toBe("Recipe not found");
+  });
+
+  describe("redirects for old recipe slugs", () => {
+    for (const [oldSlug, newSlug] of Object.entries(recipeRedirects)) {
+      it(`should redirect "${oldSlug}" to "${newSlug}"`, async () => {
+        const { request, params } = createMockRequest(oldSlug);
+        const response = await GET(request, { params });
+
+        expect(response.status).toBe(301);
+        const location = response.headers.get("location");
+        expect(location).toContain(`/api/recipes/${newSlug}`);
+      });
+    }
   });
 
   describe("all recipes return valid markdown", () => {

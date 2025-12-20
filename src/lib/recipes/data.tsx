@@ -706,6 +706,19 @@ export function getCursorPromptDeeplink(promptText: string): string {
   return url.toString();
 }
 
+/**
+ * Redirect mapping for old recipe slugs to new ones.
+ * When a recipe is renamed or merged, add the old slug here.
+ */
+export const recipeRedirects: Record<string, string> = {
+  "env-config": "env-management",
+};
+
+/** Get the redirect destination for an old slug, or undefined if no redirect exists */
+export function getRedirectSlug(slug: string): string | undefined {
+  return recipeRedirects[slug];
+}
+
 // Registry items from registry.json
 const REGISTRY_ICONS: Record<string, typeof Database> = {
   "config-schema": Cog,

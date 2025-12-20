@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   getAllItems,
   getItemBySlug,
   getCookbookRecipes,
   getRequiredItems,
   isCookbook,
+  getRedirectSlug,
 } from "@/lib/recipes/data";
 import { loadRecipeContent, loadRecipeMarkdown } from "@/lib/recipes/loader";
 import { RecipeHeader } from "@/components/recipes/header";
@@ -47,6 +48,11 @@ export default async function RecipePage({ params }: Props) {
   const item = getItemBySlug(slug);
 
   if (!item) {
+    // Check if this is an old slug that should redirect
+    const redirectSlug = getRedirectSlug(slug);
+    if (redirectSlug) {
+      redirect(`/recipes/${redirectSlug}`);
+    }
     notFound();
   }
 
