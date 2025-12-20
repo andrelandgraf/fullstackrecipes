@@ -70,7 +70,7 @@ export const items: (Recipe | Cookbook)[] = [
       "agent-setup",
       "shadcn-ui-setup",
       "assert",
-      "env-config",
+      "config-schema-setup",
       "neon-drizzle-setup",
       "ai-sdk-setup",
     ],
@@ -141,19 +141,64 @@ function processUser(user: User | null) {
     registryDeps: ["assert"],
   },
   {
-    slug: "env-config",
+    slug: "config-schema-setup",
+    title: "Config Schema Setup",
+    description:
+      "Type-safe environment variable validation using Zod with a Drizzle-like schema API. Supports server/public fields, feature flags, either-or constraints, and client-side protection.",
+    tags: ["Config"],
+    icon: Cog,
+    previewCode: `export const databaseConfig = configSchema("Database", {
+  url: server({ env: "DATABASE_URL" }),
+});
+// Type: { server: { url: string } }`,
+    registryDeps: ["config-schema"],
+  },
+  {
+    slug: "env-workflow-vercel",
+    title: "Env Workflow with Vercel",
+    description:
+      "Manage environment variables across Vercel environments. Sync with Vercel CLI, handle local overrides, and load env vars in scripts.",
+    tags: ["Config", "Vercel"],
+    icon: Triangle,
+    requires: ["config-schema-setup"],
+    previewCode: `{
+  "scripts": {
+    "env:pull": "vercel env pull .env.development",
+    "env:push": "vercel env push .env.development"
+  }
+}`,
+  },
+  {
+    slug: "env-validation",
+    title: "Environment Validation",
+    description:
+      "Validate environment variables on server start and before builds. Catch missing or invalid variables early with clear error messages.",
+    tags: ["Config"],
+    icon: FlaskConical,
+    requires: ["config-schema-setup"],
+    previewCode: `// instrumentation.ts - validate on start
+import "./lib/db/config";
+
+// prebuild validation
+bun run env:validate --environment=production`,
+    registryDeps: ["validate-env"],
+  },
+  {
+    slug: "env-management",
     title: "Environment Variable Management",
     description:
-      "Type-safe environment variable validation using Zod with a Drizzle-like schema API. Includes syncing with Vercel, prebuild validation, and clear error messages for missing or invalid variables.",
-    tags: ["Config"],
+      "Complete environment variable management with type-safe validation, Vercel workflow, and prebuild validation.",
+    tags: ["Cookbook", "Config"],
     icon: Settings,
+    isCookbook: true,
+    recipes: ["config-schema-setup", "env-workflow-vercel", "env-validation"],
     previewCode: `export const databaseConfig = configSchema("Database", {
   url: server({ env: "DATABASE_URL" }),
 });
 
 // bun run env:validate --environment=production`,
     registryDeps: ["config-schema", "validate-env"],
-  },
+  } satisfies Cookbook,
   {
     slug: "neon-drizzle-setup",
     title: "Neon + Drizzle Setup",
@@ -161,7 +206,7 @@ function processUser(user: User | null) {
       "Connect a Next.js app to Neon Postgres using Drizzle ORM with optimized connection pooling for Vercel serverless functions.",
     tags: ["Neon", "Drizzle"],
     icon: Database,
-    requires: ["env-config"],
+    requires: ["config-schema-setup"],
     previewCode: `import { drizzle } from "drizzle-orm/node-postgres";
 import { attachDatabasePool } from "@vercel/functions";
 
@@ -192,7 +237,7 @@ bunx --bun shadcn@latest add --all
       "Install the Vercel AI SDK with AI Elements components. Build a streaming chat interface with the useChat hook.",
     tags: ["AI", "Streaming", "UI Components"],
     icon: Sparkles,
-    requires: ["env-config", "shadcn-ui-setup"],
+    requires: ["config-schema-setup", "shadcn-ui-setup"],
     previewCode: `const { messages, sendMessage, status } = useChat({
   transport: new DefaultChatTransport({
     api: "/api/chat",
@@ -278,7 +323,7 @@ track("signup_completed", { plan: "pro" });`,
       "Configure Resend for transactional emails like password resets and email verification.",
     tags: ["Email"],
     icon: Mail,
-    requires: ["env-config"],
+    requires: ["config-schema-setup"],
     previewCode: `export async function sendEmail({ to, subject, react }) {
   const { data, error } = await resend.emails.send({
     from: resendConfig.server.fromEmail,
@@ -310,7 +355,7 @@ describe("myFunction", () => {
       "Add user authentication using Better Auth with Drizzle ORM and Neon Postgres. Base setup with email/password authentication.",
     tags: ["Auth", "Neon", "Drizzle"],
     icon: KeyRound,
-    requires: ["env-config", "neon-drizzle-setup"],
+    requires: ["config-schema-setup", "neon-drizzle-setup"],
     previewCode: `export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg" }),
   emailAndPassword: {
@@ -422,7 +467,7 @@ if (!session) redirect("/sign-in");
       "Implement feature flags using the Vercel Flags SDK with server-side evaluation, environment-based toggles, and Vercel Toolbar integration.",
     tags: ["Config", "Vercel"],
     icon: Flag,
-    requires: ["env-config"],
+    requires: ["config-schema-setup"],
     previewCode: `export const stripeFlag = flag({
   key: "stripe-enabled",
   decide() {
