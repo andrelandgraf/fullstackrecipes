@@ -187,7 +187,7 @@ bun run env:validate --environment=production`,
     slug: "env-management",
     title: "Environment Variable Management",
     description:
-      "Complete environment variable management with type-safe validation, Vercel workflow, and prebuild validation.",
+      "Complete environment variable management with type-safe validation, Vercel dev workflow, and prebuild validation.",
     tags: ["Cookbook", "Config"],
     icon: Settings,
     isCookbook: true,
