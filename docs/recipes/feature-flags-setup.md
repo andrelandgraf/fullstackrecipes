@@ -95,7 +95,7 @@ export const stripeFlag = flag({
 
 ### Flags with Validated Config
 
-For flags that depend on validated environment variables, combine with the [loadConfig](/recipes/env-config) pattern. Create a config file that uses the feature flag pattern:
+For flags that depend on validated environment variables, combine with the [loadConfig](/recipes/env-management) pattern. Create a config file that uses the feature flag pattern:
 
 ```ts
 // src/lib/stripe/config.ts

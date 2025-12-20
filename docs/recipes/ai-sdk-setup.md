@@ -90,7 +90,7 @@ export const aiConfig = loadConfig({
 });
 ```
 
-The `optional` parameter creates an either-or relationship: each key is optional if the other has a value, but at least one must be defined. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.
+The `optional` parameter creates an either-or relationship: each key is optional if the other has a value, but at least one must be defined. See the [Environment Variable Management](/recipes/env-management) recipe for the full pattern.
 
 ### Step 5: Validate config on server start
 

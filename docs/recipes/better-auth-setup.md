@@ -44,7 +44,7 @@ The `BETTER_AUTH_URL` differs between local (`http://localhost:3000`) and deploy
 
 ### Step 3: Create the auth config
 
-Create the auth config following the [Environment Variable Management](/recipes/env-config) pattern:
+Create the auth config following the [Environment Variable Management](/recipes/env-management) pattern:
 
 ```typescript
 // src/lib/auth/config.ts

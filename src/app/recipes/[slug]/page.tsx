@@ -7,6 +7,7 @@ import {
   getRequiredItems,
   isCookbook,
   getRedirectSlug,
+  recipeRedirects,
 } from "@/lib/recipes/data";
 import { loadRecipeContent, loadRecipeMarkdown } from "@/lib/recipes/loader";
 import { RecipeHeader } from "@/components/recipes/header";
@@ -21,14 +22,24 @@ type Props = {
 
 export async function generateStaticParams() {
   const items = getAllItems();
-  return items.map((item) => ({
-    slug: item.slug,
-  }));
+  const redirectSlugs = Object.keys(recipeRedirects);
+  return [
+    ...items.map((item) => ({ slug: item.slug })),
+    ...redirectSlugs.map((slug) => ({ slug })),
+  ];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const item = getItemBySlug(slug);
+  let item = getItemBySlug(slug);
+
+  // Handle redirects - use target item's metadata
+  if (!item) {
+    const redirectSlug = getRedirectSlug(slug);
+    if (redirectSlug) {
+      item = getItemBySlug(redirectSlug);
+    }
+  }
 
   if (!item) {
     return {

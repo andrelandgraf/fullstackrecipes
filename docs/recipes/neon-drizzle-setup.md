@@ -37,7 +37,7 @@ Use an existing Neon project or create a new one, either through the [Neon Dashb
 DATABASE_URL="postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require"
 ```
 
-Then sync to Vercel with `bun run env:push`. See [Environment Variable Management](/recipes/env-config) for the full setup.
+Then sync to Vercel with `bun run env:push`. See [Environment Variable Management](/recipes/env-management) for the full setup.
 
 > **Tip**: Use the **pooled** connection string for production workloads to improve performance and handle more concurrent connections.
 
@@ -56,7 +56,7 @@ export const databaseConfig = loadConfig({
 });
 ```
 
-Then access via `databaseConfig.server.url` instead of `process.env.DATABASE_URL`. See the [Environment Variable Management](/recipes/env-config) recipe for the full pattern.
+Then access via `databaseConfig.server.url` instead of `process.env.DATABASE_URL`. See the [Environment Variable Management](/recipes/env-management) recipe for the full pattern.
 
 ### Step 5: Validate config on server start
 
@@ -110,7 +110,7 @@ const db = drizzle({ client: pool, schema });
 export { db };
 ```
 
-The `databaseConfig` import provides type-safe access to the `DATABASE_URL` environment variable. See the [Environment Variable Management](/recipes/env-config) recipe for the config setup pattern.
+The `databaseConfig` import provides type-safe access to the `DATABASE_URL` environment variable. See the [Environment Variable Management](/recipes/env-management) recipe for the config setup pattern.
 
 Each feature library owns its own schema file (e.g., `@/lib/auth/schema`, `@/lib/chat/schema`). Instead of a central `db/schema.ts` aggregation file, schemas are imported directly in `client.ts` and merged into a single object for type-safe queries.
 

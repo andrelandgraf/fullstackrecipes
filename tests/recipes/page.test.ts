@@ -114,8 +114,23 @@ describe("Recipe Page Tests", () => {
 
         // Should be a redirect (307 for Next.js temporary redirect from redirect())
         expect([301, 302, 307, 308]).toContain(response.status);
+
         const location = response.headers.get("location");
-        expect(location).toContain(`/recipes/${newSlug}`);
+        expect(location).not.toBeNull();
+
+        // Verify the redirect URL is exactly correct (not malformed with extra paths/commas)
+        // Location can be relative (/recipes/slug) or absolute (http://localhost:3000/recipes/slug)
+        const expectedPath = `/recipes/${newSlug}`;
+        const locationUrl = location!.startsWith("http")
+          ? new URL(location!).pathname
+          : location!;
+
+        expect(locationUrl).toBe(expectedPath);
+
+        // Extra safety: ensure no malformed URLs with commas or duplicate paths
+        expect(location).not.toContain(",");
+        expect(location).not.toContain("%2C"); // URL-encoded comma
+        expect(location).not.toMatch(/\/recipes\/.*\/recipes\//); // No duplicate /recipes/
       });
 
       it(`/recipes/${oldSlug} should return 200 when following redirects`, async () => {
@@ -124,6 +139,10 @@ describe("Recipe Page Tests", () => {
         // Follow redirects and verify we get a valid page
         const response = await fetch(`${BASE_URL}/recipes/${oldSlug}`);
         expect(response.status).toBe(200);
+
+        // Verify we landed on the correct URL (not a malformed one)
+        const finalUrl = new URL(response.url);
+        expect(finalUrl.pathname).toBe(`/recipes/${newSlug}`);
       });
     }
   });
