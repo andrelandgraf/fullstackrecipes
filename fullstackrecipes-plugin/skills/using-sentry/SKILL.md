@@ -4,6 +4,17 @@ description: Capture exceptions, add context, create performance spans, and use 
 
 # Working with Sentry
 
+## Implement Working with Sentry
+
+Capture exceptions, add context, create performance spans, and use structured logging with Sentry.
+
+**See:**
+
+- Resource: `using-sentry` in Fullstack Recipes
+- URL: https://fullstackrecipes.com/recipes/using-sentry
+
+---
+
 ### Capturing Exceptions
 
 Manually capture errors that are handled but should be tracked:

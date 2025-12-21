@@ -1,3 +1,14 @@
+## Implement Environment Validation
+
+Validate environment variables on server start and before builds. Catch missing or invalid variables early with clear error messages.
+
+**See:**
+
+- Resource: `env-validation` in Fullstack Recipes
+- URL: https://fullstackrecipes.com/recipes/env-validation
+
+---
+
 ### Validating Configs on Server Start
 
 Some environment variables are read internally by packages rather than passed as arguments. To catch missing variables early instead of at runtime, import your configs in `instrumentation.ts`:

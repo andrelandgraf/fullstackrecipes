@@ -1,3 +1,14 @@
+## Implement Working with Authentication
+
+Use Better Auth for client and server-side authentication. Covers session access, protected routes, sign in/out, and fetching user data.
+
+**See:**
+
+- Resource: `using-authentication` in Fullstack Recipes
+- URL: https://fullstackrecipes.com/recipes/using-authentication
+
+---
+
 ### Client-Side Authentication
 
 Use the auth client hooks in React components:

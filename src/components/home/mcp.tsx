@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Server, Copy, Check } from "lucide-react";
+import { Download, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getCursorPromptDeeplink } from "@/lib/recipes/data";
 
@@ -29,8 +29,8 @@ export const MCP_CONFIG = `{
 export const CURSOR_MCP_INSTALL_URL =
   "https://cursor.com/en-US/install-mcp?name=fullstackrecipes&config=eyJ1cmwiOiJodHRwczovL2Z1bGxzdGFja3JlY2lwZXMuY29tL2FwaS9tY3AifQ%3D%3D";
 
-export const CLAUDE_CODE_MCP_COMMAND =
-  "claude mcp add --transport http fullstackrecipes https://fullstackrecipes.com/api/mcp";
+export const CLAUDE_CODE_PLUGIN_COMMANDS = `/plugin marketplace add andrelandgraf/fullstackrecipes
+/plugin install fullstackrecipes@fullstackrecipes`;
 
 export const VSCODE_MCP_CONFIG = `{
   "servers": {
@@ -62,7 +62,7 @@ export const CONTEXT7_MCP_CONFIG = `{
 export const CONTEXT7_CURSOR_MCP_INSTALL_URL =
   "https://cursor.com/en-US/install-mcp?name=context7&config=eyJ1cmwiOiJodHRwczovL21jcC5jb250ZXh0Ny5jb20vbWNwIn0%3D";
 
-export const CONTEXT7_CLAUDE_CODE_MCP_COMMAND =
+export const CONTEXT7_CLAUDE_CODE_COMMAND =
   "claude mcp add --transport http context7 https://mcp.context7.com/mcp";
 
 export const CONTEXT7_VSCODE_MCP_CONFIG = `{
@@ -232,8 +232,8 @@ function getMcpTabs(useContext7: boolean) {
       id: "claude-code" as const,
       label: "Claude Code",
       code: useContext7
-        ? CONTEXT7_CLAUDE_CODE_MCP_COMMAND
-        : CLAUDE_CODE_MCP_COMMAND,
+        ? CONTEXT7_CLAUDE_CODE_COMMAND
+        : CLAUDE_CODE_PLUGIN_COMMANDS,
       language: "bash" as const,
     },
   ];
@@ -324,7 +324,7 @@ export function McpSetupSteps({
 
   return (
     <div className="flex min-w-0 flex-col gap-6 sm:gap-8">
-      {/* Step 1: Add the MCP server */}
+      {/* Step 1: Add the MCP server or plugin */}
       <div className="min-w-0">
         <div className="flex items-start gap-3">
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary sm:h-8 sm:w-8">
@@ -332,12 +332,16 @@ export function McpSetupSteps({
           </div>
           <div className="min-w-0">
             <h4 className="font-medium">
-              {useContext7
-                ? "Add Context7 MCP server"
-                : "Add fullstackrecipes MCP server"}
+              {mcpClient === "claude-code" && !useContext7
+                ? "Install fullstackrecipes plugin"
+                : useContext7
+                  ? "Add Context7 MCP server"
+                  : "Add fullstackrecipes MCP server"}
             </h4>
             <p className="text-sm text-muted-foreground">
-              Add to your coding agent&apos;s MCP config
+              {mcpClient === "claude-code" && !useContext7
+                ? "Plugin includes MCP server, skills, and project rules"
+                : "Add to your coding agent's MCP config"}
             </p>
           </div>
         </div>
@@ -451,16 +455,16 @@ function AddMcpDialogInner({ trigger, children }: AddMcpDialogProps) {
       <DialogTrigger asChild>
         {trigger ?? (
           <Button variant="outline" size="lg" className="gap-2 font-medium">
-            <Server className="h-4 w-4" />
-            Add MCP Server
+            <Download className="h-4 w-4" />
+            Add to Agent
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl lg:max-w-3xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Server className="h-5 w-5 text-primary" />
-            Add MCP Server
+            <Download className="h-5 w-5 text-primary" />
+            Add to Agent
           </DialogTitle>
         </DialogHeader>
 
@@ -485,8 +489,8 @@ export function AddMcpDialog(props: AddMcpDialogProps) {
     <Suspense
       fallback={
         <Button variant="outline" size="lg" className="gap-2 font-medium">
-          <Server className="h-4 w-4" />
-          Add MCP Server
+          <Download className="h-4 w-4" />
+          Add to Agent
         </Button>
       }
     >

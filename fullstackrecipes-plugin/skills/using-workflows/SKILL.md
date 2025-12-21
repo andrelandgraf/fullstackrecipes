@@ -4,6 +4,17 @@ description: Create and run durable workflows with steps, streaming, and agent e
 
 # Working with Workflows
 
+## Implement Working with Workflows
+
+Create and run durable workflows with steps, streaming, and agent execution. Covers starting, resuming, and persisting workflow results.
+
+**See:**
+
+- Resource: `using-workflows` in Fullstack Recipes
+- URL: https://fullstackrecipes.com/recipes/using-workflows
+
+---
+
 ### Creating a Workflow
 
 Define workflows with the `"use workflow"` directive:

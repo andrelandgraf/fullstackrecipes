@@ -4,6 +4,17 @@ description: Use structured logging with Pino throughout your application. Cover
 
 # Working with Logging
 
+## Implement Working with Logging
+
+Use structured logging with Pino throughout your application. Covers log levels, context, and workflow-safe logging patterns.
+
+**See:**
+
+- Resource: `using-logging` in Fullstack Recipes
+- URL: https://fullstackrecipes.com/recipes/using-logging
+
+---
+
 ### Basic Logging
 
 Import the logger and use it throughout your application:

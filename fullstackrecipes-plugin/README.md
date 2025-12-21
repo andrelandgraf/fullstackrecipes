@@ -1,6 +1,6 @@
-# Fullstack Recipes Plugin
+# Full Stack Recipes Plugin
 
-Claude Code plugin for building AI-powered web applications with Next.js, Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK.
+Instructions for AI agents. Atomic setup guides and skills for auth, database, payments, and more.
 
 ## Features
 
@@ -8,6 +8,7 @@ Claude Code plugin for building AI-powered web applications with Next.js, Shadcn
 
 Skills are automatically available to Claude for relevant tasks:
 
+- **Building with fullstackrecipes**: Discover and follow recipes via MCP resources for setup guides, skills, and cookbooks. The meta-skill for using this plugin effectively.
 - **Environment Validation**: Validate environment variables on server start and before builds. Catch missing or invalid variables early with clear error messages.
 - **Working with Drizzle**: Write type-safe database queries with Drizzle ORM. Covers select, insert, update, delete, relational queries, and adding new tables.
 - **Working with Logging**: Use structured logging with Pino throughout your application. Covers log levels, context, and workflow-safe logging patterns.
@@ -18,18 +19,29 @@ Skills are automatically available to Claude for relevant tasks:
 
 ### MCP Resources
 
-All recipes and cookbooks are available as MCP resources. Use the plugin's MCP server to access:
+All recipes and cookbooks are available as MCP resources:
 
 - Setup instructions for configuring tools and services
 - Cookbooks that bundle related recipes together
 - Code patterns and best practices
 
-## Usage
+## Installation
 
-Install the plugin from the marketplace or load it locally:
+### From Marketplace
+
+Add the marketplace and install the plugin:
 
 ```bash
-claude --plugin-dir ./fullstack-recipes-plugin
+/plugin marketplace add andrelandgraf/fullstackrecipes
+/plugin install fullstackrecipes@fullstackrecipes
+```
+
+### Local Development
+
+Load the plugin directly from a local path:
+
+```bash
+claude --plugin-dir ./fullstackrecipes-plugin
 ```
 
 ## Learn More

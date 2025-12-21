@@ -28,6 +28,7 @@ import {
   ShieldCheck,
   Link2,
   List,
+  Compass,
 } from "lucide-react";
 import registry from "../../../registry.json";
 
@@ -55,6 +56,18 @@ export type Cookbook = Recipe & {
 // All items ordered by setup requirements/prerequisites
 // Cookbooks and recipes are in the same array to enforce display order
 export const items: (Recipe | Cookbook)[] = [
+  // === META SKILL ===
+  {
+    slug: "architect",
+    title: "Building with fullstackrecipes",
+    description:
+      "Discover and follow recipes via MCP resources for setup guides, skills, and cookbooks. The meta-skill for using fullstackrecipes effectively.",
+    tags: ["Skills"],
+    icon: Compass,
+    previewCode: `// List MCP resources from fullstackrecipes
+// Read the "neon-drizzle-setup" resource
+// Follow the "Base App Setup" cookbook`,
+  },
   // === COOKBOOKS ===
   {
     slug: "base-app-setup",

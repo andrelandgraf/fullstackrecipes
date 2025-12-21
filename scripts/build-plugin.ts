@@ -1,5 +1,5 @@
 /**
- * Build script for the Fullstack Recipes Claude Code plugin.
+ * Build script for the Full Stack Recipes Claude Code plugin.
  *
  * This script generates the plugin structure from the source files:
  * - Skills from "Skills" tagged recipes → skills/<slug>/SKILL.md
@@ -12,7 +12,7 @@ import fs from "fs/promises";
 import path from "path";
 import { items, isCookbook, type Recipe } from "../src/lib/recipes/data";
 
-const PLUGIN_DIR = path.join(process.cwd(), "fullstack-recipes-plugin");
+const PLUGIN_DIR = path.join(process.cwd(), "fullstackrecipes-plugin");
 const SKILLS_DIR = path.join(PLUGIN_DIR, "skills");
 const RECIPES_DIR = path.join(process.cwd(), "docs", "recipes");
 
@@ -54,7 +54,7 @@ ${content}`;
 async function createMcpConfig(): Promise<void> {
   const mcpConfig = {
     mcpServers: {
-      "fullstack-recipes": {
+      fullstackrecipes: {
         url: "https://fullstackrecipes.com/api/mcp",
       },
     },
@@ -69,9 +69,9 @@ async function createMcpConfig(): Promise<void> {
 async function createReadme(): Promise<void> {
   const skillRecipes = getSkillRecipes();
 
-  const readme = `# Fullstack Recipes Plugin
+  const readme = `# Full Stack Recipes Plugin
 
-Claude Code plugin for building AI-powered web applications with Next.js, Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK.
+Instructions for AI agents. Atomic setup guides and skills for auth, database, payments, and more.
 
 ## Features
 
@@ -83,18 +83,29 @@ ${skillRecipes.map((r) => `- **${r.title}**: ${r.description}`).join("\n")}
 
 ### MCP Resources
 
-All recipes and cookbooks are available as MCP resources. Use the plugin's MCP server to access:
+All recipes and cookbooks are available as MCP resources:
 
 - Setup instructions for configuring tools and services
 - Cookbooks that bundle related recipes together
 - Code patterns and best practices
 
-## Usage
+## Installation
 
-Install the plugin from the marketplace or load it locally:
+### From Marketplace
+
+Add the marketplace and install the plugin:
 
 \`\`\`bash
-claude --plugin-dir ./fullstack-recipes-plugin
+/plugin marketplace add andrelandgraf/fullstackrecipes
+/plugin install fullstackrecipes@fullstackrecipes
+\`\`\`
+
+### Local Development
+
+Load the plugin directly from a local path:
+
+\`\`\`bash
+claude --plugin-dir ./fullstackrecipes-plugin
 \`\`\`
 
 ## Learn More
@@ -108,7 +119,7 @@ Visit [fullstackrecipes.com](https://fullstackrecipes.com) for the full document
 }
 
 async function main() {
-  console.log("Building Fullstack Recipes plugin...\n");
+  console.log("Building Full Stack Recipes plugin...\n");
 
   // Clean and recreate skills directory
   await fs.rm(SKILLS_DIR, { recursive: true, force: true });

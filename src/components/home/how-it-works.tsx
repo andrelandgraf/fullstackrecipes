@@ -394,7 +394,7 @@ function HowItWorksInner() {
                 </TabsTrigger>
                 <TabsTrigger value="mcp">
                   <Server className="h-4 w-4" />
-                  <span className="hidden sm:inline">MCP Server</span>
+                  <span className="hidden sm:inline">Add MCP / Plugin</span>
                   <span className="sm:hidden">MCP</span>
                 </TabsTrigger>
                 {hasRegistry && (

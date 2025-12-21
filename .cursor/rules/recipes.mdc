@@ -2,9 +2,9 @@
 alwaysApply: true
 ---
 
-# Fullstack Recipes
+# fullstackrecipes (Full Stack Recipes)
 
-Fullstackrecipes.com provides cookbooks and recipes that help build better full-stack applications with AI-powered coding agents. Recipes are atomic instructions that follow a technical writing style using imperative steps (e.g., "Create xyz", "Download abc") without "you/we" pronouns.
+fullstackrecipes.com provides cookbooks and recipes that help build better full-stack applications with AI-powered coding agents. Recipes are atomic instructions that follow a technical writing style using imperative steps (e.g., "Create xyz", "Download abc") without "you/we" pronouns.
 
 ## Terminology
 
