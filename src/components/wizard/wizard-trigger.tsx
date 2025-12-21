@@ -13,4 +13,3 @@ export function WizardTrigger(props: WizardTriggerProps) {
     </Suspense>
   );
 }
-
