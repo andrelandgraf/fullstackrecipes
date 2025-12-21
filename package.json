@@ -29,7 +29,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "workflow:dev": "workflow inspect runs --web",
-    "registry:build": "bunx --bun shadcn@latest build"
+    "registry:build": "bunx --bun shadcn@latest build",
+    "plugin:build": "bun run scripts/build-plugin.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.0-beta.81",

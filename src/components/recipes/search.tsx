@@ -2,9 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Search, X, BookOpen } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface RecipeSearchProps {
@@ -16,8 +14,6 @@ interface RecipeSearchProps {
   onClearFilters: () => void;
   resultCount: number;
   totalCount: number;
-  cookbooksOnly: boolean;
-  onCookbooksOnlyChange: (value: boolean) => void;
 }
 
 export function RecipeSearch({
@@ -29,11 +25,8 @@ export function RecipeSearch({
   onClearFilters,
   resultCount,
   totalCount,
-  cookbooksOnly,
-  onCookbooksOnlyChange,
 }: RecipeSearchProps) {
-  const hasActiveFilters =
-    searchQuery !== "" || selectedTags.length > 0 || cookbooksOnly;
+  const hasActiveFilters = searchQuery !== "" || selectedTags.length > 0;
 
   return (
     <div className="mb-8 space-y-4">
@@ -57,44 +50,25 @@ export function RecipeSearch({
         )}
       </div>
 
-      {/* Filters row */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        {/* Tag filters */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-muted-foreground">Filter by:</span>
-          {allTags.map((tag) => (
-            <Badge
-              key={tag}
-              variant="secondary"
-              onClick={() => onTagToggle(tag)}
-              className={cn(
-                "cursor-pointer transition-colors",
-                selectedTags.includes(tag)
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                  : "bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground",
-              )}
-            >
-              {tag}
-              {selectedTags.includes(tag) && <X className="ml-1 h-3 w-3" />}
-            </Badge>
-          ))}
-        </div>
-
-        {/* Cookbooks only toggle */}
-        <div className="flex items-center gap-2">
-          <Switch
-            id="cookbooks-only"
-            checked={cookbooksOnly}
-            onCheckedChange={onCookbooksOnlyChange}
-          />
-          <Label
-            htmlFor="cookbooks-only"
-            className="flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground"
+      {/* Tag filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-muted-foreground">Filter by:</span>
+        {allTags.map((tag) => (
+          <Badge
+            key={tag}
+            variant="secondary"
+            onClick={() => onTagToggle(tag)}
+            className={cn(
+              "cursor-pointer transition-colors",
+              selectedTags.includes(tag)
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground",
+            )}
           >
-            <BookOpen className="h-3.5 w-3.5" />
-            Cookbooks only
-          </Label>
-        </div>
+            {tag}
+            {selectedTags.includes(tag) && <X className="ml-1 h-3 w-3" />}
+          </Badge>
+        ))}
       </div>
 
       {/* Results count and clear */}

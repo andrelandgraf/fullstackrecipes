@@ -18,17 +18,16 @@ export function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
             </span>
-            Now with {items.length} full stack recipes
+            {items.length} recipes and cookbooks
           </div>
 
           <h1 className="mb-6 text-balance text-4xl font-bold tracking-tight md:text-6xl">
-            Guides and Patterns for{" "}
-            <span className="text-primary">Full Stack</span> AI Apps
+            Instructions for <span className="text-primary">AI Agents</span>
           </h1>
 
           <p className="mb-10 text-pretty text-lg text-muted-foreground md:text-xl">
-            Add persistence for AI chat, sync for Stripe subscriptions, and more
-            to your project.
+            Copy-paste recipes into Cursor, Claude, or any coding agent. Atomic
+            setup guides and skills for auth, database, payments, and more.
           </p>
 
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -46,7 +45,7 @@ export function Hero() {
         {/* Tech logos */}
         <div className="mt-20 border-t border-border/50 pt-10">
           <p className="mb-6 text-center text-sm text-muted-foreground">
-            Purpose-built for
+            Recipes available for
           </p>
           <div className="mx-auto max-w-xl">
             <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-center opacity-60 sm:grid-cols-3 md:grid-cols-4">

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | Fullstack Recipes",
   },
   description:
-    "Production-ready patterns and step-by-step guides for building full-stack web apps with AI, authentication, and modern tooling.",
+    "Build better full stack apps with fullstackrecipe skills and setup instructions for your coding agent.",
 };
 
 export default function RootLayout({

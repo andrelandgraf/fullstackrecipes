@@ -12,13 +12,10 @@ import { RecipeSearch } from "@/components/recipes/search";
 import { getAllItems, isCookbook } from "@/lib/recipes/data";
 import { Button } from "@/components/ui/button";
 import { ArrowUp, ArrowDown } from "lucide-react";
-import { aiConfig } from "@/lib/ai/config";
 
 const items = getAllItems();
 
-const allTags = Array.from(
-  new Set(items.flatMap((r) => r.tags).filter((t) => t !== "Cookbook")),
-).sort();
+const allTags = Array.from(new Set(items.flatMap((r) => r.tags))).sort();
 
 function RecipeGridInner() {
   const [searchQuery, setSearchQuery] = useQueryState(
@@ -33,10 +30,6 @@ function RecipeGridInner() {
     "asc",
     parseAsBoolean.withDefault(false),
   );
-  const [cookbooksOnly, setCookbooksOnly] = useQueryState(
-    "cookbooks",
-    parseAsBoolean.withDefault(false),
-  );
 
   const filteredItems = useMemo(() => {
     const filtered = items.filter((item) => {
@@ -49,13 +42,11 @@ function RecipeGridInner() {
         selectedTags.length === 0 ||
         selectedTags.some((tag) => item.tags.includes(tag));
 
-      const matchesCookbookFilter = !cookbooksOnly || isCookbook(item);
-
-      return matchesSearch && matchesTags && matchesCookbookFilter;
+      return matchesSearch && matchesTags;
     });
 
     return sortAscending ? filtered : [...filtered].reverse();
-  }, [searchQuery, selectedTags, sortAscending, cookbooksOnly]);
+  }, [searchQuery, selectedTags, sortAscending]);
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
@@ -66,15 +57,10 @@ function RecipeGridInner() {
   const clearFilters = () => {
     setSearchQuery(null);
     setSelectedTags(null);
-    setCookbooksOnly(null);
   };
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query || null);
-  };
-
-  const handleCookbooksOnlyChange = (value: boolean) => {
-    setCookbooksOnly(value || null);
   };
 
   return (
@@ -123,8 +109,6 @@ function RecipeGridInner() {
           onClearFilters={clearFilters}
           resultCount={filteredItems.length}
           totalCount={items.length}
-          cookbooksOnly={cookbooksOnly}
-          onCookbooksOnlyChange={handleCookbooksOnlyChange}
         />
 
         {filteredItems.length > 0 ? (

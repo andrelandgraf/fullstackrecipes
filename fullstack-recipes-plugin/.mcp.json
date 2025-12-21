@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "fullstack-recipes": {
+      "url": "https://fullstackrecipes.com/api/mcp"
+    }
+  }
+}

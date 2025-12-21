@@ -2,16 +2,56 @@
 alwaysApply: true
 ---
 
-fullstackrecipes.com is a collection of step-by-step guides for building full-stack web apps and agentic applications. Each recipes is made up of a set of markdown files in the `docs/sections/` directory.
+# Fullstack Recipes
 
-These recipes are used to build the fullstackrecipes.com website. Ensure a technical writing style is used in the recipes.
+Fullstackrecipes.com provides cookbooks and recipes that help build better full-stack applications with AI-powered coding agents. Recipes are atomic instructions that follow a technical writing style using imperative steps (e.g., "Create xyz", "Download abc") without "you/we" pronouns.
 
-Several recipes are grouped into cookbooks. A cookbook is a collection of recipes that are related to each other. For example, the "Base App Setup" cookbook includes recipes for setting up a base application with Next.js, Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK.
+## Terminology
 
-All meta data for the recipes and cookbooks is stored in /src/lib/recipes/data.tsx.
+- **Resources**: Documents an agent can read
+- **Skills**: Instructions an agent always has access to, which can reference resources and other materials
+- **Plugins** (Claude Code): Bundled collections of skills, MCP servers, and more for distribution
+- **Tools**: Functions agents can call
+- **Prompts**: Instructions for an agent, typically linking to resources and referencing MCP servers
 
-Some code utilities are further exposed through our shadcn registry. The registry is a collection of shadcn components that are used to build the fullstackrecipes.com website. The registry is stored in /registry.json. Run `bun run registry:build` to build the registry and generate the files in `public/r/`.
+## Content Types
 
-This app further includes a demo application that is used to showcase the recipes and cookbooks in action. We also use the demo app to verify the guides are complete and accurate. It is very important to keep the demo app up to date with the recipes and cookbooks. The code should ideally be 1-to-1 with the demo app. Sometimes we may add code comments to recipe code examples that aren't part of the demo app. Also recipes may leave out code that is included in future recipes but not yet implemented in the current recipe. This is fine.
+### Recipes
 
-Always highlight if the recipe and demo code are not 1-to-1 so we can work out a solution and see what is out of sync (stale demo code or stale recipe examples).
+Recipes are atomic, self-contained instructions. Each recipe serves one of two purposes:
+
+1. **Setup Instructions**: Step-by-step guides to configure something in a repository
+2. **Skills**: Instructions that teach agents how to work with previously configured tools or features
+
+All recipe content is stored as markdown files in the `docs/recipes/` directory.
+
+### Cookbooks
+
+Cookbooks bundle multiple related recipes together, walking an agent through several setup guides and skills in sequence. For example, the "Base App Setup" cookbook includes recipes for setting up a base application with Next.js, Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK.
+
+## Usage
+
+1. Discover recipes and cookbooks of interest
+2. Copy markdown content manually and pass to a coding agent, or
+3. Install the MCP server to access recipes programmatically
+
+Recipes can be selected and copied as markdown or accessed as MCP resources. Cookbooks can also be installed as Claude Code Plugins.
+
+## Repository Structure
+
+All metadata for recipes and cookbooks is stored in `/src/lib/recipes/data.tsx`.
+
+Some code utilities are exposed through the shadcn registry stored in `/registry.json`. Run `bun run registry:build` to build the registry and generate files in `public/r/`.
+
+## Demo Application
+
+This repository includes a demo application that showcases the recipes and cookbooks in action. The demo app verifies guides are complete and accurate.
+
+**Important**: Keep the demo app synchronized with the recipes and cookbooks. Code should ideally match 1-to-1 between recipes and the demo app.
+
+Exceptions:
+
+- Recipe code examples may include comments not present in the demo app
+- Recipes may omit code that is implemented in later recipes
+
+Always highlight discrepancies between recipe and demo code to determine what is out of sync (stale demo code or stale recipe examples).
