@@ -860,7 +860,7 @@ type WizardTriggerProps = {
   queryParam?: string;
 };
 
-export function WizardTrigger({
+export function WizardTriggerClient({
   children,
   queryParam = "wizard",
 }: WizardTriggerProps) {

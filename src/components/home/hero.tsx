@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Wand2 } from "lucide-react";
 import { getAllItems } from "@/lib/recipes/data";
-import { WizardTrigger } from "@/components/wizard/wizard-dialog";
+import { WizardTrigger } from "@/components/wizard/wizard-trigger";
 
 const items = getAllItems();
 
