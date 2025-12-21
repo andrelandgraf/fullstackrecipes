@@ -89,6 +89,12 @@ function HowItWorksInner() {
     setDeliveryTab,
   } = useSelection();
 
+  // Extract cookbook slugs for Claude Code plugin commands
+  const selectedCookbookSlugs = useMemo(
+    () => selectedItems.filter(isCookbook).map((item) => item.slug),
+    [selectedItems],
+  );
+
   const [recipeContents, setRecipeContents] = useState<
     Record<string, string | null>
   >({});
@@ -425,6 +431,7 @@ function HowItWorksInner() {
                         : promptText;
                       copyToClipboard(prompt, "prompt");
                     }}
+                    selectedCookbookSlugs={selectedCookbookSlugs}
                   />
                 </Card>
               </TabsContent>

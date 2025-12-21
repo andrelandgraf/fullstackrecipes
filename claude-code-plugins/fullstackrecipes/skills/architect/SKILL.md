@@ -1,5 +1,5 @@
 ---
-description: Build full-stack applications using fullstackrecipes. Discover and follow recipes via MCP resources for setup guides, skills, and cookbooks.
+description: Discover and follow recipes via MCP resources for setup guides, skills, and cookbooks. The meta-skill for using fullstackrecipes effectively.
 ---
 
 # Building with fullstackrecipes

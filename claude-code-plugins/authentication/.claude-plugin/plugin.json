@@ -1,0 +1,12 @@
+{
+  "name": "authentication",
+  "description": "Full Stack Recipes: Complete authentication system with Better Auth, email verification, password reset, protected routes, and account management.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Andre Landgraf",
+    "email": "andre.timo.landgraf@gmail.com"
+  },
+  "homepage": "https://fullstackrecipes.com/recipes/authentication",
+  "repository": "https://github.com/andrelandgraf/fullstackrecipes",
+  "license": "MIT"
+}

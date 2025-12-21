@@ -1,0 +1,12 @@
+{
+  "name": "url-state-management",
+  "description": "Full Stack Recipes: Sync React state to URL query parameters for shareable filters, search, and deep-linkable dialogs with nuqs.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Andre Landgraf",
+    "email": "andre.timo.landgraf@gmail.com"
+  },
+  "homepage": "https://fullstackrecipes.com/recipes/url-state-management",
+  "repository": "https://github.com/andrelandgraf/fullstackrecipes",
+  "license": "MIT"
+}

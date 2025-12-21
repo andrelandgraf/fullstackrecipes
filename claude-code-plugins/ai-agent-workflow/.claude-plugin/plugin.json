@@ -1,0 +1,12 @@
+{
+  "name": "ai-agent-workflow",
+  "description": "Full Stack Recipes: Build resumable multi-agent workflows with durable execution, tool loops, and automatic stream recovery on client reconnection.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Andre Landgraf",
+    "email": "andre.timo.landgraf@gmail.com"
+  },
+  "homepage": "https://fullstackrecipes.com/recipes/ai-agent-workflow",
+  "repository": "https://github.com/andrelandgraf/fullstackrecipes",
+  "license": "MIT"
+}

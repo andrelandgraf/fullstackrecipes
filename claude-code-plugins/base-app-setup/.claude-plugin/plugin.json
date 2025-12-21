@@ -1,0 +1,12 @@
+{
+  "name": "base-app-setup",
+  "description": "Full Stack Recipes: Complete setup guide for a Next.js app with Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Andre Landgraf",
+    "email": "andre.timo.landgraf@gmail.com"
+  },
+  "homepage": "https://fullstackrecipes.com/recipes/base-app-setup",
+  "repository": "https://github.com/andrelandgraf/fullstackrecipes",
+  "license": "MIT"
+}

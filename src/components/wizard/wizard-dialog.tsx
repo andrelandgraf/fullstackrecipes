@@ -128,6 +128,12 @@ function WizardDialogInner({
     setSelectedSlugs,
   } = useSelection();
 
+  // Extract cookbook slugs for Claude Code plugin commands
+  const selectedCookbookSlugs = useMemo(
+    () => selectedItems.filter(isCookbook).map((item) => item.slug),
+    [selectedItems],
+  );
+
   // Load content for all selected items when on agent step
   useEffect(() => {
     if (step !== "agent" || deliveryTab !== "copy") return;
@@ -771,6 +777,7 @@ function WizardDialogInner({
                           promptText={promptText}
                           copiedPrompt={copiedPrompt}
                           onCopyPrompt={copyPrompt}
+                          selectedCookbookSlugs={selectedCookbookSlugs}
                         />
                       </div>
                     </TabsContent>

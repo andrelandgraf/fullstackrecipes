@@ -11,8 +11,38 @@
   "plugins": [
     {
       "name": "fullstackrecipes",
-      "source": "./fullstackrecipes-plugin",
-      "description": "Full Stack Recipes: Instructions for AI agents. Atomic setup guides and skills for auth, database, payments, and more."
+      "source": "./claude-code-plugins/fullstackrecipes",
+      "description": "Full Stack Recipes: Instructions for AI agents. Includes the meta-skill for discovering and following recipes via MCP."
+    },
+    {
+      "name": "base-app-setup",
+      "source": "./claude-code-plugins/base-app-setup",
+      "description": "Complete setup guide for a Next.js app with Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK."
+    },
+    {
+      "name": "env-management",
+      "source": "./claude-code-plugins/env-management",
+      "description": "Complete environment variable management with type-safe validation, Vercel dev workflow, and prebuild validation."
+    },
+    {
+      "name": "observability-monitoring",
+      "source": "./claude-code-plugins/observability-monitoring",
+      "description": "Complete observability stack with structured logging, error tracking, and web analytics."
+    },
+    {
+      "name": "authentication",
+      "source": "./claude-code-plugins/authentication",
+      "description": "Complete authentication system with Better Auth, email verification, password reset, protected routes, and account management."
+    },
+    {
+      "name": "url-state-management",
+      "source": "./claude-code-plugins/url-state-management",
+      "description": "Sync React state to URL query parameters for shareable filters, search, and deep-linkable dialogs with nuqs."
+    },
+    {
+      "name": "ai-agent-workflow",
+      "source": "./claude-code-plugins/ai-agent-workflow",
+      "description": "Build resumable multi-agent workflows with durable execution, tool loops, and automatic stream recovery on client reconnection."
     }
   ]
 }

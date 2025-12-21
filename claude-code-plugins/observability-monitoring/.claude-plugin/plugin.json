@@ -1,0 +1,12 @@
+{
+  "name": "observability-monitoring",
+  "description": "Full Stack Recipes: Complete observability stack with structured logging, error tracking, and web analytics.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Andre Landgraf",
+    "email": "andre.timo.landgraf@gmail.com"
+  },
+  "homepage": "https://fullstackrecipes.com/recipes/observability-monitoring",
+  "repository": "https://github.com/andrelandgraf/fullstackrecipes",
+  "license": "MIT"
+}
