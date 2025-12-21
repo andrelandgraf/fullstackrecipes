@@ -26,7 +26,7 @@ export function Hero() {
           </h1>
 
           <p className="mb-10 text-pretty text-lg text-muted-foreground md:text-xl">
-            Copy-paste recipes into Cursor, Claude, or any coding agent. Atomic
+            Copy markdown, install the MCP server, or use Claude plugins. Atomic
             setup guides and skills for auth, database, payments, and more.
           </p>
 

@@ -14,7 +14,8 @@ export function DetailWrapper({ children, slug }: DetailWrapperProps) {
     <SelectionProvider initialSlugs={[slug]}>
       {children}
       <WizardDialog
-        mode="agent-only"
+        mode="full"
+        initialStep="agent"
         queryParam="wizard"
         showTrigger={false}
         overrideSlugs={[slug]}

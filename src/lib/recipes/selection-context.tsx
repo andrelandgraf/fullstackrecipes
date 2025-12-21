@@ -25,9 +25,12 @@ function getItemOrder(slug: string): number {
   return itemIndexMap.get(slug) ?? Infinity;
 }
 
+// Default prompt when no items are selected
+const DEFAULT_PROMPT = "Suggest how to use fullstackrecipes in this app";
+
 // Get combined prompt text for multiple items
 function getCombinedPromptText(selectedItems: (Recipe | Cookbook)[]): string {
-  if (selectedItems.length === 0) return "";
+  if (selectedItems.length === 0) return DEFAULT_PROMPT;
   if (selectedItems.length === 1) return getItemPromptText(selectedItems[0]);
 
   const itemDescriptions = selectedItems.map((item) => {

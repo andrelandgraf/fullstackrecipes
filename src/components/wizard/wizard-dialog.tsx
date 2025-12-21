@@ -38,7 +38,6 @@ import {
   type McpClient,
 } from "@/components/mcp/config";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   getAllItems,
@@ -64,6 +63,8 @@ type WizardDialogMode = "full" | "recipes-only" | "agent-only";
 type WizardDialogProps = {
   /** Dialog mode: "full" shows wizard, "recipes-only" only recipe selection, "agent-only" only MCP options */
   mode?: WizardDialogMode;
+  /** Initial step to show (only used when mode is "full") */
+  initialStep?: WizardStep;
   /** Query param name for open state */
   queryParam?: string;
   /** Custom trigger element */
@@ -78,19 +79,24 @@ type WizardDialogProps = {
 
 function WizardDialogInner({
   mode = "full",
+  initialStep,
   queryParam = "wizard",
   trigger,
   showTrigger = true,
   onClose,
   overrideSlugs,
 }: WizardDialogProps) {
+  const getDefaultStep = (): WizardStep => {
+    if (mode === "agent-only") return "agent";
+    if (initialStep) return initialStep;
+    return "recipes";
+  };
+
   const [isOpen, setIsOpen] = useQueryState(
     queryParam,
     parseAsBoolean.withDefault(false),
   );
-  const [step, setStep] = useState<WizardStep>(
-    mode === "agent-only" ? "agent" : "recipes",
-  );
+  const [step, setStep] = useState<WizardStep>(getDefaultStep());
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTagFilter, setSelectedTagFilter] = useState<string | null>(
     null,
@@ -169,9 +175,9 @@ function WizardDialogInner({
   // Reset step when dialog closes or mode changes
   useEffect(() => {
     if (!isOpen) {
-      setStep(mode === "agent-only" ? "agent" : "recipes");
+      setStep(getDefaultStep());
     }
-  }, [isOpen, mode]);
+  }, [isOpen, mode, initialStep]);
 
   function handleOpenChange(open: boolean) {
     setIsOpen(open || null);
@@ -647,126 +653,36 @@ function WizardDialogInner({
                   </div>
                 )}
 
-                <Tabs
-                  value={deliveryTab}
-                  onValueChange={(v) => setDeliveryTab(v as DeliveryTab)}
-                >
-                  <TabsList>
-                    <TabsTrigger value="copy">
-                      <Copy className="h-4 w-4" />
-                      <span className="hidden sm:inline">Copy Markdown</span>
-                      <span className="sm:hidden">Copy</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="mcp">
-                      <Server className="h-4 w-4" />
-                      <span className="hidden sm:inline">Add MCP / Plugin</span>
-                      <span className="sm:hidden">MCP</span>
-                    </TabsTrigger>
-                    {hasRegistry && (
-                      <TabsTrigger value="registry">
-                        <Terminal className="h-4 w-4" />
-                        <span className="hidden sm:inline">Registry</span>
-                        <span className="sm:hidden">CLI</span>
+                <div className="overflow-hidden rounded-lg border border-border/50">
+                  <Tabs
+                    value={deliveryTab}
+                    onValueChange={(v) => setDeliveryTab(v as DeliveryTab)}
+                  >
+                    <TabsList className="rounded-none border-0">
+                      <TabsTrigger value="copy">
+                        <Copy className="h-4 w-4" />
+                        <span className="hidden sm:inline">Copy Markdown</span>
+                        <span className="sm:hidden">Copy</span>
                       </TabsTrigger>
-                    )}
-                  </TabsList>
+                      <TabsTrigger value="mcp">
+                        <Server className="h-4 w-4" />
+                        <span className="hidden sm:inline">
+                          Add MCP / Plugin
+                        </span>
+                        <span className="sm:hidden">MCP</span>
+                      </TabsTrigger>
+                      {hasRegistry && (
+                        <TabsTrigger value="registry">
+                          <Terminal className="h-4 w-4" />
+                          <span className="hidden sm:inline">Registry</span>
+                          <span className="sm:hidden">CLI</span>
+                        </TabsTrigger>
+                      )}
+                    </TabsList>
 
-                  {/* Copy Markdown Tab */}
-                  <TabsContent value="copy">
-                    <Card className="flex flex-col gap-8 rounded-t-none border-t-0 border-border/50 p-6">
-                      <div>
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                            1
-                          </div>
-                          <div>
-                            <h4 className="font-medium">
-                              Copy{" "}
-                              {allContentSlugs.length > 1
-                                ? "recipes"
-                                : "recipe"}{" "}
-                              as Markdown
-                            </h4>
-                            <p className="text-sm text-muted-foreground">
-                              {allContentSlugs.length > 1
-                                ? `All ${allContentSlugs.length} guides will be combined into one prompt`
-                                : 'Each recipe page has a "Copy as Markdown" button'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="mt-4 rounded-lg border border-dashed border-border bg-secondary/30 p-4">
-                          <div className="flex items-center justify-between gap-4">
-                            <span className="truncate font-mono text-sm text-muted-foreground">
-                              {allContentSlugs.length === 1
-                                ? `${allContentSlugs[0]}.md`
-                                : `${allContentSlugs.length} guides combined`}
-                            </span>
-                            <Button
-                              size="sm"
-                              variant={copiedMarkdown ? "secondary" : "default"}
-                              onClick={copyMarkdown}
-                              className="shrink-0 gap-2"
-                              disabled={
-                                isLoadingMarkdown || selectedItems.length === 0
-                              }
-                            >
-                              {isLoadingMarkdown ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                  Loading
-                                </>
-                              ) : copiedMarkdown ? (
-                                <>
-                                  <Check className="h-4 w-4" />
-                                  Copied
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="h-4 w-4" />
-                                  Copy
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                          2
-                        </div>
-                        <div>
-                          <h4 className="font-medium">
-                            Paste to your AI assistant
-                          </h4>
-                          <p className="text-sm text-muted-foreground">
-                            Ask your coding agent (Cursor, Claude, Copilot,
-                            etc.) to follow the recipe and implement it in your
-                            project.
-                          </p>
-                        </div>
-                      </div>
-                    </Card>
-                  </TabsContent>
-
-                  {/* MCP Server Tab */}
-                  <TabsContent value="mcp">
-                    <Card className="rounded-t-none border-t-0 border-border/50 p-6">
-                      <McpSetupSteps
-                        mcpClient={mcpClient}
-                        setMcpClient={setMcpClient}
-                        useContext7={useContext7}
-                        setUseContext7={setUseContext7}
-                        promptText={promptText}
-                        copiedPrompt={copiedPrompt}
-                        onCopyPrompt={copyPrompt}
-                      />
-                    </Card>
-                  </TabsContent>
-
-                  {/* Registry Tab */}
-                  {hasRegistry && (
-                    <TabsContent value="registry">
-                      <Card className="flex flex-col gap-8 rounded-t-none border-t-0 border-border/50 p-6">
+                    {/* Copy Markdown Tab */}
+                    <TabsContent value="copy">
+                      <div className="flex flex-col gap-8 border-t border-border/50 bg-card p-6">
                         <div>
                           <div className="flex items-start gap-3">
                             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
@@ -774,20 +690,56 @@ function WizardDialogInner({
                             </div>
                             <div>
                               <h4 className="font-medium">
-                                Install via shadcn registry
+                                Copy{" "}
+                                {allContentSlugs.length > 1
+                                  ? "recipes"
+                                  : "recipe"}{" "}
+                                as Markdown
                               </h4>
                               <p className="text-sm text-muted-foreground">
-                                {registryDeps.length > 1
-                                  ? `${registryDeps.length} registry items from selected guides`
-                                  : "This recipe has reusable code you can install directly"}
+                                {allContentSlugs.length > 1
+                                  ? `All ${allContentSlugs.length} guides will be combined into one prompt`
+                                  : 'Each recipe page has a "Copy as Markdown" button'}
                               </p>
                             </div>
                           </div>
-                          <div className="mt-4">
-                            <McpCodeBlock
-                              code={getRegistryCommand(registryDeps)}
-                              language="bash"
-                            />
+                          <div className="mt-4 rounded-lg border border-dashed border-border bg-secondary/30 p-4">
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="truncate font-mono text-sm text-muted-foreground">
+                                {allContentSlugs.length === 1
+                                  ? `${allContentSlugs[0]}.md`
+                                  : `${allContentSlugs.length} guides combined`}
+                              </span>
+                              <Button
+                                size="sm"
+                                variant={
+                                  copiedMarkdown ? "secondary" : "default"
+                                }
+                                onClick={copyMarkdown}
+                                className="shrink-0 gap-2"
+                                disabled={
+                                  isLoadingMarkdown ||
+                                  selectedItems.length === 0
+                                }
+                              >
+                                {isLoadingMarkdown ? (
+                                  <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Loading
+                                  </>
+                                ) : copiedMarkdown ? (
+                                  <>
+                                    <Check className="h-4 w-4" />
+                                    Copied
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="h-4 w-4" />
+                                    Copy
+                                  </>
+                                )}
+                              </Button>
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-start gap-3">
@@ -796,18 +748,79 @@ function WizardDialogInner({
                           </div>
                           <div>
                             <h4 className="font-medium">
-                              Code is added to your project
+                              Paste to your AI assistant
                             </h4>
                             <p className="text-sm text-muted-foreground">
-                              The files are installed to your project. Update
-                              imports to match your project structure.
+                              Ask your coding agent (Cursor, Claude, Copilot,
+                              etc.) to follow the recipe and implement it in
+                              your project.
                             </p>
                           </div>
                         </div>
-                      </Card>
+                      </div>
                     </TabsContent>
-                  )}
-                </Tabs>
+
+                    {/* MCP Server Tab */}
+                    <TabsContent value="mcp">
+                      <div className="border-t border-border/50 bg-card p-6">
+                        <McpSetupSteps
+                          mcpClient={mcpClient}
+                          setMcpClient={setMcpClient}
+                          useContext7={useContext7}
+                          setUseContext7={setUseContext7}
+                          promptText={promptText}
+                          copiedPrompt={copiedPrompt}
+                          onCopyPrompt={copyPrompt}
+                        />
+                      </div>
+                    </TabsContent>
+
+                    {/* Registry Tab */}
+                    {hasRegistry && (
+                      <TabsContent value="registry">
+                        <div className="flex flex-col gap-8 border-t border-border/50 bg-card p-6">
+                          <div>
+                            <div className="flex items-start gap-3">
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                                1
+                              </div>
+                              <div>
+                                <h4 className="font-medium">
+                                  Install via shadcn registry
+                                </h4>
+                                <p className="text-sm text-muted-foreground">
+                                  {registryDeps.length > 1
+                                    ? `${registryDeps.length} registry items from selected guides`
+                                    : "This recipe has reusable code you can install directly"}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="mt-4">
+                              <McpCodeBlock
+                                code={getRegistryCommand(registryDeps)}
+                                language="bash"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                              2
+                            </div>
+                            <div>
+                              <h4 className="font-medium">
+                                Code is added to your project
+                              </h4>
+                              <p className="text-sm text-muted-foreground">
+                                The files are installed to your project. Update
+                                imports to match your project structure.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                    )}
+                  </Tabs>
+                </div>
               </div>
 
               {/* Footer */}
