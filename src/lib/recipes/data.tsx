@@ -579,6 +579,44 @@ const [deleteId, setDeleteId] = useQueryState(
 // Deep link: /chats?q=auth&delete=abc123`,
   },
   {
+    slug: "using-nuqs",
+    title: "Working with nuqs",
+    description:
+      "Manage React state in URL query parameters with nuqs. Covers Suspense boundaries, parsers, clearing state, and deep-linkable dialogs.",
+    tags: ["Skills"],
+    icon: Link2,
+    requires: ["nuqs-setup"],
+    previewCode: `// Wrapper pattern for Suspense boundary
+export function SearchInput(props: Props) {
+  return (
+    <Suspense fallback={<input disabled />}>
+      <SearchInputClient {...props} />
+    </Suspense>
+  );
+}`,
+  },
+  {
+    slug: "url-state-management",
+    title: "URL State Management",
+    description:
+      "Sync React state to URL query parameters for shareable filters, search, and deep-linkable dialogs with nuqs.",
+    tags: ["Cookbooks/Plugins"],
+    icon: Link2,
+    isCookbook: true,
+    recipes: ["nuqs-setup", "using-nuqs"],
+    requires: ["nextjs-on-vercel"],
+    previewCode: `// Wrapper with built-in Suspense boundary
+export function SearchInput(props: Props) {
+  return (
+    <Suspense fallback={<input disabled />}>
+      <SearchInputClient {...props} />
+    </Suspense>
+  );
+}
+
+// Deep link: /items?delete=abc123`,
+  } satisfies Cookbook,
+  {
     slug: "ai-chat-persistence",
     title: "AI Chat Persistence with Neon",
     description:

@@ -26,20 +26,39 @@ export default function RootLayout({
 }
 ```
 
-## Basic Usage
+## Suspense Boundary Requirement
 
-Replace `useState` with `useQueryState` to sync state to the URL:
+nuqs uses `useSearchParams` behind the scenes, which requires a Suspense boundary. Without one, Next.js throws an error during static rendering.
 
-```tsx
+Wrap nuqs-using components with Suspense via a wrapper component. This keeps the Suspense boundary colocated with the component that needs it, avoiding the need to add Suspense in every consuming component:
+
+```tsx title="src/components/search/search-input.tsx"
+import { Suspense } from "react";
+
+type SearchInputProps = {
+  placeholder?: string;
+};
+
+// Public component with built-in Suspense
+export function SearchInput(props: SearchInputProps) {
+  return (
+    <Suspense fallback={<input placeholder={props.placeholder} disabled />}>
+      <SearchInputClient {...props} />
+    </Suspense>
+  );
+}
+```
+
+```tsx title="src/components/search/search-input.tsx (continued)"
 "use client";
 
 import { useQueryState, parseAsString } from "nuqs";
 
-export function SearchInput() {
+// Internal client component that uses nuqs
+function SearchInputClient({ placeholder = "Search..." }: SearchInputProps) {
   const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""));
 
   function handleChange(value: string) {
-    // Use null to remove the param from URL
     setSearch(value || null);
   }
 
@@ -47,13 +66,22 @@ export function SearchInput() {
     <input
       value={search}
       onChange={(e) => handleChange(e.target.value)}
-      placeholder="Search..."
+      placeholder={placeholder}
     />
   );
 }
 ```
 
-This creates URLs like `?q=react` when searching.
+Now `SearchInput` can be used anywhere without the consumer needing to add Suspense:
+
+```tsx
+// No Suspense needed here - it's built into SearchInput
+<SearchInput placeholder="Search recipes..." />
+```
+
+## Basic Usage
+
+Replace `useState` with `useQueryState` to sync state to the URL. This creates URLs like `?q=react` when searching.
 
 ## Parsers
 
@@ -85,15 +113,32 @@ const [tags, setTags] = useQueryState(
 
 ## Deep Links to Modals
 
-Use query params to control modal visibility, enabling shareable links:
+Use query params to control modal visibility, enabling shareable links. Apply the wrapper pattern to keep Suspense colocated:
 
-```tsx
+```tsx title="src/components/settings/settings-dialog.tsx"
+import { Suspense } from "react";
+
+type SettingsDialogProps = {
+  children: React.ReactNode;
+};
+
+// Public component with built-in Suspense
+export function SettingsDialog(props: SettingsDialogProps) {
+  return (
+    <Suspense fallback={<span>{props.children}</span>}>
+      <SettingsDialogClient {...props} />
+    </Suspense>
+  );
+}
+```
+
+```tsx title="src/components/settings/settings-dialog.tsx (continued)"
 "use client";
 
-import { useQueryState, parseAsString, parseAsBoolean } from "nuqs";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useQueryState, parseAsBoolean } from "nuqs";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 
-export function SettingsDialog() {
+function SettingsDialogClient({ children }: SettingsDialogProps) {
   const [isOpen, setIsOpen] = useQueryState(
     "settings",
     parseAsBoolean.withDefault(false),
@@ -101,6 +146,7 @@ export function SettingsDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => setIsOpen(open || null)}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>{/* Settings content */}</DialogContent>
     </Dialog>
   );

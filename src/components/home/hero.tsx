@@ -26,8 +26,11 @@ export function Hero() {
           </h1>
 
           <p className="mb-10 text-pretty text-lg text-muted-foreground md:text-xl">
-            Copy markdown, install the MCP server, or use Claude plugins. Atomic
-            setup guides and skills for auth, database, payments, and more.
+            <i>
+              Setup guides and agent skills for implementing and building on
+              durable agent workflows, AI chat persistence, Stripe subscription
+              sync, and more.
+            </i>
           </p>
 
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -41,7 +44,7 @@ export function Hero() {
             <WizardTrigger queryParam="wizard">
               <Button variant="outline" size="lg" className="gap-2 font-medium">
                 <Wand2 className="h-4 w-4" />
-                Build Your Stack
+                Add to Agent
               </Button>
             </WizardTrigger>
           </div>
@@ -50,7 +53,7 @@ export function Hero() {
         {/* Tech logos */}
         <div className="mt-20 border-t border-border/50 pt-10">
           <p className="mb-6 text-center text-sm text-muted-foreground">
-            Recipes available for
+            Purpose-built for
           </p>
           <div className="mx-auto max-w-xl">
             <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-center opacity-60 sm:grid-cols-3 md:grid-cols-4">
