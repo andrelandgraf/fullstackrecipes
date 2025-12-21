@@ -6,6 +6,7 @@ import { Registry } from "@/components/home/registry";
 import { Demo } from "@/components/home/playground";
 import { RecipeGrid } from "@/components/recipes/grid";
 import { Footer } from "@/components/home/footer";
+import { HomeWrapper } from "@/components/home/home-wrapper";
 
 export const metadata: Metadata = {
   alternates: {
@@ -15,16 +16,18 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main>
-        <Hero />
-        <HowItWorks />
-        <Registry />
-        <Demo />
-        <RecipeGrid />
-      </main>
-      <Footer />
-    </div>
+    <HomeWrapper>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main>
+          <Hero />
+          <HowItWorks />
+          <Registry />
+          <Demo />
+          <RecipeGrid />
+        </main>
+        <Footer />
+      </div>
+    </HomeWrapper>
   );
 }

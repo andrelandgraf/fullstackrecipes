@@ -21,6 +21,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import type { Recipe, Cookbook } from "@/lib/recipes/data";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ContentPickerProps {
   open: boolean;
@@ -39,6 +40,7 @@ export function ContentPicker({
   onSelectionChange,
   isCookbook,
 }: ContentPickerProps) {
+  const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTagFilter, setSelectedTagFilter] = useState<string | null>(
     null,
@@ -132,7 +134,7 @@ export function ContentPicker({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[85vh] w-full max-w-4xl flex-col gap-0 overflow-hidden p-0 lg:max-w-5xl xl:max-w-6xl">
+      <DialogContent className="flex h-[100dvh] w-full max-w-none flex-col gap-0 overflow-hidden rounded-none p-0 sm:h-auto sm:max-h-[85vh] sm:max-w-4xl sm:rounded-lg lg:max-w-5xl xl:max-w-6xl">
         <DialogHeader className="sr-only">
           <DialogTitle>Select Recipes & Cookbooks</DialogTitle>
           <DialogDescription>
@@ -151,7 +153,7 @@ export function ContentPicker({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="border-border/50 bg-secondary/50 pl-10 focus:border-primary"
-                autoFocus
+                autoFocus={!isMobile}
               />
               {searchQuery && (
                 <button
@@ -200,8 +202,8 @@ export function ContentPicker({
         </div>
 
         {/* Content grid */}
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="p-4">
+        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+          <div className="min-w-0 p-4">
             {/* Cookbooks section */}
             {filteredCookbooks.length > 0 && (
               <div className="mb-6">

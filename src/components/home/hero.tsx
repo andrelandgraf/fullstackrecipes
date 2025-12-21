@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Wand2 } from "lucide-react";
 import { getAllItems } from "@/lib/recipes/data";
-import { AddMcpDialog } from "@/components/home/mcp";
+import { WizardTrigger } from "@/components/wizard/wizard-dialog";
 
 const items = getAllItems();
 
@@ -38,7 +38,12 @@ export function Hero() {
               </a>
             </Button>
 
-            <AddMcpDialog />
+            <WizardTrigger queryParam="wizard">
+              <Button variant="outline" size="lg" className="gap-2 font-medium">
+                <Wand2 className="h-4 w-4" />
+                Build Your Stack
+              </Button>
+            </WizardTrigger>
           </div>
         </div>
 

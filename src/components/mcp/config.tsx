@@ -1,19 +1,11 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useQueryState, parseAsBoolean } from "nuqs";
 import { codeToHtml, type BundledLanguage } from "shiki";
 import { CodeBlock } from "@/components/code/code-block";
 import { TabbedCodeBlock } from "@/components/code/tabbed-code-block";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Download, Copy, Check } from "lucide-react";
+import { Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getCursorPromptDeeplink } from "@/lib/recipes/data";
 
@@ -82,6 +74,9 @@ export const CONTEXT7_VSCODE_MCP_INSTALL_URL = `vscode:mcp/install?${encodeURICo
     },
   }),
 )}`;
+
+// MCP Client Types
+export type McpClient = "cursor" | "claude-code" | "vscode";
 
 // Shared Hooks
 export function useHighlightedCode(code: string, language: BundledLanguage) {
@@ -208,9 +203,6 @@ export function VSCodeButton({
     </a>
   );
 }
-
-// MCP Client Types
-export type McpClient = "cursor" | "claude-code" | "vscode";
 
 function getMcpTabs(useContext7: boolean) {
   return [
@@ -411,90 +403,5 @@ export function McpSetupSteps({
         )}
       </div>
     </div>
-  );
-}
-
-// Add MCP Dialog Component
-type AddMcpDialogProps = {
-  trigger?: React.ReactNode;
-  children?: React.ReactNode;
-};
-
-const DEFAULT_PROMPT =
-  'Follow the "Base App Setup" cookbook from fullstackrecipes';
-
-function AddMcpDialogInner({ trigger, children }: AddMcpDialogProps) {
-  const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
-  const [useContext7, setUseContext7] = useState(false);
-  const [copiedPrompt, setCopiedPrompt] = useState(false);
-  const [isOpen, setIsOpen] = useQueryState(
-    "mcp",
-    parseAsBoolean.withDefault(false),
-  );
-
-  function handleOpenChange(open: boolean) {
-    setIsOpen(open || null);
-  }
-
-  const fullPrompt = useContext7
-    ? `${DEFAULT_PROMPT} using Context7`
-    : DEFAULT_PROMPT;
-
-  async function copyPrompt() {
-    try {
-      await navigator.clipboard.writeText(fullPrompt);
-      setCopiedPrompt(true);
-      setTimeout(() => setCopiedPrompt(false), 2000);
-    } catch {
-      // Silently fail
-    }
-  }
-
-  return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        {trigger ?? (
-          <Button variant="outline" size="lg" className="gap-2 font-medium">
-            <Download className="h-4 w-4" />
-            Add to Agent
-          </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl lg:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Download className="h-5 w-5 text-primary" />
-            Add to Agent
-          </DialogTitle>
-        </DialogHeader>
-
-        <McpSetupSteps
-          mcpClient={mcpClient}
-          setMcpClient={setMcpClient}
-          useContext7={useContext7}
-          setUseContext7={setUseContext7}
-          promptText={DEFAULT_PROMPT}
-          copiedPrompt={copiedPrompt}
-          onCopyPrompt={copyPrompt}
-        />
-
-        {children}
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-export function AddMcpDialog(props: AddMcpDialogProps) {
-  return (
-    <Suspense
-      fallback={
-        <Button variant="outline" size="lg" className="gap-2 font-medium">
-          <Download className="h-4 w-4" />
-          Add to Agent
-        </Button>
-      }
-    >
-      <AddMcpDialogInner {...props} />
-    </Suspense>
   );
 }

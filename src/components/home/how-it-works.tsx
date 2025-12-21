@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import {
   getAllItems,
-  getItemPromptText,
   isCookbook,
   type Recipe,
   type Cookbook,
@@ -30,11 +29,11 @@ import {
   McpCodeBlock,
   McpSetupSteps,
   type McpClient,
-} from "@/components/home/mcp";
+} from "@/components/mcp/config";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ContentPicker } from "@/components/recipes/content-picker";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useSelection } from "@/lib/recipes/selection-context";
 
 // Simple inline code highlighting for previews (no container/header)
 function InlineHighlightedCode({
@@ -70,13 +69,6 @@ function InlineHighlightedCode({
 
 const items = getAllItems();
 
-// Create a map of slug -> index for sorting by display order
-const itemIndexMap = new Map(items.map((item, index) => [item.slug, index]));
-
-function getItemOrder(slug: string): number {
-  return itemIndexMap.get(slug) ?? Infinity;
-}
-
 function getRegistryCommand(registryDeps: string[]) {
   const urls = registryDeps
     .map((dep) => `https://fullstackrecipes.com/r/${dep}.json`)
@@ -84,36 +76,19 @@ function getRegistryCommand(registryDeps: string[]) {
   return `bunx shadcn@latest add ${urls}`;
 }
 
-// Get combined prompt text for multiple items
-function getCombinedPromptText(selectedItems: (Recipe | Cookbook)[]): string {
-  if (selectedItems.length === 0) return "";
-  if (selectedItems.length === 1) return getItemPromptText(selectedItems[0]);
-
-  const itemDescriptions = selectedItems.map((item) => {
-    const type = isCookbook(item) ? "cookbook" : "recipe";
-    return `- "${item.title}" ${type}`;
-  });
-
-  return `Follow these guides from fullstackrecipes in order:\n${itemDescriptions.join("\n")}`;
-}
-
-// Get all unique registry deps from selected items
-function getCombinedRegistryDeps(
-  selectedItems: (Recipe | Cookbook)[],
-): string[] {
-  const deps = new Set<string>();
-  for (const item of selectedItems) {
-    if (item.registryDeps) {
-      for (const dep of item.registryDeps) {
-        deps.add(dep);
-      }
-    }
-  }
-  return Array.from(deps);
-}
-
 function HowItWorksInner() {
-  const [selectedSlugs, setSelectedSlugs] = useState<string[]>([items[0].slug]);
+  const {
+    selectedSlugs,
+    selectedItems,
+    allContentSlugs,
+    promptText,
+    registryDeps,
+    hasRegistry,
+    removeItem,
+    deliveryTab,
+    setDeliveryTab,
+  } = useSelection();
+
   const [recipeContents, setRecipeContents] = useState<
     Record<string, string | null>
   >({});
@@ -123,55 +98,10 @@ function HowItWorksInner() {
   const [copiedState, setCopiedState] = useState<string | null>(null);
   const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
   const [useContext7, setUseContext7] = useState(false);
-  const [pickerOpen, setPickerOpen] = useQueryState(
+  const [, setPickerOpen] = useQueryState(
     "picker",
     parseAsBoolean.withDefault(false),
   );
-
-  // Sort selected items by their display order in data.tsx (not selection order)
-  const selectedItems = useMemo(() => {
-    return selectedSlugs
-      .map((slug) => items.find((i) => i.slug === slug))
-      .filter((item): item is Recipe | Cookbook => item !== undefined)
-      .sort((a, b) => getItemOrder(a.slug) - getItemOrder(b.slug));
-  }, [selectedSlugs]);
-
-  // Get recipe slugs that are included in selected cookbooks (for display)
-  const recipesIncludedInCookbooks = useMemo(() => {
-    const included = new Set<string>();
-    for (const item of selectedItems) {
-      if (isCookbook(item)) {
-        for (const recipeSlug of item.recipes) {
-          included.add(recipeSlug);
-        }
-      }
-    }
-    return included;
-  }, [selectedItems]);
-
-  // All items to show content for (selected + cookbook recipes), sorted by display order
-  const allContentSlugs = useMemo(() => {
-    const slugs = new Set<string>();
-    for (const item of selectedItems) {
-      if (isCookbook(item)) {
-        // For cookbooks, add the cookbook itself and all its recipes
-        slugs.add(item.slug);
-        for (const recipeSlug of item.recipes) {
-          slugs.add(recipeSlug);
-        }
-      } else {
-        slugs.add(item.slug);
-      }
-    }
-    // Sort by display order so markdown content is in correct sequence
-    return Array.from(slugs).sort((a, b) => getItemOrder(a) - getItemOrder(b));
-  }, [selectedItems]);
-
-  const combinedRegistryDeps = useMemo(
-    () => getCombinedRegistryDeps(selectedItems),
-    [selectedItems],
-  );
-  const hasRegistry = combinedRegistryDeps.length > 0;
 
   // Load content for all selected items
   useEffect(() => {
@@ -218,13 +148,8 @@ function HowItWorksInner() {
     }
   };
 
-  const handleRemoveItem = (slug: string) => {
-    setSelectedSlugs((prev) => prev.filter((s) => s !== slug));
-  };
-
   // Display content for preview - show first selected item's content
   const previewSlug = selectedSlugs[0];
-  const previewItem = items.find((i) => i.slug === previewSlug);
   const previewContent = previewSlug ? recipeContents[previewSlug] : null;
   const previewLoading = previewSlug ? loadingStates[previewSlug] : false;
 
@@ -310,7 +235,7 @@ function HowItWorksInner() {
                         </span>
                       )}
                       <button
-                        onClick={() => handleRemoveItem(item.slug)}
+                        onClick={() => removeItem(item.slug)}
                         className="ml-0.5 rounded p-0.5 transition-colors hover:bg-destructive/20 hover:text-destructive"
                       >
                         <X className="h-3 w-3" />
@@ -385,7 +310,10 @@ function HowItWorksInner() {
 
           {/* Right: Methods */}
           <div className="flex min-w-0 flex-col">
-            <Tabs defaultValue="copy">
+            <Tabs
+              value={deliveryTab}
+              onValueChange={(v) => setDeliveryTab(v as typeof deliveryTab)}
+            >
               <TabsList>
                 <TabsTrigger value="copy">
                   <Copy className="h-4 w-4" />
@@ -489,12 +417,12 @@ function HowItWorksInner() {
                     setMcpClient={setMcpClient}
                     useContext7={useContext7}
                     setUseContext7={setUseContext7}
-                    promptText={getCombinedPromptText(selectedItems)}
+                    promptText={promptText}
                     copiedPrompt={copiedState === "prompt"}
                     onCopyPrompt={() => {
                       const prompt = useContext7
-                        ? `${getCombinedPromptText(selectedItems)} using Context7`
-                        : getCombinedPromptText(selectedItems);
+                        ? `${promptText} using Context7`
+                        : promptText;
                       copyToClipboard(prompt, "prompt");
                     }}
                   />
@@ -516,15 +444,15 @@ function HowItWorksInner() {
                             Install via shadcn registry
                           </h4>
                           <p className="text-sm text-muted-foreground">
-                            {combinedRegistryDeps.length > 1
-                              ? `${combinedRegistryDeps.length} registry items from selected guides`
+                            {registryDeps.length > 1
+                              ? `${registryDeps.length} registry items from selected guides`
                               : "This recipe has reusable code you can install directly"}
                           </p>
                         </div>
                       </div>
 
                       <McpCodeBlock
-                        code={getRegistryCommand(combinedRegistryDeps)}
+                        code={getRegistryCommand(registryDeps)}
                         language="bash"
                       />
                     </div>
@@ -551,16 +479,6 @@ function HowItWorksInner() {
           </div>
         </div>
       </div>
-
-      {/* Content Picker Dialog */}
-      <ContentPicker
-        open={pickerOpen}
-        onOpenChange={(open) => setPickerOpen(open || null)}
-        items={items}
-        selectedSlugs={selectedSlugs}
-        onSelectionChange={setSelectedSlugs}
-        isCookbook={isCookbook}
-      />
     </section>
   );
 }

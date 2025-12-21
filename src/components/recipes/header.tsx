@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { ThemeSelector } from "@/components/themes/selector";
-import { CopyMarkdownButton } from "@/components/recipes/copy-markdown-button";
+import { AddToAgentButton } from "@/components/recipes/add-to-agent-button";
 import { BackButton } from "@/components/recipes/back-button";
 import { BookOpen, type LucideIcon } from "lucide-react";
 
@@ -9,7 +9,6 @@ interface RecipeHeaderProps {
   description: string;
   tags: string[];
   icon: LucideIcon;
-  markdownContent?: string;
   isCookbook?: boolean;
   recipeCount?: number;
 }
@@ -19,60 +18,66 @@ export function RecipeHeader({
   description,
   tags,
   icon: Icon,
-  markdownContent,
   isCookbook,
   recipeCount,
 }: RecipeHeaderProps) {
   return (
-    <header className="border-b border-border/50 bg-card/50">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-center justify-between">
+    <>
+      {/* Fixed navigation bar */}
+      <div className="fixed left-0 right-0 top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <BackButton />
           <div className="flex items-center gap-2">
-            {markdownContent && (
-              <CopyMarkdownButton content={markdownContent} />
-            )}
+            <AddToAgentButton />
             <ThemeSelector />
           </div>
         </div>
+      </div>
 
-        <div className="mb-4 flex items-center gap-4">
-          <div
-            className={`flex h-14 w-14 items-center justify-center rounded-xl ${
-              isCookbook ? "bg-primary/10" : "bg-secondary"
-            }`}
-          >
-            <Icon className="h-7 w-7 text-primary" />
-          </div>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="font-mono text-3xl font-bold tracking-tight">
-                {title}
-              </h1>
-              {isCookbook && (
-                <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
-                  <BookOpen className="h-4 w-4" />
-                  {recipeCount} recipes
-                </div>
-              )}
+      {/* Spacer for fixed nav */}
+      <div className="h-14" />
+
+      {/* Header content */}
+      <header className="border-b border-border/50 bg-card/50">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mb-4 flex items-center gap-4">
+            <div
+              className={`flex h-14 w-14 items-center justify-center rounded-xl ${
+                isCookbook ? "bg-primary/10" : "bg-secondary"
+              }`}
+            >
+              <Icon className="h-7 w-7 text-primary" />
+            </div>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="font-mono text-3xl font-bold tracking-tight">
+                  {title}
+                </h1>
+                {isCookbook && (
+                  <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                    <BookOpen className="h-4 w-4" />
+                    {recipeCount} recipes
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        <p className="mb-4 max-w-2xl text-lg text-muted-foreground">
-          {description}
-        </p>
+          <p className="mb-4 max-w-2xl text-lg text-muted-foreground">
+            {description}
+          </p>
 
-        <div className="flex flex-wrap gap-2">
-          {tags
-            .filter((tag) => tag !== "Cookbook")
-            .map((tag) => (
-              <Badge key={tag} variant="secondary" className="text-xs">
-                {tag}
-              </Badge>
-            ))}
+          <div className="flex flex-wrap gap-2">
+            {tags
+              .filter((tag) => tag !== "Cookbook")
+              .map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }
