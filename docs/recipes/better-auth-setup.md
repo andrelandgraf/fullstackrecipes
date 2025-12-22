@@ -58,9 +58,9 @@ export const authConfig = loadConfig({
 });
 ```
 
-### Step 4: Update the generate script
+### Step 4: Update the db generate script
 
-Update `scripts/db/generate-schema.ts` to generate the Better Auth schema before running Drizzle migrations:
+Create a `scripts/db/generate-schema.ts` script to generate the Better Auth schema before running Drizzle migrations:
 
 ```typescript
 // scripts/db/generate-schema.ts
@@ -75,6 +75,18 @@ await $`drizzle-kit generate`;
 ```
 
 The Better Auth CLI generates `schema.ts` from your server config. Running it before `drizzle-kit generate` ensures your auth schema is always in sync when creating Drizzle migrations.
+
+Replace the `package.json` `db:generate` script with this one.
+
+```json
+"scripts": {
+  "db:generate": "bun run scripts/db/generate-schema.ts",
+  "db:migrate": "drizzle-kit migrate",
+  "db:studio": "drizzle-kit studio"
+}
+```
+
+Note: This script is needed (vs. just running `better-auth generate &&drizzle-kit generate`) because the better-auth CLI doesn't load `.env.development` and `.env.local` files automatically. We use `loadEnvConfig` to load them manually. See [Environment Variable Management](/recipes/env-management) for the full setup.
 
 See [Neon + Drizzle Setup](/recipes/drizzle-with-node-postgres) for the initial script setup and `package.json` scripts.
 

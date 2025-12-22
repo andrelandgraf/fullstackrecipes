@@ -140,30 +140,14 @@ The `loadEnvConfig` call at the top loads environment variables from `.env.devel
 
 The `schema` glob pattern picks up `schema.ts` files from all feature libraries in `src/lib/`, following the "everything is a library" pattern where each feature owns its own schema. See [Philosophy](/philosophy) for more details.
 
-### Step 9: Create the generate script
-
-Create a script to run schema generation:
-
-```typescript
-// scripts/db/generate-schema.ts
-import { $ } from "bun";
-import { loadEnvConfig } from "@next/env";
-
-loadEnvConfig(process.cwd());
-
-await $`drizzle-kit generate`;
-```
-
-This script loads environment variables before running Drizzle Kit, ensuring your database config can access `DATABASE_URL` from `.env.development`.
-
-### Step 10: Add package.json scripts
+### Step 9: Add package.json scripts
 
 Add these scripts to your `package.json`:
 
 ```json
 {
   "scripts": {
-    "db:generate": "bun run scripts/db/generate-schema.ts",
+    "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"
   }
