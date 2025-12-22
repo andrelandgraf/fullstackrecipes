@@ -30,7 +30,7 @@ export const config: VercelConfig = {};
 
 Using Bun both as the package manager and runtime provides a consistent development experience. To configure Bun as the runtime on Vercel, add the following to the `vercel.ts` file:
 
-```json
+```typescript
 // vercel.ts
 import type { VercelConfig } from "@vercel/config/v1";
 

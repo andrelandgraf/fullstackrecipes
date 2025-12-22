@@ -64,8 +64,8 @@ export const items: (Recipe | Cookbook)[] = [
     tags: ["Skills"],
     icon: Compass,
     previewCode: `// List MCP resources from fullstackrecipes
-// Read the "neon-drizzle-setup" resource
-// Follow the "Base App Setup" cookbook`,
+
+// Read the "neon-drizzle-setup" recipe`,
   },
   {
     slug: "base-app-setup",
@@ -87,8 +87,8 @@ export const items: (Recipe | Cookbook)[] = [
       "using-drizzle-queries",
     ],
     previewCode: `bunx create-next-app@latest my-app
-bunx shadcn@latest init
-bun add drizzle-orm @ai-sdk/openai`,
+
+bunx shadcn@latest init`,
   } satisfies Cookbook,
   {
     slug: "nextjs-on-vercel",
@@ -98,6 +98,7 @@ bun add drizzle-orm @ai-sdk/openai`,
     tags: ["Setup Instruction Resources"],
     icon: Triangle,
     previewCode: `import type { VercelConfig } from "@vercel/config/v1";
+
 export const config: VercelConfig = {
   bunVersion: "1.x",
 };`,
@@ -161,6 +162,7 @@ function processUser(user: User | null) {
     previewCode: `export const databaseConfig = configSchema("Database", {
   url: server({ env: "DATABASE_URL" }),
 });
+
 // Type: { server: { url: string } }`,
     registryDeps: ["config-schema"],
   },
@@ -285,7 +287,6 @@ const result = streamText({
     previewCode: `import { logger } from "@/lib/common/logger";
 
 logger.info("Server started", { port: 3000 });
-logger.warn("Rate limit reached", { endpoint: "/api/chat" });
 logger.error(err, "Failed to process request");`,
     registryDeps: ["logger"],
   },
@@ -332,8 +333,8 @@ track("signup_completed", { plan: "pro" });`,
     icon: ScrollText,
     requires: ["pino-logging-setup"],
     previewCode: `logger.info({ userId, action: "login" }, "User logged in");
-logger.error(err, "Request failed");
-logger.warn("Rate limit reached", { endpoint });`,
+
+logger.error(err, "Request failed");`,
   },
   {
     slug: "using-sentry",
@@ -344,8 +345,8 @@ logger.warn("Rate limit reached", { endpoint });`,
     icon: Bug,
     requires: ["sentry-setup"],
     previewCode: `Sentry.captureException(err);
-Sentry.setUser({ id: session.user.id });
-Sentry.startSpan({ op: "http.client", name: "GET /api" }, fn);`,
+
+Sentry.setUser({ id: session.user.id });`,
   },
   {
     slug: "using-analytics",
@@ -355,9 +356,9 @@ Sentry.startSpan({ op: "http.client", name: "GET /api" }, fn);`,
     tags: ["Skills"],
     icon: BarChart3,
     requires: ["vercel-analytics-setup"],
-    previewCode: `track("signup_completed", { method: "email" });
-track("subscription_created", { plan: "pro" });
-track("chat_completed", { messageCount: 5 });`,
+    previewCode: `import { track } from "@vercel/analytics";
+
+track("signup_completed", { method: "email" });`,
   },
   {
     slug: "observability-monitoring",
@@ -511,7 +512,7 @@ return <Dashboard user={session.user} />;`,
     icon: KeyRound,
     requires: ["better-auth-setup"],
     previewCode: `const { data: session } = useSession();
-const session = await auth.api.getSession({ headers });
+
 await signIn.email({ email, password, callbackURL });`,
   },
   {
@@ -724,8 +725,8 @@ transport: new WorkflowChatTransport({
     icon: Layers,
     requires: ["workflow-setup"],
     previewCode: `"use workflow";
-const run = await start(chatWorkflow, [args]);
-const { parts } = await agent.run(history, { writable: getWritable() });`,
+
+const run = await start(chatWorkflow, [args]);`,
   },
   {
     slug: "chat-naming",
