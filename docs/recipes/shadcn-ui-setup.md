@@ -11,8 +11,10 @@ Follow the prompts to configure your project. The CLI will create a `components.
 Install all components:
 
 ```bash
-bunx --bun shadcn@latest add --all
+bunx --bun shadcn@latest add --all --yes
 ```
+
+Note: Shadcn is highly configurable. Omit `--yes` and follow the setup wizard to configure Shadcn to your liking.
 
 ### Step 3: Add dark mode
 
