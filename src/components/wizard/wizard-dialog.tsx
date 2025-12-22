@@ -331,7 +331,7 @@ function WizardDialogInner({
           {(mode === "recipes-only" || (mode === "full" && isRecipesStep)) && (
             <>
               {/* Header with search and filters */}
-              <div className="border-b border-border/50 p-4">
+              <div className="border-b border-border/50 px-3 py-4 sm:p-4">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -393,7 +393,7 @@ function WizardDialogInner({
 
               {/* Content grid */}
               <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-                <div className="min-w-0 p-4">
+                <div className="min-w-0 px-3 py-3 sm:p-4">
                   {/* Cookbooks section */}
                   {filteredCookbooks.length > 0 && (
                     <div className="mb-6">
@@ -432,15 +432,15 @@ function WizardDialogInner({
                                 <Icon className="h-5 w-5 text-primary" />
                               </div>
                               <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="truncate font-mono text-sm font-semibold group-hover:text-primary">
+                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                  <span className="font-mono text-sm font-semibold group-hover:text-primary">
                                     {item.title}
                                   </span>
-                                  <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
                                     {item.recipes.length} recipes
                                   </span>
                                 </div>
-                                <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+                                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                                   {item.description}
                                 </p>
                               </div>
@@ -565,7 +565,7 @@ function WizardDialogInner({
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-between border-t border-border/50 bg-secondary/30 px-4 py-3">
+              <div className="flex items-center justify-between border-t border-border/50 bg-secondary/30 px-3 py-3 sm:px-4">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
                     {selectedSlugs.length === 0 ? (
@@ -610,10 +610,10 @@ function WizardDialogInner({
           {/* Agent Configuration Step */}
           {(mode === "agent-only" || (mode === "full" && isAgentStep)) && (
             <>
-              <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6">
+              <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-0 py-3 sm:p-6">
                 {/* Selected items summary */}
                 {mode === "full" && selectedItems.length > 0 && (
-                  <div className="mb-6">
+                  <div className="mb-6 px-4 sm:px-0">
                     <div className="mb-3 flex items-center gap-2">
                       <span className="text-sm font-medium text-muted-foreground">
                         Selected guides
@@ -659,7 +659,7 @@ function WizardDialogInner({
                   </div>
                 )}
 
-                <div className="overflow-hidden rounded-lg border border-border/50">
+                <div className="overflow-hidden border-y border-border/50 sm:mx-0 sm:rounded-lg sm:border-x">
                   <Tabs
                     value={deliveryTab}
                     onValueChange={(v) => setDeliveryTab(v as DeliveryTab)}
@@ -688,7 +688,7 @@ function WizardDialogInner({
 
                     {/* Copy Markdown Tab */}
                     <TabsContent value="copy">
-                      <div className="flex flex-col gap-8 border-t border-border/50 bg-card p-6">
+                      <div className="flex flex-col gap-6 border-t border-border/50 bg-card p-4 sm:gap-8 sm:p-6">
                         <div>
                           <div className="flex items-start gap-3">
                             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
@@ -768,7 +768,7 @@ function WizardDialogInner({
 
                     {/* MCP Server Tab */}
                     <TabsContent value="mcp">
-                      <div className="border-t border-border/50 bg-card p-6">
+                      <div className="border-t border-border/50 bg-card p-4 sm:p-6">
                         <McpSetupSteps
                           mcpClient={mcpClient}
                           setMcpClient={setMcpClient}
@@ -785,7 +785,7 @@ function WizardDialogInner({
                     {/* Registry Tab */}
                     {hasRegistry && (
                       <TabsContent value="registry">
-                        <div className="flex flex-col gap-8 border-t border-border/50 bg-card p-6">
+                        <div className="flex flex-col gap-6 border-t border-border/50 bg-card p-4 sm:gap-8 sm:p-6">
                           <div>
                             <div className="flex items-start gap-3">
                               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
@@ -831,7 +831,7 @@ function WizardDialogInner({
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-between border-t border-border/50 bg-secondary/30 px-4 py-3">
+              <div className="flex items-center justify-between border-t border-border/50 bg-secondary/30 px-3 py-3 sm:px-4">
                 {mode === "full" ? (
                   <Button
                     variant="ghost"

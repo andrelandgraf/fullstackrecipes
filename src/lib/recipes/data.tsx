@@ -57,7 +57,7 @@ export type Cookbook = Recipe & {
 // Cookbooks and recipes are in the same array to enforce display order
 export const items: (Recipe | Cookbook)[] = [
   {
-    slug: "architect",
+    slug: "use-fullstackrecipes",
     title: "Building with fullstackrecipes",
     description:
       "Discover and follow recipes via MCP resources for setup guides, skills, and cookbooks. The meta-skill for using fullstackrecipes effectively.",

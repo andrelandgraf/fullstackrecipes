@@ -2,7 +2,7 @@
  * Build script for Full Stack Recipes Claude Code plugins.
  *
  * This script generates:
- * 1. A base "fullstackrecipes" plugin with the architect meta-skill
+ * 1. A base "fullstackrecipes" plugin with the use-fullstackrecipes meta-skill
  * 2. One plugin per cookbook with only the skills from that cookbook
  *
  * Each plugin includes:
@@ -26,8 +26,8 @@ import {
 const PLUGINS_DIR = path.join(process.cwd(), "claude-code-plugins");
 const RECIPES_DIR = path.join(process.cwd(), "docs", "recipes");
 
-/** The architect skill is the standalone meta-skill for the base plugin */
-const ARCHITECT_SLUG = "architect";
+/** The use-fullstackrecipes skill is the standalone meta-skill for the base plugin */
+const BASE_SKILL_SLUG = "use-fullstackrecipes";
 
 /** Get all cookbooks */
 function getCookbooks(): Cookbook[] {
@@ -183,7 +183,7 @@ async function buildCookbookPlugin(cookbook: Cookbook): Promise<void> {
   );
 }
 
-/** Build the base fullstackrecipes plugin with the architect skill */
+/** Build the base fullstackrecipes plugin with the use-fullstackrecipes skill */
 async function buildBasePlugin(): Promise<void> {
   const pluginDir = path.join(PLUGINS_DIR, "fullstackrecipes");
   const skillsDir = path.join(pluginDir, "skills");
@@ -191,18 +191,20 @@ async function buildBasePlugin(): Promise<void> {
   // Create plugin directory
   await fs.mkdir(skillsDir, { recursive: true });
 
-  // Get the architect skill
-  const architectSkill = items.find(
-    (item) => item.slug === ARCHITECT_SLUG && !isCookbook(item),
+  // Get the base skill (use-fullstackrecipes)
+  const baseSkill = items.find(
+    (item) => item.slug === BASE_SKILL_SLUG && !isCookbook(item),
   ) as Recipe | undefined;
 
-  if (!architectSkill) {
-    console.warn("Warning: architect skill not found, skipping base plugin");
+  if (!baseSkill) {
+    console.warn(
+      "Warning: use-fullstackrecipes skill not found, skipping base plugin",
+    );
     return;
   }
 
   // Create skill file
-  await createSkillFile(architectSkill, skillsDir);
+  await createSkillFile(baseSkill, skillsDir);
 
   // Create MCP config
   await createMcpConfig(pluginDir);
@@ -238,7 +240,7 @@ Instructions for AI agents. Atomic setup guides and skills for auth, database, p
 
 ## Skills
 
-- **${architectSkill.title}**: ${architectSkill.description}
+- **${baseSkill.title}**: ${baseSkill.description}
 
 ## MCP Resources
 
@@ -271,7 +273,7 @@ Visit [fullstackrecipes.com](https://fullstackrecipes.com) for the full document
   await fs.writeFile(path.join(pluginDir, "README.md"), readme, "utf-8");
 
   console.log(
-    "Built plugin: fullstackrecipes (base plugin with architect skill)",
+    "Built plugin: fullstackrecipes (base plugin with use-fullstackrecipes skill)",
   );
 }
 
