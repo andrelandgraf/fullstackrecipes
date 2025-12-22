@@ -75,10 +75,9 @@ ${content}`;
 /** Create .mcp.json config pointing to hosted MCP server */
 async function createMcpConfig(pluginDir: string): Promise<void> {
   const mcpConfig = {
-    mcpServers: {
-      fullstackrecipes: {
-        url: "https://fullstackrecipes.com/api/mcp",
-      },
+    fullstackrecipes: {
+      type: "http",
+      url: "https://fullstackrecipes.com/api/mcp",
     },
   };
 
