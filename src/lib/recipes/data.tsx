@@ -97,10 +97,11 @@ bun add drizzle-orm @ai-sdk/openai`,
       "Create a Next.js app running on Bun, configure the development environment, and deploy to Vercel with automatic deployments on push.",
     tags: ["Setup Instruction Resources"],
     icon: Triangle,
-    previewCode: `bunx create-next-app@latest my-app
-gh repo create my-app --public --source=. --push
-vercel
-vercel git connect`,
+    previewCode: `import type { VercelConfig } from "@vercel/config/v1";
+
+export const config: VercelConfig = {
+  bunVersion: "1.x",
+};`,
   },
   {
     slug: "code-style-setup",
