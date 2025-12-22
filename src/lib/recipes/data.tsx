@@ -56,7 +56,6 @@ export type Cookbook = Recipe & {
 // All items ordered by setup requirements/prerequisites
 // Cookbooks and recipes are in the same array to enforce display order
 export const items: (Recipe | Cookbook)[] = [
-  // === META SKILL ===
   {
     slug: "architect",
     title: "Building with fullstackrecipes",
@@ -68,7 +67,6 @@ export const items: (Recipe | Cookbook)[] = [
 // Read the "neon-drizzle-setup" resource
 // Follow the "Base App Setup" cookbook`,
   },
-  // === COOKBOOKS ===
   {
     slug: "base-app-setup",
     title: "Base App Setup",
@@ -92,7 +90,6 @@ export const items: (Recipe | Cookbook)[] = [
 bunx shadcn@latest init
 bun add drizzle-orm @ai-sdk/openai`,
   } satisfies Cookbook,
-  // === RECIPES ===
   {
     slug: "nextjs-on-vercel",
     title: "Next.js on Vercel",
@@ -748,7 +745,6 @@ await db.update(chats)
   .set({ title: text.trim() })
   .where(eq(chats.id, chatId));`,
   },
-  // === COOKBOOKS (that depend on recipes above) ===
   {
     slug: "ai-agent-workflow",
     title: "Multi-Agent Workflows",
