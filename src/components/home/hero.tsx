@@ -27,9 +27,8 @@ export function Hero() {
 
           <p className="mb-10 text-pretty text-lg text-muted-foreground md:text-xl">
             <i>
-              Setup guides and agent skills for implementing and building on
-              durable agent workflows, AI chat persistence, Stripe subscription
-              sync, and more.
+              Setup guides and agent skills for durable agent workflows, AI chat
+              persistence, Stripe subscription sync, and more.
             </i>
           </p>
 
