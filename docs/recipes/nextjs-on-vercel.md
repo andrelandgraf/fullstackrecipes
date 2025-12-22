@@ -1,4 +1,4 @@
-### Create the Next.js App
+## Create the Next.js App
 
 Initialize a new Next.js application:
 
@@ -9,14 +9,34 @@ cd my-app
 
 This command uses the following recommended options: TypeScript and Tailwind CSS for type safety and utility-first styling, enables the React Compiler for automatic optimizations, skips linter configuration (can be added later if needed), organizes code inside a `src/` directory for cleaner project structure, uses the App Router, and bootstraps with Bun as the package manager.
 
-### Configure Bun Runtime (Optional)
+## Setup Vercel Configuration
 
-Create a `vercel.json` file to configure Bun as the runtime on Vercel:
+Install the Vercel config package to programatically configure the Vercel project:
+
+```bash
+bun add -D @vercel/config
+```
+
+Create the `vercel.ts` file:
+
+```typescript
+// vercel.ts
+import type { VercelConfig } from "@vercel/config/v1";
+
+export const config: VercelConfig = {};
+```
+
+## Configure Bun as the Runtime on Vercel (Optional)
+
+Using Bun both as the package manager and runtime provides a consistent development experience. To configure Bun as the runtime on Vercel, add the following to the `vercel.ts` file:
 
 ```json
-{
-  "bunVersion": "1.x"
-}
+// vercel.ts
+import type { VercelConfig } from "@vercel/config/v1";
+
+export const config: VercelConfig = {
+  bunVersion: "1.x",
+};
 ```
 
 Add Bun types for better TypeScript support:
@@ -25,9 +45,7 @@ Add Bun types for better TypeScript support:
 bun add -D @types/bun
 ```
 
-Using Bun both as the package manager and runtime provides a consistent development experience.
-
-### Install GitHub CLI
+## Install GitHub CLI
 
 Install the GitHub CLI to manage your GitHub repositories:
 
@@ -41,7 +59,7 @@ Login to your GitHub account:
 gh auth login
 ```
 
-### Create GitHub Repository
+## Create GitHub Repository
 
 Initialize git and create a new GitHub repository inside the project root:
 
@@ -58,7 +76,7 @@ The `gh repo create` command:
 
 Use `--private` instead of `--public` for a private repository.
 
-### Install Vercel CLI
+## Install Vercel CLI
 
 Install the Vercel CLI globally to manage your Vercel projects:
 
@@ -72,7 +90,7 @@ Authenticate with Vercel:
 vercel login
 ```
 
-### Deploy to Vercel
+## Deploy to Vercel
 
 Link your project to Vercel and deploy:
 
@@ -101,7 +119,7 @@ This links your local Git repository to your Vercel project, enabling:
 - Preview deployments for pull requests
 - Deployment status checks on GitHub
 
-### Deployment Workflow
+## Deployment Workflow
 
 After initial setup, your workflow is:
 
