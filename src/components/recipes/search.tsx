@@ -2,8 +2,19 @@
 
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const tagDescriptions: Record<string, string> = {
+  Cookbooks: "Bundle of setup instructions and skills",
+  "Setup Instructions": "Resource for adding a feature or pattern",
+  Skills: "Workflow instructions for using a feature or pattern",
+};
 
 interface RecipeSearchProps {
   searchQuery: string;
@@ -53,22 +64,36 @@ export function RecipeSearch({
       {/* Tag filters */}
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm text-muted-foreground">Filter by:</span>
-        {allTags.map((tag) => (
-          <Badge
-            key={tag}
-            variant="secondary"
-            onClick={() => onTagToggle(tag)}
-            className={cn(
-              "cursor-pointer transition-colors",
-              selectedTags.includes(tag)
-                ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                : "bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground",
-            )}
-          >
-            {tag}
-            {selectedTags.includes(tag) && <X className="ml-1 h-3 w-3" />}
-          </Badge>
-        ))}
+        {allTags.map((tag) => {
+          const description = tagDescriptions[tag];
+          const badge = (
+            <Badge
+              key={tag}
+              variant="secondary"
+              onClick={() => onTagToggle(tag)}
+              className={cn(
+                "cursor-pointer transition-colors",
+                selectedTags.includes(tag)
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : "bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground",
+              )}
+            >
+              {tag}
+              {selectedTags.includes(tag) && <X className="ml-1 h-3 w-3" />}
+            </Badge>
+          );
+
+          if (description) {
+            return (
+              <Tooltip key={tag}>
+                <TooltipTrigger asChild>{badge}</TooltipTrigger>
+                <TooltipContent>{description}</TooltipContent>
+              </Tooltip>
+            );
+          }
+
+          return badge;
+        })}
       </div>
 
       {/* Results count and clear */}

@@ -72,7 +72,7 @@ export const items: (Recipe | Cookbook)[] = [
     title: "Base App Setup",
     description:
       "Complete setup guide for a Next.js app with Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK.",
-    tags: ["Cookbooks/Plugins"],
+    tags: ["Cookbooks"],
     icon: Rocket,
     isCookbook: true,
     recipes: [
@@ -95,7 +95,7 @@ bunx shadcn@latest init`,
     title: "Next.js on Vercel",
     description:
       "Create a Next.js app running on Bun, configure the development environment, and deploy to Vercel with automatic deployments on push.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Triangle,
     previewCode: `import type { VercelConfig } from "@vercel/config/v1";
 
@@ -108,7 +108,7 @@ export const config: VercelConfig = {
     title: "Editor and Linting Setup",
     description:
       "Configure Prettier for code formatting and TypeScript for typechecking. Includes VSCode settings and EditorConfig for consistent code style. Skips ESLint/Biome to avoid config complexity.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Paintbrush,
     previewCode: `{
   "editor.formatOnSave": true,
@@ -122,7 +122,7 @@ export const config: VercelConfig = {
     title: "AI Coding Agent Configuration",
     description:
       "Configure AI coding agents like Cursor, GitHub Copilot, or Claude Code with project-specific patterns, coding guidelines, and MCP servers for consistent AI-assisted development.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Bot,
     previewCode: `{
   "mcpServers": {
@@ -141,7 +141,7 @@ export const config: VercelConfig = {
     title: "Assertion Helper",
     description:
       "TypeScript assertion function for runtime type narrowing with descriptive error messages. Based on tiny-invariant.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Settings,
     previewCode: `import assert from "@/lib/common/assert";
 
@@ -157,7 +157,7 @@ function processUser(user: User | null) {
     title: "Config Schema Setup",
     description:
       "Type-safe environment variable validation using Zod with a Drizzle-like schema API. Supports server/public fields, feature flags, either-or constraints, and client-side protection.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Cog,
     previewCode: `export const databaseConfig = configSchema("Database", {
   url: server({ env: "DATABASE_URL" }),
@@ -171,7 +171,7 @@ function processUser(user: User | null) {
     title: "Env Workflow with Vercel",
     description:
       "Manage environment variables across Vercel environments. Sync with Vercel CLI, handle local overrides, and load env vars in scripts.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Triangle,
     requires: ["config-schema-setup"],
     previewCode: `{
@@ -201,7 +201,7 @@ bun run env:validate --environment=production`,
     title: "Environment Variable Management",
     description:
       "Complete environment variable management with type-safe validation, Vercel dev workflow, and prebuild validation.",
-    tags: ["Cookbooks/Plugins"],
+    tags: ["Cookbooks"],
     icon: Settings,
     isCookbook: true,
     recipes: ["config-schema-setup", "env-workflow-vercel", "env-validation"],
@@ -217,7 +217,7 @@ bun run env:validate --environment=production`,
     title: "Neon + Drizzle Setup",
     description:
       "Connect a Next.js app to Neon Postgres using Drizzle ORM with optimized connection pooling for Vercel serverless functions.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Database,
     requires: ["config-schema-setup"],
     previewCode: `import { drizzle } from "drizzle-orm/node-postgres";
@@ -246,7 +246,7 @@ export const db = drizzle({ client: pool, schema });`,
     title: "Shadcn UI & Theming",
     description:
       "Add Shadcn UI components with dark mode support using next-themes. Includes theme provider and CSS variables configuration.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Palette,
     requires: ["nextjs-on-vercel"],
     previewCode: `bunx --bun shadcn@latest init
@@ -262,7 +262,7 @@ bunx --bun shadcn@latest add --all
     title: "AI SDK & Simple Chat",
     description:
       "Install the Vercel AI SDK with AI Elements components. Build a streaming chat interface with the useChat hook.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Sparkles,
     requires: ["config-schema-setup", "shadcn-ui-setup"],
     previewCode: `const { messages, sendMessage, status } = useChat({
@@ -282,7 +282,7 @@ const result = streamText({
     title: "Pino Logging Setup",
     description:
       "Configure structured logging with Pino. Outputs human-readable colorized logs in development and structured JSON in production for log aggregation services.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: ScrollText,
     previewCode: `import { logger } from "@/lib/common/logger";
 
@@ -295,7 +295,7 @@ logger.error(err, "Failed to process request");`,
     title: "Sentry Setup",
     description:
       "Configure Sentry for error tracking, performance monitoring, and log aggregation. Integrates with Pino to forward logs to Sentry automatically.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Bug,
     requires: ["pino-logging-setup"],
     previewCode: `Sentry.init({
@@ -312,7 +312,7 @@ logger.error(err, "Failed to process request");`,
     title: "Vercel Web Analytics",
     description:
       "Add privacy-focused web analytics with Vercel Web Analytics. Track page views, visitors, and custom events with zero configuration.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: BarChart3,
     requires: ["nextjs-on-vercel"],
     previewCode: `import { Analytics } from "@vercel/analytics/next";
@@ -365,7 +365,7 @@ track("signup_completed", { method: "email" });`,
     title: "Observability & Monitoring",
     description:
       "Complete observability stack with structured logging, error tracking, and web analytics.",
-    tags: ["Cookbooks/Plugins"],
+    tags: ["Cookbooks"],
     icon: Activity,
     isCookbook: true,
     recipes: [
@@ -390,7 +390,7 @@ track("signup_completed", { plan: "pro" });`,
     title: "Resend Setup",
     description:
       "Configure Resend for transactional emails like password resets and email verification.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Mail,
     requires: ["config-schema-setup"],
     previewCode: `export async function sendEmail({ to, subject, react }) {
@@ -407,7 +407,7 @@ track("signup_completed", { plan: "pro" });`,
     title: "Testing with Bun",
     description:
       "Configure unit testing with Bun's built-in test runner. Fast, Jest-compatible syntax, no additional framework needed. Includes GitHub Actions CI workflow.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: FlaskConical,
     previewCode: `import { describe, it, expect } from "bun:test";
 
@@ -422,7 +422,7 @@ describe("myFunction", () => {
     title: "Better Auth Setup",
     description:
       "Add user authentication using Better Auth with Drizzle ORM and Neon Postgres. Base setup with email/password authentication.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: KeyRound,
     requires: ["config-schema-setup", "neon-drizzle-setup"],
     previewCode: `export const auth = betterAuth({
@@ -437,7 +437,7 @@ describe("myFunction", () => {
     title: "Better Auth Emails",
     description:
       "Add email verification, password reset, and account management emails to Better Auth using Resend.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Mail,
     requires: ["better-auth-setup", "resend-setup"],
     previewCode: `emailAndPassword: {
@@ -455,7 +455,7 @@ describe("myFunction", () => {
     title: "Better Auth Components",
     description:
       "Add UI components and pages for authentication flows including sign in, sign up, forgot password, reset password, and email verification.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Layers,
     requires: ["better-auth-setup", "shadcn-ui-setup"],
     previewCode: `export function SignIn() {
@@ -473,7 +473,7 @@ const session = await auth.api.getSession({
     title: "Better Auth Profile & Account",
     description:
       "Add a complete account settings page with profile editing, password changes, email updates, session management, and account deletion.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: UserCog,
     requires: ["better-auth-emails", "shadcn-ui-setup"],
     previewCode: `// Profile page with all account management
@@ -488,7 +488,7 @@ const session = await auth.api.getSession({
     title: "Better Auth Protected Routes",
     description:
       "Add server-side route protection to enforce authentication on specific pages while keeping others public.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: ShieldCheck,
     requires: ["better-auth-setup"],
     previewCode: `// Protected page pattern
@@ -520,7 +520,7 @@ await signIn.email({ email, password, callbackURL });`,
     title: "Authentication",
     description:
       "Complete authentication system with Better Auth, email verification, password reset, protected routes, and account management.",
-    tags: ["Cookbooks/Plugins"],
+    tags: ["Cookbooks"],
     icon: KeyRound,
     isCookbook: true,
     recipes: [
@@ -547,7 +547,7 @@ if (!session) redirect("/sign-in");
     title: "Feature Flags with Flags SDK",
     description:
       "Implement feature flags using the Vercel Flags SDK with server-side evaluation, environment-based toggles, and Vercel Toolbar integration.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Flag,
     requires: ["config-schema-setup"],
     previewCode: `export const stripeFlag = flag({
@@ -562,7 +562,7 @@ if (!session) redirect("/sign-in");
     title: "URL State with nuqs",
     description:
       "Sync React state to URL query parameters for shareable filters, search queries, and deep links to modal dialogs. Preserves UI state on browser back/forward navigation.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Link2,
     requires: ["nextjs-on-vercel"],
     previewCode: `const [search, setSearch] = useQueryState(
@@ -598,7 +598,7 @@ export function SearchInput(props: Props) {
     title: "URL State Management",
     description:
       "Sync React state to URL query parameters for shareable filters, search, and deep-linkable dialogs with nuqs.",
-    tags: ["Cookbooks/Plugins"],
+    tags: ["Cookbooks"],
     icon: Link2,
     isCookbook: true,
     recipes: ["nuqs-setup", "using-nuqs"],
@@ -619,7 +619,7 @@ export function SearchInput(props: Props) {
     title: "AI Chat Persistence with Neon",
     description:
       "Persist AI chat conversations to Neon Postgres with full support for AI SDK message parts including tools, reasoning, and streaming. Uses UUID v7 for chronologically-sortable IDs.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: MessageSquare,
     requires: ["better-auth-setup"],
     previewCode: `export const chats = pgTable("chats", {
@@ -634,7 +634,7 @@ export function SearchInput(props: Props) {
     title: "Chat List & Management",
     description:
       "Build a chat list page with search, rename, and delete functionality. Uses nuqs for URL-synced filters and deep-linkable modal dialogs.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: List,
     requires: ["nuqs-setup", "ai-chat-persistence"],
     previewCode: `const [deleteId, setDeleteId] = useQueryState("delete");
@@ -649,7 +649,7 @@ const [renameId, setRenameId] = useQueryState("rename");
     title: "Stripe Subscriptions DB Sync",
     description:
       "Complete subscription system with Stripe, Vercel Flags for plan configuration, webhook handling for syncing subscription state to Postgres, usage tracking, and billing portal integration.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: CreditCard,
     requires: [
       "neon-drizzle-setup",
@@ -669,7 +669,7 @@ const [renameId, setRenameId] = useQueryState("rename");
     title: "Workflow Development Kit Setup",
     description:
       "Install and configure the Workflow Development Kit for resumable, durable AI agent workflows with step-level persistence, stream resumption, and agent orchestration.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Layers,
     requires: ["pino-logging-setup"],
     previewCode: `import { withWorkflow } from "workflow/next";
@@ -685,7 +685,7 @@ export default withWorkflow(nextConfig);`,
     title: "Resumable AI Response Streams",
     description:
       "Add automatic stream recovery to AI chat with WorkflowChatTransport, start/resume API endpoints, and the useResumableChat hook.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: RefreshCw,
     requires: ["workflow-setup"],
     previewCode: `const { messages, sendMessage } = useResumableChat({
@@ -705,7 +705,7 @@ transport: new WorkflowChatTransport({
     title: "Custom Durable Agent",
     description:
       "Build a custom durable AI agent with full control over streamText options, provider configs, and tool loops. Compatible with the Workflow Development Kit.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: Bot,
     requires: ["ai-agent-workflow"],
     previewCode: `const { parts } = await researchAgent.run(history, {
@@ -733,7 +733,7 @@ const run = await start(chatWorkflow, [args]);`,
     title: "Automatic Chat Naming",
     description:
       "Generate descriptive chat titles from the first message using a fast LLM. Runs as a background workflow step after the main response to avoid delaying the experience.",
-    tags: ["Setup Instruction Resources"],
+    tags: ["Setup Instructions"],
     icon: MessageSquare,
     requires: ["workflow-setup", "ai-chat-persistence"],
     previewCode: `const { text } = await generateText({
@@ -751,7 +751,7 @@ await db.update(chats)
     title: "Multi-Agent Workflows",
     description:
       "Build resumable multi-agent workflows with durable execution, tool loops, and automatic stream recovery on client reconnection.",
-    tags: ["Cookbooks/Plugins"],
+    tags: ["Cookbooks"],
     icon: BookOpen,
     isCookbook: true,
     recipes: [

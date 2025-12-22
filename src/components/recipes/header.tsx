@@ -1,8 +1,19 @@
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { ThemeSelector } from "@/components/themes/selector";
 import { AddToAgentButton } from "@/components/recipes/add-to-agent-button";
 import { BackButton } from "@/components/recipes/back-button";
 import { BookOpen, type LucideIcon } from "lucide-react";
+
+const tagDescriptions: Record<string, string> = {
+  Cookbooks: "Bundle of setup instructions and skills",
+  "Setup Instructions": "Resource for adding a feature or pattern",
+  Skills: "Workflow instructions for using a feature or pattern",
+};
 
 interface RecipeHeaderProps {
   title: string;
@@ -70,11 +81,25 @@ export function RecipeHeader({
           <div className="flex flex-wrap gap-2">
             {tags
               .filter((tag) => tag !== "Cookbook")
-              .map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
+              .map((tag) => {
+                const description = tagDescriptions[tag];
+                const badge = (
+                  <Badge key={tag} variant="secondary" className="text-xs">
+                    {tag}
+                  </Badge>
+                );
+
+                if (description) {
+                  return (
+                    <Tooltip key={tag}>
+                      <TooltipTrigger asChild>{badge}</TooltipTrigger>
+                      <TooltipContent>{description}</TooltipContent>
+                    </Tooltip>
+                  );
+                }
+
+                return badge;
+              })}
           </div>
         </div>
       </header>
