@@ -98,7 +98,6 @@ bun add drizzle-orm @ai-sdk/openai`,
     tags: ["Setup Instruction Resources"],
     icon: Triangle,
     previewCode: `import type { VercelConfig } from "@vercel/config/v1";
-
 export const config: VercelConfig = {
   bunVersion: "1.x",
 };`,
