@@ -310,8 +310,8 @@ export default async function Image({
             display: "flex",
             flexDirection: "column",
             background: "rgba(0,0,0,0.6)",
-            borderRadius: "12px",
-            padding: "18px 22px",
+            borderRadius: "14px",
+            padding: "22px 28px",
             border: "1px solid rgba(255,255,255,0.08)",
           }}
         >
@@ -319,29 +319,29 @@ export default async function Image({
             style={{
               display: "flex",
               gap: "8px",
-              marginBottom: "12px",
+              marginBottom: "16px",
             }}
           >
             <div
               style={{
-                width: "12px",
-                height: "12px",
+                width: "14px",
+                height: "14px",
                 borderRadius: "50%",
                 background: "#ff5f57",
               }}
             />
             <div
               style={{
-                width: "12px",
-                height: "12px",
+                width: "14px",
+                height: "14px",
                 borderRadius: "50%",
                 background: "#febc2e",
               }}
             />
             <div
               style={{
-                width: "12px",
-                height: "12px",
+                width: "14px",
+                height: "14px",
                 borderRadius: "50%",
                 background: "#28c840",
               }}
@@ -351,19 +351,19 @@ export default async function Image({
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: "2px",
+              gap: "4px",
             }}
           >
-            {codeLines.slice(0, 4).map((line, i) => {
+            {codeLines.slice(0, 5).map((line, i) => {
               const tokens = tokenizeLine(line);
               return (
                 <div
                   key={i}
                   style={{
                     display: "flex",
-                    fontSize: "15px",
+                    fontSize: "18px",
                     fontFamily: "monospace",
-                    lineHeight: 1.55,
+                    lineHeight: 1.6,
                   }}
                 >
                   {tokens.map((token, j) => (
@@ -380,13 +380,13 @@ export default async function Image({
                 </div>
               );
             })}
-            {codeLines.length > 4 && (
+            {codeLines.length > 5 && (
               <span
                 style={{
-                  fontSize: "14px",
+                  fontSize: "16px",
                   fontFamily: "monospace",
                   color: "rgba(255,255,255,0.35)",
-                  lineHeight: 1.5,
+                  lineHeight: 1.6,
                 }}
               >
                 ...
