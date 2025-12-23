@@ -4,7 +4,7 @@ import { describe, it, expect, beforeAll } from "bun:test";
  * Smoke tests for the MCP endpoints.
  *
  * These tests verify:
- * 1. Both /api/mcp and /api/openai-mcp respond to HTTP methods
+ * 1. Both /api/mcp and /api/openai/mcp respond to HTTP methods
  * 2. CORS headers are set correctly
  * 3. MCP protocol initialization works
  *
@@ -123,8 +123,8 @@ describe("MCP Server Tests", () => {
     });
   });
 
-  describe("/api/openai-mcp (OpenAI Apps enhanced server)", () => {
-    const endpoint = "/api/openai-mcp";
+  describe("/api/openai/mcp (OpenAI Apps enhanced server)", () => {
+    const endpoint = "/api/openai/mcp";
 
     it("should respond to OPTIONS with CORS headers including MCP session", async () => {
       if (!serverReachable) return;
@@ -197,7 +197,7 @@ describe("MCP Server Tests", () => {
 
       const [mcpRes, openaiMcpRes] = await Promise.all([
         fetch(`${BASE_URL}/api/mcp`, { method: "OPTIONS" }),
-        fetch(`${BASE_URL}/api/openai-mcp`, { method: "OPTIONS" }),
+        fetch(`${BASE_URL}/api/openai/mcp`, { method: "OPTIONS" }),
       ]);
 
       expect(mcpRes.status).toBe(204);
@@ -209,7 +209,7 @@ describe("MCP Server Tests", () => {
 
       const [mcpRes, openaiMcpRes] = await Promise.all([
         fetch(`${BASE_URL}/api/mcp`, { method: "OPTIONS" }),
-        fetch(`${BASE_URL}/api/openai-mcp`, { method: "OPTIONS" }),
+        fetch(`${BASE_URL}/api/openai/mcp`, { method: "OPTIONS" }),
       ]);
 
       // Base MCP should NOT expose Mcp-Session-Id

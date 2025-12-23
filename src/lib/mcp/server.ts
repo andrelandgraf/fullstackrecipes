@@ -267,5 +267,5 @@ export const openAiMcpHandler = createMcpHandler(
       prompts: {},
     },
   },
-  { basePath: "/api" },
+  { streamableHttpEndpoint: "/api/openai/mcp" },
 );
