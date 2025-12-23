@@ -67,8 +67,6 @@ function InlineHighlightedCode({
   );
 }
 
-const items = getAllItems();
-
 function getRegistryCommand(registryDeps: string[]) {
   const urls = registryDeps
     .map((dep) => `https://fullstackrecipes.com/r/${dep}.json`)
@@ -194,9 +192,11 @@ function HowItWorksInner() {
             How It Works
           </h2>
           <p className="text-muted-foreground">
-            Recipes are atomic instructions for AI coding agents—either setup
-            guides for adding features to your app or skills that teach agents
-            how to work with your existing tools.
+            <i>
+              Follow recipes step by step—or let's be real, paste the markdown
+              into your coding agent. Even better: use our MCP server or Claude
+              Code plugins to access recipes directly.
+            </i>
           </p>
         </div>
 
@@ -470,12 +470,10 @@ function HowItWorksInner() {
                         2
                       </div>
                       <div>
-                        <h4 className="font-medium">
-                          Code is added to your project
-                        </h4>
+                        <h4 className="font-medium">Follow the recipe</h4>
                         <p className="text-sm text-muted-foreground">
-                          The files are installed to your project. Update
-                          imports to match your project structure.
+                          Learn how to use the utilities in your project and
+                          adapt them to your needs.
                         </p>
                       </div>
                     </div>
@@ -520,9 +518,11 @@ function HowItWorksFallback() {
             How It Works
           </h2>
           <p className="text-muted-foreground">
-            Recipes are atomic instructions for AI coding agents—either setup
-            guides for adding features to your app or skills that teach agents
-            how to work with your existing tools.
+            <i>
+              Follow recipes step by step—or let's be real, paste the markdown
+              into your coding agent. Even better: use our MCP server or Claude
+              Code plugins to access recipes directly.
+            </i>
           </p>
         </div>
         <div className="h-96 animate-pulse rounded-lg bg-secondary/50" />

@@ -13,6 +13,8 @@
   },
   "scripts": {
     "dev": "next dev",
+    "mcp:inspect": "npx @modelcontextprotocol/inspector http://localhost:3000/api/mcp",
+    "mcp:inspect:openai": "npx @modelcontextprotocol/inspector http://localhost:3000/api/openai/mcp",
     "prebuild": "bun run env:validate:prod",
     "build": "next build",
     "start": "next start",

@@ -10,7 +10,7 @@ type HomeWrapperProps = {
 
 export function HomeWrapper({ children }: HomeWrapperProps) {
   return (
-    <SelectionProvider>
+    <SelectionProvider initialSlugs={["base-app-setup"]}>
       {children}
       {/* Full wizard from hero button */}
       <WizardDialog mode="full" queryParam="wizard" showTrigger={false} />
