@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>fullstackrecipes</title>
+    <style>
+      :root {
+        color: #0b0b0f;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          "Inter",
+          sans-serif;
+      }
+      html,
+      body {
+        width: 100%;
+        min-height: 100%;
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 16px;
+        background: #f6f8fb;
+      }
+      main {
+        width: 100%;
+        max-width: 720px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+      }
+      header {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      h2 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+      input {
+        width: 100%;
+        border: 1px solid #cad3e0;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 12px;
+      }
+      .panel {
+        background: #f2f4fb;
+        border-radius: 12px;
+        padding: 12px;
+        min-height: 360px;
+        overflow: auto;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      button.item {
+        width: 100%;
+        text-align: left;
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 12px;
+        cursor: pointer;
+        background: #fff;
+      }
+      button.item:hover {
+        background: #eef2ff;
+      }
+      .meta {
+        opacity: 0.75;
+        font-size: 0.85rem;
+      }
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 0.9rem;
+        line-height: 1.35;
+      }
+      @media (max-width: 780px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h2>fullstackrecipes</h2>
+          <div class="meta">
+            Browse recipes/cookbooks and select one for ChatGPT to use.
+          </div>
+        </div>
+      </header>
+
+      <div style="margin-bottom: 12px">
+        <input id="filter" placeholder="Filter by title, slug, or tag…" />
+      </div>
+
+      <div class="grid">
+        <section class="panel">
+          <ul id="items"></ul>
+        </section>
+        <section class="panel">
+          <div class="meta" id="selected-meta">No selection</div>
+          <div
+            id="selected-title"
+            style="font-weight: 600; margin-top: 8px"
+          ></div>
+          <div class="meta" id="selected-uri" style="margin-top: 6px"></div>
+          <div class="meta" style="margin-top: 12px">
+            Tip: after selecting, ask ChatGPT to “use the selected
+            recipe/cookbook”.
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script type="module">
+      const itemsEl = document.querySelector("#items");
+      const filterEl = document.querySelector("#filter");
+      const selectedMetaEl = document.querySelector("#selected-meta");
+      const selectedTitleEl = document.querySelector("#selected-title");
+      const selectedUriEl = document.querySelector("#selected-uri");
+
+      let items = [];
+
+      const applyToolState = (toolOutput) => {
+        if (!toolOutput) return;
+        if (Array.isArray(toolOutput.items)) {
+          items = toolOutput.items;
+          renderList();
+        }
+        if (toolOutput.selected?.resourceUri) {
+          selectedMetaEl.textContent = `${toolOutput.selected.type} • ${toolOutput.selected.slug}`;
+          selectedTitleEl.textContent = toolOutput.selected.title || "";
+          selectedUriEl.textContent = toolOutput.selected.resourceUri;
+        }
+      };
+
+      const renderList = () => {
+        const q = (filterEl.value || "").trim().toLowerCase();
+        const filtered = q
+          ? items.filter((it) => {
+              const hay = [
+                it.type,
+                it.slug,
+                it.title,
+                it.description,
+                ...(it.tags || []),
+              ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase();
+              return hay.includes(q);
+            })
+          : items;
+
+        itemsEl.innerHTML = "";
+        filtered.forEach((it) => {
+          const li = document.createElement("li");
+          const btn = document.createElement("button");
+          btn.className = "item";
+          btn.type = "button";
+          btn.innerHTML = `<div><strong>${it.title}</strong></div>
+            <div class="meta">${it.type} • ${it.slug}</div>`;
+          btn.addEventListener("click", async () => {
+            if (window.openai?.callTool) {
+              const response = await window.openai.callTool("select_item", {
+                slug: it.slug,
+              });
+              applyToolState(response?.structuredContent);
+              return;
+            }
+            selectedMetaEl.textContent = `${it.type} • ${it.slug}`;
+            selectedTitleEl.textContent = it.title || "";
+            selectedUriEl.textContent =
+              "This widget is running without the Apps SDK bridge (window.openai).";
+          });
+          li.appendChild(btn);
+          itemsEl.appendChild(li);
+        });
+      };
+
+      const refresh = async () => {
+        if (window.openai?.callTool) {
+          const response = await window.openai.callTool("list_items", {});
+          applyToolState(response?.structuredContent);
+          return;
+        }
+        // Fallback when running standalone.
+        items = [];
+        renderList();
+      };
+
+      const handleSetGlobals = (event) => {
+        const globals = event.detail?.globals;
+        applyToolState(globals?.toolOutput);
+      };
+
+      window.addEventListener("openai:set_globals", handleSetGlobals, {
+        passive: true,
+      });
+
+      filterEl.addEventListener("input", () => renderList(), { passive: true });
+
+      // Initial load: Apps SDK injects toolOutput into window.openai.toolOutput
+      applyToolState(window.openai?.toolOutput);
+      await refresh();
+    </script>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-import { mcpHandler } from "@/lib/mcp/server";
+import { openAiMcpHandler } from "@/lib/mcp/server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -6,7 +6,8 @@ export const runtime = "nodejs";
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS, DELETE",
-  "Access-Control-Allow-Headers": "content-type",
+  "Access-Control-Allow-Headers": "content-type, mcp-session-id",
+  "Access-Control-Expose-Headers": "Mcp-Session-Id",
 } as const;
 
 function withCors(
@@ -20,10 +21,10 @@ function withCors(
   };
 }
 
-const handler = mcpHandler;
-
 export const OPTIONS = async () =>
   new Response(null, { status: 204, headers: CORS_HEADERS });
-export const GET = withCors(handler);
-export const POST = withCors(handler);
-export const DELETE = withCors(handler);
+
+export const GET = withCors(openAiMcpHandler);
+export const POST = withCors(openAiMcpHandler);
+export const PUT = withCors(openAiMcpHandler);
+export const DELETE = withCors(openAiMcpHandler);
