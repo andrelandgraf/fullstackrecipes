@@ -1,10 +1,8 @@
-### Step 1: Install AI SDK packages
+### Step 1: Install AI SDK v6
 
 ```bash
-bun add ai@beta @ai-sdk/react@beta
+bun add ai @ai-sdk/react
 ```
-
-The `@beta` tag installs AI SDK v6, which includes the latest features and improvements.
 
 ### Step 2: Install AI Elements (optional)
 
@@ -109,7 +107,7 @@ This ensures the server fails immediately on startup if neither `VERCEL_OIDC_TOK
 
 ## References
 
-- [AI SDK v6 Documentation](https://v6.ai-sdk.dev/docs/introduction)
+- [AI SDK Documentation](https://ai-sdk.dev/docs/introduction)
 - [AI SDK Providers](https://ai-sdk.dev/providers/ai-sdk-providers)
 - [Vercel AI Gateway](https://vercel.com/ai-gateway)
 - [AI Elements](https://ui.shadcn.com/docs/registry/ai-elements)

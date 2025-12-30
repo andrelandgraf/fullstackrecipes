@@ -35,9 +35,9 @@
     "plugin:build": "bun run scripts/build-plugin.ts"
   },
   "dependencies": {
-    "@ai-sdk/google": "^3.0.0-beta.81",
-    "@ai-sdk/openai": "^3.0.0-beta.104",
-    "@ai-sdk/react": "^3.0.0-beta.162",
+    "@ai-sdk/google": "^3.0.1",
+    "@ai-sdk/openai": "^3.0.1",
+    "@ai-sdk/react": "^3.0.3",
     "@hookform/resolvers": "^5.2.2",
     "@markdoc/markdoc": "^0.5.4",
     "@modelcontextprotocol/sdk": "^1.24.2",
@@ -75,7 +75,7 @@
     "@vercel/functions": "^3.3.2",
     "@workflow/ai": "^4.0.1-beta.21",
     "@xyflow/react": "^12.9.3",
-    "ai": "^6.0.0-beta.159",
+    "ai": "^6.0.3",
     "better-auth": "^1.4.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
