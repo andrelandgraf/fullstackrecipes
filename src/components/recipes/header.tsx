@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/tooltip";
 import { ThemeSelector } from "@/components/themes/selector";
 import { AddToAgentButton } from "@/components/recipes/add-to-agent-button";
+import { UseTemplateButton } from "@/components/recipes/use-template-button";
 import { BackButton } from "@/components/recipes/back-button";
 import { BookOpen, type LucideIcon } from "lucide-react";
 
@@ -22,6 +23,7 @@ interface RecipeHeaderProps {
   icon: LucideIcon;
   isCookbook?: boolean;
   recipeCount?: number;
+  template?: string;
 }
 
 export function RecipeHeader({
@@ -31,6 +33,7 @@ export function RecipeHeader({
   icon: Icon,
   isCookbook,
   recipeCount,
+  template,
 }: RecipeHeaderProps) {
   return (
     <>
@@ -39,6 +42,7 @@ export function RecipeHeader({
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <BackButton />
           <div className="flex items-center gap-2">
+            {template && <UseTemplateButton template={template} />}
             <AddToAgentButton />
             <ThemeSelector />
           </div>

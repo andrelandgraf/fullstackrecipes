@@ -27,6 +27,7 @@ import {
   Server,
   Terminal,
   Loader2,
+  FolderGit2,
 } from "lucide-react";
 import {
   useSelection,
@@ -45,6 +46,7 @@ import {
   type Recipe,
   type Cookbook,
 } from "@/lib/recipes/data";
+import { TemplateCloneContent } from "@/components/recipes/template-clone-content";
 
 const items = getAllItems();
 const allTags = Array.from(new Set(items.flatMap((item) => item.tags))).sort();
@@ -133,6 +135,15 @@ function WizardDialogInner({
     () => selectedItems.filter(isCookbook).map((item) => item.slug),
     [selectedItems],
   );
+
+  // Check if single cookbook with template is selected
+  const singleCookbookTemplate = useMemo(() => {
+    const selectedCookbooks = selectedItems.filter(isCookbook);
+    if (selectedCookbooks.length === 1 && selectedCookbooks[0].template) {
+      return selectedCookbooks[0].template;
+    }
+    return null;
+  }, [selectedItems]);
 
   // Load content for all selected items when on agent step
   useEffect(() => {
@@ -684,6 +695,13 @@ function WizardDialogInner({
                           <span className="sm:hidden">CLI</span>
                         </TabsTrigger>
                       )}
+                      {singleCookbookTemplate && (
+                        <TabsTrigger value="template">
+                          <FolderGit2 className="h-4 w-4" />
+                          <span className="hidden sm:inline">Use Template</span>
+                          <span className="sm:hidden">Template</span>
+                        </TabsTrigger>
+                      )}
                     </TabsList>
 
                     {/* Copy Markdown Tab */}
@@ -823,6 +841,21 @@ function WizardDialogInner({
                               </p>
                             </div>
                           </div>
+                        </div>
+                      </TabsContent>
+                    )}
+
+                    {/* Template Tab */}
+                    {singleCookbookTemplate && (
+                      <TabsContent value="template">
+                        <div className="border-t border-border/50 bg-card p-4 sm:p-6">
+                          <p className="mb-4 text-sm text-muted-foreground">
+                            Get started instantly by cloning this cookbook as a
+                            template.
+                          </p>
+                          <TemplateCloneContent
+                            template={singleCookbookTemplate}
+                          />
                         </div>
                       </TabsContent>
                     )}

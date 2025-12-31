@@ -1,0 +1,48 @@
+import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth/server";
+import { VerifyEmailResult } from "@/components/auth/verify-email-result";
+
+export const metadata: Metadata = {
+  title: "Verify Email",
+  description: "Confirm your email address to complete your account setup.",
+};
+
+type SearchParams = Promise<{ token?: string; error?: string }>;
+
+export default async function VerifyEmailPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const { token, error } = await searchParams;
+
+  let verificationResult: { success: boolean; error?: string } = {
+    success: false,
+  };
+
+  if (error) {
+    verificationResult = { success: false, error };
+  } else if (token) {
+    try {
+      const result = await auth.api.verifyEmail({
+        query: { token },
+        headers: await headers(),
+      });
+      verificationResult = { success: result?.status === true };
+    } catch {
+      verificationResult = { success: false, error: "VERIFICATION_FAILED" };
+    }
+  } else {
+    verificationResult = { success: false, error: "NO_TOKEN" };
+  }
+
+  return (
+    <main className="min-h-dvh flex items-center justify-center p-4">
+      <VerifyEmailResult
+        success={verificationResult.success}
+        error={verificationResult.error}
+      />
+    </main>
+  );
+}

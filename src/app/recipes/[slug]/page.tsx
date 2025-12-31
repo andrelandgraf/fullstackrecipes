@@ -86,6 +86,7 @@ export default async function RecipePage({ params }: Props) {
           icon={item.icon}
           isCookbook={isCookbook(item)}
           recipeCount={cookbookRecipes.length}
+          template={isCookbook(item) ? item.template : undefined}
         />
         <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
           <RelatedRecipes requiredItems={serializeItems(requiredItems)} />
