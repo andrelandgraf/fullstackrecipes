@@ -20,7 +20,7 @@ Use structured logging with Pino throughout your application. Covers log levels,
 Import the logger and use it throughout your application:
 
 ```typescript
-import { logger } from "@/lib/common/logger";
+import { logger } from "@/lib/logging/logger";
 
 // Info level for normal operations
 logger.info("Server started", { port: 3000 });
@@ -62,22 +62,22 @@ Use appropriate levels for different scenarios:
 
 ### Configuring Log Level
 
-Set the `PINO_LOG_LEVEL` environment variable:
+Set the `LOG_LEVEL` environment variable:
 
 ```env
 # Show all logs including debug
-PINO_LOG_LEVEL="debug"
+LOG_LEVEL="debug"
 
 # Production: only warnings and errors
-PINO_LOG_LEVEL="warn"
+LOG_LEVEL="warn"
 ```
 
-Default is `info` if not set.
+Default is `info` if not set. Valid values: `trace`, `debug`, `info`, `warn`, `error`, `fatal`.
 
 ### Logging in API Routes
 
 ```typescript
-import { logger } from "@/lib/common/logger";
+import { logger } from "@/lib/logging/logger";
 
 export async function POST(request: Request) {
   const start = Date.now();
@@ -105,7 +105,7 @@ Workflow functions run in a restricted environment. Use the logger step wrapper:
 
 ```typescript
 // src/workflows/chat/steps/logger.ts
-import { logger } from "@/lib/common/logger";
+import { logger } from "@/lib/logging/logger";
 
 export async function log(
   level: "info" | "warn" | "error" | "debug",

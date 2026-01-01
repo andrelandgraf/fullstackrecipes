@@ -84,6 +84,7 @@ export const items: (Recipe | Cookbook)[] = [
       "shadcn-ui-setup",
       "assert",
       "config-schema-setup",
+      "env-validation",
       "neon-drizzle-setup",
       "ai-sdk-setup",
       "using-drizzle-queries",
@@ -287,7 +288,8 @@ const result = streamText({
       "Configure structured logging with Pino. Outputs human-readable colorized logs in development and structured JSON in production for log aggregation services.",
     tags: ["Setup Instructions"],
     icon: ScrollText,
-    previewCode: `import { logger } from "@/lib/common/logger";
+    requires: ["config-schema-setup"],
+    previewCode: `import { logger } from "@/lib/logging/logger";
 
 logger.info("Server started", { port: 3000 });
 logger.error(err, "Failed to process request");`,
@@ -335,9 +337,9 @@ track("signup_completed", { plan: "pro" });`,
     tags: ["Skills"],
     icon: ScrollText,
     requires: ["pino-logging-setup"],
-    previewCode: `logger.info({ userId, action: "login" }, "User logged in");
+    previewCode: `import { logger } from "@/lib/logging/logger";
 
-logger.error(err, "Request failed");`,
+logger.info({ userId, action: "login" }, "User logged in");`,
   },
   {
     slug: "using-sentry",

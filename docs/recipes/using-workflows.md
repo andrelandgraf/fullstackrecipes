@@ -107,7 +107,7 @@ The workflow runtime doesn't support Node.js modules. Wrap logger calls in steps
 
 ```typescript
 // src/workflows/chat/steps/logger.ts
-import { logger } from "@/lib/common/logger";
+import { logger } from "@/lib/logging/logger";
 
 export async function log(
   level: "info" | "warn" | "error",

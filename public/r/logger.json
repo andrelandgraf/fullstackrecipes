@@ -2,14 +2,21 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "logger",
   "title": "Pino Logger",
-  "description": "Structured JSON logger with pretty-printing in development. Configurable log level via PINO_LOG_LEVEL env var.",
+  "description": "Structured JSON logger with pretty-printing in development. Configurable log level via LOG_LEVEL env var using configSchema.",
   "dependencies": ["pino", "pino-pretty"],
+  "registryDependencies": ["https://fullstackrecipes.com/r/config-schema.json"],
   "files": [
     {
-      "path": "src/lib/common/logger.ts",
-      "content": "import pino from \"pino\";\n\nconst isDev = process.env.NODE_ENV === \"development\";\n\nconst transport = isDev\n  ? pino.transport({\n      target: \"pino-pretty\",\n    })\n  : undefined;\n\nexport const logger = pino(\n  {\n    level: process.env.PINO_LOG_LEVEL || \"info\",\n  },\n  transport,\n);\n",
+      "path": "templates/base-app/src/lib/logging/config.ts",
+      "content": "import { z } from \"zod\";\nimport { configSchema, server } from \"@/lib/config/schema\";\n\nexport const loggingConfig = configSchema(\"Logging\", {\n  level: server({\n    env: \"LOG_LEVEL\",\n    schema: z\n      .enum([\"trace\", \"debug\", \"info\", \"warn\", \"error\", \"fatal\"])\n      .default(\"info\"),\n  }),\n});\n",
       "type": "registry:lib",
-      "target": "lib/common/logger.ts"
+      "target": "lib/logging/config.ts"
+    },
+    {
+      "path": "templates/base-app/src/lib/logging/logger.ts",
+      "content": "import pino from \"pino\";\nimport { mainConfig } from \"@/lib/config/main\";\nimport { loggingConfig } from \"./config\";\n\nconst isDev = mainConfig.server.nodeEnv === \"development\";\n\nconst transport = isDev\n  ? pino.transport({\n      target: \"pino-pretty\",\n    })\n  : undefined;\n\nexport const logger = pino(\n  {\n    level: loggingConfig.server.level,\n  },\n  transport,\n);\n",
+      "type": "registry:lib",
+      "target": "lib/logging/logger.ts"
     }
   ],
   "type": "registry:lib"

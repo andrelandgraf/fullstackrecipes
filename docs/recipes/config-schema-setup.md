@@ -1,8 +1,35 @@
 ### Type-Safe Environment Variable Validation
 
-Instead of accessing environment variables directly in code, we use a `config-schema` utility to validate environment variables.
+Instead of accessing environment variables directly in code, use a `config-schema` utility to validate environment variables.
 
 {% registry items="config-schema" /%}
+
+#### Main Config
+
+The main config file provides the `NODE_ENV` value for use throughout the application:
+
+```typescript
+// src/lib/config/main.ts
+import { z } from "zod";
+import { configSchema, server } from "./schema";
+
+export const mainConfig = configSchema("Main", {
+  nodeEnv: server({
+    env: "NODE_ENV",
+    schema: z
+      .enum(["development", "production", "test"])
+      .default("development"),
+  }),
+});
+```
+
+Use it instead of `process.env.NODE_ENV`:
+
+```typescript
+import { mainConfig } from "@/lib/config/main";
+
+const isDev = mainConfig.server.nodeEnv === "development";
+```
 
 #### Basic Usage
 

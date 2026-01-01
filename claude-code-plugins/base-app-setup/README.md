@@ -4,6 +4,7 @@ Complete setup guide for a Next.js app with Shadcn UI, Neon Postgres, Drizzle OR
 
 ## Skills
 
+- **Environment Validation**: Validate environment variables on server start and before builds. Catch missing or invalid variables early with clear error messages.
 - **Working with Drizzle**: Write type-safe database queries with Drizzle ORM. Covers select, insert, update, delete, relational queries, and adding new tables.
 
 ## MCP Resources

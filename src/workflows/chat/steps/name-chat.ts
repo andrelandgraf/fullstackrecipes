@@ -2,7 +2,7 @@ import { generateText } from "ai";
 import { db } from "@/lib/db/client";
 import { chats } from "@/lib/chat/schema";
 import { eq } from "drizzle-orm";
-import { logger } from "@/lib/common/logger";
+import { logger } from "@/lib/logging/logger";
 import type { ChatAgentUIMessage } from "../types";
 
 const DEFAULT_TITLE = "New chat";

@@ -5,7 +5,7 @@ import {
   type UIMessage,
 } from "ai";
 import { z } from "zod";
-import { logger } from "@/lib/common/logger";
+import { logger } from "@/lib/logging/logger";
 import { writeProgress } from "./progress";
 
 const routerSystemPrompt = `You are an orchestrator agent for a tweet author system.

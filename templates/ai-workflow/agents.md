@@ -13,6 +13,7 @@
 
 ## TypeScript
 
+- Avoid `export default` in favor of `export` whenever possible.
 - Only create an abstraction if it's actually needed
 - Prefer clear function/variable names over inline comments
 - Avoid helper functions when a simple inline expression would suffice

@@ -446,7 +446,7 @@ export async function POST(req: Request) {
 
 ```typescript
 // src/lib/stripe/stripe.ts
-import { logger } from "@/lib/common/logger";
+import { logger } from "@/lib/logging/logger";
 
 const allowedEventTypes = [
   "checkout.session.completed",
@@ -797,7 +797,7 @@ The `stripe.setup.ts` script registers webhook endpoint in Stripe Dashboard:
 ```typescript
 // scripts/stripe.setup.ts
 import Stripe from "stripe";
-import { logger } from "@/lib/common/logger";
+import { logger } from "@/lib/logging/logger";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const url = `${process.env.NEXT_PUBLIC_ORIGIN}/api/stripe`;

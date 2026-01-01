@@ -31,7 +31,7 @@ Instead, wrap logger calls in a step function:
 
 ```ts
 // src/workflows/chat/steps/logger.ts
-import { logger } from "@/lib/common/logger";
+import { logger } from "@/lib/logging/logger";
 
 type LogLevel = "info" | "warn" | "error" | "debug";
 

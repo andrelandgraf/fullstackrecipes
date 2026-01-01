@@ -28,7 +28,7 @@ export function useResumableChat({
 
   const chatResult = useChat<ChatAgentUIMessage>({
     messages: messageHistory,
-    resume: !!initialRunId, // for first render
+    resume: !!initialRunId,
     transport: new WorkflowChatTransport({
       // Send new messages
       prepareSendMessagesRequest: ({ messages }) => ({
@@ -42,7 +42,6 @@ export function useResumableChat({
       // Store the workflow run ID when a message is sent
       onChatSendMessage: (response) => {
         const workflowRunId = response.headers.get("x-workflow-run-id");
-        console.log("onChatSendMessage: workflowRunId", workflowRunId);
         if (workflowRunId) {
           activeRunIdRef.current = workflowRunId;
         }
@@ -51,10 +50,6 @@ export function useResumableChat({
       // Configure reconnection to use the ref for the latest value
       prepareReconnectToStreamRequest: ({ api, ...rest }) => {
         const currentRunId = activeRunIdRef.current;
-        console.log(
-          "prepareReconnectToStreamRequest activeRunId",
-          currentRunId,
-        );
         if (!currentRunId) {
           throw new Error("No active workflow run ID found for reconnection");
         }
@@ -65,8 +60,7 @@ export function useResumableChat({
       },
 
       // Clear the workflow run ID when the chat stream ends
-      onChatEnd: ({ chunkIndex }) => {
-        console.log("Chat completed, total chunks:", chunkIndex);
+      onChatEnd: () => {
         activeRunIdRef.current = undefined;
       },
 

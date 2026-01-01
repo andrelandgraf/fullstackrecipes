@@ -10,7 +10,7 @@
       "description": "TypeScript assertion function that narrows types when condition is truthy. Throws with optional message if condition is falsy.",
       "files": [
         {
-          "path": "src/lib/common/assert.ts",
+          "path": "templates/base-app/src/lib/common/assert.ts",
           "type": "registry:lib",
           "target": "lib/common/assert.ts"
         }
@@ -20,13 +20,21 @@
       "name": "logger",
       "type": "registry:lib",
       "title": "Pino Logger",
-      "description": "Structured JSON logger with pretty-printing in development. Configurable log level via PINO_LOG_LEVEL env var.",
+      "description": "Structured JSON logger with pretty-printing in development. Configurable log level via LOG_LEVEL env var using configSchema.",
       "dependencies": ["pino", "pino-pretty"],
+      "registryDependencies": [
+        "https://fullstackrecipes.com/r/config-schema.json"
+      ],
       "files": [
         {
-          "path": "src/lib/common/logger.ts",
+          "path": "templates/base-app/src/lib/logging/config.ts",
           "type": "registry:lib",
-          "target": "lib/common/logger.ts"
+          "target": "lib/logging/config.ts"
+        },
+        {
+          "path": "templates/base-app/src/lib/logging/logger.ts",
+          "type": "registry:lib",
+          "target": "lib/logging/logger.ts"
         }
       ]
     },
@@ -38,9 +46,14 @@
       "dependencies": ["zod"],
       "files": [
         {
-          "path": "src/lib/config/schema.ts",
+          "path": "templates/base-app/src/lib/config/schema.ts",
           "type": "registry:lib",
           "target": "lib/config/schema.ts"
+        },
+        {
+          "path": "templates/base-app/src/lib/config/main.ts",
+          "type": "registry:lib",
+          "target": "lib/config/main.ts"
         }
       ]
     },
@@ -55,7 +68,7 @@
       ],
       "files": [
         {
-          "path": "scripts/validate-env.ts",
+          "path": "templates/base-app/scripts/validate-env.ts",
           "type": "registry:lib",
           "target": "scripts/validate-env.ts"
         }
@@ -70,7 +83,7 @@
       "dependencies": ["@ai-sdk/react", "@workflow/ai", "uuid"],
       "files": [
         {
-          "path": "src/hooks/use-resumable-chat.ts",
+          "path": "templates/ai-workflow/src/hooks/use-resumable-chat.ts",
           "type": "registry:hook",
           "target": "hooks/use-resumable-chat.ts"
         }

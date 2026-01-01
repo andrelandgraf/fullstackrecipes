@@ -18,7 +18,26 @@ const nextConfig: NextConfig = {
 };
 ```
 
-### Step 3: Add the logger utility
+### Step 3: Add the logging config
+
+Create a config file for the log level using configSchema:
+
+```typescript
+// src/lib/logging/config.ts
+import { z } from "zod";
+import { configSchema, server } from "@/lib/config/schema";
+
+export const loggingConfig = configSchema("Logging", {
+  level: server({
+    env: "LOG_LEVEL",
+    schema: z
+      .enum(["trace", "debug", "info", "warn", "error", "fatal"])
+      .default("info"),
+  }),
+});
+```
+
+### Step 4: Add the logger utility
 
 {% registry items="logger" /%}
 
@@ -26,14 +45,15 @@ const nextConfig: NextConfig = {
 
 - Uses `pino-pretty` in development for human-readable colorized output
 - Outputs JSON in production (for log aggregation services)
-- Log level configurable via `PINO_LOG_LEVEL` env var (defaults to `info`)
+- Log level configurable via `LOG_LEVEL` env var (defaults to `info`)
+- Uses `mainConfig` for environment detection and `loggingConfig` for log level
 
 ---
 
 ## Usage
 
 ```typescript
-import { logger } from "@/lib/common/logger";
+import { logger } from "@/lib/logging/logger";
 
 // Basic logging
 logger.info("Server started", { port: 3000 });
@@ -53,7 +73,8 @@ logger.info({ userId: "123", action: "login" }, "User logged in");
 ## File Structure
 
 ```
-src/lib/common/
+src/lib/logging/
+  config.ts    # Log level configuration with configSchema
   logger.ts    # Pino logger utility
 ```
 

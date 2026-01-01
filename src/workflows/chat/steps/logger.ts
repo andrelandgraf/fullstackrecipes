@@ -1,4 +1,4 @@
-import { logger } from "@/lib/common/logger";
+import { logger } from "@/lib/logging/logger";
 
 type LogLevel = "info" | "warn" | "error" | "debug";
 
