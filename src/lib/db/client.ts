@@ -5,10 +5,12 @@ import { databaseConfig } from "./config";
 
 import * as authSchema from "@/lib/auth/schema";
 import * as chatSchema from "@/lib/chat/schema";
+import * as recipeSchema from "@/lib/recipes/schema";
 
 const schema = {
   ...authSchema,
   ...chatSchema,
+  ...recipeSchema,
 };
 
 const pool = new Pool({

@@ -4,7 +4,8 @@ import { Hero } from "@/components/home/hero";
 import { HowItWorks } from "@/components/home/how-it-works";
 import { Registry } from "@/components/home/registry";
 import { Demo } from "@/components/home/playground";
-import { RecipeGrid } from "@/components/recipes/grid";
+import { RecipeGridWrapper } from "@/components/recipes/grid-wrapper";
+import { Community } from "@/components/home/community";
 import { Footer } from "@/components/home/footer";
 import { HomeWrapper } from "@/components/home/home-wrapper";
 
@@ -24,7 +25,8 @@ export default function Home() {
           <HowItWorks />
           <Registry />
           <Demo />
-          <RecipeGrid />
+          <Community />
+          <RecipeGridWrapper />
         </main>
         <Footer />
       </div>

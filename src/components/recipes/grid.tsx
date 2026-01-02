@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, Suspense } from "react";
+import { useMemo, useState, Suspense } from "react";
 import {
   useQueryState,
   parseAsBoolean,
@@ -17,7 +17,16 @@ const items = getAllItems();
 
 const allTags = Array.from(new Set(items.flatMap((r) => r.tags))).sort();
 
-function RecipeGridInner() {
+type RecipeGridProps = {
+  bookmarkedSlugs?: Set<string>;
+  isAuthenticated?: boolean;
+};
+
+function RecipeGridInner({
+  bookmarkedSlugs = new Set(),
+  isAuthenticated = false,
+}: RecipeGridProps) {
+  const [bookmarks, setBookmarks] = useState(bookmarkedSlugs);
   const [searchQuery, setSearchQuery] = useQueryState(
     "q",
     parseAsString.withDefault(""),
@@ -62,6 +71,18 @@ function RecipeGridInner() {
   const handleSearchChange = (query: string) => {
     setSearchQuery(query || null);
   };
+
+  function handleBookmarkChange(slug: string, isNowBookmarked: boolean) {
+    setBookmarks((prev) => {
+      const next = new Set(prev);
+      if (isNowBookmarked) {
+        next.add(slug);
+      } else {
+        next.delete(slug);
+      }
+      return next;
+    });
+  }
 
   return (
     <section id="recipes" className="py-24">
@@ -119,6 +140,9 @@ function RecipeGridInner() {
                 {...item}
                 isCookbook={isCookbook(item)}
                 recipeCount={isCookbook(item) ? item.recipes.length : undefined}
+                isBookmarked={bookmarks.has(item.slug)}
+                isAuthenticated={isAuthenticated}
+                onBookmarkChange={handleBookmarkChange}
               />
             ))}
           </div>
@@ -140,10 +164,10 @@ function RecipeGridInner() {
   );
 }
 
-export function RecipeGrid() {
+export function RecipeGrid(props: RecipeGridProps) {
   return (
     <Suspense>
-      <RecipeGridInner />
+      <RecipeGridInner {...props} />
     </Suspense>
   );
 }
