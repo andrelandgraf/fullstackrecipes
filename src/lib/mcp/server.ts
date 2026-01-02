@@ -270,10 +270,16 @@ const userIdSchema = {
 const createRecipeSchema = {
   ...userIdSchema,
   title: z.string().min(1).describe("The recipe title"),
-  description: z.string().optional().describe("A brief description of the recipe"),
+  description: z
+    .string()
+    .optional()
+    .describe("A brief description of the recipe"),
   content: z.string().min(1).describe("The recipe content in markdown format"),
   tags: z.array(z.string()).optional().describe("Tags for categorization"),
-  isPublic: z.boolean().optional().describe("Whether the recipe is public (default: false)"),
+  isPublic: z
+    .boolean()
+    .optional()
+    .describe("Whether the recipe is public (default: false)"),
 };
 
 const updateRecipeSchema = {
@@ -301,8 +307,14 @@ const getRecipeSchema = {
 
 const bookmarkSchema = {
   ...userIdSchema,
-  builtInSlug: z.string().optional().describe("Slug of a built-in recipe to bookmark"),
-  userRecipeId: z.string().optional().describe("ID of a user recipe to bookmark"),
+  builtInSlug: z
+    .string()
+    .optional()
+    .describe("Slug of a built-in recipe to bookmark"),
+  userRecipeId: z
+    .string()
+    .optional()
+    .describe("ID of a user recipe to bookmark"),
 };
 
 function registerUserRecipeTools(server: McpServer) {
@@ -318,7 +330,9 @@ function registerUserRecipeTools(server: McpServer) {
       const parsed = z.object(listRecipesSchema).safeParse(args);
       if (!parsed.success) {
         return {
-          content: [{ type: "text", text: "Invalid input: userId is required" }],
+          content: [
+            { type: "text", text: "Invalid input: userId is required" },
+          ],
         };
       }
 
@@ -352,14 +366,17 @@ function registerUserRecipeTools(server: McpServer) {
     "list_library_recipes",
     {
       title: "List library recipes",
-      description: "Returns all recipes in the user's library (bookmarked recipes).",
+      description:
+        "Returns all recipes in the user's library (bookmarked recipes).",
       inputSchema: listRecipesSchema,
     },
     async (args) => {
       const parsed = z.object(listRecipesSchema).safeParse(args);
       if (!parsed.success) {
         return {
-          content: [{ type: "text", text: "Invalid input: userId is required" }],
+          content: [
+            { type: "text", text: "Invalid input: userId is required" },
+          ],
         };
       }
 
@@ -410,7 +427,8 @@ function registerUserRecipeTools(server: McpServer) {
         };
       }
 
-      const { userId, title, description, content, tags, isPublic } = parsed.data;
+      const { userId, title, description, content, tags, isPublic } =
+        parsed.data;
       const slug = await generateUniqueSlug(userId, title);
 
       const recipe = await createUserRecipe({
@@ -448,7 +466,8 @@ function registerUserRecipeTools(server: McpServer) {
     "update_recipe",
     {
       title: "Update recipe",
-      description: "Updates an existing recipe owned by the authenticated user.",
+      description:
+        "Updates an existing recipe owned by the authenticated user.",
       inputSchema: updateRecipeSchema,
     },
     async (args) => {
@@ -485,7 +504,10 @@ function registerUserRecipeTools(server: McpServer) {
       if (!recipe) {
         return {
           content: [
-            { type: "text", text: "Recipe not found or you don't have permission to update it." },
+            {
+              type: "text",
+              text: "Recipe not found or you don't have permission to update it.",
+            },
           ],
         };
       }
@@ -528,12 +550,18 @@ function registerUserRecipeTools(server: McpServer) {
         };
       }
 
-      const success = await deleteUserRecipe(parsed.data.recipeId, parsed.data.userId);
+      const success = await deleteUserRecipe(
+        parsed.data.recipeId,
+        parsed.data.userId,
+      );
 
       if (!success) {
         return {
           content: [
-            { type: "text", text: "Recipe not found or you don't have permission to delete it." },
+            {
+              type: "text",
+              text: "Recipe not found or you don't have permission to delete it.",
+            },
           ],
         };
       }
@@ -594,7 +622,8 @@ function registerUserRecipeTools(server: McpServer) {
     "add_bookmark",
     {
       title: "Add to library",
-      description: "Adds a recipe to the user's library. Provide either builtInSlug for official recipes or userRecipeId for community recipes.",
+      description:
+        "Adds a recipe to the user's library. Provide either builtInSlug for official recipes or userRecipeId for community recipes.",
       inputSchema: bookmarkSchema,
     },
     async (args) => {
@@ -612,7 +641,10 @@ function registerUserRecipeTools(server: McpServer) {
       if (!builtInSlug && !userRecipeId) {
         return {
           content: [
-            { type: "text", text: "Provide either builtInSlug or userRecipeId." },
+            {
+              type: "text",
+              text: "Provide either builtInSlug or userRecipeId.",
+            },
           ],
         };
       }
@@ -620,7 +652,10 @@ function registerUserRecipeTools(server: McpServer) {
       if (builtInSlug && userRecipeId) {
         return {
           content: [
-            { type: "text", text: "Provide only one of builtInSlug or userRecipeId." },
+            {
+              type: "text",
+              text: "Provide only one of builtInSlug or userRecipeId.",
+            },
           ],
         };
       }
@@ -660,7 +695,10 @@ function registerUserRecipeTools(server: McpServer) {
       if (!builtInSlug && !userRecipeId) {
         return {
           content: [
-            { type: "text", text: "Provide either builtInSlug or userRecipeId." },
+            {
+              type: "text",
+              text: "Provide either builtInSlug or userRecipeId.",
+            },
           ],
         };
       }

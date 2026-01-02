@@ -13,10 +13,6 @@ export async function RecipeGridWrapper() {
     : new Set<string>();
 
   return (
-    <RecipeGrid
-      bookmarkedSlugs={bookmarkedSlugs}
-      isAuthenticated={!!session}
-    />
+    <RecipeGrid bookmarkedSlugs={bookmarkedSlugs} isAuthenticated={!!session} />
   );
 }
-

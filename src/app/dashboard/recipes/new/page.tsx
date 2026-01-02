@@ -65,4 +65,3 @@ export default async function NewRecipePage() {
     </div>
   );
 }
-

@@ -11,17 +11,19 @@ import { getItemBySlug, type Recipe, type Cookbook } from "./data";
 export async function createUserRecipe(
   data: Omit<NewUserRecipe, "id" | "createdAt" | "updatedAt">,
 ): Promise<UserRecipe> {
-  const [recipe] = await db
-    .insert(userRecipes)
-    .values(data)
-    .returning();
+  const [recipe] = await db.insert(userRecipes).values(data).returning();
   return recipe;
 }
 
 export async function updateUserRecipe(
   id: string,
   userId: string,
-  data: Partial<Pick<NewUserRecipe, "title" | "description" | "content" | "tags" | "isPublic" | "slug">>,
+  data: Partial<
+    Pick<
+      NewUserRecipe,
+      "title" | "description" | "content" | "tags" | "isPublic" | "slug"
+    >
+  >,
 ): Promise<UserRecipe | null> {
   const [updated] = await db
     .update(userRecipes)
@@ -122,7 +124,7 @@ export async function addBookmark(
     })
     .onConflictDoNothing()
     .returning();
-  
+
   // If conflict, return the existing bookmark
   if (!bookmark) {
     const existing = await db.query.recipeBookmarks.findFirst({
@@ -135,7 +137,7 @@ export async function addBookmark(
     });
     return existing!;
   }
-  
+
   return bookmark;
 }
 
@@ -174,7 +176,11 @@ export async function isBookmarked(
 
 export type LibraryItem =
   | { type: "built-in"; item: Recipe | Cookbook; bookmarkedAt: Date }
-  | { type: "user-recipe"; item: UserRecipe & { userName: string }; bookmarkedAt: Date };
+  | {
+      type: "user-recipe";
+      item: UserRecipe & { userName: string };
+      bookmarkedAt: Date;
+    };
 
 export async function getUserLibrary(userId: string): Promise<LibraryItem[]> {
   const bookmarks = await db.query.recipeBookmarks.findMany({
@@ -220,7 +226,9 @@ export async function getUserLibrary(userId: string): Promise<LibraryItem[]> {
   return libraryItems;
 }
 
-export async function getUserBookmarkSlugs(userId: string): Promise<Set<string>> {
+export async function getUserBookmarkSlugs(
+  userId: string,
+): Promise<Set<string>> {
   const bookmarks = await db.query.recipeBookmarks.findMany({
     where: and(
       eq(recipeBookmarks.userId, userId),
@@ -236,7 +244,9 @@ export async function getUserBookmarkSlugs(userId: string): Promise<Set<string>>
   );
 }
 
-export async function getUserBookmarkUserRecipeIds(userId: string): Promise<Set<string>> {
+export async function getUserBookmarkUserRecipeIds(
+  userId: string,
+): Promise<Set<string>> {
   const bookmarks = await db.query.recipeBookmarks.findMany({
     where: and(
       eq(recipeBookmarks.userId, userId),
@@ -282,4 +292,3 @@ export async function generateUniqueSlug(
     slug = `${baseSlug}-${counter}`;
   }
 }
-

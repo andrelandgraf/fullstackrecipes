@@ -9,12 +9,7 @@ import { AddToAgentButton } from "@/components/recipes/add-to-agent-button";
 import { UseTemplateButton } from "@/components/recipes/use-template-button";
 import { BackButton } from "@/components/recipes/back-button";
 import { BookOpen, type LucideIcon } from "lucide-react";
-
-const tagDescriptions: Record<string, string> = {
-  Cookbooks: "Bundle of setup instructions and skills",
-  "Setup Instructions": "Resource for adding a feature or pattern",
-  Skills: "Workflow instructions for using a feature or pattern",
-};
+import { tagDescriptions } from "@/lib/recipes/data";
 
 interface RecipeHeaderProps {
   title: string;

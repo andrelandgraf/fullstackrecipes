@@ -105,9 +105,7 @@ export function Community() {
         <div className="rounded-2xl border border-border/50 bg-card p-8 text-center">
           <div className="mx-auto max-w-2xl">
             <Sparkles className="mx-auto h-10 w-10 text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">
-              Access via MCP Tools
-            </h3>
+            <h3 className="text-xl font-semibold mb-2">Access via MCP Tools</h3>
             <p className="text-muted-foreground mb-6">
               All your library recipes are available via MCP. Create, update,
               and list your recipes programmatically from your AI coding agent.
@@ -131,4 +129,3 @@ export function Community() {
     </section>
   );
 }
-

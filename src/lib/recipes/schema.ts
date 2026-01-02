@@ -27,7 +27,10 @@ export const userRecipes = pgTable(
     title: text("title").notNull(),
     description: text("description").notNull(),
     content: text("content").notNull(),
-    tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
+    tags: text("tags")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
     isPublic: boolean("is_public").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -104,4 +107,3 @@ export type UserRecipe = typeof userRecipes.$inferSelect;
 export type NewUserRecipe = typeof userRecipes.$inferInsert;
 export type RecipeBookmark = typeof recipeBookmarks.$inferSelect;
 export type NewRecipeBookmark = typeof recipeBookmarks.$inferInsert;
-

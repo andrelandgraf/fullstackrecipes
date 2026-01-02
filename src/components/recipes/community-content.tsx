@@ -48,11 +48,8 @@ export function CommunityRecipeContent({
       onClick={handleToggleBookmark}
       disabled={isToggling}
     >
-      <Bookmark
-        className={cn("size-4", isBookmarked && "fill-current")}
-      />
+      <Bookmark className={cn("size-4", isBookmarked && "fill-current")} />
       {isBookmarked ? "Saved to Library" : "Save to Library"}
     </Button>
   );
 }
-

@@ -3,7 +3,10 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { ChefHat, Plus } from "lucide-react";
 import { auth } from "@/lib/auth/server";
-import { getPublicRecipes, getUserBookmarkUserRecipeIds } from "@/lib/recipes/queries";
+import {
+  getPublicRecipes,
+  getUserBookmarkUserRecipeIds,
+} from "@/lib/recipes/queries";
 import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/auth/user-menu";
 import { ThemeSelector } from "@/components/themes/selector";
@@ -86,4 +89,3 @@ export default async function CommunityPage() {
     </div>
   );
 }
-

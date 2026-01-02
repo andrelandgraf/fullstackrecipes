@@ -130,7 +130,9 @@ function LibraryItemCard({
                 <BookOpen className="h-5 w-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <CardTitle className="text-lg truncate">{recipe.title}</CardTitle>
+                <CardTitle className="text-lg truncate">
+                  {recipe.title}
+                </CardTitle>
                 <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                   <User className="size-3" />
                   <span>{recipe.userName}</span>
@@ -170,11 +172,7 @@ function LibraryItemCard({
   );
 }
 
-function LibraryListInner({
-  initialItems,
-}: {
-  initialItems: LibraryItem[];
-}) {
+function LibraryListInner({ initialItems }: { initialItems: LibraryItem[] }) {
   const [items, setItems] = useState(initialItems);
   const [searchQuery, setSearchQuery] = useQueryState(
     "q",
@@ -285,4 +283,3 @@ export function LibraryList(props: { initialItems: LibraryItem[] }) {
     </Suspense>
   );
 }
-

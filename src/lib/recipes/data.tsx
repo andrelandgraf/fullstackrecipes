@@ -32,6 +32,14 @@ import {
 } from "lucide-react";
 import registry from "../../../registry.json";
 
+/** Tooltip descriptions for recipe tags */
+export const tagDescriptions: Record<string, string> = {
+  Cookbooks: "Bundle of setup instructions and skills",
+  "Setup Instructions": "Resource for adding a feature or pattern",
+  Skills: "Workflow instructions for using a feature or pattern",
+  "Starter template": "Ready-to-clone template with the cookbook pre-applied",
+};
+
 export type Recipe = {
   slug: string;
   title: string;

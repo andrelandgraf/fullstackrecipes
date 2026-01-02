@@ -50,7 +50,10 @@ export function RecipeCard({
     if (!slug) return;
 
     setIsToggling(true);
-    const result = await toggleBookmarkAction({ builtInSlug: slug }, bookmarked);
+    const result = await toggleBookmarkAction(
+      { builtInSlug: slug },
+      bookmarked,
+    );
 
     if (result.error) {
       toast.error(result.error);
@@ -90,10 +93,7 @@ export function RecipeCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className={cn(
-                  "size-8",
-                  bookmarked && "text-primary",
-                )}
+                className={cn("size-8", bookmarked && "text-primary")}
                 onClick={handleBookmarkClick}
                 disabled={isToggling}
               >

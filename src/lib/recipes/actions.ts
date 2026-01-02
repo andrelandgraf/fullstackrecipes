@@ -62,7 +62,7 @@ export async function createRecipeAction(formData: FormData) {
 
   revalidatePath("/dashboard/recipes");
   revalidatePath("/community");
-  
+
   return { success: true, recipe };
 }
 
@@ -203,4 +203,3 @@ export async function toggleBookmarkAction(
     return addBookmarkAction(target);
   }
 }
-

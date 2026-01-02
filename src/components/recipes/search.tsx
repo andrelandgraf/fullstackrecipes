@@ -9,12 +9,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const tagDescriptions: Record<string, string> = {
-  Cookbooks: "Bundle of setup instructions and skills",
-  "Setup Instructions": "Resource for adding a feature or pattern",
-  Skills: "Workflow instructions for using a feature or pattern",
-};
+import { tagDescriptions } from "@/lib/recipes/data";
 
 interface RecipeSearchProps {
   searchQuery: string;

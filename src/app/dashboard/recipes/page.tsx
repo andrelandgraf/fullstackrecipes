@@ -12,7 +12,8 @@ import { RecipeDashboardList } from "@/components/recipes/dashboard-list";
 
 export const metadata: Metadata = {
   title: "My Recipes",
-  description: "Create and manage your own recipes to share with the community.",
+  description:
+    "Create and manage your own recipes to share with the community.",
 };
 
 export default async function DashboardRecipesPage() {
@@ -74,4 +75,3 @@ export default async function DashboardRecipesPage() {
     </div>
   );
 }
-

@@ -174,4 +174,3 @@ async function renderMarkdown(content: string): Promise<string> {
     .replace(/^\d+\. (.*$)/gim, "<li>$1</li>")
     .replace(/\n/gim, "<br>");
 }
-

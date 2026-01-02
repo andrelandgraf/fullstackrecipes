@@ -243,4 +243,3 @@ export function RecipeDashboardList({
     </div>
   );
 }
-

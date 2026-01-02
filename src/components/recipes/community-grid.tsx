@@ -80,10 +80,7 @@ function CommunityRecipeCard({
             <Button
               variant="ghost"
               size="icon"
-              className={cn(
-                "shrink-0",
-                isBookmarked && "text-primary",
-              )}
+              className={cn("shrink-0", isBookmarked && "text-primary")}
               onClick={handleToggleBookmark}
               disabled={isToggling}
             >
@@ -225,4 +222,3 @@ export function CommunityRecipeGrid(props: {
     </Suspense>
   );
 }
-

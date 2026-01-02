@@ -66,9 +66,7 @@ export function RecipeForm({ recipe, mode }: RecipeFormProps) {
       <Card>
         <CardHeader>
           <CardTitle>Recipe Details</CardTitle>
-          <CardDescription>
-            Basic information about your recipe
-          </CardDescription>
+          <CardDescription>Basic information about your recipe</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -142,9 +140,7 @@ bun add stripe
       <Card>
         <CardHeader>
           <CardTitle>Visibility</CardTitle>
-          <CardDescription>
-            Control who can see your recipe
-          </CardDescription>
+          <CardDescription>Control who can see your recipe</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
@@ -185,4 +181,3 @@ bun add stripe
     </form>
   );
 }
-
