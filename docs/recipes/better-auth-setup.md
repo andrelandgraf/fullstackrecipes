@@ -102,6 +102,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/client";
 import { authConfig } from "./config";
+import * as authSchema from "./schema";
 
 export const auth = betterAuth({
   secret: authConfig.server.secret,
@@ -109,7 +110,12 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
     usePlural: true,
+    schema: authSchema,
   }),
+  // Enables database joins for 2-3x faster session fetching
+  experimental: {
+    joins: true,
+  },
   emailAndPassword: {
     enabled: true,
   },

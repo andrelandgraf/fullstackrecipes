@@ -439,10 +439,11 @@ describe("myFunction", () => {
     icon: KeyRound,
     requires: ["config-schema-setup", "neon-drizzle-setup"],
     previewCode: `export const auth = betterAuth({
-  database: drizzleAdapter(db, { provider: "pg" }),
-  emailAndPassword: {
-    enabled: true,
-  },
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema: authSchema,
+  }),
+  experimental: { joins: true },
 });`,
   },
   {

@@ -7,6 +7,7 @@ import { ForgotPasswordEmail } from "./emails/forgot-password";
 import { VerifyEmail } from "./emails/verify-email";
 import { ChangeEmail } from "./emails/change-email";
 import { DeleteAccountEmail } from "./emails/delete-account";
+import * as authSchema from "./schema";
 
 export const auth = betterAuth({
   secret: authConfig.server.secret,
@@ -14,7 +15,11 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
     usePlural: true,
+    schema: authSchema,
   }),
+  experimental: {
+    joins: true,
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
