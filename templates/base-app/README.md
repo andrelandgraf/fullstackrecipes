@@ -2,7 +2,7 @@
 
 A Next.js starter with Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK.
 
-Built with the [Base App Setup](https://fullstackrecipes.com/recipes/base-app-setup) cookbook from fullstackrecipes.
+Template and source code for the [Base App Setup](https://fullstackrecipes.com/recipes/base-app-setup) cookbook on fullstackrecipes.
 
 ## Quick Start
 

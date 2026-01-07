@@ -2,7 +2,7 @@
 
 A Next.js starter with resumable multi-agent workflows: durable execution, tool loops, automatic stream recovery, and chat persistence.
 
-Built with the [AI Agent Workflow](https://fullstackrecipes.com/recipes/ai-agent-workflow) cookbook from fullstackrecipes.
+Template and source code for the [AI Agent Workflow](https://fullstackrecipes.com/recipes/ai-agent-workflow) cookbook on fullstackrecipes.
 
 ## Quick Start
 

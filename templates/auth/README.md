@@ -2,7 +2,7 @@
 
 A Next.js starter with complete authentication: Better Auth, email verification, password reset, protected routes, and account management.
 
-Built with the [Authentication](https://fullstackrecipes.com/recipes/authentication) cookbook from fullstackrecipes.
+Template and source code for the [Authentication](https://fullstackrecipes.com/recipes/authentication) cookbook on fullstackrecipes.
 
 ## Quick Start
 

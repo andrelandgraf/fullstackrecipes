@@ -2,7 +2,7 @@
 
 A Next.js starter with complete subscription system: Stripe checkout, webhook sync, billing portal, usage tracking, and subscription management.
 
-Built with the [Stripe Subscriptions DB Sync](https://fullstackrecipes.com/recipes/stripe-sync) recipe from fullstackrecipes.
+Template and source code for the [Stripe Subscriptions DB Sync](https://fullstackrecipes.com/recipes/stripe-sync) recipe on fullstackrecipes.
 
 ## Quick Start
 
