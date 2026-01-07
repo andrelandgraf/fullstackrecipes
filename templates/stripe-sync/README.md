@@ -9,7 +9,7 @@ Built with the [Stripe Subscriptions DB Sync](https://fullstackrecipes.com/recip
 1. **Clone and install:**
 
    ```bash
-   npx tiged fullstackrecipes/s2-ai-chat/templates/stripe-sync my-app
+   npx tiged andrelandgraf/fullstackrecipes/templates/stripe-sync my-app
    cd my-app
    bun install
    ```

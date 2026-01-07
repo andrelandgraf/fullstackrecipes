@@ -9,7 +9,7 @@ Built with the [Authentication](https://fullstackrecipes.com/recipes/authenticat
 1. **Clone and install:**
 
    ```bash
-   npx tiged fullstackrecipes/s2-ai-chat/templates/auth my-app
+   npx tiged andrelandgraf/fullstackrecipes/templates/auth my-app
    cd my-app
    bun install
    ```

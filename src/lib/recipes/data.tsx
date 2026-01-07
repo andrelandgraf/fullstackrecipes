@@ -32,6 +32,9 @@ import {
 } from "lucide-react";
 import registry from "../../../registry.json";
 
+/** Base path for GitHub template cloning (org/repo/path) */
+export const TEMPLATE_BASE = "andrelandgraf/fullstackrecipes/templates";
+
 export type Recipe = {
   slug: string;
   title: string;
@@ -51,7 +54,7 @@ export type Cookbook = Recipe & {
   isCookbook: true;
   /** Ordered list of recipe slugs included in this cookbook */
   recipes: string[];
-  /** Git path for cloning the template (e.g., "fullstackrecipes/s2-ai-chat/templates/base-app") */
+  /** Git path for cloning the template (e.g., "andrelandgraf/fullstackrecipes/templates/base-app") */
   template?: string;
 };
 
@@ -89,7 +92,7 @@ export const items: (Recipe | Cookbook)[] = [
       "ai-sdk-setup",
       "using-drizzle-queries",
     ],
-    template: "fullstackrecipes/s2-ai-chat/templates/base-app",
+    template: `${TEMPLATE_BASE}/base-app`,
     previewCode: `bunx create-next-app@latest my-app
 
 bunx shadcn@latest init`,
@@ -538,7 +541,7 @@ await signIn.email({ email, password, callbackURL });`,
       "using-authentication",
     ],
     requires: ["neon-drizzle-setup", "shadcn-ui-setup"],
-    template: "fullstackrecipes/s2-ai-chat/templates/auth",
+    template: `${TEMPLATE_BASE}/auth`,
     previewCode: `// Protected route pattern
 const session = await auth.api.getSession({
   headers: await headers(),
@@ -767,7 +770,7 @@ await db.update(chats)
       "using-workflows",
     ],
     requires: ["ai-chat-persistence", "pino-logging-setup"],
-    template: "fullstackrecipes/s2-ai-chat/templates/ai-workflow",
+    template: `${TEMPLATE_BASE}/ai-workflow`,
     previewCode: `export async function chatWorkflow({ chatId, userMessage }) {
   "use workflow";
   const { workflowRunId } = getWorkflowMetadata();

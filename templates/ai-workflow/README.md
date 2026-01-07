@@ -9,7 +9,7 @@ Built with the [AI Agent Workflow](https://fullstackrecipes.com/recipes/ai-agent
 1. **Clone and install:**
 
    ```bash
-   npx tiged fullstackrecipes/s2-ai-chat/templates/ai-workflow my-app
+   npx tiged andrelandgraf/fullstackrecipes/templates/ai-workflow my-app
    cd my-app
    bun install
    ```

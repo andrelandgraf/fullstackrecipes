@@ -9,7 +9,7 @@ Built with the [Base App Setup](https://fullstackrecipes.com/recipes/base-app-se
 1. **Clone and install:**
 
    ```bash
-   npx tiged fullstackrecipes/s2-ai-chat/templates/base-app my-app
+   npx tiged andrelandgraf/fullstackrecipes/templates/base-app my-app
    cd my-app
    bun install
    ```

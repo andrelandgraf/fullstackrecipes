@@ -94,7 +94,6 @@ export default async function RecipePage({ params }: Props) {
           icon={item.icon}
           isCookbook={isCookbook(item)}
           recipeCount={cookbookRecipes.length}
-          template={isCookbook(item) ? item.template : undefined}
         />
         <div
           className={
