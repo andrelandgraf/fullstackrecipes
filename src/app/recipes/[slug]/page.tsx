@@ -9,13 +9,17 @@ import {
   getRedirectSlug,
   recipeRedirects,
 } from "@/lib/recipes/data";
-import { loadRecipeContent } from "@/lib/recipes/loader";
+import {
+  loadRecipeContent,
+  getCookbookTableOfContents,
+} from "@/lib/recipes/loader";
 import { RecipeHeader } from "@/components/recipes/header";
 import { MarkdownBlock } from "@/components/docs/markdown-block";
 import { RelatedRecipes } from "@/components/recipes/related";
 import { CookbookRecipes } from "@/components/recipes/cookbook-recipes";
 import { serializeRecipes, serializeItems } from "@/lib/recipes/serialize";
 import { DetailWrapper } from "@/components/recipes/detail-wrapper";
+import { RecipeSidebar } from "@/components/recipes/sidebar";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -71,10 +75,14 @@ export default async function RecipePage({ params }: Props) {
   const content = await loadRecipeContent(item);
   const requiredItems = getRequiredItems(item);
   const cookbookRecipes = isCookbook(item) ? getCookbookRecipes(item) : [];
+  const tableOfContents = isCookbook(item)
+    ? getCookbookTableOfContents(item)
+    : [];
 
   const hasPreContent =
     requiredItems.length > 0 ||
     (isCookbook(item) && cookbookRecipes.length > 0);
+  const hasSidebar = tableOfContents.length > 0;
 
   return (
     <DetailWrapper slug={item.slug}>
@@ -88,17 +96,28 @@ export default async function RecipePage({ params }: Props) {
           recipeCount={cookbookRecipes.length}
           template={isCookbook(item) ? item.template : undefined}
         />
-        <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-          <RelatedRecipes requiredItems={serializeItems(requiredItems)} />
-          {requiredItems.length > 0 &&
-            isCookbook(item) &&
-            cookbookRecipes.length > 0 && <div className="my-6" />}
-          {isCookbook(item) && cookbookRecipes.length > 0 && (
-            <CookbookRecipes recipes={serializeRecipes(cookbookRecipes)} />
-          )}
-          {hasPreContent && <div className="my-8 border-t border-border" />}
-          <MarkdownBlock content={content} />
-        </main>
+        <div
+          className={
+            hasSidebar
+              ? "mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8"
+              : "mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8"
+          }
+        >
+          <div className={hasSidebar ? "flex gap-12" : ""}>
+            <main className={hasSidebar ? "min-w-0 flex-1" : ""}>
+              <RelatedRecipes requiredItems={serializeItems(requiredItems)} />
+              {requiredItems.length > 0 &&
+                isCookbook(item) &&
+                cookbookRecipes.length > 0 && <div className="my-6" />}
+              {isCookbook(item) && cookbookRecipes.length > 0 && (
+                <CookbookRecipes recipes={serializeRecipes(cookbookRecipes)} />
+              )}
+              {hasPreContent && <div className="my-8 border-t border-border" />}
+              <MarkdownBlock content={content} />
+            </main>
+            {hasSidebar && <RecipeSidebar tableOfContents={tableOfContents} />}
+          </div>
+        </div>
       </div>
     </DetailWrapper>
   );

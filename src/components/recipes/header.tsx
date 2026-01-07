@@ -64,13 +64,13 @@ export function RecipeHeader({
               <Icon className="h-7 w-7 text-primary" />
             </div>
             <div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <h1 className="font-mono text-3xl font-bold tracking-tight">
                   {title}
                 </h1>
                 {isCookbook && (
-                  <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
-                    <BookOpen className="h-4 w-4" />
+                  <div className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                    <BookOpen className="h-4 w-4 shrink-0" />
                     {recipeCount} recipes
                   </div>
                 )}

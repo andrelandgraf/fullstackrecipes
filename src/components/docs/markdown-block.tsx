@@ -5,6 +5,7 @@ import { codeToHtml } from "shiki";
 
 import { cn } from "@/lib/utils";
 import { CodeBlockClient } from "./code-block-client";
+import { HeadingAnchor } from "./heading-anchor";
 import { RegistryTag } from "../recipes/registry-tag";
 
 const SUPPORTED_LANGUAGES = [
@@ -138,6 +139,27 @@ function InlineCode({
   );
 }
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim();
+}
+
+function getTextContent(children: ReactNode): string {
+  if (typeof children === "string") return children;
+  if (typeof children === "number") return String(children);
+  if (Array.isArray(children)) return children.map(getTextContent).join("");
+  if (children && typeof children === "object" && "props" in children) {
+    return getTextContent(
+      (children as { props: { children: ReactNode } }).props.children,
+    );
+  }
+  return "";
+}
+
 function Heading({
   level,
   children,
@@ -145,16 +167,21 @@ function Heading({
   level: 1 | 2 | 3 | 4 | 5 | 6;
   children: ReactNode;
 }) {
-  const Tag = `h${level}` as const;
   const styles = {
     1: "text-3xl font-bold mt-8 mb-4 first:mt-0",
-    2: "text-2xl font-semibold mt-6 mb-3",
+    2: "", // Handled by HeadingAnchor
     3: "text-xl font-semibold mt-5 mb-2",
     4: "text-lg font-medium mt-4 mb-2",
     5: "text-base font-medium mt-3 mb-1",
     6: "text-sm font-medium mt-3 mb-1",
   };
 
+  if (level === 2) {
+    const id = slugify(getTextContent(children));
+    return <HeadingAnchor id={id}>{children}</HeadingAnchor>;
+  }
+
+  const Tag = `h${level}` as const;
   return <Tag className={styles[level]}>{children}</Tag>;
 }
 

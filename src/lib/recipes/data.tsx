@@ -158,7 +158,7 @@ function processUser(user: User | null) {
   },
   {
     slug: "config-schema-setup",
-    title: "Config Schema Setup",
+    title: "Type-Safe Environment Configuration",
     description:
       "Type-safe environment variable validation using Zod with a Drizzle-like schema API. Supports server/public fields, feature flags, either-or constraints, and client-side protection.",
     tags: ["Setup Instructions"],
@@ -172,7 +172,7 @@ function processUser(user: User | null) {
   },
   {
     slug: "env-workflow-vercel",
-    title: "Env Workflow with Vercel",
+    title: "Environment Variable Management with Vercel",
     description:
       "Manage environment variables across Vercel environments. Sync with Vercel CLI, handle local overrides, and load env vars in scripts.",
     tags: ["Setup Instructions"],
@@ -187,7 +187,7 @@ function processUser(user: User | null) {
   },
   {
     slug: "env-validation",
-    title: "Environment Validation",
+    title: "Build-Time Environment Variable Validation",
     description:
       "Validate environment variables on server start and before builds. Catch missing or invalid variables early with clear error messages.",
     tags: ["Skills"],

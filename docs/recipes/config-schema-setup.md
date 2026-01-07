@@ -1,6 +1,6 @@
-### Type-Safe Environment Variables
+### Config Schema Utility
 
-Instead of accessing environment variables directly (`process.env.DATABASE_URL`), use the `config-schema` to specify and validate all used environment variables.
+Instead of accessing environment variables directly (`process.env.DATABASE_URL`), use the `config-schema` utility to specify and validate environment variables.
 
 First, set up the `config-schema` utility and a `mainConfig` for common environment variables such as `NODE_ENV`:
 

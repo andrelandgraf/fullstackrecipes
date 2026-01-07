@@ -3,10 +3,36 @@ import path from "path";
 import {
   isCookbook,
   getRecipeBySlug,
+  getCookbookRecipes,
   type Recipe,
   type Cookbook,
 } from "./data";
 import { toMarkdown } from "./to-markdown";
+
+export type TocItem = {
+  id: string;
+  title: string;
+  level: number;
+};
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim();
+}
+
+/** Extract table of contents from cookbook recipes */
+export function getCookbookTableOfContents(cookbook: Cookbook): TocItem[] {
+  const recipes = getCookbookRecipes(cookbook);
+  return recipes.map((recipe) => ({
+    id: slugify(recipe.title),
+    title: recipe.title,
+    level: 2,
+  }));
+}
 
 /** Load raw Markdoc content (includes custom tags like {% registry %}) */
 export async function loadRecipeContent(
