@@ -35,6 +35,10 @@ import registry from "../../../registry.json";
 /** Base path for GitHub template cloning (org/repo/path#branch) */
 export const TEMPLATE_BASE = "andrelandgraf/fullstackrecipes/templates";
 
+/** Base URL for viewing templates on GitHub */
+export const GITHUB_TEMPLATE_BASE =
+  "https://github.com/andrelandgraf/fullstackrecipes/tree/main/templates";
+
 export type Recipe = {
   slug: string;
   title: string;
@@ -56,6 +60,8 @@ export type Cookbook = Recipe & {
   recipes: string[];
   /** Git path for cloning the template (e.g., "andrelandgraf/fullstackrecipes/templates/base-app#main") */
   template?: string;
+  /** GitHub URL for viewing the template source code */
+  githubUrl?: string;
 };
 
 // All items ordered by setup requirements/prerequisites
@@ -93,6 +99,7 @@ export const items: (Recipe | Cookbook)[] = [
       "using-drizzle-queries",
     ],
     template: `${TEMPLATE_BASE}/base-app#main`,
+    githubUrl: `${GITHUB_TEMPLATE_BASE}/base-app`,
     previewCode: `bunx create-next-app@latest my-app
 
 bunx shadcn@latest init`,
@@ -542,6 +549,7 @@ await signIn.email({ email, password, callbackURL });`,
     ],
     requires: ["neon-drizzle-setup", "shadcn-ui-setup"],
     template: `${TEMPLATE_BASE}/auth#main`,
+    githubUrl: `${GITHUB_TEMPLATE_BASE}/auth`,
     previewCode: `// Protected route pattern
 const session = await auth.api.getSession({
   headers: await headers(),
@@ -771,6 +779,7 @@ await db.update(chats)
     ],
     requires: ["ai-chat-persistence", "pino-logging-setup"],
     template: `${TEMPLATE_BASE}/ai-workflow#main`,
+    githubUrl: `${GITHUB_TEMPLATE_BASE}/ai-workflow`,
     previewCode: `export async function chatWorkflow({ chatId, userMessage }) {
   "use workflow";
   const { workflowRunId } = getWorkflowMetadata();

@@ -139,8 +139,15 @@ function WizardDialogInner({
   // Check if single cookbook with template is selected
   const singleCookbookTemplate = useMemo(() => {
     const selectedCookbooks = selectedItems.filter(isCookbook);
-    if (selectedCookbooks.length === 1 && selectedCookbooks[0].template) {
-      return selectedCookbooks[0].template;
+    if (
+      selectedCookbooks.length === 1 &&
+      selectedCookbooks[0].template &&
+      selectedCookbooks[0].githubUrl
+    ) {
+      return {
+        template: selectedCookbooks[0].template,
+        githubUrl: selectedCookbooks[0].githubUrl,
+      };
     }
     return null;
   }, [selectedItems]);
@@ -854,7 +861,8 @@ function WizardDialogInner({
                             template.
                           </p>
                           <TemplateCloneContent
-                            template={singleCookbookTemplate}
+                            template={singleCookbookTemplate.template}
+                            githubUrl={singleCookbookTemplate.githubUrl}
                           />
                         </div>
                       </TabsContent>

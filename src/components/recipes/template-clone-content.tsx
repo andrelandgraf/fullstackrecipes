@@ -6,13 +6,16 @@ import { Button } from "@/components/ui/button";
 
 interface TemplateCloneContentProps {
   template: string;
+  githubUrl: string;
 }
 
-export function TemplateCloneContent({ template }: TemplateCloneContentProps) {
+export function TemplateCloneContent({
+  template,
+  githubUrl,
+}: TemplateCloneContentProps) {
   const [copied, setCopied] = useState(false);
 
   const degitCommand = `npx tiged ${template} my-app`;
-  const githubUrl = `https://github.com/${template}`;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(degitCommand);
