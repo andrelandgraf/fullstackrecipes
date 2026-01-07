@@ -1,7 +1,12 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { getRecipeBySlug, getAllRecipes } from "@/lib/recipes/data";
+import {
+  getRecipeBySlug,
+  getCookbookBySlug,
+  getAllRecipes,
+  getAllCookbooks,
+} from "@/lib/recipes/data";
 
 // Simple syntax highlighting for code preview
 type Token = { type: string; value: string };
@@ -116,8 +121,9 @@ export const contentType = "image/png";
 
 export async function generateStaticParams() {
   const recipes = getAllRecipes();
-  return recipes.map((recipe) => ({
-    slug: recipe.slug,
+  const cookbooks = getAllCookbooks();
+  return [...recipes, ...cookbooks].map((item) => ({
+    slug: item.slug,
   }));
 }
 
@@ -127,13 +133,13 @@ export default async function Image({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const recipe = getRecipeBySlug(slug);
+  const item = getRecipeBySlug(slug) ?? getCookbookBySlug(slug);
 
   const logoPath = join(process.cwd(), "public", "logo-dark.svg");
   const logoData = await readFile(logoPath, "utf-8");
   const logoBase64 = `data:image/svg+xml;base64,${Buffer.from(logoData).toString("base64")}`;
 
-  if (!recipe) {
+  if (!item) {
     return new ImageResponse(
       (
         <div
@@ -156,7 +162,7 @@ export default async function Image({
     );
   }
 
-  const codeLines = recipe.previewCode.split("\n");
+  const codeLines = item.previewCode.split("\n");
 
   return new ImageResponse(
     (
@@ -244,14 +250,14 @@ export default async function Image({
             <img src={logoBase64} alt="Fullstack Recipes" height={44} />
 
             {/* Tags */}
-            {recipe.tags.length > 0 && (
+            {item.tags.length > 0 && (
               <div
                 style={{
                   display: "flex",
                   gap: "10px",
                 }}
               >
-                {recipe.tags.slice(0, 4).map((tag) => (
+                {item.tags.slice(0, 4).map((tag) => (
                   <span
                     key={tag}
                     style={{
@@ -286,7 +292,7 @@ export default async function Image({
               fontFamily: "system-ui, sans-serif",
             }}
           >
-            {recipe.title}
+            {item.title}
           </h1>
 
           {/* Description */}
@@ -300,7 +306,7 @@ export default async function Image({
               fontFamily: "system-ui, sans-serif",
             }}
           >
-            {recipe.description}
+            {item.description}
           </p>
         </div>
 
