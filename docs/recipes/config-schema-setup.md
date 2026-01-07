@@ -1,35 +1,10 @@
-### Type-Safe Environment Variable Validation
+### Type-Safe Environment Variables
 
-Instead of accessing environment variables directly in code, use a `config-schema` utility to validate environment variables.
+Instead of accessing environment variables directly (`process.env.DATABASE_URL`), use the `config-schema` to specify and validate all used environment variables.
+
+First, set up the `config-schema` utility and a `mainConfig` for common environment variables such as `NODE_ENV`:
 
 {% registry items="config-schema" /%}
-
-#### Main Config
-
-The main config file provides the `NODE_ENV` value for use throughout the application:
-
-```typescript
-// src/lib/config/main.ts
-import { z } from "zod";
-import { configSchema, server } from "./schema";
-
-export const mainConfig = configSchema("Main", {
-  nodeEnv: server({
-    env: "NODE_ENV",
-    schema: z
-      .enum(["development", "production", "test"])
-      .default("development"),
-  }),
-});
-```
-
-Use it instead of `process.env.NODE_ENV`:
-
-```typescript
-import { mainConfig } from "@/lib/config/main";
-
-const isDev = mainConfig.server.nodeEnv === "development";
-```
 
 #### Basic Usage
 
@@ -347,4 +322,33 @@ import Stripe from "stripe";
 import { stripeConfig } from "./config";
 
 export const stripe = new Stripe(stripeConfig.server.secretKey);
+```
+
+#### Main Config
+
+The `config-schema` utility provides a `mainConfig` that can be used to access all common environment variables. Inititally, it includes the `NODE_ENV` variable.
+
+Review the code base and add all used common environment variables to the `mainConfig`. This may include the server domain and other common variables that don't belong to a specific feature.
+
+```typescript
+// src/lib/config/main.ts
+import { z } from "zod";
+import { configSchema, server } from "./schema";
+
+export const mainConfig = configSchema("Main", {
+  nodeEnv: server({
+    env: "NODE_ENV",
+    schema: z
+      .enum(["development", "production", "test"])
+      .default("development"),
+  }),
+});
+```
+
+Now replace all direct access to environment variables with the `mainConfig`:
+
+```typescript
+import { mainConfig } from "@/lib/config/main";
+
+const isDev = mainConfig.server.nodeEnv === "development";
 ```
