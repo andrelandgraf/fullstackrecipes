@@ -105,7 +105,10 @@ export default async function RecipePage({ params }: Props) {
         >
           <div className={hasSidebar ? "flex gap-12" : ""}>
             <main className={hasSidebar ? "min-w-0 flex-1" : ""}>
-              <RelatedRecipes requiredItems={serializeItems(requiredItems)} />
+              <RelatedRecipes
+                requiredItems={serializeItems(requiredItems)}
+                isCookbook={isCookbook(item)}
+              />
               {requiredItems.length > 0 &&
                 isCookbook(item) &&
                 cookbookRecipes.length > 0 && <div className="my-6" />}

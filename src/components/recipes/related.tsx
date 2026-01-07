@@ -43,12 +43,18 @@ const iconMap: Record<string, typeof Database> = {
 
 interface RelatedRecipesProps {
   requiredItems: SerializedItem[];
+  isCookbook: boolean;
 }
 
-export function RelatedRecipes({ requiredItems }: RelatedRecipesProps) {
+export function RelatedRecipes({
+  requiredItems,
+  isCookbook,
+}: RelatedRecipesProps) {
   if (requiredItems.length === 0) {
     return null;
   }
+
+  const label = isCookbook ? "cookbook" : "recipe";
 
   return (
     <div className="space-y-3">
@@ -58,7 +64,7 @@ export function RelatedRecipes({ requiredItems }: RelatedRecipesProps) {
         </div>
         <div className="flex-1">
           <p className="text-sm font-medium">
-            This cookbook requires you to complete {requiredItems.length}{" "}
+            This {label} requires you to complete {requiredItems.length}{" "}
             {requiredItems.length === 1 ? "recipe" : "recipes"}
           </p>
           <p className="text-xs text-muted-foreground">
