@@ -1,0 +1,86 @@
+[
+  {
+    "category": "functional",
+    "description": "MCP server lists all recipe resources",
+    "steps": [
+      "Connect to MCP server at /api/mcp",
+      "Request resources/list",
+      "Verify response includes recipe resources",
+      "Verify each recipe has title, description, and mimeType",
+      "Verify resource URIs follow format recipe://fullstackrecipes.com/<slug>"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "MCP server lists all cookbook resources",
+    "steps": [
+      "Connect to MCP server at /api/mcp",
+      "Request resources/list",
+      "Verify response includes cookbook resources",
+      "Verify each cookbook has title, description, and mimeType",
+      "Verify resource URIs follow format cookbook://fullstackrecipes.com/<slug>"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Recipe resource includes markdown content with frontmatter",
+    "steps": [
+      "Connect to MCP server at /api/mcp",
+      "Request resources/read for a recipe URI",
+      "Verify response includes markdown content",
+      "Verify frontmatter includes title as h1 heading",
+      "Verify frontmatter includes description",
+      "Verify frontmatter includes tags",
+      "Verify content separator (---) appears before main content"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Recipe resource includes prerequisites when defined",
+    "steps": [
+      "Connect to MCP server at /api/mcp",
+      "Request resources/read for a recipe with prerequisites (e.g., neon-drizzle-setup)",
+      "Verify frontmatter includes prerequisites section",
+      "Verify prerequisites section lists required recipe titles",
+      "Verify prerequisites section includes instruction to fulfill them first"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Recipe resource omits prerequisites when none defined",
+    "steps": [
+      "Connect to MCP server at /api/mcp",
+      "Request resources/read for a recipe without prerequisites (e.g., nextjs-on-vercel)",
+      "Verify frontmatter does not include prerequisites section",
+      "Verify content flows directly from tags to separator"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Cookbook resource includes included recipes list",
+    "steps": [
+      "Connect to MCP server at /api/mcp",
+      "Request resources/read for a cookbook URI",
+      "Verify frontmatter includes Included Recipes section",
+      "Verify each included recipe is listed by title",
+      "Verify recipes are listed in cookbook order"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Cookbook resource includes prerequisites when defined",
+    "steps": [
+      "Connect to MCP server at /api/mcp",
+      "Request resources/read for a cookbook with prerequisites (e.g., authentication)",
+      "Verify frontmatter includes prerequisites section",
+      "Verify prerequisites appear before Included Recipes section"
+    ],
+    "passes": false
+  }
+]

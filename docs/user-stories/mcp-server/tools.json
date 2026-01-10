@@ -1,0 +1,88 @@
+[
+  {
+    "category": "functional",
+    "description": "OpenAI MCP server exposes list_items tool",
+    "steps": [
+      "Connect to MCP server at /api/openai/mcp",
+      "Request tools/list",
+      "Verify list_items tool is available",
+      "Verify tool has title and description",
+      "Verify tool has OpenAI metadata for widget output"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "list_items tool returns all recipes and cookbooks",
+    "steps": [
+      "Connect to MCP server at /api/openai/mcp",
+      "Call list_items tool",
+      "Verify response includes items array",
+      "Verify each item has type (recipe or cookbook)",
+      "Verify each item has slug, title, description, and tags",
+      "Verify cookbooks appear before recipes in response"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "OpenAI MCP server exposes select_item tool",
+    "steps": [
+      "Connect to MCP server at /api/openai/mcp",
+      "Request tools/list",
+      "Verify select_item tool is available",
+      "Verify tool requires slug input parameter",
+      "Verify tool has OpenAI metadata for widget output"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "select_item tool returns selected recipe details",
+    "steps": [
+      "Connect to MCP server at /api/openai/mcp",
+      "Call select_item tool with valid recipe slug",
+      "Verify response includes selected object",
+      "Verify selected object has type recipe",
+      "Verify selected object has slug, title, description, tags",
+      "Verify selected object has resourceUri for MCP resource access",
+      "Verify response includes instruction message"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "select_item tool returns selected cookbook details",
+    "steps": [
+      "Connect to MCP server at /api/openai/mcp",
+      "Call select_item tool with valid cookbook slug",
+      "Verify response includes selected object",
+      "Verify selected object has type cookbook",
+      "Verify selected object has resourceUri for MCP resource access"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "select_item tool handles invalid slug",
+    "steps": [
+      "Connect to MCP server at /api/openai/mcp",
+      "Call select_item tool with non-existent slug",
+      "Verify response includes error object",
+      "Verify error message indicates item not found"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "select_item tool validates input schema",
+    "steps": [
+      "Connect to MCP server at /api/openai/mcp",
+      "Call select_item tool with empty slug",
+      "Verify response includes error for invalid input",
+      "Call select_item tool without slug parameter",
+      "Verify response includes error for invalid input"
+    ],
+    "passes": false
+  }
+]

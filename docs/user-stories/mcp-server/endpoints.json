@@ -1,0 +1,51 @@
+[
+  {
+    "category": "functional",
+    "description": "Base MCP endpoint responds to protocol requests",
+    "steps": [
+      "Make request to /api/mcp endpoint",
+      "Verify MCP protocol handshake succeeds",
+      "Verify server capabilities include resources",
+      "Verify server capabilities include prompts",
+      "Verify server capabilities do not include tools"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "OpenAI MCP endpoint responds to protocol requests",
+    "steps": [
+      "Make request to /api/openai/mcp endpoint",
+      "Verify MCP protocol handshake succeeds",
+      "Verify server capabilities include resources",
+      "Verify server capabilities include prompts",
+      "Verify server capabilities include tools"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "OpenAI MCP endpoint exposes widget resource",
+    "steps": [
+      "Connect to MCP server at /api/openai/mcp",
+      "Request resources/list",
+      "Verify fullstackrecipes-widget resource is available",
+      "Request resources/read for widget URI",
+      "Verify widget HTML content is returned",
+      "Verify mimeType is text/html+skybridge"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Base MCP endpoint does not expose OpenAI-specific features",
+    "steps": [
+      "Connect to MCP server at /api/mcp",
+      "Request resources/list",
+      "Verify fullstackrecipes-widget resource is not present",
+      "Request tools/list",
+      "Verify no tools are available or tools capability is not exposed"
+    ],
+    "passes": false
+  }
+]

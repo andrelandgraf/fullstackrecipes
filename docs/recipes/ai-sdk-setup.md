@@ -67,34 +67,59 @@ ANTHROPIC_API_KEY="sk-ant-..."
 
 ### Step 4: Create the AI config
 
-Instead of accessing `process.env` directly, use the type-safe config pattern with either-or validation:
+Create a type-safe config with either-or validation using the config schema pattern:
 
-```typescript
+```ts
 // src/lib/ai/config.ts
-import { loadConfig } from "@/lib/common/load-config";
+import { configSchema, server, oneOf } from "@/lib/config/schema";
+import { createOpenAI } from "@ai-sdk/openai";
+import type { LanguageModelV1 } from "ai";
 
-export const aiConfig = loadConfig({
-  server: {
-    // Either oidcToken or gatewayApiKey must be set
-    oidcToken: {
-      value: process.env.VERCEL_OIDC_TOKEN,
-      optional: "gatewayApiKey",
-    },
-    gatewayApiKey: {
-      value: process.env.AI_GATEWAY_API_KEY,
-      optional: "oidcToken",
-    },
+const config = configSchema(
+  "AI",
+  {
+    oidcToken: server({ env: "VERCEL_OIDC_TOKEN" }),
+    gatewayApiKey: server({ env: "AI_GATEWAY_API_KEY" }),
   },
-});
+  {
+    constraints: (s) => [oneOf([s.oidcToken, s.gatewayApiKey])],
+  },
+);
+
+function createProvider() {
+  const { oidcToken, gatewayApiKey } = config.server;
+
+  if (gatewayApiKey) {
+    return createOpenAI({
+      apiKey: gatewayApiKey,
+      baseURL: "https://api.openai.com/v1",
+    });
+  }
+
+  return createOpenAI({
+    apiKey: oidcToken,
+    baseURL: "https://api.vercel.ai/v1",
+  });
+}
+
+function getModel(model: string): LanguageModelV1 {
+  const provider = createProvider();
+  return provider(model);
+}
+
+export const aiConfig = {
+  ...config,
+  getModel,
+};
 ```
 
-The `optional` parameter creates an either-or relationship: each key is optional if the other has a value, but at least one must be defined. See the [Environment Variable Management](/recipes/env-management) recipe for the full pattern.
+The `oneOf` constraint creates an either-or relationship: at least one of `oidcToken` or `gatewayApiKey` must be defined. See the [Environment Variable Management](/recipes/env-management) recipe for the full config schema pattern.
 
 ### Step 5: Validate config on server start
 
 Import the config in `instrumentation.ts` to validate environment variables when the server starts:
 
-```typescript
+```ts
 // src/instrumentation.ts
 
 // Validate required configs on server start
@@ -122,7 +147,7 @@ Create a basic chat interface with streaming responses.
 
 Create the chat API route:
 
-```typescript
+```ts
 // src/app/api/chat/route.ts
 import { convertToModelMessages, streamText, UIMessage } from "ai";
 

@@ -780,7 +780,7 @@ bun dev
 # - bun dev:stripe  → Stripe webhook forwarder
 ```
 
-### Prerequisites
+### Stripe CLI Setup
 
 1. Install Stripe CLI: `brew install stripe/stripe-cli/stripe`
 2. Login to Stripe: `stripe login`

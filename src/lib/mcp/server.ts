@@ -8,6 +8,7 @@ import {
   getCookbookRecipes,
   getItemPromptText,
   getItemResourceUri,
+  getRequiredItems,
 } from "@/lib/recipes/data";
 import { loadRecipeMarkdown } from "@/lib/recipes/loader";
 
@@ -31,7 +32,12 @@ function registerBaseResourcesAndPrompts(server: McpServer) {
       },
       async (uri) => {
         const content = await loadRecipeMarkdown(recipe);
-        const frontmatter = `# ${recipe.title}\n\n${recipe.description}\n\nTags: ${recipe.tags.length > 0 ? recipe.tags.join(", ") : "None"}\n\n---\n\n`;
+        const requiredItems = getRequiredItems(recipe);
+        const prerequisitesSection =
+          requiredItems.length > 0
+            ? `\n\nThis resource requires the following resources as prerequisites:\n\n${requiredItems.map((r) => `- ${r.title}`).join("\n")}\n\nMake sure these are fulfilled and implemented before continuing.\n`
+            : "";
+        const frontmatter = `# ${recipe.title}\n\n${recipe.description}\n\nTags: ${recipe.tags.length > 0 ? recipe.tags.join(", ") : "None"}${prerequisitesSection}\n\n---\n\n`;
         return {
           contents: [
             {
@@ -82,7 +88,12 @@ function registerBaseResourcesAndPrompts(server: McpServer) {
         const recipesList = includedRecipes
           .map((r) => `- ${r.title}`)
           .join("\n");
-        const frontmatter = `# ${cookbook.title}\n\n${cookbook.description}\n\nTags: ${cookbook.tags.length > 0 ? cookbook.tags.join(", ") : "None"}\n\n## Included Recipes\n\n${recipesList}\n\n---\n\n`;
+        const requiredItems = getRequiredItems(cookbook);
+        const prerequisitesSection =
+          requiredItems.length > 0
+            ? `\n\nThis resource requires the following resources as prerequisites:\n\n${requiredItems.map((r) => `- ${r.title}`).join("\n")}\n\nMake sure these are fulfilled and implemented before continuing.\n`
+            : "";
+        const frontmatter = `# ${cookbook.title}\n\n${cookbook.description}\n\nTags: ${cookbook.tags.length > 0 ? cookbook.tags.join(", ") : "None"}${prerequisitesSection}\n\n## Included Recipes\n\n${recipesList}\n\n---\n\n`;
         return {
           contents: [
             {

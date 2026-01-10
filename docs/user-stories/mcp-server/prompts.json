@@ -1,0 +1,50 @@
+[
+  {
+    "category": "functional",
+    "description": "MCP server lists recipe implementation prompts",
+    "steps": [
+      "Connect to MCP server at /api/mcp",
+      "Request prompts/list",
+      "Verify response includes implement-<slug> prompts for each recipe",
+      "Verify each prompt has description mentioning recipe title"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "MCP server lists cookbook implementation prompts",
+    "steps": [
+      "Connect to MCP server at /api/mcp",
+      "Request prompts/list",
+      "Verify response includes implement-<slug> prompts for each cookbook",
+      "Verify each prompt has description mentioning cookbook title"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Recipe implementation prompt returns resource message",
+    "steps": [
+      "Connect to MCP server at /api/mcp",
+      "Request prompts/get for implement-<recipe-slug>",
+      "Verify response includes user message",
+      "Verify message content type is resource",
+      "Verify resource URI matches recipe resource URI",
+      "Verify resource text contains implementation instruction"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Cookbook implementation prompt returns resource message",
+    "steps": [
+      "Connect to MCP server at /api/mcp",
+      "Request prompts/get for implement-<cookbook-slug>",
+      "Verify response includes user message",
+      "Verify message content type is resource",
+      "Verify resource URI matches cookbook resource URI",
+      "Verify resource text contains implementation instruction"
+    ],
+    "passes": false
+  }
+]

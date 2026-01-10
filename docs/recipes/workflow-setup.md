@@ -21,7 +21,8 @@ src/workflows/
     steps/         # Step functions ("use step")
       history.ts
       logger.ts
-    types.ts       # Optional: workflow-specific types
+      name-chat.ts
+    types.ts       # Workflow-specific types
 ```
 
 ### Step 3: Update Next.js config
@@ -39,6 +40,193 @@ const nextConfig: NextConfig = {
 };
 
 export default withWorkflow(nextConfig);
+```
+
+---
+
+## The Chat Workflow
+
+Create the main workflow that processes user messages and generates AI responses:
+
+```typescript
+// src/workflows/chat/index.ts
+import { getWorkflowMetadata, getWritable } from "workflow";
+import type { ChatAgentUIMessage } from "./types";
+import {
+  persistUserMessage,
+  createAssistantMessage,
+  getMessageHistory,
+  removeRunId,
+  persistMessageParts,
+} from "./steps/history";
+import { log } from "./steps/logger";
+import { nameChatStep } from "./steps/name-chat";
+import { chatAgent } from "@/lib/ai/chat-agent";
+
+/**
+ * Main chat workflow that processes user messages and generates AI responses.
+ * Uses runId for stream resumability on client reconnection.
+ */
+export async function chatWorkflow({
+  chatId,
+  userMessage,
+}: {
+  chatId: string;
+  userMessage: ChatAgentUIMessage;
+}) {
+  "use workflow";
+
+  const { workflowRunId } = getWorkflowMetadata();
+
+  await log("info", "Starting chat workflow", { chatId, runId: workflowRunId });
+
+  // Persist the user message
+  await persistUserMessage({ chatId, message: userMessage });
+
+  // Create a placeholder assistant message with runId for resumability
+  const messageId = await createAssistantMessage({
+    chatId,
+    runId: workflowRunId,
+  });
+
+  // Get full message history
+  const history = await getMessageHistory(chatId);
+
+  // Run the agent with streaming
+  const { parts } = await chatAgent.run(history, {
+    maxSteps: 10,
+    writable: getWritable(),
+  });
+
+  // Persist the assistant message parts
+  await persistMessageParts({ chatId, messageId, parts });
+
+  // Clear the runId to mark the message as complete
+  await removeRunId(messageId);
+
+  // Generate a chat title if this is the first message
+  await nameChatStep(chatId, userMessage);
+
+  await log("info", "Chat workflow completed", {
+    chatId,
+    runId: workflowRunId,
+    partsCount: parts.length,
+  });
+}
+```
+
+---
+
+## History Steps
+
+Create step functions for message persistence:
+
+```typescript
+// src/workflows/chat/steps/history.ts
+import { db } from "@/lib/db/client";
+import { messages, chats } from "@/lib/chat/schema";
+import {
+  persistMessage,
+  insertMessageParts,
+  getChatMessages,
+  convertDbMessagesToUIMessages,
+  clearMessageRunId,
+} from "@/lib/chat/queries";
+import { eq } from "drizzle-orm";
+import type { ChatAgentUIMessage } from "../types";
+import { v7 as uuidv7 } from "uuid";
+
+/**
+ * Persist a user message to the database.
+ */
+export async function persistUserMessage({
+  chatId,
+  message,
+}: {
+  chatId: string;
+  message: ChatAgentUIMessage;
+}): Promise<void> {
+  "use step";
+
+  await persistMessage({ chatId, message });
+
+  // Update chat timestamp
+  await db
+    .update(chats)
+    .set({ updatedAt: new Date() })
+    .where(eq(chats.id, chatId));
+}
+
+/**
+ * Create a placeholder assistant message with a runId for stream resumption.
+ * Parts will be added later when streaming completes.
+ */
+export async function createAssistantMessage({
+  chatId,
+  runId,
+}: {
+  chatId: string;
+  runId: string;
+}): Promise<string> {
+  "use step";
+
+  const [{ messageId }] = await db
+    .insert(messages)
+    .values({
+      id: uuidv7(),
+      chatId,
+      role: "assistant",
+      runId,
+    })
+    .returning({ messageId: messages.id });
+
+  return messageId;
+}
+
+/**
+ * Persist message parts after streaming completes.
+ */
+export async function persistMessageParts({
+  chatId,
+  messageId,
+  parts,
+}: {
+  chatId: string;
+  messageId: string;
+  parts: ChatAgentUIMessage["parts"];
+}): Promise<void> {
+  "use step";
+
+  await insertMessageParts(chatId, messageId, parts);
+
+  // Update chat timestamp
+  await db
+    .update(chats)
+    .set({ updatedAt: new Date() })
+    .where(eq(chats.id, chatId));
+}
+
+/**
+ * Get message history for a chat, converted to UI message format.
+ */
+export async function getMessageHistory(
+  chatId: string,
+): Promise<ChatAgentUIMessage[]> {
+  "use step";
+
+  const dbMessages = await getChatMessages(chatId);
+  return convertDbMessagesToUIMessages(dbMessages);
+}
+
+/**
+ * Clear the runId from a message after streaming is complete.
+ * This marks the message as finalized.
+ */
+export async function removeRunId(messageId: string): Promise<void> {
+  "use step";
+
+  await clearMessageRunId(messageId);
+}
 ```
 
 ---
@@ -72,20 +260,6 @@ export async function log(
   } else {
     logger[level](message);
   }
-}
-```
-
-Then use the step in your workflow:
-
-```ts
-// src/workflows/chat/index.ts
-import { log } from "./steps/logger";
-
-export async function chatWorkflow({ chatId, userMessage }) {
-  "use workflow";
-
-  // Use the step wrapper instead of importing logger directly
-  await log("info", "Router decision", { next, reasoning });
 }
 ```
 

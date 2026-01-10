@@ -2,7 +2,8 @@
 
 Create a workflow step that generates a chat title using a fast model:
 
-```ts title="src/workflows/chat/steps/name-chat.ts"
+```ts
+// src/workflows/chat/steps/name-chat.ts
 import { generateText } from "ai";
 import { db } from "@/lib/db/client";
 import { chats } from "@/lib/chat/schema";
@@ -94,7 +95,8 @@ Key design decisions:
 
 Import and call the naming step at the end of your chat workflow, after the main response is complete:
 
-```ts title="src/workflows/chat/index.ts"
+```ts
+// src/workflows/chat/index.ts
 import { nameChatStep } from "./steps/name-chat";
 
 export async function chatWorkflow({

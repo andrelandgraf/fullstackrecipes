@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { verifyChatOwnership, ensureChatExists } from "@/lib/chat/queries";
+import { ensureChatExists } from "@/lib/chat/queries";
 import { auth } from "@/lib/auth/server";
 import { chatWorkflow } from "@/workflows/chat";
 import { start } from "workflow/api";

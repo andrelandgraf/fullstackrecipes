@@ -5,9 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "prebuild": "bun run env:validate:prod",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "fmt": "prettier --write .",
+    "env:validate": "bun run scripts/validate-env.ts --environment=development",
+    "env:validate:prod": "bun run scripts/validate-env.ts --environment=production",
     "db:generate": "bun run scripts/db/generate-schema.ts",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"
@@ -43,7 +46,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@react-email/components": "^1.0.3",
     "@vercel/functions": "^3.3.4",
-    "ai": "^6.0.5",
+    "ai": "^6.0.26",
     "better-auth": "^1.4.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

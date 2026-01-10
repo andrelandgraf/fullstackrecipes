@@ -1,19 +1,27 @@
-import { getWritable, getWorkflowMetadata } from "workflow";
-import { chatAgent } from "@/lib/ai/chat-agent";
+import { getWorkflowMetadata, getWritable } from "workflow";
+import type { ChatAgentUIMessage } from "./types";
 import {
-  getMessageHistory,
   persistUserMessage,
-  persistAssistantPlaceholder,
-  updateAssistantMessage,
-} from "./steps/messages";
+  createAssistantMessage,
+  getMessageHistory,
+  removeRunId,
+  persistMessageParts,
+} from "./steps/history";
 import { log } from "./steps/logger";
-import type { ChatWorkflowInput } from "./types";
-import type { MessagePart } from "@/lib/chat/schema";
+import { nameChatStep } from "./steps/name-chat";
+import { chatAgent } from "@/lib/ai/chat-agent";
 
+/**
+ * Main chat workflow that processes user messages and generates AI responses.
+ * Uses runId for stream resumability on client reconnection.
+ */
 export async function chatWorkflow({
   chatId,
   userMessage,
-}: ChatWorkflowInput): Promise<void> {
+}: {
+  chatId: string;
+  userMessage: ChatAgentUIMessage;
+}) {
   "use workflow";
 
   const { workflowRunId } = getWorkflowMetadata();
@@ -21,12 +29,15 @@ export async function chatWorkflow({
   await log("info", "Starting chat workflow", { chatId, runId: workflowRunId });
 
   // Persist the user message
-  await persistUserMessage(chatId, userMessage);
+  await persistUserMessage({ chatId, message: userMessage });
 
-  // Create a placeholder for the assistant message with the runId
-  const messageId = await persistAssistantPlaceholder(chatId, workflowRunId);
+  // Create a placeholder assistant message with runId for resumability
+  const messageId = await createAssistantMessage({
+    chatId,
+    runId: workflowRunId,
+  });
 
-  // Get the full message history
+  // Get full message history
   const history = await getMessageHistory(chatId);
 
   // Run the agent with streaming
@@ -35,36 +46,14 @@ export async function chatWorkflow({
     writable: getWritable(),
   });
 
-  // Convert and persist the assistant message parts
-  const persistableParts: MessagePart[] = parts.map((part) => {
-    if (part.type === "text") {
-      return { type: "text", text: part.text };
-    }
-    if (part.type === "reasoning") {
-      return { type: "reasoning", reasoning: part.reasoning };
-    }
-    if (part.type === "tool-invocation") {
-      return {
-        type: "tool-invocation",
-        toolInvocation: part.toolInvocation as MessagePart extends {
-          type: "tool-invocation";
-        }
-          ? MessagePart["toolInvocation"]
-          : never,
-      };
-    }
-    if (part.type === "source") {
-      return {
-        type: "source",
-        source: part.source as MessagePart extends { type: "source" }
-          ? MessagePart["source"]
-          : never,
-      };
-    }
-    return part as MessagePart;
-  });
+  // Persist the assistant message parts
+  await persistMessageParts({ chatId, messageId, parts });
 
-  await updateAssistantMessage(messageId, persistableParts);
+  // Clear the runId to mark the message as complete
+  await removeRunId(messageId);
+
+  // Generate a chat title if this is the first message
+  await nameChatStep(chatId, userMessage);
 
   await log("info", "Chat workflow completed", {
     chatId,
