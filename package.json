@@ -32,7 +32,8 @@
     "db:studio": "drizzle-kit studio",
     "workflow:dev": "workflow inspect runs --web",
     "registry:build": "bunx --bun shadcn@latest build",
-    "plugin:build": "bun run scripts/build-plugin.ts"
+    "plugin:build": "bun run scripts/build-plugin.ts",
+    "ralph": "bun run scripts/ralph/runner.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.1",

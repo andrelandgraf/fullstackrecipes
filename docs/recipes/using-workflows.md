@@ -1,4 +1,4 @@
-## Implement Working with Workflows
+## Working with Workflows
 
 Create and run durable workflows with steps, streaming, and agent execution. Covers starting, resuming, and persisting workflow results.
 
@@ -6,6 +6,28 @@ Create and run durable workflows with steps, streaming, and agent execution. Cov
 
 - Resource: `using-workflows` in Fullstack Recipes
 - URL: https://fullstackrecipes.com/recipes/using-workflows
+
+---
+
+### Workflow Folder Structure
+
+Each workflow has its own subfolder in `src/workflows/`:
+
+```
+src/workflows/
+  chat/
+    index.ts       # Workflow orchestration function ("use workflow")
+    steps/         # Step functions ("use step")
+      history.ts
+      logger.ts
+      router.ts
+      stream.ts
+    types.ts       # Optional: workflow-specific types
+```
+
+- **`index.ts`** - Contains the main workflow function with the `"use workflow"` directive. Orchestrates the workflow by calling step functions.
+- **`steps/`** - Contains individual step functions with the `"use step"` directive. Each step is a durable checkpoint.
+- **`types.ts`** - Optional file for workflow-specific type definitions.
 
 ---
 

@@ -4,7 +4,27 @@
 bun add workflow @workflow/ai
 ```
 
-### Step 2: Update Next.js config
+### Step 2: Create the workflows folder
+
+Create a `src/workflows/` folder to organize workflow code:
+
+```
+src/workflows/
+```
+
+Each workflow gets its own subfolder with a `steps/` directory for step functions and an `index.ts` for the orchestration function:
+
+```
+src/workflows/
+  chat/
+    index.ts       # Workflow orchestration function
+    steps/         # Step functions ("use step")
+      history.ts
+      logger.ts
+    types.ts       # Optional: workflow-specific types
+```
+
+### Step 3: Update Next.js config
 
 Update the Next.js configuration:
 
