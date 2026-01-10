@@ -1,7 +1,6 @@
 #!/usr/bin/env bun
 
 import { spawn } from "bun";
-import { readFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
@@ -18,21 +17,24 @@ const { values } = parseArgs({
   },
 });
 
-async function runClaudeCode(): Promise<boolean> {
-  const baselinePrompt = await readFile(promptPath, "utf-8");
+async function runClaude(): Promise<boolean> {
+  const baselinePrompt = await Bun.file(promptPath).text();
 
   const prompt = values.prompt
     ? `Follow this correction/override prompt: ${values.prompt} -\n\nBaseline prompt: ${baselinePrompt}`
     : baselinePrompt;
 
-  const proc = spawn(["claude-code"], {
-    stdin: "pipe",
+  const escapedPrompt = prompt.replace(/'/g, "'\\''");
+
+  const proc = spawn({
+    cmd: [
+      "sh",
+      "-c",
+      `claude --print '${escapedPrompt}' --dangerously-skip-permissions --verbose --output-format stream-json | jq`,
+    ],
     stdout: "pipe",
     stderr: "inherit",
   });
-
-  proc.stdin.write(prompt);
-  proc.stdin.end();
 
   let output = "";
 
@@ -71,14 +73,14 @@ async function main() {
   while (true) {
     console.log(`\n[runner] === Iteration ${iteration} ===\n`);
 
-    const finished = await runClaudeCode();
+    const finished = await runClaude();
     if (finished) {
       console.log("[runner] All feature work completed!");
       process.exit(0);
     }
 
     iteration++;
-    console.log("\n[runner] Restarting claude-code...\n");
+    console.log("\n[runner] Restarting claude...\n");
   }
 }
 

@@ -4,7 +4,7 @@ description: Create and run durable workflows with steps, streaming, and agent e
 
 # Working with Workflows
 
-## Implement Working with Workflows
+## Working with Workflows
 
 Create and run durable workflows with steps, streaming, and agent execution. Covers starting, resuming, and persisting workflow results.
 
@@ -15,22 +15,62 @@ Create and run durable workflows with steps, streaming, and agent execution. Cov
 
 ---
 
+### Workflow Folder Structure
+
+Each workflow has its own subfolder in `src/workflows/`:
+
+```
+src/workflows/
+  chat/
+    index.ts       # Workflow orchestration function ("use workflow")
+    steps/         # Step functions ("use step")
+      history.ts
+      logger.ts
+      name-chat.ts
+    types.ts       # Workflow-specific types
+```
+
+- **`index.ts`** - Contains the main workflow function with the `"use workflow"` directive. Orchestrates the workflow by calling step functions.
+- **`steps/`** - Contains individual step functions with the `"use step"` directive. Each step is a durable checkpoint.
+- **`types.ts`** - Type definitions for the workflow's UI messages.
+
+---
+
 ### Creating a Workflow
 
 Define workflows with the `"use workflow"` directive:
 
 ```typescript
 // src/workflows/chat/index.ts
+import { getWorkflowMetadata, getWritable } from "workflow";
+import { chatAgent } from "@/lib/ai/chat-agent";
+
 export async function chatWorkflow({ chatId, userMessage }) {
   "use workflow";
 
+  const { workflowRunId } = getWorkflowMetadata();
+
+  // Persist user message
+  await persistUserMessage({ chatId, message: userMessage });
+
+  // Create assistant placeholder with runId for resumption
+  const messageId = await createAssistantMessage({
+    chatId,
+    runId: workflowRunId,
+  });
+
+  // Get message history
   const history = await getMessageHistory(chatId);
 
-  const { parts } = await agent.run(history, {
+  // Run agent with streaming
+  const { parts } = await chatAgent.run(history, {
+    maxSteps: 10,
     writable: getWritable(),
   });
 
-  await persistMessageParts({ chatId, parts });
+  // Persist and finalize
+  await persistMessageParts({ chatId, messageId, parts });
+  await removeRunId(messageId);
 }
 ```
 
@@ -67,9 +107,8 @@ Steps are durable checkpoints that persist their results:
 async function getMessageHistory(chatId: string) {
   "use step";
 
-  return db.query.messages.findMany({
-    where: eq(messages.chatId, chatId),
-  });
+  const dbMessages = await getChatMessages(chatId);
+  return convertDbMessagesToUIMessages(dbMessages);
 }
 ```
 
@@ -86,7 +125,7 @@ export async function chatWorkflow({ chatId }) {
   const writable = getWritable();
 
   // Pass to agent for streaming
-  await agent.run(history, { writable });
+  await chatAgent.run(history, { writable });
 }
 ```
 
@@ -103,7 +142,7 @@ export async function chatWorkflow({ chatId }) {
   const { workflowRunId } = getWorkflowMetadata();
 
   // Store runId for resumption
-  await saveRunId(chatId, workflowRunId);
+  await createAssistantMessage({ chatId, runId: workflowRunId });
 }
 ```
 
@@ -116,7 +155,7 @@ The workflow runtime doesn't support Node.js modules. Wrap logger calls in steps
 import { logger } from "@/lib/logging/logger";
 
 export async function log(
-  level: "info" | "warn" | "error",
+  level: "info" | "warn" | "error" | "debug",
   message: string,
   data?: Record<string, unknown>,
 ): Promise<void> {
@@ -136,35 +175,48 @@ Use the custom `Agent` class for full streaming control:
 
 ```typescript
 import { getWritable } from "workflow";
-import { researchAgent } from "@/lib/ai/research";
+import { chatAgent } from "@/lib/ai/chat-agent";
 
 export async function chatWorkflow({ chatId, userMessage }) {
   "use workflow";
 
   const history = await getMessageHistory(chatId);
 
-  const { parts } = await researchAgent.run(history, {
+  const { parts } = await chatAgent.run(history, {
     maxSteps: 10,
     writable: getWritable(),
   });
 
-  await persistMessageParts({ chatId, parts });
+  await persistMessageParts({ chatId, messageId, parts });
 }
 ```
 
 ### Persisting Workflow Results
 
-Save agent output to the database:
+Save agent output using step functions:
 
 ```typescript
-async function persistMessageParts({ chatId, parts }) {
+// src/workflows/chat/steps/history.ts
+import { insertMessageParts } from "@/lib/chat/queries";
+
+export async function persistMessageParts({
+  chatId,
+  messageId,
+  parts,
+}: {
+  chatId: string;
+  messageId: string;
+  parts: ChatAgentUIMessage["parts"];
+}): Promise<void> {
   "use step";
 
-  await db.insert(messages).values({
-    chatId,
-    role: "assistant",
-    parts: JSON.stringify(parts),
-  });
+  await insertMessageParts(chatId, messageId, parts);
+
+  // Update chat timestamp
+  await db
+    .update(chats)
+    .set({ updatedAt: new Date() })
+    .where(eq(chats.id, chatId));
 }
 ```
 
