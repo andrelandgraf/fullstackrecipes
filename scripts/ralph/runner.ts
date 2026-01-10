@@ -30,7 +30,7 @@ async function runClaude(): Promise<boolean> {
     cmd: [
       "sh",
       "-c",
-      `claude --print '${escapedPrompt}' --dangerously-skip-permissions --verbose --output-format stream-json | jq`,
+      `claude --print --dangerously-skip-permissions --verbose --output-format stream-json '${escapedPrompt}' | jq`,
     ],
     stdout: "pipe",
     stderr: "inherit",
