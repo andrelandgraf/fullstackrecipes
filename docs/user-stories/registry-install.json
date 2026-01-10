@@ -1,0 +1,29 @@
+[
+  {
+    "category": "functional",
+    "description": "User selects registry items and copies install command",
+    "steps": [
+      "Navigate to home page",
+      "Scroll to Registry section",
+      "Verify all registry items are selected by default",
+      "Verify install command shows all items",
+      "Uncheck some registry items",
+      "Verify install command updates dynamically",
+      "Hover over command area",
+      "Click copy button",
+      "Verify command is copied to clipboard"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User views registry item details",
+    "steps": [
+      "Navigate to home page registry section",
+      "View registry item cards",
+      "Verify each card shows name, type badge, and description",
+      "Verify type badges show lib or hook appropriately"
+    ],
+    "passes": false
+  }
+]

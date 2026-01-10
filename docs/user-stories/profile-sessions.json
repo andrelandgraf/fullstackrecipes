@@ -1,0 +1,14 @@
+[
+  {
+    "category": "functional",
+    "description": "User revokes all other sessions",
+    "steps": [
+      "Navigate to /profile page",
+      "Scroll to Active Sessions section",
+      "Click Sign out other devices button",
+      "Verify all other sessions signed out toast",
+      "Verify other devices are logged out"
+    ],
+    "passes": false
+  }
+]

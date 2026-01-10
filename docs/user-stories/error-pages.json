@@ -1,0 +1,34 @@
+[
+  {
+    "category": "functional",
+    "description": "User sees 404 page for non-existent routes",
+    "steps": [
+      "Navigate to a non-existent URL path",
+      "Verify 404 Not Found page is displayed",
+      "Verify page provides navigation back to home"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User sees error page on application error",
+    "steps": [
+      "Trigger an unhandled error in the application",
+      "Verify global error page is displayed",
+      "Verify error information is shown",
+      "Verify option to retry or return home"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Recipe not found redirects or shows error",
+    "steps": [
+      "Navigate to /recipes/<non-existent-slug>",
+      "Verify 404 page is shown",
+      "Navigate to /recipes/<old-redirected-slug>",
+      "Verify redirect to new recipe slug"
+    ],
+    "passes": false
+  }
+]

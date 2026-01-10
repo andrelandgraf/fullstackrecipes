@@ -1,0 +1,87 @@
+[
+  {
+    "category": "functional",
+    "description": "User sends a message and receives AI response",
+    "steps": [
+      "Navigate to a chat page",
+      "Type a message in the input field",
+      "Press Enter or click send button",
+      "Verify user message appears in conversation",
+      "Verify AI response streams in",
+      "Verify response is complete when streaming finishes"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User sends message with file attachment",
+    "steps": [
+      "Navigate to a chat page",
+      "Click paperclip/attachment button",
+      "Select one or more files",
+      "Verify file previews appear in input area",
+      "Type a message",
+      "Send the message",
+      "Verify message with attachments is sent",
+      "Verify AI processes the attachment"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User views message history on chat page load",
+    "steps": [
+      "Have an existing chat with messages",
+      "Navigate to /chats/<chatId>",
+      "Verify all previous messages are loaded",
+      "Verify conversation is scrollable",
+      "Verify scroll button appears when scrolled up"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI response shows reasoning when available",
+    "steps": [
+      "Send a message that triggers reasoning",
+      "Verify reasoning section appears with expandable toggle",
+      "Click to expand reasoning",
+      "Verify reasoning steps are displayed",
+      "Click to collapse reasoning"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI response shows tool calls when executed",
+    "steps": [
+      "Send a message that triggers tool use",
+      "Verify tool call card appears",
+      "Verify tool name is displayed",
+      "Verify tool status shows Completed",
+      "Verify tool result is displayed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI response shows sources when available",
+    "steps": [
+      "Send a message that returns sources",
+      "Verify sources section appears",
+      "Click to expand sources",
+      "Verify source links are clickable"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Error during AI response shows error alert",
+    "steps": [
+      "Trigger an error condition during AI response",
+      "Verify error alert appears with message",
+      "Verify user can still send new messages"
+    ],
+    "passes": false
+  }
+]

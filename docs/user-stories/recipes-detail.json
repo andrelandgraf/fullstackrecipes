@@ -1,0 +1,72 @@
+[
+  {
+    "category": "functional",
+    "description": "User views recipe detail page",
+    "steps": [
+      "Navigate to /recipes/<slug>",
+      "Verify recipe header with title, description, and icon",
+      "Verify tags are displayed",
+      "Verify markdown content is rendered",
+      "Verify code blocks are syntax highlighted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User views cookbook detail page",
+    "steps": [
+      "Navigate to /recipes/<cookbook-slug>",
+      "Verify cookbook header with recipe count",
+      "Verify list of included recipes",
+      "Verify table of contents sidebar",
+      "Verify combined markdown content from all recipes"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User sees required prerequisites",
+    "steps": [
+      "Navigate to a recipe with prerequisites",
+      "Verify Required section appears",
+      "Verify prerequisite recipes are listed as links",
+      "Click a prerequisite link",
+      "Verify navigation to prerequisite recipe"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Old recipe slugs redirect to new slugs",
+    "steps": [
+      "Navigate to /recipes/<old-slug>",
+      "Verify redirect to /recipes/<new-slug>",
+      "Verify recipe content loads correctly"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User navigates back from recipe detail",
+    "steps": [
+      "Navigate to /recipes/<slug>",
+      "Click back button in header",
+      "Verify navigation to home page recipes section"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Tag tooltips explain recipe categories",
+    "steps": [
+      "Navigate to /recipes/<slug>",
+      "Hover over Cookbooks tag",
+      "Verify tooltip shows description",
+      "Hover over Setup Instructions tag",
+      "Verify tooltip shows description",
+      "Hover over Skills tag",
+      "Verify tooltip shows description"
+    ],
+    "passes": false
+  }
+]

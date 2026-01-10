@@ -1,0 +1,26 @@
+[
+  {
+    "category": "functional",
+    "description": "Interrupted AI stream resumes on page reload",
+    "steps": [
+      "Send a message to trigger AI response",
+      "Refresh the page while response is streaming",
+      "Verify page loads with incomplete message detected",
+      "Verify stream automatically resumes from where it stopped",
+      "Verify response completes successfully"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Stream resumes after network disconnection",
+    "steps": [
+      "Send a message to trigger AI response",
+      "Simulate network disconnection during streaming",
+      "Reconnect to network",
+      "Verify stream attempts to reconnect",
+      "Verify response continues or resumes"
+    ],
+    "passes": false
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "category": "functional",
+    "description": "LLMs.txt endpoint provides AI-friendly content",
+    "steps": [
+      "Make GET request to /llms.txt",
+      "Verify text/plain content type",
+      "Verify structured content with site description",
+      "Verify list of recipes and cookbooks",
+      "Verify URLs to recipe pages are included"
+    ],
+    "passes": false
+  }
+]

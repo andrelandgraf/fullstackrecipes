@@ -1,0 +1,55 @@
+[
+  {
+    "category": "functional",
+    "description": "User renames a chat",
+    "steps": [
+      "Navigate to /chats page",
+      "Click three-dot menu on a chat",
+      "Click Rename option",
+      "Verify rename dialog appears with current title",
+      "Enter new title",
+      "Click Save",
+      "Verify chat renamed toast appears",
+      "Verify chat title is updated in list"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User cancels chat rename",
+    "steps": [
+      "Navigate to /chats page",
+      "Click three-dot menu on a chat",
+      "Click Rename option",
+      "Modify the title",
+      "Click Cancel",
+      "Verify dialog closes",
+      "Verify original title remains"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Rename chat validates non-empty title",
+    "steps": [
+      "Navigate to /chats page",
+      "Click three-dot menu on a chat",
+      "Click Rename option",
+      "Clear the title input",
+      "Click Save",
+      "Verify error message for empty title"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Rename chat dialog is deep-linkable via URL",
+    "steps": [
+      "Navigate to /chats?rename=<chatId>",
+      "Verify rename dialog opens automatically",
+      "Close dialog",
+      "Verify URL parameter is removed"
+    ],
+    "passes": false
+  }
+]

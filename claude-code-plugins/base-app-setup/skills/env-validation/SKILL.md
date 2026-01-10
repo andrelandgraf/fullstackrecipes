@@ -2,7 +2,7 @@
 description: Validate environment variables on server start and before builds. Catch missing or invalid variables early with clear error messages.
 ---
 
-# Environment Validation
+# Build-Time Environment Variable Validation
 
 ## Implement Environment Validation
 

@@ -1,0 +1,64 @@
+[
+  {
+    "category": "functional",
+    "description": "User browses all recipes and cookbooks",
+    "steps": [
+      "Navigate to home page",
+      "Scroll to recipes section",
+      "Verify grid of recipe and cookbook cards is displayed",
+      "Verify each card shows title, description, and icon",
+      "Verify cookbooks show recipe count badge"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User searches recipes by text",
+    "steps": [
+      "Navigate to home page recipes section",
+      "Enter search query in search input",
+      "Verify URL updates with q parameter",
+      "Verify filtered results match search query",
+      "Verify result count updates",
+      "Clear search to show all recipes"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User filters recipes by tag",
+    "steps": [
+      "Navigate to home page recipes section",
+      "Click a tag filter badge",
+      "Verify URL updates with tags parameter",
+      "Verify only recipes with selected tag are shown",
+      "Click All to clear filter",
+      "Verify all recipes are displayed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User toggles sort order",
+    "steps": [
+      "Navigate to home page recipes section",
+      "Click sort toggle button",
+      "Verify sort changes between newest first and setup order",
+      "Verify URL updates with asc parameter",
+      "Verify recipe order changes accordingly"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "No results shows clear filters option",
+    "steps": [
+      "Navigate to home page recipes section",
+      "Enter search query that matches no recipes",
+      "Verify no recipes match message appears",
+      "Click Clear all filters link",
+      "Verify all recipes are displayed again"
+    ],
+    "passes": false
+  }
+]

@@ -1,0 +1,15 @@
+[
+  {
+    "category": "functional",
+    "description": "Chat is automatically named after first message",
+    "steps": [
+      "Create a new chat",
+      "Send the first message",
+      "Wait for AI response to complete",
+      "Navigate to /chats list",
+      "Verify chat has a descriptive title based on first message",
+      "Verify title is not default 'New Chat'"
+    ],
+    "passes": false
+  }
+]

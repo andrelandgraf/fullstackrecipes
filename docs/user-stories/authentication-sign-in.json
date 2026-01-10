@@ -1,0 +1,70 @@
+[
+  {
+    "category": "functional",
+    "description": "User signs in with email and password",
+    "steps": [
+      "Navigate to /sign-in page",
+      "Enter email and password",
+      "Toggle remember me checkbox",
+      "Submit the form",
+      "Verify successful login",
+      "Verify redirect to /chats"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User signs in using Vercel OAuth",
+    "steps": [
+      "Navigate to /sign-in page",
+      "Click Sign in with Vercel button",
+      "Complete Vercel OAuth flow",
+      "Verify redirect to /chats after successful auth"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Sign in shows error for unverified email",
+    "steps": [
+      "Navigate to /sign-in page",
+      "Enter credentials for unverified account",
+      "Submit the form",
+      "Verify email not verified warning appears",
+      "Click resend verification email button",
+      "Verify confirmation that email was sent"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Sign in shows error for invalid credentials",
+    "steps": [
+      "Navigate to /sign-in page",
+      "Enter invalid email or password",
+      "Submit the form",
+      "Verify error toast appears with invalid credentials message"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Authenticated users are redirected from sign-in",
+    "steps": [
+      "Sign in to an existing account",
+      "Navigate to /sign-in page",
+      "Verify automatic redirect to /chats"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can navigate to forgot password from sign-in",
+    "steps": [
+      "Navigate to /sign-in page",
+      "Click Forgot password link",
+      "Verify redirect to /forgot-password page"
+    ],
+    "passes": false
+  }
+]

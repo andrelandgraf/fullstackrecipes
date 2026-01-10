@@ -1,0 +1,62 @@
+[
+  {
+    "category": "functional",
+    "description": "User views home page hero section",
+    "steps": [
+      "Navigate to home page",
+      "Verify hero title and description are displayed",
+      "Verify recipe count badge is accurate",
+      "Verify Browse Recipes button works",
+      "Verify Add to Agent button opens wizard"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User views demo section with sign-in CTA",
+    "steps": [
+      "Navigate to home page",
+      "Scroll to demo section",
+      "Verify mock UI cards are displayed",
+      "Verify Sign into demo app button links to /sign-in",
+      "Verify View on GitHub button links to repository"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User views how it works section",
+    "steps": [
+      "Navigate to home page",
+      "Scroll to how it works section",
+      "Verify step-by-step instructions are displayed",
+      "Verify feature list is visible"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User views registry section",
+    "steps": [
+      "Navigate to home page",
+      "Scroll to registry section",
+      "Verify registry items are listed",
+      "Verify install commands are displayed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User accesses external links in footer",
+    "steps": [
+      "Navigate to home page",
+      "Scroll to footer",
+      "Verify logo and branding are displayed",
+      "Click GitHub link",
+      "Verify repository opens in new tab",
+      "Click author Twitter link",
+      "Verify Twitter profile opens in new tab"
+    ],
+    "passes": false
+  }
+]

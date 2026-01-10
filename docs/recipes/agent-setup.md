@@ -63,6 +63,10 @@ Use MCP (Model Context Protocol) servers to enhance your coding agent's capabili
       "command": "npx",
       "args": ["-y", "next-devtools-mcp@latest"]
     },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    },
     "context7": {
       "url": "https://mcp.context7.com/mcp"
     },
@@ -77,6 +81,7 @@ Use MCP (Model Context Protocol) servers to enhance your coding agent's capabili
 | ------------------ | ---------------------------------------------------------------- |
 | `vercel`           | Manage Vercel projects, deployments, and search Vercel docs      |
 | `next-devtools`    | Next.js development tools for debugging, routing, and build info |
+| `playwright`       | Browser automation for testing and interacting with web pages    |
 | `context7`         | Up-to-date documentation lookup for any library                  |
 | `fullstackrecipes` | Fullstackrecipes recipes                                         |
 

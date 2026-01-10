@@ -1,0 +1,38 @@
+[
+  {
+    "category": "functional",
+    "description": "Pages have correct metadata for SEO",
+    "steps": [
+      "Navigate to home page",
+      "Verify page title is set correctly",
+      "Verify meta description exists",
+      "Navigate to recipe detail page",
+      "Verify title matches recipe name",
+      "Verify description matches recipe description"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "OG image is generated for social sharing",
+    "steps": [
+      "Navigate to recipe page",
+      "Verify og:image meta tag exists",
+      "Request the OG image URL directly",
+      "Verify image is generated with recipe info"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Sitemap includes all pages and recipes",
+    "steps": [
+      "Request /sitemap.xml",
+      "Verify sitemap XML is returned",
+      "Verify home page is included",
+      "Verify all recipe pages are included",
+      "Verify URLs are correctly formatted"
+    ],
+    "passes": false
+  }
+]

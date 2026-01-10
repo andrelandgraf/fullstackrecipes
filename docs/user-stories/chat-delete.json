@@ -1,0 +1,41 @@
+[
+  {
+    "category": "functional",
+    "description": "User deletes a chat",
+    "steps": [
+      "Navigate to /chats page",
+      "Click three-dot menu on a chat",
+      "Click Delete option",
+      "Verify delete confirmation dialog appears",
+      "Verify chat title is shown in dialog",
+      "Click Delete to confirm",
+      "Verify chat deleted toast appears",
+      "Verify chat is removed from list"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User cancels chat deletion",
+    "steps": [
+      "Navigate to /chats page",
+      "Click three-dot menu on a chat",
+      "Click Delete option",
+      "Click Cancel in confirmation dialog",
+      "Verify dialog closes",
+      "Verify chat remains in list"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Delete chat dialog is deep-linkable via URL",
+    "steps": [
+      "Navigate to /chats?delete=<chatId>",
+      "Verify delete confirmation dialog opens automatically",
+      "Close dialog",
+      "Verify URL parameter is removed"
+    ],
+    "passes": false
+  }
+]

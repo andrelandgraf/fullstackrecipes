@@ -1,0 +1,15 @@
+[
+  {
+    "category": "functional",
+    "description": "User signs out from the application",
+    "steps": [
+      "Sign in to an account",
+      "Click user avatar in header",
+      "Click Sign out from dropdown menu",
+      "Verify signed out successfully toast",
+      "Verify redirect to home page",
+      "Verify session is cleared"
+    ],
+    "passes": false
+  }
+]

@@ -1,0 +1,36 @@
+[
+  {
+    "category": "functional",
+    "description": "User verifies email using verification link",
+    "steps": [
+      "Click verification link from email",
+      "Navigate to /verify-email with valid token",
+      "Verify email is marked as verified",
+      "Verify success message appears",
+      "Verify link to sign in is shown"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Email verification handles invalid token",
+    "steps": [
+      "Navigate to /verify-email with invalid token",
+      "Verify error message appears",
+      "Verify option to request new verification email"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can resend verification email from profile",
+    "steps": [
+      "Sign in with unverified email account",
+      "Navigate to /profile page",
+      "Verify unverified email banner appears",
+      "Click resend verification email button",
+      "Verify confirmation that email was sent"
+    ],
+    "passes": false
+  }
+]

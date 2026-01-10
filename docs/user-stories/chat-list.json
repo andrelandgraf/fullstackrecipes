@@ -1,0 +1,49 @@
+[
+  {
+    "category": "functional",
+    "description": "User views list of their chats",
+    "steps": [
+      "Sign in to account",
+      "Navigate to /chats page",
+      "Verify list of chats is displayed",
+      "Verify each chat shows title, timestamp, and message count",
+      "Verify chats are sorted by most recent"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User searches through their chats",
+    "steps": [
+      "Navigate to /chats page",
+      "Enter search query in search input",
+      "Verify URL updates with search parameter",
+      "Verify filtered results match search query",
+      "Clear search input",
+      "Verify all chats are displayed again"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Empty chat list shows start prompt",
+    "steps": [
+      "Sign in with account that has no chats",
+      "Navigate to /chats page",
+      "Verify empty state message appears",
+      "Verify Start a Chat button is displayed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Search with no results shows empty state",
+    "steps": [
+      "Navigate to /chats page with existing chats",
+      "Enter search query that matches no chats",
+      "Verify no chats found message appears",
+      "Verify suggestion to try different search term"
+    ],
+    "passes": false
+  }
+]

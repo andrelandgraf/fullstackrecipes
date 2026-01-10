@@ -1,0 +1,27 @@
+[
+  {
+    "category": "functional",
+    "description": "MCP server returns recipe resources",
+    "steps": [
+      "Make request to /api/mcp endpoint",
+      "Verify MCP protocol response",
+      "List available resources",
+      "Verify recipe and cookbook resources are listed",
+      "Request a specific recipe resource",
+      "Verify recipe content is returned"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Recipe API returns markdown content",
+    "steps": [
+      "Make GET request to /api/recipes/<slug>",
+      "Verify JSON response with content field",
+      "Verify markdown content is complete",
+      "Request non-existent recipe",
+      "Verify 404 error response"
+    ],
+    "passes": false
+  }
+]

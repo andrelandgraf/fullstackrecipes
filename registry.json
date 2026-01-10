@@ -104,6 +104,30 @@
         }
       ],
       "docs": "This agent requires tool definitions. Update the import from './tools' to match your project's tool configuration."
+    },
+    {
+      "name": "ralph",
+      "type": "registry:lib",
+      "title": "Ralph Agent Loop",
+      "description": "Automated agent-driven development loop. Runs AI agents to implement features from user stories, verify acceptance criteria, and log progress for the next agent.",
+      "files": [
+        {
+          "path": "scripts/ralph/runner.ts",
+          "type": "registry:lib",
+          "target": "scripts/ralph/runner.ts"
+        },
+        {
+          "path": "scripts/ralph/prompt.md",
+          "type": "registry:lib",
+          "target": "scripts/ralph/prompt.md"
+        },
+        {
+          "path": "scripts/ralph/log.md",
+          "type": "registry:lib",
+          "target": "scripts/ralph/log.md"
+        }
+      ],
+      "docs": "Requires Claude Code CLI: npm install -g @anthropic-ai/claude-code. Add 'ralph': 'bun run scripts/ralph/runner.ts' to package.json scripts. Create docs/user-stories/ directory for acceptance criteria."
     }
   ]
 }

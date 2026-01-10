@@ -4,7 +4,7 @@ Complete environment variable management with type-safe validation, Vercel dev w
 
 ## Skills
 
-- **Environment Validation**: Validate environment variables on server start and before builds. Catch missing or invalid variables early with clear error messages.
+- **Build-Time Environment Variable Validation**: Validate environment variables on server start and before builds. Catch missing or invalid variables early with clear error messages.
 
 ## MCP Resources
 

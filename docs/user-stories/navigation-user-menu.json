@@ -1,0 +1,40 @@
+[
+  {
+    "category": "functional",
+    "description": "Authenticated user accesses menu options",
+    "steps": [
+      "Sign in to account",
+      "Click user avatar in header",
+      "Verify dropdown shows user name and email",
+      "Verify Chats link is present",
+      "Verify Settings link is present",
+      "Verify Sign out option is present"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Unverified email shows warning in user menu",
+    "steps": [
+      "Sign in with unverified email account",
+      "Verify warning badge appears on avatar",
+      "Click user avatar",
+      "Verify Verify your email link appears highlighted",
+      "Click verify link",
+      "Verify redirect to profile page"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Unauthenticated user sees sign in options",
+    "steps": [
+      "Navigate to any page without being signed in",
+      "Verify Sign in button is displayed in header",
+      "Verify Get started button is displayed",
+      "Click Sign in",
+      "Verify redirect to /sign-in page"
+    ],
+    "passes": false
+  }
+]

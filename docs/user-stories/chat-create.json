@@ -1,0 +1,25 @@
+[
+  {
+    "category": "functional",
+    "description": "User creates a new chat",
+    "steps": [
+      "Navigate to /chats page",
+      "Click New Chat button",
+      "Verify new chat is created",
+      "Verify redirect to new chat page",
+      "Verify chat input is ready for message"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User creates chat from empty state",
+    "steps": [
+      "Navigate to /chats page with no existing chats",
+      "Click Start a Chat button in empty state",
+      "Verify new chat is created",
+      "Verify redirect to new chat page"
+    ],
+    "passes": false
+  }
+]

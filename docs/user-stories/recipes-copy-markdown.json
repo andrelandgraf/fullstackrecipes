@@ -1,0 +1,28 @@
+[
+  {
+    "category": "functional",
+    "description": "User copies recipe content as markdown from detail page",
+    "steps": [
+      "Navigate to /recipes/<slug>",
+      "Scroll to recipe header area",
+      "Click Copy as Markdown button",
+      "Verify button changes to Copied state",
+      "Verify markdown content is in clipboard",
+      "Button reverts to original state after timeout"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User copies code block from recipe content",
+    "steps": [
+      "Navigate to /recipes/<slug>",
+      "Hover over a code block",
+      "Verify copy button appears",
+      "Click the copy button",
+      "Verify button shows copied state",
+      "Verify code is in clipboard"
+    ],
+    "passes": false
+  }
+]

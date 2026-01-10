@@ -1,0 +1,42 @@
+[
+  {
+    "category": "functional",
+    "description": "User previews recipe content in How It Works section",
+    "steps": [
+      "Navigate to home page",
+      "Scroll to How It Works section",
+      "Verify default recipes are selected",
+      "Verify recipe markdown preview loads",
+      "Click Add button to open picker",
+      "Select additional recipes",
+      "Verify preview updates with first selected item",
+      "Verify combined file count shows +N more"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User removes selected guides from preview",
+    "steps": [
+      "Navigate to How It Works section",
+      "View selected guides badges",
+      "Click X on a selected guide badge",
+      "Verify guide is removed from selection",
+      "Verify preview updates accordingly"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User opens recipe picker from How It Works",
+    "steps": [
+      "Navigate to How It Works section with no guides selected",
+      "Click Browse guides button",
+      "Verify picker dialog opens",
+      "Search and select recipes",
+      "Click Done",
+      "Verify selection is reflected in preview"
+    ],
+    "passes": false
+  }
+]

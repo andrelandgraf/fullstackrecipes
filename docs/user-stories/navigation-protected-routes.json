@@ -1,0 +1,29 @@
+[
+  {
+    "category": "functional",
+    "description": "Unauthenticated user is redirected from protected pages",
+    "steps": [
+      "Sign out or clear session",
+      "Navigate to /chats",
+      "Verify redirect to /sign-in",
+      "Navigate to /profile",
+      "Verify redirect to /sign-in",
+      "Navigate to /chats/<chatId>",
+      "Verify redirect to /sign-in"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User cannot access chats they do not own",
+    "steps": [
+      "Sign in to account A",
+      "Create a chat and note the ID",
+      "Sign out and sign in to account B",
+      "Navigate to /chats/<chatId from account A>",
+      "Verify redirect to home page",
+      "Verify chat is not accessible"
+    ],
+    "passes": false
+  }
+]

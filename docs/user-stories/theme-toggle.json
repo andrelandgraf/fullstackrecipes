@@ -1,0 +1,29 @@
+[
+  {
+    "category": "functional",
+    "description": "User toggles between light and dark theme",
+    "steps": [
+      "Navigate to any page",
+      "Click theme selector in header",
+      "Select Light theme",
+      "Verify page switches to light mode",
+      "Click theme selector again",
+      "Select Dark theme",
+      "Verify page switches to dark mode",
+      "Select System theme",
+      "Verify theme matches system preference"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Theme preference persists across sessions",
+    "steps": [
+      "Set theme to dark mode",
+      "Close browser tab",
+      "Reopen the application",
+      "Verify dark mode is still active"
+    ],
+    "passes": false
+  }
+]

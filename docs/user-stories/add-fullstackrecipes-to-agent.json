@@ -1,0 +1,130 @@
+[
+  {
+    "category": "functional",
+    "description": "User opens wizard to add recipes to agent",
+    "steps": [
+      "Navigate to home page",
+      "Click Add to Agent button in hero section",
+      "Verify wizard dialog opens",
+      "Verify step indicator shows Select Recipes as active"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User selects recipes in wizard",
+    "steps": [
+      "Open wizard dialog",
+      "Search for a specific recipe",
+      "Click on a cookbook to select it",
+      "Verify included recipes show as selected",
+      "Click on individual recipes to add",
+      "Verify selection count updates in footer",
+      "Click Clear all to reset selection"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User copies recipes as markdown",
+    "steps": [
+      "Open wizard with recipes selected",
+      "Click Next to go to agent step",
+      "Verify Copy Markdown tab is active",
+      "Click Copy button",
+      "Verify Copied confirmation appears",
+      "Verify combined markdown is in clipboard"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User configures MCP server for Cursor",
+    "steps": [
+      "Open wizard with recipes selected",
+      "Click Next to go to agent step",
+      "Click MCP / Plugin tab",
+      "Verify Cursor tab is selected by default",
+      "Verify MCP config JSON is displayed",
+      "Click Add to Cursor button",
+      "Verify prompt text is displayed",
+      "Click Copy on prompt",
+      "Click Prompt Cursor button"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User configures MCP server for VS Code",
+    "steps": [
+      "Open wizard with recipes selected",
+      "Click MCP / Plugin tab",
+      "Click VS Code tab",
+      "Verify VS Code MCP config JSON is displayed",
+      "Click Add to VS Code button"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User configures Claude Code plugin",
+    "steps": [
+      "Open wizard with recipes selected",
+      "Click MCP / Plugin tab",
+      "Click Claude Code tab",
+      "Verify plugin install commands are displayed",
+      "Verify commands include selected cookbook plugins"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User enables Context7 mode",
+    "steps": [
+      "Open wizard MCP configuration",
+      "Check Using Context7 checkbox",
+      "Verify config switches to Context7 MCP URL",
+      "Verify prompt text includes using Context7"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User uses registry to install code",
+    "steps": [
+      "Select a recipe with registry items",
+      "Click Next to go to agent step",
+      "Click Registry tab",
+      "Verify shadcn CLI command is displayed",
+      "Verify registry URLs are correct"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User clones cookbook template",
+    "steps": [
+      "Select a single cookbook with template",
+      "Click Next to go to agent step",
+      "Click Use Template tab",
+      "Verify npx tiged command is displayed",
+      "Click copy button on command",
+      "Verify command is copied",
+      "Click View Template Files button",
+      "Verify GitHub page opens in new tab"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Wizard opens from recipe detail page",
+    "steps": [
+      "Navigate to /recipes/<slug>",
+      "Click Add to Agent button in header",
+      "Verify wizard dialog opens",
+      "Verify current recipe is pre-selected",
+      "Verify agent configuration step is shown first"
+    ],
+    "passes": false
+  }
+]

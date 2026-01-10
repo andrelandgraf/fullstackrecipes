@@ -1,0 +1,68 @@
+[
+  {
+    "category": "functional",
+    "description": "User creates a new account with email and password",
+    "steps": [
+      "Navigate to /sign-up page",
+      "Enter first name and last name",
+      "Enter email address",
+      "Enter password (at least 8 characters)",
+      "Confirm password",
+      "Check password visibility toggles work",
+      "Submit the form",
+      "Verify success state shows Check your email message",
+      "Verify Back to sign in button works"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User creates account with optional profile photo",
+    "steps": [
+      "Navigate to /sign-up page",
+      "Fill in required fields",
+      "Click file input for profile photo",
+      "Select an image file",
+      "Verify image preview appears",
+      "Click X to remove the image",
+      "Verify preview is removed",
+      "Select a new image",
+      "Submit the form",
+      "Verify account is created with profile image"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User creates account using Vercel OAuth",
+    "steps": [
+      "Navigate to /sign-up page",
+      "Click Sign up with Vercel button",
+      "Complete Vercel OAuth flow",
+      "Verify redirect to /chats after successful auth"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Sign up form validates required fields",
+    "steps": [
+      "Navigate to /sign-up page",
+      "Leave fields empty and submit",
+      "Verify error messages appear for required fields",
+      "Enter invalid email format",
+      "Verify email validation error appears"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Authenticated users are redirected from sign-up",
+    "steps": [
+      "Sign in to an existing account",
+      "Navigate to /sign-up page",
+      "Verify automatic redirect to /chats"
+    ],
+    "passes": false
+  }
+]

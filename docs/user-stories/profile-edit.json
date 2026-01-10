@@ -1,0 +1,43 @@
+[
+  {
+    "category": "functional",
+    "description": "User updates profile name",
+    "steps": [
+      "Navigate to /profile page",
+      "Click Edit button on profile card",
+      "Modify name field",
+      "Click Save button",
+      "Verify profile updated successfully toast",
+      "Verify name is updated in display"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User updates profile image",
+    "steps": [
+      "Navigate to /profile page",
+      "Click Edit button on profile card",
+      "Click file input to select new image",
+      "Select an image file",
+      "Verify image preview appears",
+      "Click Save button",
+      "Verify profile updated successfully toast",
+      "Verify avatar is updated"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can cancel profile editing",
+    "steps": [
+      "Navigate to /profile page",
+      "Click Edit button on profile card",
+      "Make changes to name or image",
+      "Click Cancel button",
+      "Verify changes are discarded",
+      "Verify profile displays original values"
+    ],
+    "passes": false
+  }
+]

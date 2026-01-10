@@ -151,6 +151,25 @@ export const config: VercelConfig = {
 }`,
   },
   {
+    slug: "ralph-setup",
+    title: "Ralph Agent Loop",
+    description:
+      "Set up automated agent-driven development with Ralph. Run AI agents in a loop to implement features from user stories, verify acceptance criteria, and log progress for the next agent.",
+    tags: ["Setup Instructions"],
+    icon: RefreshCw,
+    requires: ["agent-setup"],
+    previewCode: `// User story with acceptance criteria
+{
+  "description": "User signs in with email",
+  "steps": ["Navigate to /sign-in", "Enter credentials", "Verify redirect"],
+  "passes": false
+}
+
+// Ralph loops until all stories pass
+bun run ralph`,
+    registryDeps: ["ralph"],
+  },
+  {
     slug: "assert",
     title: "Assertion Helper",
     description:
@@ -889,6 +908,7 @@ const REGISTRY_ICONS: Record<string, typeof Database> = {
   "use-resumable-chat": Package,
   "durable-agent": Cpu,
   logger: ScrollText,
+  ralph: RefreshCw,
 };
 
 export type RegistryItem = {

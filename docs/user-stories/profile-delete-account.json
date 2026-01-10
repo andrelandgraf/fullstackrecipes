@@ -1,0 +1,42 @@
+[
+  {
+    "category": "functional",
+    "description": "User deletes their account",
+    "steps": [
+      "Navigate to /profile page",
+      "Scroll to Delete Account section",
+      "Click Delete Account button",
+      "Verify confirmation dialog appears",
+      "Enter password",
+      "Type DELETE to confirm",
+      "Click Delete Account in dialog",
+      "Verify confirmation email sent toast",
+      "Verify account deletion email is sent"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Delete account requires correct confirmation text",
+    "steps": [
+      "Navigate to /profile page",
+      "Click Delete Account button",
+      "Enter password",
+      "Type incorrect confirmation text",
+      "Verify Delete button remains disabled"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can cancel account deletion",
+    "steps": [
+      "Navigate to /profile page",
+      "Click Delete Account button",
+      "Click Cancel in confirmation dialog",
+      "Verify dialog closes",
+      "Verify account is not deleted"
+    ],
+    "passes": false
+  }
+]

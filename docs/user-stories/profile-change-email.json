@@ -1,0 +1,27 @@
+[
+  {
+    "category": "functional",
+    "description": "User changes email address",
+    "steps": [
+      "Navigate to /profile page",
+      "Scroll to Change Email section",
+      "Verify current email is displayed (disabled)",
+      "Enter new email address",
+      "Submit the form",
+      "Verify confirmation email sent toast",
+      "Verify verification email sent to current email"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Change email validates different email required",
+    "steps": [
+      "Navigate to /profile page",
+      "Enter same email as current email",
+      "Submit the form",
+      "Verify error message that email must be different"
+    ],
+    "passes": false
+  }
+]
