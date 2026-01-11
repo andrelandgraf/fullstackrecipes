@@ -1,6 +1,6 @@
 import { configSchema, server, oneOf } from "@/lib/config/schema";
 import { createOpenAI } from "@ai-sdk/openai";
-import type { LanguageModelV1 } from "ai";
+import type { LanguageModel } from "ai";
 
 const config = configSchema(
   "AI",
@@ -29,7 +29,7 @@ function createProvider() {
   });
 }
 
-function getModel(model: string): LanguageModelV1 {
+function getModel(model: string): LanguageModel {
   const provider = createProvider();
   return provider(model);
 }

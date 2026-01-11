@@ -308,7 +308,8 @@ Define types that extend AI SDK's base types with your tools and data parts. Pla
 // src/workflows/chat/types.ts
 import type { UIMessage, UIMessagePart, InferUITools } from "ai";
 import { z } from "zod";
-import { allTools } from "@/lib/ai/tools";
+import { allTools, TOOL_TYPES } from "@/lib/ai/tools";
+import assert from "@/lib/common/assert";
 
 const metadataSchema = z.object({});
 type ChatMetadata = z.infer<typeof metadataSchema>;
@@ -356,6 +357,44 @@ export function isDataProgressPart(
   part: ChatUIMessagePart,
 ): part is ChatDataProgressPart {
   return part.type === "data-progress";
+}
+
+const VALID_PART_TYPES = new Set([
+  "text",
+  "reasoning",
+  "source-url",
+  "source-document",
+  "file",
+  "step-start",
+  "data-progress",
+  ...TOOL_TYPES,
+]);
+
+/**
+ * Asserts that UIMessage parts are valid ChatAgentUIMessage parts.
+ * Validates tool types against known TOOL_TYPES and data types against known data part types.
+ */
+export function assertChatAgentParts(
+  parts: UIMessage["parts"],
+): asserts parts is ChatAgentUIMessage["parts"] {
+  for (const part of parts) {
+    if (part.type.startsWith("tool-")) {
+      assert(
+        TOOL_TYPES.includes(part.type as (typeof TOOL_TYPES)[number]),
+        `Unknown tool type: ${part.type}. Valid types: ${TOOL_TYPES.join(", ")}`,
+      );
+    } else if (part.type.startsWith("data-")) {
+      assert(
+        part.type === "data-progress",
+        `Unknown data type: ${part.type}. Valid types: data-progress`,
+      );
+    } else {
+      assert(
+        VALID_PART_TYPES.has(part.type),
+        `Unknown part type: ${part.type}. Valid types: ${[...VALID_PART_TYPES].join(", ")}`,
+      );
+    }
+  }
 }
 ```
 

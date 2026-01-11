@@ -123,6 +123,7 @@ Create step functions for message persistence:
 
 ```typescript
 // src/workflows/chat/steps/history.ts
+import type { UIMessage } from "ai";
 import { db } from "@/lib/db/client";
 import { messages, chats } from "@/lib/chat/schema";
 import {
@@ -133,7 +134,7 @@ import {
   clearMessageRunId,
 } from "@/lib/chat/queries";
 import { eq } from "drizzle-orm";
-import type { ChatAgentUIMessage } from "../types";
+import { assertChatAgentParts, type ChatAgentUIMessage } from "../types";
 import { v7 as uuidv7 } from "uuid";
 
 /**
@@ -185,6 +186,7 @@ export async function createAssistantMessage({
 
 /**
  * Persist message parts after streaming completes.
+ * Validates and narrows generic UIMessage parts to ChatAgentUIMessage parts.
  */
 export async function persistMessageParts({
   chatId,
@@ -193,9 +195,11 @@ export async function persistMessageParts({
 }: {
   chatId: string;
   messageId: string;
-  parts: ChatAgentUIMessage["parts"];
+  parts: UIMessage["parts"];
 }): Promise<void> {
   "use step";
+
+  assertChatAgentParts(parts);
 
   await insertMessageParts(chatId, messageId, parts);
 

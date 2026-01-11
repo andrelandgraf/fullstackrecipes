@@ -187,11 +187,13 @@ export async function chatWorkflow({ chatId, userMessage }) {
 
 ### Persisting Workflow Results
 
-Save agent output using step functions:
+Save agent output using step functions. The `assertChatAgentParts` function validates that generic `UIMessage["parts"]` (returned by agents) match your application's specific tool and data types:
 
 ```typescript
 // src/workflows/chat/steps/history.ts
+import type { UIMessage } from "ai";
 import { insertMessageParts } from "@/lib/chat/queries";
+import { assertChatAgentParts, type ChatAgentUIMessage } from "../types";
 
 export async function persistMessageParts({
   chatId,
@@ -200,9 +202,11 @@ export async function persistMessageParts({
 }: {
   chatId: string;
   messageId: string;
-  parts: ChatAgentUIMessage["parts"];
+  parts: UIMessage["parts"];
 }): Promise<void> {
   "use step";
+
+  assertChatAgentParts(parts);
 
   await insertMessageParts(chatId, messageId, parts);
 
