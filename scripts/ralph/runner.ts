@@ -29,7 +29,7 @@ async function runRalph() {
   const escapedPrompt = prompt.replace(/'/g, "'\\''");
 
   // Use the official Ralph plugin via /ralph-loop command
-  const ralphCommand = `/ralph-loop '${escapedPrompt}' --completion-promise "FINISHED" --max-iterations ${maxIterations}`;
+  const ralphCommand = `/ralph-loop:ralph-loop '${escapedPrompt}' --completion-promise "FINISHED" --max-iterations ${maxIterations}`;
 
   console.log("[runner] Starting Ralph loop via Claude Code plugin...\n");
   console.log(`[runner] Max iterations: ${maxIterations}\n`);
