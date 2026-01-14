@@ -6,24 +6,22 @@ bun add workflow @workflow/ai
 
 ### Step 2: Create the workflows folder
 
-Create a `src/workflows/` folder to organize workflow code:
+Create the `src/workflows/` folder structure:
 
 ```
 src/workflows/
-```
-
-Each workflow gets its own subfolder with a `steps/` directory for step functions and an `index.ts` for the orchestration function:
-
-```
-src/workflows/
+  steps/           # Shared step functions (reusable across workflows)
   chat/
-    index.ts       # Workflow orchestration function
-    steps/         # Step functions ("use step")
+    index.ts       # Workflow orchestration function ("use workflow")
+    steps/         # Workflow-specific steps ("use step")
       history.ts
       logger.ts
       name-chat.ts
     types.ts       # Workflow-specific types
 ```
+
+- **`workflows/steps/`** - Shared step functions reusable across workflows.
+- **`workflows/chat/`** - A specific workflow with its own orchestration and steps.
 
 ### Step 3: Update Next.js config
 
@@ -40,6 +38,60 @@ const nextConfig: NextConfig = {
 };
 
 export default withWorkflow(nextConfig);
+```
+
+### Step 4: Add stream step utilities
+
+{% registry items="workflow-stream" /%}
+
+When streaming `UIMessageChunk` responses (like chat messages), you must signal the start and end of the stream. This is required for proper stream framing with `WorkflowChatTransport`.
+
+Install via the registry above, or create manually:
+
+```typescript
+// src/workflows/steps/stream.ts
+import { getWritable } from "workflow";
+import type { UIMessageChunk } from "ai";
+
+/**
+ * Signal the start of a UI message stream.
+ * Must be called before agent.run() when streaming UIMessageChunks.
+ */
+export async function startStream(messageId: string): Promise<void> {
+  "use step";
+
+  const writable = getWritable<UIMessageChunk>();
+  const writer = writable.getWriter();
+  try {
+    await writer.write({
+      type: "start",
+      messageId,
+    });
+  } finally {
+    writer.releaseLock();
+  }
+}
+
+/**
+ * Signal the end of a UI message stream.
+ * Must be called after agent.run() completes to close the stream properly.
+ */
+export async function finishStream(): Promise<void> {
+  "use step";
+
+  const writable = getWritable<UIMessageChunk>();
+  const writer = writable.getWriter();
+  try {
+    await writer.write({
+      type: "finish",
+      finishReason: "stop",
+    });
+  } finally {
+    writer.releaseLock();
+  }
+
+  await writable.close();
+}
 ```
 
 ---
@@ -59,6 +111,7 @@ import {
   removeRunId,
   persistMessageParts,
 } from "./steps/history";
+import { startStream, finishStream } from "../steps/stream";
 import { log } from "./steps/logger";
 import { nameChatStep } from "./steps/name-chat";
 import { chatAgent } from "@/lib/ai/chat-agent";
@@ -92,6 +145,9 @@ export async function chatWorkflow({
   // Get full message history
   const history = await getMessageHistory(chatId);
 
+  // Start the UI message stream
+  await startStream(messageId);
+
   // Run the agent with streaming
   const { parts } = await chatAgent.run(history, {
     maxSteps: 10,
@@ -100,6 +156,9 @@ export async function chatWorkflow({
 
   // Persist the assistant message parts
   await persistMessageParts({ chatId, messageId, parts });
+
+  // Finish the UI message stream
+  await finishStream();
 
   // Clear the runId to mark the message as complete
   await removeRunId(messageId);

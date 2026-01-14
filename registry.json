@@ -128,6 +128,21 @@
         }
       ],
       "docs": "Requires Claude Code CLI: npm install -g @anthropic-ai/claude-code. Add 'ralph': 'bun run scripts/ralph/runner.ts' to package.json scripts. Create docs/user-stories/ directory for acceptance criteria."
+    },
+    {
+      "name": "workflow-stream",
+      "type": "registry:lib",
+      "title": "Workflow Stream Steps",
+      "description": "Step functions for starting and finishing UIMessageChunk streams in workflows. Required when streaming AI responses to clients via WorkflowChatTransport.",
+      "dependencies": ["workflow", "ai"],
+      "files": [
+        {
+          "path": "templates/ai-workflow/src/workflows/steps/stream.ts",
+          "type": "registry:lib",
+          "target": "workflows/steps/stream.ts"
+        }
+      ],
+      "docs": "Import startStream and finishStream from workflows/steps/stream. Call startStream(messageId) before agent.run() and finishStream() after to properly frame the UIMessageChunk stream."
     }
   ]
 }

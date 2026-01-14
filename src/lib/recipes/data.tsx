@@ -715,6 +715,7 @@ const nextConfig: NextConfig = {
 };
 
 export default withWorkflow(nextConfig);`,
+    registryDeps: ["workflow-stream"],
   },
   {
     slug: "resumable-ai-streams",
@@ -909,6 +910,7 @@ const REGISTRY_ICONS: Record<string, typeof Database> = {
   "durable-agent": Cpu,
   logger: ScrollText,
   ralph: RefreshCw,
+  "workflow-stream": Layers,
 };
 
 export type RegistryItem = {

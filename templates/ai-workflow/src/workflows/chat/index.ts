@@ -7,6 +7,7 @@ import {
   removeRunId,
   persistMessageParts,
 } from "./steps/history";
+import { startStream, finishStream } from "../steps/stream";
 import { log } from "./steps/logger";
 import { nameChatStep } from "./steps/name-chat";
 import { chatAgent } from "@/lib/ai/chat-agent";
@@ -40,6 +41,9 @@ export async function chatWorkflow({
   // Get full message history
   const history = await getMessageHistory(chatId);
 
+  // Start the UI message stream
+  await startStream(messageId);
+
   // Run the agent with streaming
   const { parts } = await chatAgent.run(history, {
     maxSteps: 10,
@@ -48,6 +52,9 @@ export async function chatWorkflow({
 
   // Persist the assistant message parts
   await persistMessageParts({ chatId, messageId, parts });
+
+  // Finish the UI message stream
+  await finishStream();
 
   // Clear the runId to mark the message as complete
   await removeRunId(messageId);

@@ -9,11 +9,30 @@ import {
   getItemPromptText,
   getItemResourceUri,
   getRequiredItems,
+  type Recipe,
 } from "@/lib/recipes/data";
 import { loadRecipeMarkdown } from "@/lib/recipes/loader";
 
 // Derive the server type directly from createMcpHandler
 type McpServer = Parameters<Parameters<typeof createMcpHandler>[0]>[0];
+
+function isSkillsRecipe(recipe: Recipe): boolean {
+  return recipe.tags.includes("Skills");
+}
+
+function getUsePromptSlug(recipe: Recipe): string {
+  if (recipe.slug.startsWith("using-")) {
+    return `use-${recipe.slug.slice(6)}`;
+  }
+  if (recipe.slug.startsWith("use-")) {
+    return recipe.slug;
+  }
+  return `use-${recipe.slug}`;
+}
+
+function getUsePromptText(recipe: Recipe): string {
+  return `Follow the "${recipe.title}" skill from fullstackrecipes`;
+}
 
 function registerBaseResourcesAndPrompts(server: McpServer) {
   const recipes = getAllRecipes();
@@ -69,6 +88,29 @@ function registerBaseResourcesAndPrompts(server: McpServer) {
         ],
       }),
     );
+
+    if (isSkillsRecipe(recipe)) {
+      const usePromptSlug = getUsePromptSlug(recipe);
+      server.registerPrompt(
+        usePromptSlug,
+        { description: `Use the "${recipe.title}" skill` },
+        async () => ({
+          messages: [
+            {
+              role: "user",
+              content: {
+                type: "resource",
+                resource: {
+                  uri: resourceUri,
+                  mimeType: "text/markdown",
+                  text: getUsePromptText(recipe),
+                },
+              },
+            },
+          ],
+        }),
+      );
+    }
   }
 
   for (const cookbook of cookbooks) {

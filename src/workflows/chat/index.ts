@@ -7,7 +7,7 @@ import {
   removeRunId,
   persistMessageParts,
 } from "./steps/history";
-import { startStream, finishStream } from "./steps/stream";
+import { startStream, finishStream } from "../steps/stream";
 import { routerStep } from "./steps/router";
 import { writeProgress } from "./steps/progress";
 import { log } from "./steps/logger";

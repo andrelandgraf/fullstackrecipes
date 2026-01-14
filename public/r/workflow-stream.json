@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "workflow-stream",
+  "title": "Workflow Stream Steps",
+  "description": "Step functions for starting and finishing UIMessageChunk streams in workflows. Required when streaming AI responses to clients via WorkflowChatTransport.",
+  "dependencies": ["workflow", "ai"],
+  "files": [
+    {
+      "path": "templates/ai-workflow/src/workflows/steps/stream.ts",
+      "content": "import { getWritable } from \"workflow\";\nimport type { UIMessageChunk } from \"ai\";\n\n/**\n * Signal the start of a UI message stream.\n * Must be called before agent.run() when streaming UIMessageChunks.\n */\nexport async function startStream(messageId: string): Promise<void> {\n  \"use step\";\n\n  const writable = getWritable<UIMessageChunk>();\n  const writer = writable.getWriter();\n  try {\n    await writer.write({\n      type: \"start\",\n      messageId,\n    });\n  } finally {\n    writer.releaseLock();\n  }\n}\n\n/**\n * Signal the end of a UI message stream.\n * Must be called after agent.run() completes to close the stream properly.\n */\nexport async function finishStream(): Promise<void> {\n  \"use step\";\n\n  const writable = getWritable<UIMessageChunk>();\n  const writer = writable.getWriter();\n  try {\n    await writer.write({\n      type: \"finish\",\n      finishReason: \"stop\",\n    });\n  } finally {\n    writer.releaseLock();\n  }\n\n  await writable.close();\n}\n",
+      "type": "registry:lib",
+      "target": "workflows/steps/stream.ts"
+    }
+  ],
+  "docs": "Import startStream and finishStream from workflows/steps/stream. Call startStream(messageId) before agent.run() and finishStream() after to properly frame the UIMessageChunk stream.",
+  "type": "registry:lib"
+}
