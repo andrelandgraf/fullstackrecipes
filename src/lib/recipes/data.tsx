@@ -32,6 +32,8 @@ import {
   GitBranch,
   TestTube,
   Globe,
+  ImagePlus,
+  Code,
 } from "lucide-react";
 import registry from "../../../registry.json";
 
@@ -294,6 +296,24 @@ bunx --bun shadcn@latest add --all
 </ThemeProvider>`,
   },
   {
+    slug: "shiki-code-blocks",
+    title: "Shiki Code Blocks",
+    description:
+      "Syntax highlight code blocks with Shiki. Supports server-side rendering in RSC and automatic light/dark theme switching.",
+    tags: ["Setup Instructions"],
+    icon: Code,
+    requires: ["shadcn-ui-setup"],
+    previewCode: `import { codeToHtml } from "shiki";
+
+const { light, dark } = await highlightCode(code, "typescript");
+
+<CodeBlock
+  code={code}
+  lightHtml={light}
+  darkHtml={dark}
+/>`,
+  },
+  {
     slug: "ai-sdk-setup",
     title: "AI SDK & Simple Chat",
     description:
@@ -360,6 +380,27 @@ import { track } from "@vercel/analytics";
 
 // Track custom events
 track("signup_completed", { plan: "pro" });`,
+  },
+  {
+    slug: "og-image-generation",
+    title: "OG Image Generation",
+    description:
+      "Generate dynamic social preview images using Next.js file conventions and the next/og library. Server-rendered JSX images cached at build time.",
+    tags: ["Setup Instructions"],
+    icon: ImagePlus,
+    requires: ["nextjs-on-vercel"],
+    previewCode: `import { ImageResponse } from "next/og";
+
+export const size = { width: 1200, height: 630 };
+
+export default async function Image() {
+  return new ImageResponse(
+    <div style={{ display: "flex" }}>
+      {title}
+    </div>,
+    { ...size }
+  );
+}`,
   },
   {
     slug: "using-logging",
