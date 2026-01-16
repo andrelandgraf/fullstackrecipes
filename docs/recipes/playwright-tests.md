@@ -14,6 +14,20 @@ bunx playwright install chromium
 
 ---
 
+## Update .gitignore
+
+Add Playwright output directories to `.gitignore`:
+
+```gitignore
+# Playwright
+test-results/
+playwright-report/
+```
+
+These directories contain screenshots, traces, and HTML reports generated during test runs.
+
+---
+
 ## Folder Structure
 
 Playwright tests live in `tests/playwright/` and are organized by feature:
