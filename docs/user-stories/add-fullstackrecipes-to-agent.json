@@ -8,7 +8,7 @@
       "Verify wizard dialog opens",
       "Verify step indicator shows Select Recipes as active"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -22,7 +22,7 @@
       "Verify selection count updates in footer",
       "Click Clear all to reset selection"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

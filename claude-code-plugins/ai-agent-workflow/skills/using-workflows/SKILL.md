@@ -21,15 +21,18 @@ Each workflow has its own subfolder in `src/workflows/`:
 
 ```
 src/workflows/
+  steps/           # Shared step functions
+    stream.ts      # UI message stream helpers
   chat/
     index.ts       # Workflow orchestration function ("use workflow")
-    steps/         # Step functions ("use step")
+    steps/         # Workflow-specific steps ("use step")
       history.ts
       logger.ts
       name-chat.ts
     types.ts       # Workflow-specific types
 ```
 
+- **`workflows/steps/`** - Shared step functions reusable across workflows (e.g., stream helpers).
 - **`index.ts`** - Contains the main workflow function with the `"use workflow"` directive. Orchestrates the workflow by calling step functions.
 - **`steps/`** - Contains individual step functions with the `"use step"` directive. Each step is a durable checkpoint.
 - **`types.ts`** - Type definitions for the workflow's UI messages.
@@ -43,6 +46,7 @@ Define workflows with the `"use workflow"` directive:
 ```typescript
 // src/workflows/chat/index.ts
 import { getWorkflowMetadata, getWritable } from "workflow";
+import { startStream, finishStream } from "../steps/stream";
 import { chatAgent } from "@/lib/ai/chat-agent";
 
 export async function chatWorkflow({ chatId, userMessage }) {
@@ -62,6 +66,9 @@ export async function chatWorkflow({ chatId, userMessage }) {
   // Get message history
   const history = await getMessageHistory(chatId);
 
+  // Start the UI message stream
+  await startStream(messageId);
+
   // Run agent with streaming
   const { parts } = await chatAgent.run(history, {
     maxSteps: 10,
@@ -70,6 +77,10 @@ export async function chatWorkflow({ chatId, userMessage }) {
 
   // Persist and finalize
   await persistMessageParts({ chatId, messageId, parts });
+
+  // Finish the UI message stream
+  await finishStream();
+
   await removeRunId(messageId);
 }
 ```
@@ -112,22 +123,48 @@ async function getMessageHistory(chatId: string) {
 }
 ```
 
-### Streaming from Workflows
+---
 
-Use `getWritable()` to stream data to clients:
+### Streaming UIMessageChunks
+
+When streaming `UIMessageChunk` responses to clients (e.g., chat messages), you must signal the start and end of the stream. This is required for proper stream framing with `WorkflowChatTransport`.
+
+**Always call `startStream()` before `agent.run()` and `finishStream()` after:**
 
 ```typescript
 import { getWritable } from "workflow";
+import { startStream, finishStream } from "../steps/stream";
+import { chatAgent } from "@/lib/ai/chat-agent";
 
-export async function chatWorkflow({ chatId }) {
+export async function chatWorkflow({ chatId, messageId }) {
   "use workflow";
 
-  const writable = getWritable();
+  const history = await getMessageHistory(chatId);
 
-  // Pass to agent for streaming
-  await chatAgent.run(history, { writable });
+  // Signal stream start with the message ID
+  await startStream(messageId);
+
+  // Run agent - streams UIMessageChunks to the client
+  const { parts } = await chatAgent.run(history, {
+    maxSteps: 10,
+    writable: getWritable(),
+  });
+
+  await persistMessageParts({ chatId, messageId, parts });
+
+  // Signal stream end and close the writable
+  await finishStream();
 }
 ```
+
+The stream step functions write `UIMessageChunk` messages:
+
+- `startStream(messageId)` - Writes `{ type: "start", messageId }` to signal a new message
+- `finishStream()` - Writes `{ type: "finish", finishReason: "stop" }` and closes the stream
+
+Without these signals, the client's `WorkflowChatTransport` cannot properly parse the streamed response.
+
+---
 
 ### Getting Workflow Metadata
 
@@ -175,12 +212,16 @@ Use the custom `Agent` class for full streaming control:
 
 ```typescript
 import { getWritable } from "workflow";
+import { startStream, finishStream } from "../steps/stream";
 import { chatAgent } from "@/lib/ai/chat-agent";
 
 export async function chatWorkflow({ chatId, userMessage }) {
   "use workflow";
 
+  const messageId = await createAssistantMessage({ chatId, runId });
   const history = await getMessageHistory(chatId);
+
+  await startStream(messageId);
 
   const { parts } = await chatAgent.run(history, {
     maxSteps: 10,
@@ -188,16 +229,19 @@ export async function chatWorkflow({ chatId, userMessage }) {
   });
 
   await persistMessageParts({ chatId, messageId, parts });
+  await finishStream();
 }
 ```
 
 ### Persisting Workflow Results
 
-Save agent output using step functions:
+Save agent output using step functions. The `assertChatAgentParts` function validates that generic `UIMessage["parts"]` (returned by agents) match your application's specific tool and data types:
 
 ```typescript
 // src/workflows/chat/steps/history.ts
+import type { UIMessage } from "ai";
 import { insertMessageParts } from "@/lib/chat/queries";
+import { assertChatAgentParts, type ChatAgentUIMessage } from "../types";
 
 export async function persistMessageParts({
   chatId,
@@ -206,9 +250,11 @@ export async function persistMessageParts({
 }: {
   chatId: string;
   messageId: string;
-  parts: ChatAgentUIMessage["parts"];
+  parts: UIMessage["parts"];
 }): Promise<void> {
   "use step";
+
+  assertChatAgentParts(parts);
 
   await insertMessageParts(chatId, messageId, parts);
 

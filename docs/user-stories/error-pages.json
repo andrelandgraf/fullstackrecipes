@@ -7,7 +7,7 @@
       "Verify 404 Not Found page is displayed",
       "Verify page provides navigation back to home"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -29,6 +29,6 @@
       "Navigate to /recipes/<old-redirected-slug>",
       "Verify redirect to new recipe slug"
     ],
-    "passes": false
+    "passes": true
   }
 ]

@@ -60,10 +60,10 @@ export const authConfig = loadConfig({
 
 ### Step 4: Update the db generate script
 
-Create a `scripts/db/generate-schema.ts` script to generate the Better Auth schema before running Drizzle migrations:
+Create a `scripts/tests/generate-schema.ts` script to generate the Better Auth schema before running Drizzle migrations:
 
 ```typescript
-// scripts/db/generate-schema.ts
+// scripts/tests/generate-schema.ts
 import { $ } from "bun";
 import { loadEnvConfig } from "@next/env";
 
@@ -80,7 +80,7 @@ Replace the `package.json` `db:generate` script with this one.
 
 ```json
 "scripts": {
-  "db:generate": "bun run scripts/db/generate-schema.ts",
+  "db:generate": "bun run scripts/tests/generate-schema.ts",
   "db:migrate": "drizzle-kit migrate",
   "db:studio": "drizzle-kit studio"
 }

@@ -9,7 +9,7 @@
       "Verify tool has title and description",
       "Verify tool has OpenAI metadata for widget output"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -22,7 +22,7 @@
       "Verify each item has slug, title, description, and tags",
       "Verify cookbooks appear before recipes in response"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -34,7 +34,7 @@
       "Verify tool requires slug input parameter",
       "Verify tool has OpenAI metadata for widget output"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -48,7 +48,7 @@
       "Verify selected object has resourceUri for MCP resource access",
       "Verify response includes instruction message"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -60,7 +60,7 @@
       "Verify selected object has type cookbook",
       "Verify selected object has resourceUri for MCP resource access"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -71,7 +71,7 @@
       "Verify response includes error object",
       "Verify error message indicates item not found"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

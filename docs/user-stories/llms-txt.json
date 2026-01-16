@@ -9,6 +9,6 @@
       "Verify list of recipes and cookbooks",
       "Verify URLs to recipe pages are included"
     ],
-    "passes": false
+    "passes": true
   }
 ]

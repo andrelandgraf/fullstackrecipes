@@ -19,7 +19,7 @@
       "Verify error message appears",
       "Verify option to request new verification email"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

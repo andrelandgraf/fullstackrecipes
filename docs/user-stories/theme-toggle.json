@@ -13,7 +13,7 @@
       "Select System theme",
       "Verify theme matches system preference"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

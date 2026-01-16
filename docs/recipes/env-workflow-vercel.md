@@ -78,7 +78,7 @@ Since `.local` files always take precedence over their non-local counterparts, y
 Scripts and config files that run outside of Next.js (like Drizzle migrations or custom build scripts) don't have environment variables automatically loaded. Use `loadEnvConfig` from `@next/env` to load them manually:
 
 ```typescript
-// scripts/db/generate-schema.ts
+// scripts/tests/generate-schema.ts
 import { $ } from "bun";
 import { loadEnvConfig } from "@next/env";
 

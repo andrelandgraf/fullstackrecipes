@@ -12,7 +12,7 @@
       "Verify preview updates with first selected item",
       "Verify combined file count shows +N more"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

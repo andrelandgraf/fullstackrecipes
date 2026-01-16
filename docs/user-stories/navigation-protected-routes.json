@@ -11,7 +11,7 @@
       "Navigate to /chats/<chatId>",
       "Verify redirect to /sign-in"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

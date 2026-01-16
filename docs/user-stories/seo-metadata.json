@@ -10,7 +10,7 @@
       "Verify title matches recipe name",
       "Verify description matches recipe description"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -33,6 +33,6 @@
       "Verify all recipe pages are included",
       "Verify URLs are correctly formatted"
     ],
-    "passes": false
+    "passes": true
   }
 ]

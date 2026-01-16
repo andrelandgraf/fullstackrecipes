@@ -8,7 +8,7 @@
       "Verify response includes implement-<slug> prompts for each recipe",
       "Verify each prompt has description mentioning recipe title"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -19,7 +19,7 @@
       "Verify response includes implement-<slug> prompts for each cookbook",
       "Verify each prompt has description mentioning cookbook title"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

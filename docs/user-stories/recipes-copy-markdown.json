@@ -23,6 +23,6 @@
       "Verify button shows copied state",
       "Verify code is in clipboard"
     ],
-    "passes": false
+    "passes": true
   }
 ]

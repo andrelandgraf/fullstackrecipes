@@ -9,7 +9,7 @@
       "Verify each card shows title, description, and icon",
       "Verify cookbooks show recipe count badge"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

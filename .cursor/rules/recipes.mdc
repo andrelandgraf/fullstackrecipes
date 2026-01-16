@@ -25,6 +25,80 @@ Recipes are atomic, self-contained instructions. Each recipe serves one of two p
 
 All recipe content is stored as markdown files in the `docs/recipes/` directory.
 
+#### Recipe Markdown Structure
+
+**Setup Instructions** use numbered step headings:
+
+```markdown
+### Step 1: Install packages
+
+### Step 2: Create the config file
+
+### Step 3: Add environment variables
+```
+
+**How-To Guides** use descriptive section headings:
+
+```markdown
+### Writing Queries
+
+### Inserting Data
+
+### Using Relational Queries
+```
+
+**Common sections** (include when applicable):
+
+- `## File Structure` - Show the resulting directory layout after setup
+- `## Usage` - Provide common usage patterns and examples
+- `## References` - Link to external documentation at the end
+
+Use horizontal rules (`---`) to separate major sections.
+
+#### Code Block Formatting
+
+When a code block represents file content, the first line must be a comment with the file path:
+
+```typescript
+// src/lib/example/config.ts
+import { something } from "./somewhere";
+
+export const config = { ... };
+```
+
+This convention helps agents understand which file to create or modify. Use the appropriate comment syntax for the language (`//` for TypeScript/JavaScript, `#` for shell scripts, etc.).
+
+**Language tags by content type:**
+
+- `typescript` / `ts` / `tsx` - TypeScript/React code
+- `bash` - Terminal commands
+- `env` - Environment variable examples
+- `json` - Configuration files (no file path comment needed for snippets)
+
+#### Writing Conventions
+
+- Use imperative steps: "Create the config file" not "You should create..."
+- Avoid "you/we" pronouns throughout
+- Use `>` blockquotes for Notes and Tips: `> **Note**: This requires...`
+- Cross-reference other recipes with relative links: `[Environment Variable Management](/recipes/env-management)`
+
+#### Recipe Metadata (data.tsx)
+
+Each recipe in `/src/lib/recipes/data.tsx` requires:
+
+- `slug` - URL-safe identifier matching the markdown filename (without `.md`)
+- `title` - Display name
+- `description` - One-sentence summary
+- `tags` - Array containing one of: `"Setup Instructions"`, `"Skills"`, `"Cookbooks"`, or `"Starter template"`
+- `icon` - Lucide icon component
+- `previewCode` - Representative code snippet for OG images (no file path comments)
+
+Optional fields:
+
+- `requires` - Array of prerequisite recipe slugs
+- `registryDeps` - Array of shadcn registry item names from `registry.json`
+- `isCookbook` / `recipes` / `template` / `githubUrl` - For cookbooks only
+
 ### Cookbooks
 
 Cookbooks bundle multiple related recipes together, walking an agent through several setup guides and skills in sequence. For example, the "Base App Setup" cookbook includes recipes for setting up a base application with Next.js, Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK.

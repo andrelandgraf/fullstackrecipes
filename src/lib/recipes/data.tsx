@@ -29,6 +29,9 @@ import {
   Link2,
   List,
   Compass,
+  GitBranch,
+  TestTube,
+  Globe,
 } from "lucide-react";
 import registry from "../../../registry.json";
 
@@ -437,10 +440,25 @@ track("signup_completed", { plan: "pro" });`,
 }`,
   },
   {
-    slug: "bun-testing",
-    title: "Testing with Bun",
+    slug: "neon-test-branches",
+    title: "Neon Test Branches",
     description:
-      "Configure unit testing with Bun's built-in test runner. Fast, Jest-compatible syntax, no additional framework needed. Includes GitHub Actions CI workflow.",
+      "Create isolated Neon database branches for testing. Schema-only branches with auto-cleanup via TTL, test server orchestration, and environment variable management.",
+    tags: ["Setup Instructions"],
+    icon: GitBranch,
+    requires: ["neon-drizzle-setup"],
+    previewCode: `const branch = await createBranch("test-" + Date.now());
+
+const testServer = await startTestServer({
+  port: 3000,
+  databaseUrl: branch.connectionString,
+});`,
+  },
+  {
+    slug: "unit-tests",
+    title: "Unit Tests with Bun",
+    description:
+      "Configure unit testing with Bun's built-in test runner. Fast, Jest-compatible syntax, co-located test files, and mocking support.",
     tags: ["Setup Instructions"],
     icon: FlaskConical,
     previewCode: `import { describe, it, expect } from "bun:test";
@@ -451,6 +469,81 @@ describe("myFunction", () => {
   });
 });`,
   },
+  {
+    slug: "integration-tests",
+    title: "Integration Tests",
+    description:
+      "Test API routes by importing handlers directly with Bun's test runner. Fast, reliable tests without HTTP overhead.",
+    tags: ["Setup Instructions"],
+    icon: TestTube,
+    requires: ["neon-test-branches"],
+    previewCode: `import { GET } from "@/app/llms.txt/route";
+
+describe("GET /llms.txt", () => {
+  it("should return 200", async () => {
+    const response = await GET();
+    expect(response.status).toBe(200);
+  });
+});`,
+  },
+  {
+    slug: "playwright-tests",
+    title: "Browser Tests with Playwright",
+    description:
+      "End-to-end browser testing with Playwright. Test user interactions, form validation, navigation, and visual feedback with full browser automation.",
+    tags: ["Setup Instructions"],
+    icon: Globe,
+    requires: ["neon-test-branches"],
+    previewCode: `import { test, expect } from "@playwright/test";
+
+test("should sign in successfully", async ({ page }) => {
+  await page.goto("/sign-in");
+  await page.getByLabel(/email/i).fill("user@example.com");
+  await page.getByRole("button", { name: /sign in/i }).click();
+  await expect(page).toHaveURL(/chats/);
+});`,
+  },
+  {
+    slug: "using-tests",
+    title: "Working with Tests",
+    description:
+      "Testing strategy and workflow. Tests run in parallel with isolated data per suite. Prioritize Playwright for UI, integration tests for APIs, unit tests for logic.",
+    tags: ["Skills"],
+    icon: TestTube,
+    requires: ["playwright-tests", "integration-tests", "unit-tests"],
+    previewCode: `// Tests run in parallel - use unique test data per suite
+const testUser = await createTestUser({
+  email: \`auth-test-\${uuid}@example.com\`,
+});
+
+bun run test              // All tests
+bun run test:playwright   // Browser tests only`,
+  },
+  {
+    slug: "testing",
+    title: "Testing",
+    description:
+      "Complete testing setup with Neon database branching, Playwright browser tests, integration tests, and unit tests. Isolated branches with automatic TTL cleanup.",
+    tags: ["Cookbooks"],
+    icon: TestTube,
+    isCookbook: true,
+    recipes: [
+      "neon-test-branches",
+      "unit-tests",
+      "integration-tests",
+      "playwright-tests",
+      "using-tests",
+    ],
+    requires: ["neon-drizzle-setup"],
+    previewCode: `// Isolated Neon branch per test run (auto-cleanup via TTL)
+bun run test              // All tests
+bun run test:playwright   // Browser tests only
+
+// Each suite uses unique test data for parallel execution
+const testUser = await createTestUser({
+  email: \`chat-test-\${uuid}@example.com\`,
+});`,
+  } satisfies Cookbook,
   {
     slug: "better-auth-setup",
     title: "Better Auth Setup",
@@ -894,6 +987,7 @@ export function getCursorPromptDeeplink(promptText: string): string {
  */
 export const recipeRedirects: Record<string, string> = {
   "env-config": "env-management",
+  "bun-testing": "testing",
 };
 
 /** Get the redirect destination for an old slug, or undefined if no redirect exists */

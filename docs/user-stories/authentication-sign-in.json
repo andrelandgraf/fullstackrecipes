@@ -65,6 +65,6 @@
       "Click Forgot password link",
       "Verify redirect to /forgot-password page"
     ],
-    "passes": false
+    "passes": true
   }
 ]

@@ -13,7 +13,7 @@
       "Click copy button",
       "Verify command is copied to clipboard"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -24,6 +24,6 @@
       "Verify each card shows name, type badge, and description",
       "Verify type badges show lib or hook appropriately"
     ],
-    "passes": false
+    "passes": true
   }
 ]

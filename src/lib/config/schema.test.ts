@@ -859,9 +859,10 @@ describe("configSchema", () => {
       const config = configSchema(
         "AI",
         {
-          oidcToken: server({ env: "VERCEL_OIDC_TOKEN", value: undefined }),
+          // Use fake env var names that won't exist in real environment
+          oidcToken: server({ env: "TEST_FAKE_OIDC_TOKEN", value: undefined }),
           gatewayApiKey: server({
-            env: "AI_GATEWAY_API_KEY",
+            env: "TEST_FAKE_GATEWAY_API_KEY",
             value: "gateway-key",
           }),
         },

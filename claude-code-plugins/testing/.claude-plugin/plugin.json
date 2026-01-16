@@ -1,0 +1,12 @@
+{
+  "name": "testing",
+  "description": "Full Stack Recipes: Complete testing setup with Neon database branching, Playwright browser tests, integration tests, and unit tests. Isolated branches with automatic TTL cleanup.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Andre Landgraf",
+    "email": "andre.timo.landgraf@gmail.com"
+  },
+  "homepage": "https://fullstackrecipes.com/recipes/testing",
+  "repository": "https://github.com/andrelandgraf/fullstackrecipes",
+  "license": "MIT"
+}

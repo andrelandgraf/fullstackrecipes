@@ -9,7 +9,7 @@
       "Verify markdown content is rendered",
       "Verify code blocks are syntax highlighted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -21,7 +21,7 @@
       "Verify table of contents sidebar",
       "Verify combined markdown content from all recipes"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

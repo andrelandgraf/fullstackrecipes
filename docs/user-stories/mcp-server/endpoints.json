@@ -9,7 +9,7 @@
       "Verify server capabilities include prompts",
       "Verify server capabilities do not include tools"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -21,7 +21,7 @@
       "Verify server capabilities include prompts",
       "Verify server capabilities include tools"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

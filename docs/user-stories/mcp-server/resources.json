@@ -9,7 +9,7 @@
       "Verify each recipe has title, description, and mimeType",
       "Verify resource URIs follow format recipe://fullstackrecipes.com/<slug>"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -21,7 +21,7 @@
       "Verify each cookbook has title, description, and mimeType",
       "Verify resource URIs follow format cookbook://fullstackrecipes.com/<slug>"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -35,7 +35,7 @@
       "Verify frontmatter includes tags",
       "Verify content separator (---) appears before main content"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -47,7 +47,7 @@
       "Verify prerequisites section lists required recipe titles",
       "Verify prerequisites section includes instruction to fulfill them first"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -58,7 +58,7 @@
       "Verify frontmatter does not include prerequisites section",
       "Verify content flows directly from tags to separator"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -70,7 +70,7 @@
       "Verify each included recipe is listed by title",
       "Verify recipes are listed in cookbook order"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

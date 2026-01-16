@@ -9,7 +9,7 @@
       "Verify Browse Recipes button works",
       "Verify Add to Agent button opens wizard"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -21,7 +21,7 @@
       "Verify Sign into demo app button links to /sign-in",
       "Verify View on GitHub button links to repository"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -32,7 +32,7 @@
       "Verify step-by-step instructions are displayed",
       "Verify feature list is visible"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -43,7 +43,7 @@
       "Verify registry items are listed",
       "Verify install commands are displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -57,6 +57,6 @@
       "Click author Twitter link",
       "Verify Twitter profile opens in new tab"
     ],
-    "passes": false
+    "passes": true
   }
 ]
