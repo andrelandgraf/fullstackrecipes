@@ -1,7 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Wand2 } from "lucide-react";
 import { getAllItems } from "@/lib/recipes/data";
-import { WizardTrigger } from "@/components/wizard/wizard-trigger";
+import { InstallSection } from "@/components/home/install-section";
 
 const items = getAllItems();
 
@@ -25,27 +23,15 @@ export function Hero() {
             Instructions for <span className="text-primary">AI Agents</span>
           </h1>
 
-          <p className="mb-10 text-pretty text-lg text-muted-foreground md:text-xl">
+          <p className="text-pretty text-lg text-muted-foreground md:text-xl">
             <i>
               Setup guides and agent skills for durable agent workflows, AI chat
               persistence, Stripe subscription sync, and more.
             </i>
           </p>
 
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button asChild size="lg" className="gap-2 font-medium">
-              <a href="#recipes">
-                Browse Recipes
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            </Button>
-
-            <WizardTrigger queryParam="wizard">
-              <Button variant="outline" size="lg" className="gap-2 font-medium">
-                <Wand2 className="h-4 w-4" />
-                Add to Agent
-              </Button>
-            </WizardTrigger>
+          <div className="flex justify-center">
+            <InstallSection />
           </div>
         </div>
 

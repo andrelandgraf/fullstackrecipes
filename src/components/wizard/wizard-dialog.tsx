@@ -96,7 +96,6 @@ function WizardDialogInner({
     null,
   );
   const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
-  const [useContext7, setUseContext7] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [copiedMarkdown, setCopiedMarkdown] = useState(false);
   const [recipeContents, setRecipeContents] = useState<
@@ -228,11 +227,9 @@ function WizardDialogInner({
     });
   }, [recipes, searchQuery, selectedTagFilter]);
 
-  const fullPrompt = useContext7 ? `${promptText} using Context7` : promptText;
-
   async function copyPrompt() {
     try {
-      await navigator.clipboard.writeText(fullPrompt);
+      await navigator.clipboard.writeText(promptText);
       setCopiedPrompt(true);
       setTimeout(() => setCopiedPrompt(false), 2000);
     } catch {
@@ -772,8 +769,6 @@ function WizardDialogInner({
                         <McpSetupSteps
                           mcpClient={mcpClient}
                           setMcpClient={setMcpClient}
-                          useContext7={useContext7}
-                          setUseContext7={setUseContext7}
                           promptText={promptText}
                           copiedPrompt={copiedPrompt}
                           onCopyPrompt={copyPrompt}

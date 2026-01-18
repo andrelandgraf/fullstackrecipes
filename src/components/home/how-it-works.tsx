@@ -103,7 +103,6 @@ function HowItWorksInner() {
   );
   const [copiedState, setCopiedState] = useState<string | null>(null);
   const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
-  const [useContext7, setUseContext7] = useState(false);
   const [, setPickerOpen] = useQueryState(
     "picker",
     parseAsBoolean.withDefault(false),
@@ -423,16 +422,9 @@ function HowItWorksInner() {
                   <McpSetupSteps
                     mcpClient={mcpClient}
                     setMcpClient={setMcpClient}
-                    useContext7={useContext7}
-                    setUseContext7={setUseContext7}
                     promptText={promptText}
                     copiedPrompt={copiedState === "prompt"}
-                    onCopyPrompt={() => {
-                      const prompt = useContext7
-                        ? `${promptText} using Context7`
-                        : promptText;
-                      copyToClipboard(prompt, "prompt");
-                    }}
+                    onCopyPrompt={() => copyToClipboard(promptText, "prompt")}
                   />
                 </Card>
               </TabsContent>
