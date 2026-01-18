@@ -105,5 +105,5 @@ agent-browser install  # Download Chromium
 Add the browser automation skill:
 
 ```bash
-bunx skills add vercel-labs/agent-browser/skills
+bunx skills add vercel-labs/agent-browser -s agent-browser -y -a cursor
 ```
