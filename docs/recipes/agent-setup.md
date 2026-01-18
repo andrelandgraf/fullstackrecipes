@@ -113,9 +113,9 @@ bunx skills add vercel-labs/agent-skills -s vercel-react-best-practices -a curso
 bunx skills add andrelandgraf/fullstackrecipes/skills -y -a cursor
 ```
 
-| Skill | Description |
-| ----- | ----------- |
-| `agent-browser` | Browser automation for web testing and interaction |
-| `web-design-guidelines` | Web design best practices for UI/UX |
-| `vercel-react-best-practices` | React patterns and conventions for Vercel apps |
-| `fullstackrecipes` | Fullstackrecipes setup guides and workflows |
+| Skill                         | Description                                        |
+| ----------------------------- | -------------------------------------------------- |
+| `agent-browser`               | Browser automation for web testing and interaction |
+| `web-design-guidelines`       | Web design best practices for UI/UX                |
+| `vercel-react-best-practices` | React patterns and conventions for Vercel apps     |
+| `fullstackrecipes`            | Fullstackrecipes setup guides and workflows        |

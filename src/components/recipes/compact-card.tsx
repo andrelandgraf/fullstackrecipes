@@ -17,16 +17,16 @@ export function CompactRecipeCard({
 }: CompactRecipeCardProps) {
   return (
     <Link href={`/recipes/${slug}`}>
-      <Card className="group cursor-pointer border-border/50 bg-card transition-all duration-300 hover:border-primary/50 hover:bg-secondary/50">
+      <Card className="group cursor-pointer overflow-hidden border-border/50 bg-card transition-all duration-300 hover:border-primary/50 hover:bg-secondary/50">
         <CardContent className="flex items-center gap-3 p-4">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-secondary">
             <Icon className="h-4 w-4 text-primary" />
           </div>
           <div className="min-w-0 flex-1">
-            <h4 className="truncate font-mono text-sm font-medium group-hover:text-primary">
+            <h4 className="break-words font-mono text-sm font-medium group-hover:text-primary">
               {title}
             </h4>
-            <p className="truncate text-xs text-muted-foreground">
+            <p className="break-words text-xs text-muted-foreground">
               {description}
             </p>
           </div>
