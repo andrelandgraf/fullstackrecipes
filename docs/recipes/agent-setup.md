@@ -3,6 +3,8 @@
 Create an `agents.md` file in your project root. This file provides coding guidelines and patterns for AI assistants to follow.
 
 ```markdown
+// agents.md
+
 # Patterns
 
 - Strictly follow the Functional Core, Imperative Shell pattern: separate application logic into two parts: a functional core with pure, side-effect-free functions for business rules and data transformation, and an imperative shell that handles impure actions like database I/O, network requests, or user input, making the core logic easily testable and modular

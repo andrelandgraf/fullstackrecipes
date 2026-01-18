@@ -45,10 +45,7 @@ export function CopyButton({
 
   return (
     <Button
-      className={cn(
-        "size-6 opacity-0 transition-opacity group-hover:opacity-100",
-        className,
-      )}
+      className={cn("size-6", className)}
       onClick={copyToClipboard}
       size="icon"
       variant="ghost"
@@ -93,7 +90,7 @@ export function CodeCopyButton({
 
   return (
     <Button
-      className="h-6 gap-1.5 px-2 opacity-0 transition-opacity group-hover:opacity-100"
+      className="h-6 gap-1.5 px-2"
       onClick={copyToClipboard}
       size="sm"
       variant="ghost"
