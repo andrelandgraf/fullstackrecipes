@@ -45,6 +45,42 @@ export const TEMPLATE_BASE = "andrelandgraf/fullstackrecipes/templates";
 export const GITHUB_TEMPLATE_BASE =
   "https://github.com/andrelandgraf/fullstackrecipes/tree/main/templates";
 
+/** Base path for skills repository */
+export const SKILLS_REPO = "andrelandgraf/fullstackrecipes/skills";
+
+/** Available agent clients for skills installation */
+export type SkillsClient =
+  | "cursor"
+  | "opencode"
+  | "claude-code"
+  | "codex"
+  | "antigravity"
+  | "github-copilot";
+
+export const SKILLS_CLIENTS: { value: SkillsClient; label: string }[] = [
+  { value: "cursor", label: "Cursor" },
+  { value: "opencode", label: "OpenCode" },
+  { value: "claude-code", label: "Claude Code" },
+  { value: "codex", label: "Codex" },
+  { value: "antigravity", label: "Antigravity" },
+  { value: "github-copilot", label: "GitHub Copilot" },
+];
+
+/** Get skills installation command for all skills */
+export function getSkillsInstallCommand(client: SkillsClient): string {
+  return `bunx skills add ${SKILLS_REPO} -y -a ${client}`;
+}
+
+/** Get skills installation command for specific recipe slugs */
+export function getSkillsInstallCommandForSlugs(
+  slugs: string[],
+  client: SkillsClient,
+): string {
+  if (slugs.length === 0) return "";
+  const skillFlags = slugs.map((slug) => `-s ${slug}`).join(" ");
+  return `bunx skills add ${SKILLS_REPO} ${skillFlags} -y -a ${client}`;
+}
+
 export type Recipe = {
   slug: string;
   title: string;

@@ -27,6 +27,7 @@ import {
   Server,
   Loader2,
   FolderGit2,
+  Terminal,
 } from "lucide-react";
 import {
   useSelection,
@@ -42,10 +43,20 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import {
   getAllItems,
   isCookbook,
+  SKILLS_CLIENTS,
+  getSkillsInstallCommandForSlugs,
   type Recipe,
   type Cookbook,
+  type SkillsClient,
 } from "@/lib/recipes/data";
 import { TemplateCloneContent } from "@/components/recipes/template-clone-content";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const items = getAllItems();
 const allTags = Array.from(new Set(items.flatMap((item) => item.tags))).sort();
@@ -96,8 +107,10 @@ function WizardDialogInner({
     null,
   );
   const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
+  const [skillsClient, setSkillsClient] = useState<SkillsClient>("cursor");
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [copiedMarkdown, setCopiedMarkdown] = useState(false);
+  const [copiedSkills, setCopiedSkills] = useState(false);
   const [recipeContents, setRecipeContents] = useState<
     Record<string, string | null>
   >({});
@@ -242,6 +255,21 @@ function WizardDialogInner({
       await navigator.clipboard.writeText(combinedContent);
       setCopiedMarkdown(true);
       setTimeout(() => setCopiedMarkdown(false), 2000);
+    } catch {
+      // Silently fail
+    }
+  }
+
+  const skillsCommand = getSkillsInstallCommandForSlugs(
+    allContentSlugs,
+    skillsClient,
+  );
+
+  async function copySkills() {
+    try {
+      await navigator.clipboard.writeText(skillsCommand);
+      setCopiedSkills(true);
+      setTimeout(() => setCopiedSkills(false), 2000);
     } catch {
       // Silently fail
     }
@@ -666,19 +694,17 @@ function WizardDialogInner({
                     <TabsList className="rounded-none border-0">
                       <TabsTrigger value="copy">
                         <Copy className="h-4 w-4" />
-                        <span className="hidden sm:inline">Copy Markdown</span>
-                        <span className="sm:hidden">Copy</span>
+                        <span>Markdown</span>
                       </TabsTrigger>
                       <TabsTrigger value="mcp">
                         <Server className="h-4 w-4" />
-                        <span className="hidden sm:inline">Add MCP Server</span>
+                        <span className="hidden sm:inline">MCP & Skills</span>
                         <span className="sm:hidden">MCP</span>
                       </TabsTrigger>
                       {singleCookbookTemplate && (
                         <TabsTrigger value="template">
                           <FolderGit2 className="h-4 w-4" />
-                          <span className="hidden sm:inline">Use Template</span>
-                          <span className="sm:hidden">Template</span>
+                          <span>Template</span>
                         </TabsTrigger>
                       )}
                     </TabsList>
@@ -763,7 +789,7 @@ function WizardDialogInner({
                       </div>
                     </TabsContent>
 
-                    {/* MCP Server Tab */}
+                    {/* MCP & Skills Tab */}
                     <TabsContent value="mcp">
                       <div className="border-t border-border/50 bg-card p-4 sm:p-6">
                         <McpSetupSteps
@@ -772,6 +798,77 @@ function WizardDialogInner({
                           promptText={promptText}
                           copiedPrompt={copiedPrompt}
                           onCopyPrompt={copyPrompt}
+                          step2Content={
+                            allContentSlugs.length > 0 ? (
+                              <div className="min-w-0">
+                                <div className="flex items-start gap-3">
+                                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary sm:h-8 sm:w-8">
+                                    2
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <h4 className="font-medium">
+                                      Install selected skills
+                                    </h4>
+                                    <p className="text-sm text-muted-foreground">
+                                      Add skills for the{" "}
+                                      {allContentSlugs.length} selected{" "}
+                                      {allContentSlugs.length === 1
+                                        ? "recipe"
+                                        : "recipes"}{" "}
+                                      to your agent
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="mt-4">
+                                  <div className="mb-3 flex items-center justify-between">
+                                    <span className="text-sm text-muted-foreground">
+                                      Select your agent:
+                                    </span>
+                                    <Select
+                                      value={skillsClient}
+                                      onValueChange={(value) =>
+                                        setSkillsClient(value as SkillsClient)
+                                      }
+                                    >
+                                      <SelectTrigger className="w-[160px] bg-background">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {SKILLS_CLIENTS.map((agent) => (
+                                          <SelectItem
+                                            key={agent.value}
+                                            value={agent.value}
+                                          >
+                                            {agent.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+
+                                  <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-secondary/30 px-3 py-2.5">
+                                    <Terminal className="h-4 w-4 shrink-0 text-muted-foreground" />
+                                    <code className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-xs text-foreground/90 sm:text-sm">
+                                      {skillsCommand}
+                                    </code>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={copySkills}
+                                      className="h-7 w-7 shrink-0 p-0"
+                                    >
+                                      {copiedSkills ? (
+                                        <Check className="h-3.5 w-3.5 text-green-500" />
+                                      ) : (
+                                        <Copy className="h-3.5 w-3.5" />
+                                      )}
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : undefined
+                          }
                         />
                       </div>
                     </TabsContent>

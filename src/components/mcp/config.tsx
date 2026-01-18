@@ -245,6 +245,8 @@ type McpSetupStepsProps = {
   promptText: string;
   copiedPrompt: boolean;
   onCopyPrompt: () => void;
+  /** Optional content to render as Step 2 between MCP config and prompt */
+  step2Content?: React.ReactNode;
 };
 
 export function McpSetupSteps({
@@ -253,6 +255,7 @@ export function McpSetupSteps({
   promptText,
   copiedPrompt,
   onCopyPrompt,
+  step2Content,
 }: McpSetupStepsProps) {
   return (
     <div className="flex min-w-0 flex-col gap-6 sm:gap-8">
@@ -275,11 +278,14 @@ export function McpSetupSteps({
         </div>
       </div>
 
-      {/* Step 2: Prompt your agent */}
+      {/* Step 2: Optional slot for additional content (e.g., skills) */}
+      {step2Content}
+
+      {/* Step 3: Prompt your agent */}
       <div className="min-w-0">
         <div className="flex items-start gap-3">
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary sm:h-8 sm:w-8">
-            2
+            3
           </div>
           <div className="min-w-0">
             <h4 className="font-medium">

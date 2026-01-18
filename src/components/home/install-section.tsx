@@ -12,36 +12,18 @@ import {
 } from "@/components/ui/select";
 import { WizardTrigger } from "@/components/wizard/wizard-trigger";
 import { McpConfigSection, type McpClient } from "@/components/mcp/config";
-
-const SKILLS_REPO = "andrelandgraf/fullstackrecipes/skills";
-
-type SkillsClient =
-  | "cursor"
-  | "opencode"
-  | "claude-code"
-  | "codex"
-  | "antigravity"
-  | "github-copilot";
-
-const SKILLS_CLIENTS: { value: SkillsClient; label: string }[] = [
-  { value: "cursor", label: "Cursor" },
-  { value: "opencode", label: "OpenCode" },
-  { value: "claude-code", label: "Claude Code" },
-  { value: "codex", label: "Codex" },
-  { value: "antigravity", label: "Antigravity" },
-  { value: "github-copilot", label: "GitHub Copilot" },
-];
-
-function getSkillsCommand(client: SkillsClient) {
-  return `bunx skills add ${SKILLS_REPO} -y -a ${client}`;
-}
+import {
+  SKILLS_CLIENTS,
+  getSkillsInstallCommand,
+  type SkillsClient,
+} from "@/lib/recipes/data";
 
 export function InstallSection() {
   const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
   const [skillsClient, setSkillsClient] = useState<SkillsClient>("cursor");
   const [copied, setCopied] = useState(false);
 
-  const skillsCommand = getSkillsCommand(skillsClient);
+  const skillsCommand = getSkillsInstallCommand(skillsClient);
 
   async function copyToClipboard(text: string) {
     await navigator.clipboard.writeText(text);
