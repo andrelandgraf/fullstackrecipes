@@ -38,6 +38,43 @@ function registerBaseResourcesAndPrompts(server: McpServer) {
   const recipes = getAllRecipes();
   const cookbooks = getAllCookbooks();
 
+  server.registerTool(
+    "list_resources",
+    {
+      title: "List available resources",
+      description:
+        "Returns all available MCP resources (recipes and cookbooks) with their URIs and metadata.",
+      inputSchema: {},
+    },
+    async () => {
+      const recipeResources = recipes.map((r) => ({
+        uri: getItemResourceUri(r),
+        name: r.title,
+        description: r.description,
+        type: "recipe",
+      }));
+      const cookbookResources = cookbooks.map((c) => ({
+        uri: getItemResourceUri(c),
+        name: c.title,
+        description: c.description,
+        type: "cookbook",
+      }));
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(
+              [...cookbookResources, ...recipeResources],
+              null,
+              2,
+            ),
+          },
+        ],
+      };
+    },
+  );
+
   for (const recipe of recipes) {
     const resourceUri = getItemResourceUri(recipe);
 
@@ -301,6 +338,7 @@ export const mcpHandler = createMcpHandler(
   },
   {
     capabilities: {
+      tools: {},
       resources: {},
       prompts: {},
     },

@@ -32,7 +32,10 @@ function mcpRequest(
 ) {
   return fetch(`${BASE_URL}${endpoint}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json, text/event-stream",
+    },
     body: JSON.stringify({
       jsonrpc: "2.0",
       id: 1,
@@ -40,6 +43,26 @@ function mcpRequest(
       params,
     }),
   });
+}
+
+async function mcpRequestJson(
+  endpoint: string,
+  method: string,
+  params: Record<string, unknown> = {},
+): Promise<Record<string, unknown>> {
+  const response = await mcpRequest(endpoint, method, params);
+  const text = await response.text();
+
+  // Handle SSE format: "event: message\ndata: {...}\n\n"
+  if (text.startsWith("event:")) {
+    const dataLine = text.split("\n").find((line) => line.startsWith("data:"));
+    if (dataLine) {
+      return JSON.parse(dataLine.slice(5).trim());
+    }
+  }
+
+  // Handle plain JSON
+  return JSON.parse(text);
 }
 
 describe("MCP Server Tests", () => {
@@ -188,6 +211,67 @@ describe("MCP Server Tests", () => {
 
       // Catch-all should handle subpaths with CORS headers
       expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
+    });
+  });
+
+  describe("list_resources tool", () => {
+    it("should list list_resources tool on /api/mcp", async () => {
+      if (!serverReachable) return;
+
+      const json = await mcpRequestJson("/api/mcp", "tools/list", {});
+
+      expect(json.jsonrpc).toBe("2.0");
+      expect((json.result as { tools?: unknown })?.tools).toBeDefined();
+
+      const tools = (json.result as { tools: Array<{ name: string }> }).tools;
+      const listResourcesTool = tools.find((t) => t.name === "list_resources");
+      expect(listResourcesTool).toBeDefined();
+      expect(listResourcesTool?.name).toBe("list_resources");
+    });
+
+    it("should call list_resources and return resources on /api/mcp", async () => {
+      if (!serverReachable) return;
+
+      const json = await mcpRequestJson("/api/mcp", "tools/call", {
+        name: "list_resources",
+        arguments: {},
+      });
+
+      expect(json.jsonrpc).toBe("2.0");
+      expect((json.result as { content?: unknown })?.content).toBeDefined();
+
+      const content = (
+        json.result as { content: Array<{ type: string; text: string }> }
+      ).content;
+      expect(content.length).toBeGreaterThan(0);
+      expect(content[0].type).toBe("text");
+
+      const resources = JSON.parse(content[0].text) as Array<{
+        uri: string;
+        name: string;
+        description: string;
+        type: string;
+      }>;
+      expect(resources.length).toBeGreaterThan(0);
+
+      const firstResource = resources[0];
+      expect(firstResource.uri).toBeDefined();
+      expect(firstResource.name).toBeDefined();
+      expect(firstResource.description).toBeDefined();
+      expect(["recipe", "cookbook"]).toContain(firstResource.type);
+    });
+
+    it("should list list_resources tool on /api/openai/mcp", async () => {
+      if (!serverReachable) return;
+
+      const json = await mcpRequestJson("/api/openai/mcp", "tools/list", {});
+
+      expect(json.jsonrpc).toBe("2.0");
+      expect((json.result as { tools?: unknown })?.tools).toBeDefined();
+
+      const tools = (json.result as { tools: Array<{ name: string }> }).tools;
+      const listResourcesTool = tools.find((t) => t.name === "list_resources");
+      expect(listResourcesTool).toBeDefined();
     });
   });
 
