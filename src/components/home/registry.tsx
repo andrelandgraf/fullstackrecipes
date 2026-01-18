@@ -5,7 +5,15 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Copy, Check, Terminal } from "lucide-react";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { Copy, Check, Terminal, ChevronRight, Package } from "lucide-react";
 import { getRegistryItems } from "@/lib/recipes/data";
 
 const REGISTRY_ITEMS = getRegistryItems();
@@ -83,19 +91,13 @@ export function Registry() {
           </p>
         </div>
 
-        {/* Install Command */}
-        <Card className="mb-8 border-border/50 bg-card/50 p-4">
+        {/* Install Command Card */}
+        <Card className="border-border/50 bg-card/50 p-4">
           <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
             <Terminal className="h-3.5 w-3.5" />
-            <span>
-              Install{" "}
-              {selectedItems.size === REGISTRY_ITEMS.length
-                ? "all"
-                : selectedItems.size}{" "}
-              {selectedItems.size === 1 ? "utility" : "utilities"}
-            </span>
+            <span>Install command</span>
           </div>
-          <div className="group relative">
+          <div className="group relative mb-4">
             <pre className="overflow-x-auto rounded-lg bg-background p-3 font-mono text-xs leading-relaxed">
               <code
                 className={
@@ -121,46 +123,77 @@ export function Registry() {
               )}
             </Button>
           </div>
-        </Card>
 
-        {/* Items List */}
-        <div className="space-y-3">
-          {REGISTRY_ITEMS.map((item) => {
-            const Icon = item.icon;
-            const isSelected = selectedItems.has(item.name);
-            return (
-              <label
-                key={item.name}
-                className="flex cursor-pointer items-start gap-4 rounded-lg border border-border/50 bg-card/30 p-4 transition-colors hover:bg-card/60"
-              >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-sm font-medium">
-                      {item.name}
-                    </span>
-                    <Badge
-                      variant="outline"
-                      className={`text-[10px] px-1.5 py-0 ${getTypeColor(item.type)}`}
-                    >
-                      {item.type}
-                    </Badge>
+          {/* Selection Summary + Drawer Trigger */}
+          <Drawer>
+            <DrawerTrigger asChild>
+              <button className="flex w-full items-center justify-between rounded-lg border border-border/50 bg-background/50 px-4 py-3 text-left transition-colors hover:bg-background">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted">
+                    <Package className="h-4 w-4 text-muted-foreground" />
                   </div>
-                  <p className="text-xs leading-relaxed text-muted-foreground">
-                    {item.description}
-                  </p>
+                  <div>
+                    <span className="text-sm font-medium">
+                      {selectedItems.size} of {REGISTRY_ITEMS.length} utilities
+                      selected
+                    </span>
+                    <p className="text-xs text-muted-foreground">
+                      Click to customize selection
+                    </p>
+                  </div>
                 </div>
-                <Checkbox
-                  checked={isSelected}
-                  onCheckedChange={() => toggleItem(item.name)}
-                  className="mt-1.5 shrink-0"
-                />
-              </label>
-            );
-          })}
-        </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader className="border-b border-border/50">
+                <DrawerTitle>Select Utilities</DrawerTitle>
+                <DrawerDescription>
+                  Choose which utilities to include in the install command
+                </DrawerDescription>
+              </DrawerHeader>
+              <div className="max-h-[60vh] overflow-y-auto p-4">
+                <div className="space-y-3">
+                  {REGISTRY_ITEMS.map((item) => {
+                    const Icon = item.icon;
+                    const isSelected = selectedItems.has(item.name);
+                    return (
+                      <label
+                        key={item.name}
+                        className="flex cursor-pointer items-start gap-4 rounded-lg border border-border/50 bg-card/30 p-4 transition-colors hover:bg-card/60"
+                      >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                          <Icon className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-1 flex flex-wrap items-center gap-2">
+                            <span className="font-mono text-sm font-medium">
+                              {item.name}
+                            </span>
+                            <Badge
+                              variant="outline"
+                              className={`text-[10px] px-1.5 py-0 ${getTypeColor(item.type)}`}
+                            >
+                              {item.type}
+                            </Badge>
+                          </div>
+                          <p className="text-xs leading-relaxed text-muted-foreground">
+                            {item.description}
+                          </p>
+                        </div>
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => toggleItem(item.name)}
+                          className="mt-1.5 shrink-0"
+                        />
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </DrawerContent>
+          </Drawer>
+        </Card>
       </div>
     </section>
   );
