@@ -45,6 +45,17 @@ Create an `agents.md` file in your project root. This file provides coding guide
 - Use next/font + next/script when applicable
 - next/image above the fold should have `sync` / `eager` / use `priority` sparingly
 - Be mindful of serialized prop size for RSC → child components
+
+## Browser Automation
+
+Use `agent-browser` for web automation. Run `agent-browser --help` for all commands.
+
+Core workflow:
+
+1. `agent-browser open <url>` - Navigate to page
+2. `agent-browser snapshot -i` - Get interactive elements with refs (@e1, @e2)
+3. `agent-browser click @e1` / `fill @e2 "text"` - Interact using refs
+4. Re-snapshot after page changes
 ```
 
 > This `agents.md` file is based on [Lee Robinson's](https://x.com/leerob) original [shared here](https://x.com/leerob/status/1993162978410004777).
@@ -63,10 +74,6 @@ Use MCP (Model Context Protocol) servers to enhance your coding agent's capabili
       "command": "npx",
       "args": ["-y", "next-devtools-mcp@latest"]
     },
-    "playwright": {
-      "command": "npx",
-      "args": ["@playwright/mcp@latest"]
-    },
     "context7": {
       "url": "https://mcp.context7.com/mcp"
     },
@@ -81,8 +88,22 @@ Use MCP (Model Context Protocol) servers to enhance your coding agent's capabili
 | ------------------ | ---------------------------------------------------------------- |
 | `vercel`           | Manage Vercel projects, deployments, and search Vercel docs      |
 | `next-devtools`    | Next.js development tools for debugging, routing, and build info |
-| `playwright`       | Browser automation for testing and interacting with web pages    |
 | `context7`         | Up-to-date documentation lookup for any library                  |
 | `fullstackrecipes` | Fullstackrecipes recipes                                         |
 
 > **Vercel MCP:** On first connection, Cursor will show a "Needs login" prompt. Click it to authorize access to your Vercel account. For project-specific context, use `https://mcp.vercel.com/<teamSlug>/<projectSlug>` instead.
+
+### Step 3: Install Browser Automation
+
+Install the `agent-browser` package globally for web automation:
+
+```bash
+bun install -g agent-browser
+agent-browser install  # Download Chromium
+```
+
+Add the browser automation skill:
+
+```bash
+bunx skills add vercel-labs/agent-browser/skills
+```
