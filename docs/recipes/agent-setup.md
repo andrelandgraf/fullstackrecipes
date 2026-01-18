@@ -102,8 +102,20 @@ bun install -g agent-browser
 agent-browser install  # Download Chromium
 ```
 
-Add the browser automation skill:
+### Step 4: Install Agent Skills
+
+Install skills for AI agents:
 
 ```bash
 bunx skills add vercel-labs/agent-browser -s agent-browser -y -a cursor
+bunx skills add vercel-labs/agent-skills -s web-design-guidelines -a cursor -y
+bunx skills add vercel-labs/agent-skills -s vercel-react-best-practices -a cursor -y
+bunx skills add andrelandgraf/fullstackrecipes/skills -y -a cursor
 ```
+
+| Skill | Description |
+| ----- | ----------- |
+| `agent-browser` | Browser automation for web testing and interaction |
+| `web-design-guidelines` | Web design best practices for UI/UX |
+| `vercel-react-best-practices` | React patterns and conventions for Vercel apps |
+| `fullstackrecipes` | Fullstackrecipes setup guides and workflows |
