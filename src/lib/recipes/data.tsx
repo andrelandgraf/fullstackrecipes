@@ -34,6 +34,7 @@ import {
   Globe,
   ImagePlus,
   Code,
+  ClipboardList,
 } from "lucide-react";
 import registry from "../../../registry.json";
 
@@ -162,7 +163,7 @@ export const config: VercelConfig = {
       "Set up automated agent-driven development with Ralph. Run AI agents in a loop to implement features from user stories, verify acceptance criteria, and log progress for the next agent.",
     tags: ["Setup Instructions"],
     icon: RefreshCw,
-    requires: ["agent-setup"],
+    requires: ["agent-setup", "user-stories-setup"],
     previewCode: `// User story with acceptance criteria
 {
   "description": "User signs in with email",
@@ -173,6 +174,45 @@ export const config: VercelConfig = {
 // Ralph loops until all stories pass
 bun run ralph`,
     registryDeps: ["ralph"],
+  },
+  {
+    slug: "user-stories-setup",
+    title: "User Stories Setup",
+    description:
+      "Create a structured format for documenting feature requirements as user stories. JSON files with testable acceptance criteria that AI agents can verify and track.",
+    tags: ["Setup Instructions"],
+    icon: ClipboardList,
+    requires: ["agent-setup"],
+    previewCode: `// docs/user-stories/authentication.json
+[
+  {
+    "description": "User signs in with email",
+    "steps": ["Navigate to /sign-in", "Enter credentials", "Verify redirect"],
+    "passes": false
+  }
+]
+
+// Verify all stories have correct format
+bun run user-stories:verify`,
+  },
+  {
+    slug: "using-user-stories",
+    title: "Working with User Stories",
+    description:
+      "Document and track feature implementation with user stories. Workflow for authoring stories, building features, and marking acceptance criteria as passing.",
+    tags: ["Skills"],
+    icon: ClipboardList,
+    requires: ["user-stories-setup"],
+    previewCode: `// Workflow:
+// 1. Author/Update - Create story before building
+// 2. Build & Test - Implement until tests pass
+// 3. Mark Passing - Set passes: true when verified
+
+{
+  "description": "User deletes a chat",
+  "steps": ["Click menu", "Click delete", "Confirm", "Verify removed"],
+  "passes": true
+}`,
   },
   {
     slug: "assert",

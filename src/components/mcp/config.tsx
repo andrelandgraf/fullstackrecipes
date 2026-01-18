@@ -21,28 +21,9 @@ export const MCP_CONFIG = `{
 export const CURSOR_MCP_INSTALL_URL =
   "https://cursor.com/en-US/install-mcp?name=fullstackrecipes&config=eyJ1cmwiOiJodHRwczovL2Z1bGxzdGFja3JlY2lwZXMuY29tL2FwaS9tY3AifQ%3D%3D";
 
-/** Default Claude Code plugin commands (base plugin only) */
-export const CLAUDE_CODE_PLUGIN_COMMANDS = `/plugin marketplace add andrelandgraf/fullstackrecipes
-/plugin install fullstackrecipes@fullstackrecipes`;
-
-/** Generate Claude Code plugin commands based on selected cookbook slugs */
-export function getClaudeCodePluginCommands(cookbookSlugs: string[]): string {
-  const lines = ["/plugin marketplace add andrelandgraf/fullstackrecipes"];
-
-  if (cookbookSlugs.length === 0) {
-    // Default to base plugin if no cookbooks selected
-    lines.push("/plugin install fullstackrecipes@fullstackrecipes");
-  } else {
-    // Always include base plugin first
-    lines.push("/plugin install fullstackrecipes@fullstackrecipes");
-    // Add cookbook-specific plugins
-    for (const slug of cookbookSlugs) {
-      lines.push(`/plugin install fullstackrecipes@${slug}`);
-    }
-  }
-
-  return lines.join("\n");
-}
+/** Claude Code MCP server command */
+export const CLAUDE_CODE_MCP_COMMAND =
+  "claude mcp add --transport http fullstackrecipes https://fullstackrecipes.com/api/mcp";
 
 export const VSCODE_MCP_CONFIG = `{
   "servers": {
@@ -224,10 +205,7 @@ export function VSCodeButton({
   );
 }
 
-function getMcpTabs(
-  useContext7: boolean,
-  selectedCookbookSlugs: string[] = [],
-) {
+function getMcpTabs(useContext7: boolean) {
   return [
     {
       id: "cursor" as const,
@@ -248,7 +226,7 @@ function getMcpTabs(
       label: "Claude Code",
       code: useContext7
         ? CONTEXT7_CLAUDE_CODE_COMMAND
-        : getClaudeCodePluginCommands(selectedCookbookSlugs),
+        : CLAUDE_CODE_MCP_COMMAND,
       language: "bash" as const,
     },
   ];
@@ -261,8 +239,6 @@ type McpConfigSectionProps = {
   useContext7: boolean;
   setUseContext7: (value: boolean) => void;
   showAddButtons?: boolean;
-  /** Cookbook slugs to include in Claude Code plugin commands */
-  selectedCookbookSlugs?: string[];
 };
 
 export function McpConfigSection({
@@ -271,9 +247,8 @@ export function McpConfigSection({
   useContext7,
   setUseContext7,
   showAddButtons = true,
-  selectedCookbookSlugs = [],
 }: McpConfigSectionProps) {
-  const tabs = getMcpTabs(useContext7, selectedCookbookSlugs);
+  const tabs = getMcpTabs(useContext7);
   const cursorInstallUrl = useContext7
     ? CONTEXT7_CURSOR_MCP_INSTALL_URL
     : CURSOR_MCP_INSTALL_URL;
@@ -324,8 +299,6 @@ type McpSetupStepsProps = {
   promptText: string;
   copiedPrompt: boolean;
   onCopyPrompt: () => void;
-  /** Cookbook slugs to include in Claude Code plugin commands */
-  selectedCookbookSlugs?: string[];
 };
 
 export function McpSetupSteps({
@@ -336,7 +309,6 @@ export function McpSetupSteps({
   promptText,
   copiedPrompt,
   onCopyPrompt,
-  selectedCookbookSlugs = [],
 }: McpSetupStepsProps) {
   // Append "using Context7" to prompt when Context7 is enabled
   const displayPrompt = useContext7
@@ -353,16 +325,12 @@ export function McpSetupSteps({
           </div>
           <div className="min-w-0">
             <h4 className="font-medium">
-              {mcpClient === "claude-code" && !useContext7
-                ? "Install fullstackrecipes plugin"
-                : useContext7
-                  ? "Add Context7 MCP server"
-                  : "Add fullstackrecipes MCP server"}
+              {useContext7
+                ? "Add Context7 MCP server"
+                : "Add fullstackrecipes MCP server"}
             </h4>
             <p className="text-sm text-muted-foreground">
-              {mcpClient === "claude-code" && !useContext7
-                ? "Plugin includes MCP server, skills, and project rules"
-                : "Add to your coding agent's MCP config"}
+              Add to your coding agent&apos;s MCP config
             </p>
           </div>
         </div>
@@ -373,7 +341,6 @@ export function McpSetupSteps({
             setMcpClient={setMcpClient}
             useContext7={useContext7}
             setUseContext7={setUseContext7}
-            selectedCookbookSlugs={selectedCookbookSlugs}
           />
         </div>
       </div>

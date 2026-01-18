@@ -43,7 +43,7 @@
     "steps": [
       "Open wizard with recipes selected",
       "Click Next to go to agent step",
-      "Click MCP / Plugin tab",
+      "Click Add MCP Server tab",
       "Verify Cursor tab is selected by default",
       "Verify MCP config JSON is displayed",
       "Click Add to Cursor button",
@@ -58,7 +58,7 @@
     "description": "User configures MCP server for VS Code",
     "steps": [
       "Open wizard with recipes selected",
-      "Click MCP / Plugin tab",
+      "Click Add MCP Server tab",
       "Click VS Code tab",
       "Verify VS Code MCP config JSON is displayed",
       "Click Add to VS Code button"
@@ -67,13 +67,12 @@
   },
   {
     "category": "functional",
-    "description": "User configures Claude Code plugin",
+    "description": "User configures Claude Code MCP server",
     "steps": [
       "Open wizard with recipes selected",
-      "Click MCP / Plugin tab",
+      "Click Add MCP Server tab",
       "Click Claude Code tab",
-      "Verify plugin install commands are displayed",
-      "Verify commands include selected cookbook plugins"
+      "Verify MCP add command is displayed"
     ],
     "passes": false
   },
@@ -85,18 +84,6 @@
       "Check Using Context7 checkbox",
       "Verify config switches to Context7 MCP URL",
       "Verify prompt text includes using Context7"
-    ],
-    "passes": false
-  },
-  {
-    "category": "functional",
-    "description": "User uses registry to install code",
-    "steps": [
-      "Select a recipe with registry items",
-      "Click Next to go to agent step",
-      "Click Registry tab",
-      "Verify shadcn CLI command is displayed",
-      "Verify registry URLs are correct"
     ],
     "passes": false
   },

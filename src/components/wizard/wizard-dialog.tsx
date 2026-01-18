@@ -25,7 +25,6 @@ import {
   ChevronRight,
   Copy,
   Server,
-  Terminal,
   Loader2,
   FolderGit2,
 } from "lucide-react";
@@ -50,13 +49,6 @@ import { TemplateCloneContent } from "@/components/recipes/template-clone-conten
 
 const items = getAllItems();
 const allTags = Array.from(new Set(items.flatMap((item) => item.tags))).sort();
-
-function getRegistryCommand(registryDeps: string[]) {
-  const urls = registryDeps
-    .map((dep) => `https://fullstackrecipes.com/r/${dep}.json`)
-    .join(" ");
-  return `bunx shadcn@latest add ${urls}`;
-}
 
 type WizardStep = "recipes" | "agent";
 
@@ -119,8 +111,6 @@ function WizardDialogInner({
     selectedItems,
     allContentSlugs,
     promptText,
-    registryDeps,
-    hasRegistry,
     recipesIncludedInCookbooks,
     deliveryTab,
     toggleItem,
@@ -129,12 +119,6 @@ function WizardDialogInner({
     setDeliveryTab,
     setSelectedSlugs,
   } = useSelection();
-
-  // Extract cookbook slugs for Claude Code plugin commands
-  const selectedCookbookSlugs = useMemo(
-    () => selectedItems.filter(isCookbook).map((item) => item.slug),
-    [selectedItems],
-  );
 
   // Check if single cookbook with template is selected
   const singleCookbookTemplate = useMemo(() => {
@@ -690,18 +674,9 @@ function WizardDialogInner({
                       </TabsTrigger>
                       <TabsTrigger value="mcp">
                         <Server className="h-4 w-4" />
-                        <span className="hidden sm:inline">
-                          Add MCP / Plugin
-                        </span>
+                        <span className="hidden sm:inline">Add MCP Server</span>
                         <span className="sm:hidden">MCP</span>
                       </TabsTrigger>
-                      {hasRegistry && (
-                        <TabsTrigger value="registry">
-                          <Terminal className="h-4 w-4" />
-                          <span className="hidden sm:inline">Registry</span>
-                          <span className="sm:hidden">CLI</span>
-                        </TabsTrigger>
-                      )}
                       {singleCookbookTemplate && (
                         <TabsTrigger value="template">
                           <FolderGit2 className="h-4 w-4" />
@@ -802,55 +777,9 @@ function WizardDialogInner({
                           promptText={promptText}
                           copiedPrompt={copiedPrompt}
                           onCopyPrompt={copyPrompt}
-                          selectedCookbookSlugs={selectedCookbookSlugs}
                         />
                       </div>
                     </TabsContent>
-
-                    {/* Registry Tab */}
-                    {hasRegistry && (
-                      <TabsContent value="registry">
-                        <div className="flex flex-col gap-6 border-t border-border/50 bg-card p-4 sm:gap-8 sm:p-6">
-                          <div>
-                            <div className="flex items-start gap-3">
-                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                                1
-                              </div>
-                              <div>
-                                <h4 className="font-medium">
-                                  Install via shadcn registry
-                                </h4>
-                                <p className="text-sm text-muted-foreground">
-                                  {registryDeps.length > 1
-                                    ? `${registryDeps.length} registry items from selected guides`
-                                    : "This recipe has reusable code you can install directly"}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="mt-4">
-                              <McpCodeBlock
-                                code={getRegistryCommand(registryDeps)}
-                                language="bash"
-                              />
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                              2
-                            </div>
-                            <div>
-                              <h4 className="font-medium">
-                                Code is added to your project
-                              </h4>
-                              <p className="text-sm text-muted-foreground">
-                                The files are installed to your project. Update
-                                imports to match your project structure.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </TabsContent>
-                    )}
 
                     {/* Template Tab */}
                     {singleCookbookTemplate && (

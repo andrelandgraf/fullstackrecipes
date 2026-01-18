@@ -1,0 +1,132 @@
+---
+name: recipes
+description: About recipes, cookbooks, and the fullstackrecipes project.
+---
+
+# fullstackrecipes (Full Stack Recipes)
+
+fullstackrecipes.com provides cookbooks and recipes that help build better full-stack applications with AI-powered coding agents. Recipes are atomic instructions that follow a technical writing style using imperative steps (e.g., "Create xyz", "Download abc") without "you/we" pronouns.
+
+## Terminology
+
+- **Resources**: Documents an agent can read
+- **Skills**: Instructions an agent always has access to, which can reference resources and other materials
+- **Plugins** (Claude Code): Bundled collections of skills, MCP servers, and more for distribution
+- **Tools**: Functions agents can call
+- **Prompts**: Instructions for an agent, typically linking to resources and referencing MCP servers
+
+## Content Types
+
+### Recipes
+
+Recipes are atomic, self-contained instructions. Each recipe serves one of two purposes:
+
+1. **Setup Instructions**: Step-by-step guides to configure something in a repository
+2. **Skills**: Instructions that teach agents how to work with previously configured tools or features
+
+All recipe content is stored as markdown files in the `docs/recipes/` directory.
+
+#### Recipe Markdown Structure
+
+**Setup Instructions** use numbered step headings:
+
+```markdown
+### Step 1: Install packages
+
+### Step 2: Create the config file
+
+### Step 3: Add environment variables
+```
+
+**How-To Guides** use descriptive section headings:
+
+```markdown
+### Writing Queries
+
+### Inserting Data
+
+### Using Relational Queries
+```
+
+**Common sections** (include when applicable):
+
+- `## File Structure` - Show the resulting directory layout after setup
+- `## Usage` - Provide common usage patterns and examples
+- `## References` - Link to external documentation at the end
+
+Use horizontal rules (`---`) to separate major sections.
+
+#### Code Block Formatting
+
+When a code block represents file content, the first line must be a comment with the file path:
+
+```typescript
+// src/lib/example/config.ts
+import { something } from "./somewhere";
+
+export const config = { ... };
+```
+
+This convention helps agents understand which file to create or modify. Use the appropriate comment syntax for the language (`//` for TypeScript/JavaScript, `#` for shell scripts, etc.).
+
+**Language tags by content type:**
+
+- `typescript` / `ts` / `tsx` - TypeScript/React code
+- `bash` - Terminal commands
+- `env` - Environment variable examples
+- `json` - Configuration files (no file path comment needed for snippets)
+
+#### Writing Conventions
+
+- Use imperative steps: "Create the config file" not "You should create..."
+- Avoid "you/we" pronouns throughout
+- Use `>` blockquotes for Notes and Tips: `> **Note**: This requires...`
+- Cross-reference other recipes with relative links: `[Environment Variable Management](/recipes/env-management)`
+
+#### Recipe Metadata (data.tsx)
+
+Each recipe in `/src/lib/recipes/data.tsx` requires:
+
+- `slug` - URL-safe identifier matching the markdown filename (without `.md`)
+- `title` - Display name
+- `description` - One-sentence summary
+- `tags` - Array containing one of: `"Setup Instructions"`, `"Skills"`, `"Cookbooks"`, or `"Starter template"`
+- `icon` - Lucide icon component
+- `previewCode` - Representative code snippet for OG images (no file path comments)
+
+Optional fields:
+
+- `requires` - Array of prerequisite recipe slugs
+- `registryDeps` - Array of shadcn registry item names from `registry.json`
+- `isCookbook` / `recipes` / `template` / `githubUrl` - For cookbooks only
+
+### Cookbooks
+
+Cookbooks bundle multiple related recipes together, walking an agent through several setup guides and skills in sequence. For example, the "Base App Setup" cookbook includes recipes for setting up a base application with Next.js, Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK.
+
+## Usage
+
+1. Discover recipes and cookbooks of interest
+2. Copy markdown content manually and pass to a coding agent, or
+3. Install the MCP server to access recipes programmatically
+
+Recipes can be selected and copied as markdown or accessed as MCP resources. Cookbooks can also be installed as Claude Code Plugins.
+
+## Repository Structure
+
+All metadata for recipes and cookbooks is stored in `/src/lib/recipes/data.tsx`.
+
+Some code utilities are exposed through the shadcn registry stored in `/registry.json`. Run `bun run registry:build` to build the registry and generate files in `public/r/`.
+
+## Demo Application
+
+This repository includes a demo application that showcases the recipes and cookbooks in action. The demo app verifies guides are complete and accurate.
+
+**Important**: Keep the demo app synchronized with the recipes and cookbooks. Code should ideally match 1-to-1 between recipes and the demo app.
+
+Exceptions:
+
+- Recipe code examples may include comments not present in the demo app
+- Recipes may omit code that is implemented in later recipes
+
+Always highlight discrepancies between recipe and demo code to determine what is out of sync (stale demo code or stale recipe examples).

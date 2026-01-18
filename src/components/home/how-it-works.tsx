@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import {
   Copy,
   Check,
-  Terminal,
   Server,
   FileCode,
   FileText,
@@ -69,31 +68,16 @@ function InlineHighlightedCode({
   );
 }
 
-function getRegistryCommand(registryDeps: string[]) {
-  const urls = registryDeps
-    .map((dep) => `https://fullstackrecipes.com/r/${dep}.json`)
-    .join(" ");
-  return `bunx shadcn@latest add ${urls}`;
-}
-
 function HowItWorksInner() {
   const {
     selectedSlugs,
     selectedItems,
     allContentSlugs,
     promptText,
-    registryDeps,
-    hasRegistry,
     removeItem,
     deliveryTab,
     setDeliveryTab,
   } = useSelection();
-
-  // Extract cookbook slugs for Claude Code plugin commands
-  const selectedCookbookSlugs = useMemo(
-    () => selectedItems.filter(isCookbook).map((item) => item.slug),
-    [selectedItems],
-  );
 
   // Check if single cookbook with template is selected
   const singleCookbookTemplate = useMemo(() => {
@@ -346,16 +330,9 @@ function HowItWorksInner() {
                 </TabsTrigger>
                 <TabsTrigger value="mcp">
                   <Server className="h-4 w-4" />
-                  <span className="hidden sm:inline">Add MCP / Plugin</span>
+                  <span className="hidden sm:inline">Add MCP Server</span>
                   <span className="sm:hidden">MCP</span>
                 </TabsTrigger>
-                {hasRegistry && (
-                  <TabsTrigger value="registry">
-                    <Terminal className="h-4 w-4" />
-                    <span className="hidden sm:inline">Registry</span>
-                    <span className="sm:hidden">CLI</span>
-                  </TabsTrigger>
-                )}
                 {singleCookbookTemplate && (
                   <TabsTrigger value="template">
                     <FolderGit2 className="h-4 w-4" />
@@ -456,55 +433,9 @@ function HowItWorksInner() {
                         : promptText;
                       copyToClipboard(prompt, "prompt");
                     }}
-                    selectedCookbookSlugs={selectedCookbookSlugs}
                   />
                 </Card>
               </TabsContent>
-
-              {/* Registry Tab */}
-              {hasRegistry && (
-                <TabsContent value="registry">
-                  <Card className="flex flex-col gap-8 rounded-t-none border-t-0 border-border/50 p-6">
-                    {/* Step 1 */}
-                    <div>
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                          1
-                        </div>
-                        <div>
-                          <h4 className="font-medium">
-                            Install via shadcn registry
-                          </h4>
-                          <p className="text-sm text-muted-foreground">
-                            {registryDeps.length > 1
-                              ? `${registryDeps.length} registry items from selected guides`
-                              : "This recipe has reusable code you can install directly"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <McpCodeBlock
-                        code={getRegistryCommand(registryDeps)}
-                        language="bash"
-                      />
-                    </div>
-
-                    {/* Step 2 */}
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                        2
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Follow the recipe</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Learn how to use the utilities in your project and
-                          adapt them to your needs.
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-                </TabsContent>
-              )}
 
               {/* Template Tab */}
               {singleCookbookTemplate && (

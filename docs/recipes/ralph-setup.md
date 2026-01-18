@@ -10,30 +10,7 @@ Ralph is a pattern for automated agent-driven development. It runs AI coding age
 
 ---
 
-### Step 1: Create the User Stories Directory
-
-Create a `docs/user-stories/` directory to store acceptance criteria for features. Each user story is a JSON file containing test scenarios:
-
-```json
-[
-  {
-    "category": "functional",
-    "description": "User signs in with email and password",
-    "steps": [
-      "Navigate to /sign-in page",
-      "Enter email and password",
-      "Submit the form",
-      "Verify successful login",
-      "Verify redirect to /chats"
-    ],
-    "passes": false
-  }
-]
-```
-
-Each user story file can contain multiple scenarios. The `passes` field tracks whether the feature has been implemented and verified.
-
-### Step 2: Add npm Script
+### Step 1: Add npm Script
 
 Add a script to `package.json` to run Ralph:
 
@@ -45,7 +22,7 @@ Add a script to `package.json` to run Ralph:
 }
 ```
 
-### Step 3: Install Claude Code CLI
+### Step 2: Install Claude Code CLI
 
 Ralph uses the Claude Code CLI to spawn agent sessions. Install it globally:
 
@@ -85,49 +62,22 @@ bun run ralph --prompt "Focus on authentication features first"
 
 ---
 
-## Writing User Stories
+## Story Categories
 
-Each user story file should cover a single feature area. Group related scenarios together:
+Add a `category` field to help Ralph prioritize work:
 
 ```json
-[
-  {
-    "category": "functional",
-    "description": "Chat is automatically named after first message",
-    "steps": [
-      "Create a new chat",
-      "Send the first message",
-      "Wait for AI response to complete",
-      "Navigate to /chats list",
-      "Verify chat has a descriptive title based on first message"
-    ],
-    "passes": false
-  },
-  {
-    "category": "edge-case",
-    "description": "Empty message does not trigger naming",
-    "steps": [
-      "Create a new chat",
-      "Submit empty message",
-      "Verify chat title remains 'New Chat'"
-    ],
-    "passes": false
-  }
-]
+{
+  "category": "functional",
+  "description": "User signs in with email and password",
+  "steps": ["Navigate to /sign-in", "Enter credentials", "Verify redirect"],
+  "passes": false
+}
 ```
 
-Categories help agents prioritize:
+Categories:
 
-- `functional` - Core feature behavior
+- `functional` - Core feature behavior (highest priority)
 - `edge-case` - Error handling and boundary conditions
 - `integration` - Features that span multiple systems
 - `ui` - Visual and interaction requirements
-
----
-
-## Best Practices
-
-1. **Atomic stories**: Each scenario should test one specific behavior
-2. **Clear steps**: Write steps that an agent can verify programmatically
-3. **Independent stories**: Stories should not depend on execution order
-4. **Descriptive filenames**: Use kebab-case names that describe the feature area (e.g., `chat-auto-naming.json`, `authentication-sign-in.json`)

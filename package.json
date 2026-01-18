@@ -36,8 +36,9 @@
     "db:branch:create": "bun run scripts/tests/create-branch.ts",
     "workflow:dev": "workflow inspect runs --web",
     "registry:build": "bunx --bun shadcn@latest build",
-    "plugin:build": "bun run scripts/build-plugin.ts",
-    "ralph": "bun run scripts/ralph/runner.ts"
+    "ralph": "bun run scripts/ralph/runner.ts",
+    "user-stories:verify": "bun run scripts/verify-user-stories.ts",
+    "skills:build": "bun run scripts/skills-build.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.1",
