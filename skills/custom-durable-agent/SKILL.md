@@ -5,7 +5,7 @@ description: Build a custom durable AI agent with full control over streamText o
 
 # Custom Durable Agent
 
-To set up Custom Durable Agent, fetch the recipe from the fullstackrecipes MCP server:
+To set up Custom Durable Agent, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/custom-durable-agent`
 

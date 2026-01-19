@@ -5,7 +5,7 @@ description: Complete subscription system with Stripe, Vercel Flags for plan con
 
 # Stripe Subscriptions DB Sync
 
-To set up Stripe Subscriptions DB Sync, fetch the recipe from the fullstackrecipes MCP server:
+To set up Stripe Subscriptions DB Sync, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/stripe-sync`
 

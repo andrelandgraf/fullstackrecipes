@@ -5,7 +5,7 @@ description: TypeScript assertion function for runtime type narrowing with descr
 
 # Assertion Helper
 
-To set up Assertion Helper, fetch the recipe from the fullstackrecipes MCP server:
+To set up Assertion Helper, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/assert`
 

@@ -5,7 +5,7 @@ description: Implement feature flags using the Vercel Flags SDK with server-side
 
 # Feature Flags with Flags SDK
 
-To set up Feature Flags with Flags SDK, fetch the recipe from the fullstackrecipes MCP server:
+To set up Feature Flags with Flags SDK, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/feature-flags-setup`
 

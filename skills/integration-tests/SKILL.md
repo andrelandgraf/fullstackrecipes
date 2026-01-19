@@ -5,7 +5,7 @@ description: Test API routes by importing handlers directly with Bun's test runn
 
 # Integration Tests
 
-To set up Integration Tests, fetch the recipe from the fullstackrecipes MCP server:
+To set up Integration Tests, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/integration-tests`
 

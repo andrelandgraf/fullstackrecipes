@@ -5,7 +5,7 @@ description: Persist AI chat conversations to Neon Postgres with full support fo
 
 # AI Chat Persistence with Neon
 
-To set up AI Chat Persistence with Neon, fetch the recipe from the fullstackrecipes MCP server:
+To set up AI Chat Persistence with Neon, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/ai-chat-persistence`
 

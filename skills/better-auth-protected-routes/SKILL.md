@@ -5,7 +5,7 @@ description: Add server-side route protection to enforce authentication on speci
 
 # Better Auth Protected Routes
 
-To set up Better Auth Protected Routes, fetch the recipe from the fullstackrecipes MCP server:
+To set up Better Auth Protected Routes, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/better-auth-protected-routes`
 

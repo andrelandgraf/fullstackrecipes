@@ -43,7 +43,7 @@ async function generateSkillContent(recipe: Recipe): Promise<string> {
 
 # ${recipe.title}
 
-To set up ${recipe.title}, fetch the recipe from the fullstackrecipes MCP server:
+To set up ${recipe.title}, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** \`${resourceUri}\`
 

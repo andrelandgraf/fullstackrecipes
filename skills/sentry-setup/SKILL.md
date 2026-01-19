@@ -5,7 +5,7 @@ description: Configure Sentry for error tracking, performance monitoring, and lo
 
 # Sentry Setup
 
-To set up Sentry Setup, fetch the recipe from the fullstackrecipes MCP server:
+To set up Sentry Setup, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/sentry-setup`
 

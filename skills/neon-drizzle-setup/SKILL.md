@@ -5,7 +5,7 @@ description: Connect a Next.js app to Neon Postgres using Drizzle ORM with optim
 
 # Neon + Drizzle Setup
 
-To set up Neon + Drizzle Setup, fetch the recipe from the fullstackrecipes MCP server:
+To set up Neon + Drizzle Setup, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/neon-drizzle-setup`
 

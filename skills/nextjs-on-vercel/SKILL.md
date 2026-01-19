@@ -5,7 +5,7 @@ description: Create a Next.js app running on Bun, configure the development envi
 
 # Next.js on Vercel
 
-To set up Next.js on Vercel, fetch the recipe from the fullstackrecipes MCP server:
+To set up Next.js on Vercel, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/nextjs-on-vercel`
 

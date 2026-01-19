@@ -5,7 +5,7 @@ description: End-to-end browser testing with Playwright. Test user interactions,
 
 # Browser Tests with Playwright
 
-To set up Browser Tests with Playwright, fetch the recipe from the fullstackrecipes MCP server:
+To set up Browser Tests with Playwright, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/playwright-tests`
 

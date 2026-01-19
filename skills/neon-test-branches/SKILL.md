@@ -5,7 +5,7 @@ description: Create isolated Neon database branches for testing. Schema-only bra
 
 # Neon Test Branches
 
-To set up Neon Test Branches, fetch the recipe from the fullstackrecipes MCP server:
+To set up Neon Test Branches, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/neon-test-branches`
 

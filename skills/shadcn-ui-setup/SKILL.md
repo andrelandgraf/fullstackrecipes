@@ -5,7 +5,7 @@ description: Add Shadcn UI components with dark mode support using next-themes. 
 
 # Shadcn UI & Theming
 
-To set up Shadcn UI & Theming, fetch the recipe from the fullstackrecipes MCP server:
+To set up Shadcn UI & Theming, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/shadcn-ui-setup`
 

@@ -5,7 +5,7 @@ description: Configure AI coding agents like Cursor, GitHub Copilot, or Claude C
 
 # AI Coding Agent Configuration
 
-To set up AI Coding Agent Configuration, fetch the recipe from the fullstackrecipes MCP server:
+To set up AI Coding Agent Configuration, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/agent-setup`
 

@@ -5,7 +5,7 @@ description: Add automatic stream recovery to AI chat with WorkflowChatTransport
 
 # Resumable AI Response Streams
 
-To set up Resumable AI Response Streams, fetch the recipe from the fullstackrecipes MCP server:
+To set up Resumable AI Response Streams, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/resumable-ai-streams`
 

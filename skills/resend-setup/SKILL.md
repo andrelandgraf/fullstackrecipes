@@ -5,7 +5,7 @@ description: Configure Resend for transactional emails like password resets and 
 
 # Resend Setup
 
-To set up Resend Setup, fetch the recipe from the fullstackrecipes MCP server:
+To set up Resend Setup, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/resend-setup`
 

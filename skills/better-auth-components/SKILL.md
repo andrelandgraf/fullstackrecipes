@@ -5,7 +5,7 @@ description: Add UI components and pages for authentication flows including sign
 
 # Better Auth Components
 
-To set up Better Auth Components, fetch the recipe from the fullstackrecipes MCP server:
+To set up Better Auth Components, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/better-auth-components`
 

@@ -5,7 +5,7 @@ description: Sync React state to URL query parameters for shareable filters, sea
 
 # URL State with nuqs
 
-To set up URL State with nuqs, fetch the recipe from the fullstackrecipes MCP server:
+To set up URL State with nuqs, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/nuqs-setup`
 

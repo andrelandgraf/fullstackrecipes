@@ -5,7 +5,7 @@ description: Syntax highlight code blocks with Shiki. Supports server-side rende
 
 # Shiki Code Blocks
 
-To set up Shiki Code Blocks, fetch the recipe from the fullstackrecipes MCP server:
+To set up Shiki Code Blocks, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/shiki-code-blocks`
 

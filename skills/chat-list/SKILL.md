@@ -5,7 +5,7 @@ description: Build a chat list page with search, rename, and delete functionalit
 
 # Chat List & Management
 
-To set up Chat List & Management, fetch the recipe from the fullstackrecipes MCP server:
+To set up Chat List & Management, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/chat-list`
 

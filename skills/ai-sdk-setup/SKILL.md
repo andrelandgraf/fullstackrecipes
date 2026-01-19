@@ -5,7 +5,7 @@ description: Install the Vercel AI SDK with AI Elements components. Build a stre
 
 # AI SDK & Simple Chat
 
-To set up AI SDK & Simple Chat, fetch the recipe from the fullstackrecipes MCP server:
+To set up AI SDK & Simple Chat, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/ai-sdk-setup`
 

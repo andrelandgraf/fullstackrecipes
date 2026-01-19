@@ -5,7 +5,7 @@ description: Configure unit testing with Bun's built-in test runner. Fast, Jest-
 
 # Unit Tests with Bun
 
-To set up Unit Tests with Bun, fetch the recipe from the fullstackrecipes MCP server:
+To set up Unit Tests with Bun, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/unit-tests`
 

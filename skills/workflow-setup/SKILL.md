@@ -5,7 +5,7 @@ description: Install and configure the Workflow Development Kit for resumable, d
 
 # Workflow Development Kit Setup
 
-To set up Workflow Development Kit Setup, fetch the recipe from the fullstackrecipes MCP server:
+To set up Workflow Development Kit Setup, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/workflow-setup`
 

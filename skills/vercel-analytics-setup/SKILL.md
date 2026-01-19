@@ -5,7 +5,7 @@ description: Add privacy-focused web analytics with Vercel Web Analytics. Track 
 
 # Vercel Web Analytics
 
-To set up Vercel Web Analytics, fetch the recipe from the fullstackrecipes MCP server:
+To set up Vercel Web Analytics, refer to the fullstackrecipes MCP server resource:
 
 **Resource URI:** `recipe://fullstackrecipes.com/vercel-analytics-setup`
 
