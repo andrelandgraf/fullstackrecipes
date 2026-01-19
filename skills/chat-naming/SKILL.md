@@ -10,3 +10,7 @@ To set up Automatic Chat Naming, refer to the fullstackrecipes MCP server resour
 **Resource URI:** `recipe://fullstackrecipes.com/chat-naming`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/chat-naming`

@@ -10,3 +10,7 @@ To set up Neon + Drizzle Setup, refer to the fullstackrecipes MCP server resourc
 **Resource URI:** `recipe://fullstackrecipes.com/neon-drizzle-setup`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/neon-drizzle-setup`

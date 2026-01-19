@@ -10,3 +10,7 @@ To set up Resumable AI Response Streams, refer to the fullstackrecipes MCP serve
 **Resource URI:** `recipe://fullstackrecipes.com/resumable-ai-streams`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/resumable-ai-streams`

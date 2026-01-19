@@ -10,3 +10,7 @@ To set up Editor and Linting Setup, refer to the fullstackrecipes MCP server res
 **Resource URI:** `recipe://fullstackrecipes.com/code-style-setup`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/code-style-setup`

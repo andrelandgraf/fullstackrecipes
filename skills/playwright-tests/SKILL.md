@@ -10,3 +10,7 @@ To set up Browser Tests with Playwright, refer to the fullstackrecipes MCP serve
 **Resource URI:** `recipe://fullstackrecipes.com/playwright-tests`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/playwright-tests`
