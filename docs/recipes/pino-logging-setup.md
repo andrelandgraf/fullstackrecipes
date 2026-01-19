@@ -18,26 +18,7 @@ const nextConfig: NextConfig = {
 };
 ```
 
-### Step 3: Add the logging config
-
-Create a config file for the log level using configSchema:
-
-```typescript
-// src/lib/logging/config.ts
-import { z } from "zod";
-import { configSchema, server } from "@/lib/config/schema";
-
-export const loggingConfig = configSchema("Logging", {
-  level: server({
-    env: "LOG_LEVEL",
-    schema: z
-      .enum(["trace", "debug", "info", "warn", "error", "fatal"])
-      .default("info"),
-  }),
-});
-```
-
-### Step 4: Add the logger utility
+### Step 3: Add the logger utility
 
 {% registry items="logger" /%}
 

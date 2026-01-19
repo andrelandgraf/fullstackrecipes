@@ -46,54 +46,6 @@ export default withWorkflow(nextConfig);
 
 When streaming `UIMessageChunk` responses (like chat messages), you must signal the start and end of the stream. This is required for proper stream framing with `WorkflowChatTransport`.
 
-Install via the registry above, or create manually:
-
-```typescript
-// src/workflows/steps/stream.ts
-import { getWritable } from "workflow";
-import type { UIMessageChunk } from "ai";
-
-/**
- * Signal the start of a UI message stream.
- * Must be called before agent.run() when streaming UIMessageChunks.
- */
-export async function startStream(messageId: string): Promise<void> {
-  "use step";
-
-  const writable = getWritable<UIMessageChunk>();
-  const writer = writable.getWriter();
-  try {
-    await writer.write({
-      type: "start",
-      messageId,
-    });
-  } finally {
-    writer.releaseLock();
-  }
-}
-
-/**
- * Signal the end of a UI message stream.
- * Must be called after agent.run() completes to close the stream properly.
- */
-export async function finishStream(): Promise<void> {
-  "use step";
-
-  const writable = getWritable<UIMessageChunk>();
-  const writer = writable.getWriter();
-  try {
-    await writer.write({
-      type: "finish",
-      finishReason: "stop",
-    });
-  } finally {
-    writer.releaseLock();
-  }
-
-  await writable.close();
-}
-```
-
 ---
 
 ## The Chat Workflow
