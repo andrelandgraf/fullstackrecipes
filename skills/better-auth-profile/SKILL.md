@@ -10,3 +10,7 @@ To set up Better Auth Profile & Account, refer to the fullstackrecipes MCP serve
 **Resource URI:** `recipe://fullstackrecipes.com/better-auth-profile`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/better-auth-profile`

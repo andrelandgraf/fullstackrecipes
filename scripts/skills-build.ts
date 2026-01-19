@@ -28,6 +28,10 @@ description: ${recipe.description}
 ---`;
 }
 
+function getRecipeMarkdownEndpoint(recipe: Recipe): string {
+  return `https://fullstackrecipes.com/api/recipes/${recipe.slug}`;
+}
+
 async function generateSkillContent(recipe: Recipe): Promise<string> {
   const frontmatter = generateSkillFrontmatter(recipe);
 
@@ -39,6 +43,7 @@ async function generateSkillContent(recipe: Recipe): Promise<string> {
 
   // Setup recipes: reference the MCP resource
   const resourceUri = getItemResourceUri(recipe);
+  const markdownEndpoint = getRecipeMarkdownEndpoint(recipe);
   return `${frontmatter}
 
 # ${recipe.title}
@@ -48,6 +53,10 @@ To set up ${recipe.title}, refer to the fullstackrecipes MCP server resource:
 **Resource URI:** \`${resourceUri}\`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+\`curl ${markdownEndpoint}\`
 `;
 }
 

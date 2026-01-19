@@ -10,3 +10,7 @@ To set up Chat List & Management, refer to the fullstackrecipes MCP server resou
 **Resource URI:** `recipe://fullstackrecipes.com/chat-list`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/chat-list`

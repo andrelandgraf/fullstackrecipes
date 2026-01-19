@@ -10,3 +10,7 @@ To set up Stripe Subscriptions DB Sync, refer to the fullstackrecipes MCP server
 **Resource URI:** `recipe://fullstackrecipes.com/stripe-sync`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/stripe-sync`

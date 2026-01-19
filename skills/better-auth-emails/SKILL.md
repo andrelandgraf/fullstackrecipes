@@ -10,3 +10,7 @@ To set up Better Auth Emails, refer to the fullstackrecipes MCP server resource:
 **Resource URI:** `recipe://fullstackrecipes.com/better-auth-emails`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/better-auth-emails`

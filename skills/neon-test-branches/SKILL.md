@@ -10,3 +10,7 @@ To set up Neon Test Branches, refer to the fullstackrecipes MCP server resource:
 **Resource URI:** `recipe://fullstackrecipes.com/neon-test-branches`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/neon-test-branches`

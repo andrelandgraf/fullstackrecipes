@@ -10,3 +10,7 @@ To set up Custom Durable Agent, refer to the fullstackrecipes MCP server resourc
 **Resource URI:** `recipe://fullstackrecipes.com/custom-durable-agent`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/custom-durable-agent`

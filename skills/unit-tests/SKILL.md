@@ -10,3 +10,7 @@ To set up Unit Tests with Bun, refer to the fullstackrecipes MCP server resource
 **Resource URI:** `recipe://fullstackrecipes.com/unit-tests`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/unit-tests`

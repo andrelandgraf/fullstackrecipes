@@ -10,3 +10,7 @@ To set up AI Chat Persistence with Neon, refer to the fullstackrecipes MCP serve
 **Resource URI:** `recipe://fullstackrecipes.com/ai-chat-persistence`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/ai-chat-persistence`

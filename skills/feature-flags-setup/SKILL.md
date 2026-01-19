@@ -10,3 +10,7 @@ To set up Feature Flags with Flags SDK, refer to the fullstackrecipes MCP server
 **Resource URI:** `recipe://fullstackrecipes.com/feature-flags-setup`
 
 Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+
+If the MCP server is not set up, please use:
+
+`curl https://fullstackrecipes.com/api/recipes/feature-flags-setup`
