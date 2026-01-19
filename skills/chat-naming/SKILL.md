@@ -5,8 +5,12 @@ description: Generate descriptive chat titles from the first message using a fas
 
 # Automatic Chat Naming
 
-To set up Automatic Chat Naming, refer to the fullstackrecipes MCP server resource:
+To set up Automatic Chat Naming, fetch the recipe from the fullstackrecipes MCP server:
 
 **Resource URI:** `recipe://fullstackrecipes.com/chat-naming`
 
-Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+If the MCP server is not configured, fetch the recipe directly:
+
+```bash
+curl -H "Accept: text/plain" https://fullstackrecipes.com/api/recipes/chat-naming
+```

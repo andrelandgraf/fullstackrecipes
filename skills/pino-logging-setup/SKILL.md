@@ -5,8 +5,12 @@ description: Configure structured logging with Pino. Outputs human-readable colo
 
 # Pino Logging Setup
 
-To set up Pino Logging Setup, refer to the fullstackrecipes MCP server resource:
+To set up Pino Logging Setup, fetch the recipe from the fullstackrecipes MCP server:
 
 **Resource URI:** `recipe://fullstackrecipes.com/pino-logging-setup`
 
-Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+If the MCP server is not configured, fetch the recipe directly:
+
+```bash
+curl -H "Accept: text/plain" https://fullstackrecipes.com/api/recipes/pino-logging-setup
+```

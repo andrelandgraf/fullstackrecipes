@@ -37,17 +37,21 @@ async function generateSkillContent(recipe: Recipe): Promise<string> {
     return `${frontmatter}\n\n${markdown}`;
   }
 
-  // Setup recipes: reference the MCP resource
+  // Setup recipes: reference the MCP resource with curl fallback
   const resourceUri = getItemResourceUri(recipe);
   return `${frontmatter}
 
 # ${recipe.title}
 
-To set up ${recipe.title}, refer to the fullstackrecipes MCP server resource:
+To set up ${recipe.title}, fetch the recipe from the fullstackrecipes MCP server:
 
 **Resource URI:** \`${resourceUri}\`
 
-Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+If the MCP server is not configured, fetch the recipe directly:
+
+\`\`\`bash
+curl -H "Accept: text/plain" https://fullstackrecipes.com/api/recipes/${recipe.slug}
+\`\`\`
 `;
 }
 

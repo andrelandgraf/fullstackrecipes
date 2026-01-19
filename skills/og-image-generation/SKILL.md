@@ -5,8 +5,12 @@ description: Generate dynamic social preview images using Next.js file conventio
 
 # OG Image Generation
 
-To set up OG Image Generation, refer to the fullstackrecipes MCP server resource:
+To set up OG Image Generation, fetch the recipe from the fullstackrecipes MCP server:
 
 **Resource URI:** `recipe://fullstackrecipes.com/og-image-generation`
 
-Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+If the MCP server is not configured, fetch the recipe directly:
+
+```bash
+curl -H "Accept: text/plain" https://fullstackrecipes.com/api/recipes/og-image-generation
+```

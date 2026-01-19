@@ -5,8 +5,12 @@ description: Add user authentication using Better Auth with Drizzle ORM and Neon
 
 # Better Auth Setup
 
-To set up Better Auth Setup, refer to the fullstackrecipes MCP server resource:
+To set up Better Auth Setup, fetch the recipe from the fullstackrecipes MCP server:
 
 **Resource URI:** `recipe://fullstackrecipes.com/better-auth-setup`
 
-Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+If the MCP server is not configured, fetch the recipe directly:
+
+```bash
+curl -H "Accept: text/plain" https://fullstackrecipes.com/api/recipes/better-auth-setup
+```

@@ -5,8 +5,12 @@ description: Create a structured format for documenting feature requirements as 
 
 # User Stories Setup
 
-To set up User Stories Setup, refer to the fullstackrecipes MCP server resource:
+To set up User Stories Setup, fetch the recipe from the fullstackrecipes MCP server:
 
 **Resource URI:** `recipe://fullstackrecipes.com/user-stories-setup`
 
-Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+If the MCP server is not configured, fetch the recipe directly:
+
+```bash
+curl -H "Accept: text/plain" https://fullstackrecipes.com/api/recipes/user-stories-setup
+```

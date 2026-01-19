@@ -23,5 +23,16 @@ export async function GET(
   // Return transformed markdown (custom tags expanded for agent consumption)
   const content = await loadRecipeMarkdown(item);
 
+  // Return raw markdown if Accept header prefers text/plain or text/markdown
+  const acceptHeader = request.headers.get("Accept") || "";
+  if (
+    acceptHeader.includes("text/plain") ||
+    acceptHeader.includes("text/markdown")
+  ) {
+    return new Response(content, {
+      headers: { "Content-Type": "text/markdown; charset=utf-8" },
+    });
+  }
+
   return NextResponse.json({ content });
 }

@@ -5,8 +5,12 @@ description: Configure Prettier for code formatting and TypeScript for typecheck
 
 # Editor and Linting Setup
 
-To set up Editor and Linting Setup, refer to the fullstackrecipes MCP server resource:
+To set up Editor and Linting Setup, fetch the recipe from the fullstackrecipes MCP server:
 
 **Resource URI:** `recipe://fullstackrecipes.com/code-style-setup`
 
-Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+If the MCP server is not configured, fetch the recipe directly:
+
+```bash
+curl -H "Accept: text/plain" https://fullstackrecipes.com/api/recipes/code-style-setup
+```

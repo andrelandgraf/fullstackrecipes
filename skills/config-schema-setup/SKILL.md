@@ -5,8 +5,12 @@ description: Type-safe environment variable validation using Zod with a Drizzle-
 
 # Type-Safe Environment Configuration
 
-To set up Type-Safe Environment Configuration, refer to the fullstackrecipes MCP server resource:
+To set up Type-Safe Environment Configuration, fetch the recipe from the fullstackrecipes MCP server:
 
 **Resource URI:** `recipe://fullstackrecipes.com/config-schema-setup`
 
-Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+If the MCP server is not configured, fetch the recipe directly:
+
+```bash
+curl -H "Accept: text/plain" https://fullstackrecipes.com/api/recipes/config-schema-setup
+```

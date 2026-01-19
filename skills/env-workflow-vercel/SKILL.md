@@ -5,8 +5,12 @@ description: Manage environment variables across Vercel environments. Sync with 
 
 # Environment Variable Management with Vercel
 
-To set up Environment Variable Management with Vercel, refer to the fullstackrecipes MCP server resource:
+To set up Environment Variable Management with Vercel, fetch the recipe from the fullstackrecipes MCP server:
 
 **Resource URI:** `recipe://fullstackrecipes.com/env-workflow-vercel`
 
-Use the fullstackrecipes MCP server to fetch this resource and follow the setup instructions.
+If the MCP server is not configured, fetch the recipe directly:
+
+```bash
+curl -H "Accept: text/plain" https://fullstackrecipes.com/api/recipes/env-workflow-vercel
+```
