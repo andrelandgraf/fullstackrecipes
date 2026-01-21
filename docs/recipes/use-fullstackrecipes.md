@@ -30,6 +30,16 @@ If the MCP server is not already set up, add it to your coding agent's MCP confi
 }
 ```
 
+### List All Resources
+
+Use the `list_resources` tool to get all available recipes and cookbooks:
+
+```
+Call the list_resources tool from fullstackrecipes
+```
+
+This returns a JSON array of all resources with their URIs, names, descriptions, and types (recipe or cookbook).
+
 ### Read a Specific Recipe
 
 Fetch the full content of any recipe by its resource URI:
@@ -39,6 +49,23 @@ Read the "neon-drizzle-setup" resource from fullstackrecipes
 ```
 
 The recipe content includes all steps, code examples, and file paths needed to complete the setup.
+
+### Fallback: Fetch via curl
+
+If the MCP server is not available, list all recipes via llms.txt:
+
+```bash
+curl https://fullstackrecipes.com/llms.txt
+```
+
+Then fetch a specific recipe as markdown:
+
+```bash
+curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/<slug>
+
+# Example: fetch the neon-drizzle-setup recipe
+curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/neon-drizzle-setup
+```
 
 ---
 

@@ -251,6 +251,27 @@ bun run user-stories:verify`,
 }`,
   },
   {
+    slug: "ralph-loop",
+    title: "Ralph Loop",
+    description:
+      "Complete setup for automated agent-driven development. Define features as user stories with testable acceptance criteria, then run AI agents in a loop until all stories pass.",
+    tags: ["Cookbooks"],
+    icon: RefreshCw,
+    isCookbook: true,
+    recipes: ["user-stories-setup", "using-user-stories", "ralph-setup"],
+    requires: ["agent-setup"],
+    previewCode: `// 1. Define user stories with acceptance criteria
+{
+  "description": "User signs in with email",
+  "steps": ["Navigate to /sign-in", "Enter credentials", "Verify redirect"],
+  "passes": false
+}
+
+// 2. Run Ralph loop until all stories pass
+bun run ralph`,
+    registryDeps: ["ralph"],
+  } satisfies Cookbook,
+  {
     slug: "assert",
     title: "Assertion Helper",
     description:
@@ -911,6 +932,27 @@ const [renameId, setRenameId] = useQueryState("rename");
 }`,
   },
   {
+    slug: "stripe-subscriptions",
+    title: "Stripe Subscriptions",
+    description:
+      "Complete subscription billing system with Stripe integration, feature flags for plan gating, webhook handling, and billing portal.",
+    tags: ["Cookbooks"],
+    icon: CreditCard,
+    isCookbook: true,
+    recipes: ["feature-flags-setup", "stripe-sync"],
+    requires: ["neon-drizzle-setup", "pino-logging-setup"],
+    template: `${TEMPLATE_BASE}/stripe-sync#main`,
+    githubUrl: `${GITHUB_TEMPLATE_BASE}/stripe-sync`,
+    previewCode: `// Feature flag for plan gating
+export const stripeFlag = flag({
+  key: "stripe-enabled",
+  decide: () => Boolean(process.env.STRIPE_SECRET_KEY),
+});
+
+// Webhook sync to Postgres
+await syncStripeData(customerId);`,
+  } satisfies Cookbook,
+  {
     slug: "workflow-setup",
     title: "Workflow Development Kit Setup",
     description:
@@ -993,6 +1035,28 @@ await db.update(chats)
   .set({ title: text.trim() })
   .where(eq(chats.id, chatId));`,
   },
+  {
+    slug: "ai-chat",
+    title: "AI Chat",
+    description:
+      "Build a complete AI chat application with database persistence, chat list management, and automatic title generation.",
+    tags: ["Cookbooks"],
+    icon: MessageSquare,
+    isCookbook: true,
+    recipes: ["ai-chat-persistence", "chat-list", "chat-naming"],
+    requires: ["authentication", "nuqs-setup", "workflow-setup"],
+    previewCode: `// Persist chats to Neon Postgres
+export const chats = pgTable("chats", {
+  id: uuid("id").primaryKey(),
+  title: text("title").notNull(),
+});
+
+// Chat list with search, rename, delete
+const [deleteId] = useQueryState("delete");
+
+// Auto-generate titles from first message
+const { text } = await generateText({ prompt });`,
+  } satisfies Cookbook,
   {
     slug: "ai-agent-workflow",
     title: "Multi-Agent Workflows",

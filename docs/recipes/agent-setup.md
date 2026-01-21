@@ -110,10 +110,13 @@ agent-browser install  # Download Chromium
 Install skills for AI agents:
 
 ```bash
-bunx skills add vercel-labs/agent-browser -s agent-browser -y -a cursor
-bunx skills add vercel-labs/agent-skills -s web-design-guidelines -a cursor -y
-bunx skills add vercel-labs/agent-skills -s vercel-react-best-practices -a cursor -y
-bunx skills add andrelandgraf/fullstackrecipes/skills -y -a cursor
+bunx skills add vercel-labs/agent-browser -s agent-browser -y
+bunx skills add vercel-labs/agent-skills -s web-design-guidelines -y
+bunx skills add vercel-labs/agent-skills -s vercel-react-best-practices -y
+bunx skills add better-auth/skills -s better-auth-best-practices -y
+bunx skills add anthropics/skills -s skill-creator -y
+bunx skills add stripe/ai -y
+bunx skills add andrelandgraf/fullstackrecipes/skills -y
 ```
 
 | Skill                         | Description                                        |
@@ -121,4 +124,7 @@ bunx skills add andrelandgraf/fullstackrecipes/skills -y -a cursor
 | `agent-browser`               | Browser automation for web testing and interaction |
 | `web-design-guidelines`       | Web design best practices for UI/UX                |
 | `vercel-react-best-practices` | React patterns and conventions for Vercel apps     |
+| `better-auth-best-practices`  | Better Auth patterns and best practices            |
+| `skill-creator`               | Anthropic skill creation guidelines                |
+| `stripe/ai`                   | Stripe AI SDK for agentic payment flows            |
 | `fullstackrecipes`            | Fullstackrecipes setup guides and workflows        |
