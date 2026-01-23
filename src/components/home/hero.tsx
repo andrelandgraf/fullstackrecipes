@@ -1,7 +1,4 @@
-import { getAllItems } from "@/lib/recipes/data";
 import { InstallSection } from "@/components/home/install-section";
-
-const items = getAllItems();
 
 export function Hero() {
   return (
@@ -11,14 +8,6 @@ export function Hero() {
 
       <div className="relative mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-4 py-1.5 text-sm text-muted-foreground">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-            </span>
-            {items.length} recipes and cookbooks
-          </div>
-
           <h1 className="mb-6 text-balance text-4xl font-bold tracking-tight md:text-6xl">
             Instructions for <span className="text-primary">AI Agents</span>
           </h1>
