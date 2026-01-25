@@ -110,13 +110,13 @@ agent-browser install  # Download Chromium
 Install skills for AI agents:
 
 ```bash
-bunx skills add vercel-labs/agent-browser -s agent-browser -y
-bunx skills add vercel-labs/agent-skills -s web-design-guidelines -y
-bunx skills add vercel-labs/agent-skills -s vercel-react-best-practices -y
-bunx skills add better-auth/skills -s better-auth-best-practices -y
-bunx skills add anthropics/skills -s skill-creator -y
-bunx skills add stripe/ai -y
-bunx skills add andrelandgraf/fullstackrecipes/skills -y
+bunx skills add anthropics/skills -s skill-creator -a opencode -a cursor -y
+bunx skills add anthropics/skills -s frontend-design -a opencode -a cursor -y
+bunx skills add vercel-labs/agent-skills -s web-design-guidelines -a opencode -a cursor -y
+bunx skills add vercel-labs/agent-skills -s vercel-react-best-practices -a opencode -a cursor -y
+bunx skills add vercel-labs/agent-browser -s agent-browser -a opencode -a cursor -y
+bunx skills add vercel/ai -s ai-sdk -a opencode -a cursor -y
+bunx skills add andrelandgraf/fullstackrecipes/skills -a opencode -a cursor -y
 ```
 
 | Skill                         | Description                                        |
@@ -124,7 +124,7 @@ bunx skills add andrelandgraf/fullstackrecipes/skills -y
 | `agent-browser`               | Browser automation for web testing and interaction |
 | `web-design-guidelines`       | Web design best practices for UI/UX                |
 | `vercel-react-best-practices` | React patterns and conventions for Vercel apps     |
-| `better-auth-best-practices`  | Better Auth patterns and best practices            |
 | `skill-creator`               | Anthropic skill creation guidelines                |
-| `stripe/ai`                   | Stripe AI SDK for agentic payment flows            |
+| `frontend-design`             | Anthropic frontend design best practices           |
+| `ai-sdk`                      | Vercel AI SDK patterns and best practices          |
 | `fullstackrecipes`            | Fullstackrecipes setup guides and workflows        |

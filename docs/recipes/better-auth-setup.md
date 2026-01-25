@@ -1,3 +1,13 @@
+### Agent Skill
+
+Install the Better Auth skill for best practices:
+
+```bash
+bunx skills add better-auth/skills -s better-auth-best-practices -a opencode -a cursor -y
+```
+
+---
+
 ### MCP Server
 
 Add the Better Auth MCP server to your `.cursor/mcp.json` for accurate API guidance:

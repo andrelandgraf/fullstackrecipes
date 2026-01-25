@@ -1,3 +1,13 @@
+### Agent Skill
+
+Install the Stripe AI skill for agentic payment flows:
+
+```bash
+bunx skills add stripe/ai -a opencode -a cursor -y
+```
+
+---
+
 ### Architecture Flow
 
 ```
