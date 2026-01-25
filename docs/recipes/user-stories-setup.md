@@ -2,7 +2,7 @@ User stories provide structured acceptance criteria for features that AI coding 
 
 ---
 
-### Step 1: Create the Directory Structure
+## Step 1: Create the Directory Structure
 
 Create a `docs/user-stories/` directory in your project root:
 
@@ -10,7 +10,7 @@ Create a `docs/user-stories/` directory in your project root:
 mkdir -p docs/user-stories
 ```
 
-### Step 2: Add the Verification Script
+## Step 2: Add the Verification Script
 
 Create `scripts/verify-user-stories.ts` to validate all user stories have the correct format:
 
@@ -113,7 +113,7 @@ if (hasErrors) {
 }
 ```
 
-### Step 3: Add npm Script
+## Step 3: Add npm Script
 
 Add a script to `package.json`:
 
@@ -127,20 +127,20 @@ Add a script to `package.json`:
 
 ---
 
-## User Story Format
+## JSON Format
 
 Each user story file is a JSON array of features:
 
 ```json
 [
   {
-    "description": "User creates a chat and sends first message",
+    "description": "User signs in with email and password",
     "steps": [
-      "Navigate to /chats",
-      "Click 'New Chat' button",
-      "Type message in input field",
-      "Submit the message",
-      "Verify AI response appears"
+      "Navigate to /sign-in page",
+      "Enter email and password",
+      "Submit the form",
+      "Verify successful login",
+      "Verify redirect to /chats"
     ],
     "passes": false
   }
@@ -149,43 +149,15 @@ Each user story file is a JSON array of features:
 
 ### Fields
 
-- **description**: What the user does or expects (one sentence)
-- **steps**: Verification steps written imperatively (array of strings)
-- **passes**: `true` if the feature has been implemented and verified, `false` otherwise
+- **description**: One-line summary of the feature/behavior being tested
+- **steps**: Array of verifiable actions or assertions
+- **passes**: `true` when verified working, `false` when not yet implemented or failing
 
 ### File Naming
 
-Use kebab-case names that describe the feature area:
+Use kebab-case names that describe the feature area. Group related scenarios in one file:
 
-- `authentication-sign-in.json`
-- `chat-create.json`
-- `profile-edit.json`
-
-### Grouping Related Features
-
-One file can contain multiple related scenarios:
-
-```json
-[
-  {
-    "description": "User signs in with email and password",
-    "steps": [
-      "Navigate to /sign-in",
-      "Enter email and password",
-      "Submit form",
-      "Verify redirect to /chats"
-    ],
-    "passes": true
-  },
-  {
-    "description": "User sees error for invalid credentials",
-    "steps": [
-      "Navigate to /sign-in",
-      "Enter invalid credentials",
-      "Submit form",
-      "Verify error message appears"
-    ],
-    "passes": false
-  }
-]
-```
+- `authentication-sign-in.json` - sign-in flows
+- `authentication-sign-up.json` - sign-up flows
+- `chat-create.json` - chat creation behaviors
+- `profile-change-password.json` - password change flow

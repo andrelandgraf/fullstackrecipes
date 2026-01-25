@@ -1,100 +1,113 @@
-User stories document what features should do and track implementation status. When AI agents work through user stories systematically, they produce better results and leave a clear trail of what was done.
+User stories document what features should do and track implementation status. AI agents can read stories to understand requirements and mark progress.
 
 ---
 
 ## Workflow
 
-When working on features:
-
-1. **Author/Update**: Create or modify user story features before building
-2. **Build & Test**: Implement until tests pass
-3. **Mark Passing**: Set `passes: true` when verified
+1. **Create story** with `passes: false` before building
+2. **Implement** until the feature works
+3. **Mark `passes: true`** after verifying
 
 ---
 
-## When to Create User Stories
+## The `passes` Field
 
-Create user stories when:
+The `passes` field tracks implementation status:
 
-- Starting a new feature or flow
-- Fixing a bug that should have test coverage
-- Implementing requirements from a design or spec
-- Breaking down a large feature into testable increments
+- **`false`**: Feature not yet implemented, test failing, or regression discovered
+- **`true`**: Feature works and has been verified
+
+When a regression is discovered, either flip the existing entry to `false` or add a new scenario describing the edge case with `passes: false`.
+
+---
+
+## One Behavior Per Entry
+
+Split features into one entry per distinct behavior. Don't combine multiple behaviors into one story.
+
+Bad:
+
+```json
+{
+  "description": "User can sign in and manage account",
+  "steps": ["Sign in with email", "Change password", "Sign out"],
+  "passes": false
+}
+```
+
+Good:
+
+```json
+[
+  {
+    "description": "User signs in with email and password",
+    "steps": [
+      "Navigate to /sign-in page",
+      "Enter email and password",
+      "Submit the form",
+      "Verify redirect to /chats"
+    ],
+    "passes": false
+  },
+  {
+    "description": "Sign in shows error for invalid credentials",
+    "steps": [
+      "Navigate to /sign-in page",
+      "Enter invalid email or password",
+      "Submit the form",
+      "Verify error toast appears"
+    ],
+    "passes": false
+  }
+]
+```
 
 ---
 
 ## Writing Effective Steps
 
-Steps should be:
+Steps should be **verifiable**, **imperative**, and **specific**.
 
-- **Verifiable**: Each step can be checked by running the app or tests
-- **Imperative**: Written as commands ("Navigate to", "Click", "Verify")
-- **Specific**: Include URLs, button names, expected values
+Bad:
+
+```json
+{ "steps": ["Change the password"] }
+```
 
 Good:
 
 ```json
 {
-  "description": "User deletes a chat",
   "steps": [
-    "Navigate to /chats",
-    "Click the menu button on a chat",
-    "Click 'Delete' option",
-    "Confirm deletion in dialog",
-    "Verify chat is removed from list"
+    "Enter current password",
+    "Enter new password",
+    "Confirm new password",
+    "Submit the form"
+  ]
+}
+```
+
+Include error cases and default states:
+
+```json
+{
+  "description": "Change password validates requirements",
+  "steps": [
+    "Enter password shorter than 8 characters",
+    "Verify minimum length error",
+    "Enter mismatched passwords",
+    "Verify passwords do not match error"
   ],
   "passes": false
 }
 ```
 
-Avoid vague steps:
-
-```json
-{
-  "description": "User deletes a chat",
-  "steps": ["Delete a chat", "Check it worked"],
-  "passes": false
-}
-```
-
----
-
-## Documenting Work Done
-
-When completing a feature:
-
-1. Verify all steps work manually or via tests
-2. Update `passes: true` in the user story
-3. Commit both the implementation and the updated story
-
-This creates a log of completed work that future agents can reference.
-
----
-
-## Using with AI Agents
-
-AI agents can read user stories to:
-
-- Understand what features need to be built
-- Know the exact acceptance criteria
-- Find features that still need work (`passes: false`)
-- Log their progress by marking features as passing
-
-For automated agent loops, see the **Ralph Agent Loop** recipe.
-
 ---
 
 ## Verifying Stories
 
-Run the verification script to check all stories have valid format:
+Run the verification script to check format:
 
 ```bash
 bun run user-stories:verify
 ```
-
-This validates:
-
-- All files are valid JSON
-- Each feature has required fields
-- Steps are non-empty strings
-- Shows pass/fail counts per file
