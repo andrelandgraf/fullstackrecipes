@@ -10,17 +10,13 @@ bunx skills add better-auth/skills -s better-auth-best-practices -a opencode -a 
 
 ### MCP Server
 
-Add the Better Auth MCP server to your `.cursor/mcp.json` for accurate API guidance:
+Add the Better Auth MCP server for accurate API guidance:
 
-```json
-{
-  "mcpServers": {
-    "better-auth": {
-      "url": "https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp"
-    }
-  }
-}
+```bash
+bunx add-mcp https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp -y
 ```
+
+This updates all detected agents automatically. If no agents are detected, add `-a opencode -a cursor` to the command or prompt the user to specify what agents they want to use for this project.
 
 ---
 

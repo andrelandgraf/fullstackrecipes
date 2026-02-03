@@ -19,27 +19,17 @@ import {
   Terminal,
 } from "lucide-react";
 import {
-  getAllItems,
   isCookbook,
-  SKILLS_CLIENTS,
   getSkillsInstallCommandForSlugs,
   type Recipe,
   type Cookbook,
-  type SkillsClient,
 } from "@/lib/recipes/data";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import type { BundledLanguage } from "shiki";
 import {
   useHighlightedCode,
-  McpCodeBlock,
   McpSetupSteps,
-  type McpClient,
+  McpConfigSection,
+  MCP_INSTALL_FULLSTACKRECIPES_COMMAND,
 } from "@/components/mcp/config";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -113,8 +103,6 @@ function HowItWorksInner() {
     {},
   );
   const [copiedState, setCopiedState] = useState<string | null>(null);
-  const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
-  const [skillsClient, setSkillsClient] = useState<SkillsClient>("cursor");
   const [, setPickerOpen] = useQueryState(
     "picker",
     parseAsBoolean.withDefault(false),
@@ -165,10 +153,7 @@ function HowItWorksInner() {
     }
   };
 
-  const skillsCommand = getSkillsInstallCommandForSlugs(
-    allContentSlugs,
-    skillsClient,
-  );
+  const skillsCommand = getSkillsInstallCommandForSlugs(allContentSlugs);
 
   // Display content for preview - show first selected item's content
   const previewSlug = selectedSlugs[0];
@@ -435,83 +420,52 @@ function HowItWorksInner() {
               <TabsContent value="mcp">
                 <Card className="rounded-t-none border-t-0 border-border/50 p-6">
                   <McpSetupSteps
-                    mcpClient={mcpClient}
-                    setMcpClient={setMcpClient}
                     promptText={promptText}
                     copiedPrompt={copiedState === "prompt"}
                     onCopyPrompt={() => copyToClipboard(promptText, "prompt")}
-                    step2Content={
+                    step1Title="Install selected skills"
+                    step1Description={
+                      allContentSlugs.length > 0
+                        ? `Add skills for the ${allContentSlugs.length} selected ${
+                            allContentSlugs.length === 1 ? "recipe" : "recipes"
+                          } to your agent`
+                        : "Select guides to generate the skills command"
+                    }
+                    step1Content={
                       allContentSlugs.length > 0 ? (
-                        <div className="min-w-0">
-                          <div className="flex items-start gap-3">
-                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary sm:h-8 sm:w-8">
-                              2
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <h4 className="font-medium">
-                                Install selected skills
-                              </h4>
-                              <p className="text-sm text-muted-foreground">
-                                Add skills for the {allContentSlugs.length}{" "}
-                                selected{" "}
-                                {allContentSlugs.length === 1
-                                  ? "recipe"
-                                  : "recipes"}{" "}
-                                to your agent
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="mt-4">
-                            <div className="mb-3 flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">
-                                Select your agent:
-                              </span>
-                              <Select
-                                value={skillsClient}
-                                onValueChange={(value) =>
-                                  setSkillsClient(value as SkillsClient)
-                                }
-                              >
-                                <SelectTrigger className="w-[160px] bg-background">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {SKILLS_CLIENTS.map((agent) => (
-                                    <SelectItem
-                                      key={agent.value}
-                                      value={agent.value}
-                                    >
-                                      {agent.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-secondary/30 px-3 py-2.5">
-                              <Terminal className="h-4 w-4 shrink-0 text-muted-foreground" />
-                              <code className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-xs text-foreground/90 sm:text-sm">
-                                {skillsCommand}
-                              </code>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  copyToClipboard(skillsCommand, "skills")
-                                }
-                                className="h-7 w-7 shrink-0 p-0"
-                              >
-                                {copiedState === "skills" ? (
-                                  <Check className="h-3.5 w-3.5 text-green-500" />
-                                ) : (
-                                  <Copy className="h-3.5 w-3.5" />
-                                )}
-                              </Button>
-                            </div>
-                          </div>
+                        <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-secondary/30 px-3 py-2.5">
+                          <Terminal className="h-4 w-4 shrink-0 text-muted-foreground" />
+                          <code className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-xs text-foreground/90 sm:text-sm">
+                            {skillsCommand}
+                          </code>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              copyToClipboard(skillsCommand, "skills")
+                            }
+                            className="h-7 w-7 shrink-0 p-0"
+                          >
+                            {copiedState === "skills" ? (
+                              <Check className="h-3.5 w-3.5 text-green-500" />
+                            ) : (
+                              <Copy className="h-3.5 w-3.5" />
+                            )}
+                          </Button>
                         </div>
-                      ) : undefined
+                      ) : (
+                        <p className="text-sm text-muted-foreground">
+                          Select at least one guide to generate the skills
+                          install command.
+                        </p>
+                      )
+                    }
+                    step2Title="Add fullstackrecipes MCP server"
+                    step2Description="Run once to update all detected agents"
+                    step2Content={
+                      <McpConfigSection
+                        command={MCP_INSTALL_FULLSTACKRECIPES_COMMAND}
+                      />
                     }
                   />
                 </Card>

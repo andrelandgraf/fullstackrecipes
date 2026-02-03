@@ -1,16 +1,12 @@
 ### MCP Server
 
-Add the Resend MCP server to your `.cursor/mcp.json` for accurate API guidance:
+Add the Resend MCP server for accurate API guidance:
 
-```json
-{
-  "mcpServers": {
-    "resend": {
-      "url": "https://resend.com/docs/mcp"
-    }
-  }
-}
+```bash
+bunx add-mcp https://resend.com/docs/mcp -y
 ```
+
+This updates all detected agents automatically. If no agents are detected, add `-a opencode -a cursor` to the command or prompt the user to specify what agents they want to use for this project.
 
 ---
 

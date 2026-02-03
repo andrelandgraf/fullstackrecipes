@@ -1,0 +1,11 @@
+{
+  "mcp": {
+    "next-devtools": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"],
+      "enabled": true,
+      "environment": {}
+    }
+  }
+}

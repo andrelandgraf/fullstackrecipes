@@ -1,26 +1,10 @@
-### Step 1: Install the Neon MCP Server globally
+### Step 1: Add the Neon MCP Server
 
 ```bash
-bunx neonctl@latest init
+bunx add-mcp https://mcp.neon.tech/mcp -y
 ```
 
-> **Note**: This installs the MCP server globally (not project-scoped) using your user API key. By default, the MCP server has **write access** to your Neon account.
-
-For production apps in your organization, configure the MCP server to be read-only:
-
-```json
-{
-  "mcpServers": {
-    "Neon": {
-      "url": "https://mcp.neon.tech/mcp",
-      "headers": {
-        "Authorization": "Bearer <$NEON_API_KEY>",
-        "x-read-only": "true"
-      }
-    }
-  }
-}
-```
+This updates all detected agents automatically. If no agents are detected, add `-a opencode -a cursor` to the command or prompt the user to specify what agents they want to use for this project.
 
 ### Step 2: Create a new Neon project
 

@@ -3,27 +3,17 @@
 import { useState } from "react";
 import { Copy, Check, Terminal, ArrowRight, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { WizardTrigger } from "@/components/wizard/wizard-trigger";
-import { McpConfigSection, type McpClient } from "@/components/mcp/config";
 import {
-  SKILLS_CLIENTS,
-  getSkillsInstallCommand,
-  type SkillsClient,
-} from "@/lib/recipes/data";
+  McpConfigSection,
+  MCP_INSTALL_FULLSTACKRECIPES_COMMAND,
+} from "@/components/mcp/config";
+import { getSkillsInstallCommand } from "@/lib/recipes/data";
 
 export function InstallSection() {
-  const [mcpClient, setMcpClient] = useState<McpClient>("cursor");
-  const [skillsClient, setSkillsClient] = useState<SkillsClient>("cursor");
   const [copied, setCopied] = useState(false);
 
-  const skillsCommand = getSkillsInstallCommand(skillsClient);
+  const skillsCommand = getSkillsInstallCommand();
 
   async function copyToClipboard(text: string) {
     await navigator.clipboard.writeText(text);
@@ -67,33 +57,10 @@ export function InstallSection() {
         <div className="h-px flex-1 bg-border/50" />
       </div>
 
-      {/* MCP Server Section */}
-      <div className="rounded-xl border border-border/60 bg-secondary/20 p-6 text-left backdrop-blur-sm">
-        <h3 className="mb-4 text-sm font-medium">
-          Add fullstackrecipes MCP server
-        </h3>
-        <McpConfigSection mcpClient={mcpClient} setMcpClient={setMcpClient} />
-      </div>
-
       {/* Skills Section */}
       <div className="rounded-xl border border-border/60 bg-secondary/20 p-6 text-left backdrop-blur-sm">
-        <div className="mb-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-4 flex items-start gap-3">
           <h3 className="text-sm font-medium">Add all skills to your agent</h3>
-          <Select
-            value={skillsClient}
-            onValueChange={(value) => setSkillsClient(value as SkillsClient)}
-          >
-            <SelectTrigger className="w-[160px] bg-background">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {SKILLS_CLIENTS.map((agent) => (
-                <SelectItem key={agent.value} value={agent.value}>
-                  {agent.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
 
         <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-background px-3 py-2.5">
@@ -114,6 +81,14 @@ export function InstallSection() {
             )}
           </Button>
         </div>
+      </div>
+
+      {/* MCP Servers Section */}
+      <div className="rounded-xl border border-border/60 bg-secondary/20 p-6 text-left backdrop-blur-sm">
+        <h3 className="mb-4 text-sm font-medium">
+          Add fullstackrecipes MCP server
+        </h3>
+        <McpConfigSection command={MCP_INSTALL_FULLSTACKRECIPES_COMMAND} />
       </div>
     </div>
   );

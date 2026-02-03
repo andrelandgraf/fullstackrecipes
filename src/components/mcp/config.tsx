@@ -1,50 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { codeToHtml, type BundledLanguage } from "shiki";
-import { CodeBlock } from "@/components/code/code-block";
-import { TabbedCodeBlock } from "@/components/code/tabbed-code-block";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getCursorPromptDeeplink } from "@/lib/recipes/data";
 
-// Direct MCP Configuration Constants
-export const MCP_CONFIG = `{
-  "mcpServers": {
-    "fullstackrecipes": {
-      "url": "https://fullstackrecipes.com/api/mcp"
-    }
-  }
-}`;
-
-export const CURSOR_MCP_INSTALL_URL =
-  "https://cursor.com/en-US/install-mcp?name=fullstackrecipes&config=eyJ1cmwiOiJodHRwczovL2Z1bGxzdGFja3JlY2lwZXMuY29tL2FwaS9tY3AifQ%3D%3D";
-
-/** Claude Code MCP server command */
-export const CLAUDE_CODE_MCP_COMMAND =
-  "claude mcp add --transport http fullstackrecipes https://fullstackrecipes.com/api/mcp";
-
-export const VSCODE_MCP_CONFIG = `{
-  "servers": {
-    "fullstackrecipes": {
-      "type": "http",
-      "url": "https://fullstackrecipes.com/api/mcp"
-    }
-  }
-}`;
-
-export const VSCODE_MCP_INSTALL_URL = `vscode:mcp/install?${encodeURIComponent(
-  JSON.stringify({
-    fullstackrecipes: {
-      type: "http",
-      url: "https://fullstackrecipes.com/api/mcp",
-    },
-  }),
-)}`;
-
-// MCP Client Types
-export type McpClient = "cursor" | "claude-code" | "vscode";
+export const MCP_INSTALL_FULLSTACKRECIPES_COMMAND =
+  "bunx add-mcp https://fullstackrecipes.com/api/mcp";
 
 // Shared Hooks
 export function useHighlightedCode(code: string, language: BundledLanguage) {
@@ -70,216 +32,113 @@ export function useHighlightedCode(code: string, language: BundledLanguage) {
   return html;
 }
 
-// Utility Functions
-function getFileExtension(filePath: string): string {
-  const ext = filePath.split(".").pop()?.toLowerCase();
-  return ext ?? "file";
-}
+export function McpConfigSection({
+  command = MCP_INSTALL_FULLSTACKRECIPES_COMMAND,
+}: {
+  command?: string;
+}) {
+  const [copied, setCopied] = useState(false);
 
-// Shared Components
-type McpCodeBlockProps = {
-  code: string;
-  language: BundledLanguage;
-  filePath?: string;
-  className?: string;
-};
-
-export function McpCodeBlock({
-  code,
-  language,
-  filePath,
-  className,
-}: McpCodeBlockProps) {
-  const html = useHighlightedCode(code, language);
-
-  if (!html) {
-    return (
-      <div className={`rounded-md border bg-background p-4 ${className ?? ""}`}>
-        <pre className="overflow-x-auto font-mono text-sm">
-          <code>{code}</code>
-        </pre>
-      </div>
-    );
+  async function copyCommand() {
+    await navigator.clipboard.writeText(command);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   return (
-    <CodeBlock
-      filePath={filePath ?? null}
-      fileExt={filePath ? getFileExtension(filePath) : null}
-      language={language}
-      code={code}
-      lightHtml={html.light}
-      darkHtml={html.dark}
-      hasFilePath={!!filePath}
-      className={className}
-    />
-  );
-}
-
-export function CursorButton({
-  href,
-  children,
-}: {
-  href: string;
-  children: string;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
-    >
-      <Image
-        src="/assets/cursor-logo-light.svg"
-        alt="Cursor"
-        width={18}
-        height={18}
-        className="dark:hidden"
-      />
-      <Image
-        src="/assets/cursor-logo-dark.svg"
-        alt="Cursor"
-        width={18}
-        height={18}
-        className="hidden dark:block"
-      />
-      {children}
-    </a>
-  );
-}
-
-export function VSCodeButton({
-  href,
-  children,
-}: {
-  href: string;
-  children: string;
-}) {
-  return (
-    <a
-      href={href}
-      className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
-    >
-      <Image
-        src="/assets/vscode-logo.svg"
-        alt="VS Code"
-        width={18}
-        height={18}
-      />
-      {children}
-    </a>
-  );
-}
-
-function getMcpTabs() {
-  return [
-    {
-      id: "cursor" as const,
-      label: "Cursor",
-      code: MCP_CONFIG,
-      language: "json" as const,
-      filePath: ".cursor/mcp.json",
-    },
-    {
-      id: "vscode" as const,
-      label: "VS Code",
-      code: VSCODE_MCP_CONFIG,
-      language: "json" as const,
-      filePath: ".vscode/mcp.json",
-    },
-    {
-      id: "claude-code" as const,
-      label: "Claude Code",
-      code: CLAUDE_CODE_MCP_COMMAND,
-      language: "bash" as const,
-    },
-  ];
-}
-
-// Reusable MCP Config Section Component
-type McpConfigSectionProps = {
-  mcpClient: McpClient;
-  setMcpClient: (client: McpClient) => void;
-  showAddButtons?: boolean;
-};
-
-export function McpConfigSection({
-  mcpClient,
-  setMcpClient,
-  showAddButtons = true,
-}: McpConfigSectionProps) {
-  const tabs = getMcpTabs();
-
-  return (
-    <div className="flex min-w-0 flex-col overflow-hidden">
-      <TabbedCodeBlock
-        tabs={tabs}
-        activeTab={mcpClient}
-        onTabChange={(tabId) => setMcpClient(tabId as McpClient)}
-      />
-
-      {/* Add Buttons */}
-      {showAddButtons && (
-        <div className="mt-3 sm:mt-4">
-          {mcpClient === "cursor" && (
-            <CursorButton href={CURSOR_MCP_INSTALL_URL}>
-              Add to Cursor
-            </CursorButton>
-          )}
-          {mcpClient === "vscode" && (
-            <VSCodeButton href={VSCODE_MCP_INSTALL_URL}>
-              Add to VS Code
-            </VSCodeButton>
-          )}
-        </div>
-      )}
+    <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-secondary/30 px-3 py-2.5">
+      <Terminal className="h-4 w-4 shrink-0 text-muted-foreground" />
+      <code className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-xs text-foreground/90 sm:text-sm">
+        {command}
+      </code>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={copyCommand}
+        className="h-7 w-7 shrink-0 p-0"
+      >
+        {copied ? (
+          <Check className="h-3.5 w-3.5 text-green-500" />
+        ) : (
+          <Copy className="h-3.5 w-3.5" />
+        )}
+      </Button>
     </div>
   );
 }
 
 // Reusable MCP Setup Steps Component
 type McpSetupStepsProps = {
-  mcpClient: McpClient;
-  setMcpClient: (client: McpClient) => void;
   promptText: string;
   copiedPrompt: boolean;
   onCopyPrompt: () => void;
-  /** Optional content to render as Step 2 between MCP config and prompt */
+  step1Title?: string;
+  step1Description?: string;
+  step1Content?: React.ReactNode;
+  step2Title?: string;
+  step2Description?: string;
+  /** Optional content to render as Step 2 between step 1 and prompt */
   step2Content?: React.ReactNode;
+  mcpCommand?: string;
 };
 
 export function McpSetupSteps({
-  mcpClient,
-  setMcpClient,
   promptText,
   copiedPrompt,
   onCopyPrompt,
+  step1Title = "Add MCP server to your agent",
+  step1Description = "Run once to update all detected agents",
+  step1Content,
+  step2Title,
+  step2Description,
   step2Content,
+  mcpCommand,
 }: McpSetupStepsProps) {
+  const resolvedStep1Content = step1Content ?? (
+    <McpConfigSection command={mcpCommand} />
+  );
+
   return (
     <div className="flex min-w-0 flex-col gap-6 sm:gap-8">
-      {/* Step 1: Add the MCP server or plugin */}
+      {/* Step 1 */}
       <div className="min-w-0">
         <div className="flex items-start gap-3">
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary sm:h-8 sm:w-8">
             1
           </div>
           <div className="min-w-0">
-            <h4 className="font-medium">Add fullstackrecipes MCP server</h4>
-            <p className="text-sm text-muted-foreground">
-              Add to your coding agent&apos;s MCP config
-            </p>
+            <h4 className="font-medium">{step1Title}</h4>
+            {step1Description && (
+              <p className="text-sm text-muted-foreground">
+                {step1Description}
+              </p>
+            )}
           </div>
         </div>
 
-        <div className="mt-3 min-w-0 sm:mt-4">
-          <McpConfigSection mcpClient={mcpClient} setMcpClient={setMcpClient} />
-        </div>
+        <div className="mt-3 min-w-0 sm:mt-4">{resolvedStep1Content}</div>
       </div>
 
-      {/* Step 2: Optional slot for additional content (e.g., skills) */}
-      {step2Content}
+      {/* Step 2 */}
+      {step2Content && (
+        <div className="min-w-0">
+          <div className="flex items-start gap-3">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary sm:h-8 sm:w-8">
+              2
+            </div>
+            <div className="min-w-0 flex-1">
+              {step2Title && <h4 className="font-medium">{step2Title}</h4>}
+              {step2Description && (
+                <p className="text-sm text-muted-foreground">
+                  {step2Description}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4">{step2Content}</div>
+        </div>
+      )}
 
       {/* Step 3: Prompt your agent */}
       <div className="min-w-0">
@@ -324,14 +183,6 @@ export function McpSetupSteps({
             </Button>
           </div>
         </div>
-
-        {mcpClient === "cursor" && (
-          <div className="mt-3 sm:mt-4">
-            <CursorButton href={getCursorPromptDeeplink(promptText)}>
-              Prompt Cursor
-            </CursorButton>
-          </div>
-        )}
       </div>
     </div>
   );

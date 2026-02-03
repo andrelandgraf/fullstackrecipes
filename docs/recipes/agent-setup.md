@@ -63,28 +63,17 @@ Core workflow:
 
 > This `agents.md` file is based on [Lee Robinson's](https://x.com/leerob) original [shared here](https://x.com/leerob/status/1993162978410004777).
 
-### Step 2: Configure MCP Servers
+### Step 2: Add MCP Servers
 
-Use MCP (Model Context Protocol) servers to enhance your coding agent's capabilities. Different recipes may introduce additional MCP servers. For now, start by adding these foundational MCP servers to your `.cursor/mcp.json`:
+Use MCP (Model Context Protocol) servers to enhance your coding agent's capabilities. Add servers with `bunx add-mcp <mcp url> -y` — it updates all detected agents automatically, so no per-agent config files are required.
 
-```json
-{
-  "mcpServers": {
-    "vercel": {
-      "url": "https://mcp.vercel.com"
-    },
-    "next-devtools": {
-      "command": "npx",
-      "args": ["-y", "next-devtools-mcp@latest"]
-    },
-    "context7": {
-      "url": "https://mcp.context7.com/mcp"
-    },
-    "fullstackrecipes": {
-      "url": "https://fullstackrecipes.com/api/mcp"
-    }
-  }
-}
+If no agents are detected, add `-a opencode -a cursor` to the command or prompt the user to specify what agents they want to use for this project.
+
+```bash
+bunx add-mcp https://mcp.vercel.com
+bunx add-mcp next-devtools-mcp@latest
+bunx add-mcp https://mcp.context7.com/mcp
+bunx add-mcp https://fullstackrecipes.com/api/mcp
 ```
 
 | Server             | Description                                                      |
@@ -116,6 +105,7 @@ bunx skills add vercel-labs/agent-skills -s web-design-guidelines -a opencode -a
 bunx skills add vercel-labs/agent-skills -s vercel-react-best-practices -a opencode -a cursor -y
 bunx skills add vercel-labs/agent-browser -s agent-browser -a opencode -a cursor -y
 bunx skills add vercel/ai -s ai-sdk -a opencode -a cursor -y
+bunx skills add vercel/ai-elements --skill ai-elements -a opencode -a cursor -y
 bunx skills add andrelandgraf/fullstackrecipes/skills -a opencode -a cursor -y
 ```
 
@@ -127,4 +117,5 @@ bunx skills add andrelandgraf/fullstackrecipes/skills -a opencode -a cursor -y
 | `skill-creator`               | Anthropic skill creation guidelines                |
 | `frontend-design`             | Anthropic frontend design best practices           |
 | `ai-sdk`                      | Vercel AI SDK patterns and best practices          |
+| `ai-elements`                 | Vercel AI Elements UI components and patterns      |
 | `fullstackrecipes`            | Fullstackrecipes setup guides and workflows        |

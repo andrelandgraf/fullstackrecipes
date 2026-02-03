@@ -18,17 +18,13 @@ The fullstackrecipes MCP server exposes all recipes and cookbooks as resources. 
 
 ### Set up MCP Server
 
-If the MCP server is not already set up, add it to your coding agent's MCP configuration:
+If the MCP server is not already set up, add it with:
 
-```json
-{
-  "mcpServers": {
-    "fullstackrecipes": {
-      "url": "https://fullstackrecipes.com/api/mcp"
-    }
-  }
-}
+```bash
+bunx add-mcp https://fullstackrecipes.com/api/mcp -y
 ```
+
+This updates all detected agents automatically. If no agents are detected, add `-a opencode -a cursor` to the command or prompt the user to specify what agents they want to use for this project.
 
 ### List All Resources
 
