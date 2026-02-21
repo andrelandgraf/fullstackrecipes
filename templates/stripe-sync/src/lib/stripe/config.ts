@@ -1,4 +1,4 @@
-import { configSchema, server, pub } from "@/lib/config/schema";
+import { configSchema, server, pub } from "better-env/config-schema";
 
 export const stripeConfig = configSchema("Stripe", {
   secretKey: server({ env: "STRIPE_SECRET_KEY" }),

@@ -1,4 +1,4 @@
-import { configSchema, server, oneOf } from "@/lib/config/schema";
+import { configSchema, server, oneOf } from "better-env/config-schema";
 
 export const aiConfig = configSchema(
   "AI",

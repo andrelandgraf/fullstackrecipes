@@ -20,11 +20,8 @@
       "name": "logger",
       "type": "registry:lib",
       "title": "Pino Logger",
-      "description": "Structured JSON logger with pretty-printing in development. Configurable log level via LOG_LEVEL env var using configSchema.",
-      "dependencies": ["pino", "pino-pretty"],
-      "registryDependencies": [
-        "https://fullstackrecipes.com/r/config-schema.json"
-      ],
+      "description": "Structured JSON logger with pretty-printing in development. Configurable log level via LOG_LEVEL env var using better-env.",
+      "dependencies": ["better-env", "pino", "pino-pretty", "zod"],
       "files": [
         {
           "path": "templates/base-app/src/lib/logging/config.ts",
@@ -37,43 +34,6 @@
           "target": "lib/logging/logger.ts"
         }
       ]
-    },
-    {
-      "name": "config-schema",
-      "type": "registry:lib",
-      "title": "Config Schema",
-      "description": "Drizzle-like API for type-safe environment variable configuration with Zod validation, runtime protection for server-only config, and full TypeScript inference.",
-      "dependencies": ["zod"],
-      "files": [
-        {
-          "path": "templates/base-app/src/lib/config/schema.ts",
-          "type": "registry:lib",
-          "target": "lib/config/schema.ts"
-        },
-        {
-          "path": "templates/base-app/src/lib/config/main.ts",
-          "type": "registry:lib",
-          "target": "lib/config/main.ts"
-        }
-      ]
-    },
-    {
-      "name": "validate-env",
-      "type": "registry:lib",
-      "title": "Validate Environment",
-      "description": "CLI script to validate all config.ts files against .env files. Finds missing variables, reports validation errors, and warns about unused env vars.",
-      "dependencies": ["@next/env"],
-      "registryDependencies": [
-        "https://fullstackrecipes.com/r/config-schema.json"
-      ],
-      "files": [
-        {
-          "path": "templates/base-app/scripts/validate-env.ts",
-          "type": "registry:lib",
-          "target": "scripts/validate-env.ts"
-        }
-      ],
-      "docs": "Add 'env:validate': 'bun run scripts/validate-env.ts' to your package.json scripts. Run with --environment=development or --environment=production."
     },
     {
       "name": "use-resumable-chat",

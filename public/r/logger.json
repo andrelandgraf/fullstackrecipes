@@ -2,13 +2,12 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "logger",
   "title": "Pino Logger",
-  "description": "Structured JSON logger with pretty-printing in development. Configurable log level via LOG_LEVEL env var using configSchema.",
-  "dependencies": ["pino", "pino-pretty"],
-  "registryDependencies": ["https://fullstackrecipes.com/r/config-schema.json"],
+  "description": "Structured JSON logger with pretty-printing in development. Configurable log level via LOG_LEVEL env var using better-env.",
+  "dependencies": ["better-env", "pino", "pino-pretty", "zod"],
   "files": [
     {
       "path": "templates/base-app/src/lib/logging/config.ts",
-      "content": "import { z } from \"zod\";\nimport { configSchema, server } from \"@/lib/config/schema\";\n\nexport const loggingConfig = configSchema(\"Logging\", {\n  level: server({\n    env: \"LOG_LEVEL\",\n    schema: z\n      .enum([\"trace\", \"debug\", \"info\", \"warn\", \"error\", \"fatal\"])\n      .default(\"info\"),\n  }),\n});\n",
+      "content": "import { z } from \"zod\";\nimport { configSchema, server } from \"better-env/config-schema\";\n\nexport const loggingConfig = configSchema(\"Logging\", {\n  level: server({\n    env: \"LOG_LEVEL\",\n    schema: z\n      .enum([\"trace\", \"debug\", \"info\", \"warn\", \"error\", \"fatal\"])\n      .default(\"info\"),\n  }),\n});\n",
       "type": "registry:lib",
       "target": "lib/logging/config.ts"
     },

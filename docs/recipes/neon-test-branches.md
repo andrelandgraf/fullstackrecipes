@@ -4,7 +4,7 @@ First, create a script config file for the Neon API access:
 
 ```typescript
 // scripts/tests/config.ts
-import { configSchema, server } from "scripts/tests/config/schema";
+import { configSchema, server } from "better-env/config-schema";
 
 export const neonConfig = configSchema("Neon", {
   apiKey: server({ env: "NEON_API_KEY" }),
@@ -231,7 +231,7 @@ if (import.meta.main) {
 Create the config file at `scripts/tests/config.ts`:
 
 ```typescript
-import { configSchema, server } from "@/lib/config/schema";
+import { configSchema, server } from "better-env/config-schema";
 
 export const neonConfig = configSchema("Neon", {
   apiKey: server({ env: "NEON_API_KEY" }),

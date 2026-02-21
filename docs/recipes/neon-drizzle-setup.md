@@ -31,12 +31,10 @@ Instead of accessing `process.env.DATABASE_URL` directly, use the type-safe conf
 
 ```typescript
 // src/lib/db/config.ts
-import { loadConfig } from "@/lib/common/load-config";
+import { configSchema, server } from "better-env/config-schema";
 
-export const databaseConfig = loadConfig({
-  server: {
-    url: process.env.DATABASE_URL,
-  },
+export const databaseConfig = configSchema("Database", {
+  url: server({ env: "DATABASE_URL" }),
 });
 ```
 

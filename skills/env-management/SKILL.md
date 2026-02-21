@@ -1,33 +1,33 @@
 ---
 name: env-management
-description: Complete environment variable management with type-safe validation, Vercel dev workflow, and prebuild validation.
+description: Complete better-env workflow: typed config schema, Vercel sync, and prebuild validation.
 ---
 
 # Environment Variable Management
 
-Complete environment variable management with type-safe validation, Vercel dev workflow, and prebuild validation.
+Complete better-env workflow: typed config schema, Vercel sync, and prebuild validation.
 
 ## Cookbook - Complete These Recipes in Order
 
-### Type-Safe Environment Configuration
+### Type-Safe Environment Configuration with better-env
 
-Type-safe environment variable validation using Zod with a Drizzle-like schema API. Supports server/public fields, feature flags, either-or constraints, and client-side protection.
+Use better-env config modules for type-safe server/public env access, feature flags, and either-or credential constraints.
 
 ```bash
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/config-schema-setup
 ```
 
-### Environment Variable Management with Vercel
+### Environment Variable Management with better-env + Vercel
 
-Manage environment variables across Vercel environments. Sync with Vercel CLI, handle local overrides, and load env vars in scripts.
+Sync local env files with Vercel environments using better-env pull/load commands while preserving local overrides.
 
 ```bash
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/env-workflow-vercel
 ```
 
-### Build-Time Environment Variable Validation
+### Build-Time Environment Validation with better-env
 
-Validate environment variables on server start and before builds. Catch missing or invalid variables early with clear error messages.
+Validate all env-backed config modules with better-env before build and in CI.
 
 ```bash
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/env-validation

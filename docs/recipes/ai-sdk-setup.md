@@ -71,7 +71,7 @@ Create a type-safe config with either-or validation using the config schema patt
 
 ```ts
 // src/lib/ai/config.ts
-import { configSchema, server, oneOf } from "@/lib/config/schema";
+import { configSchema, server, oneOf } from "better-env/config-schema";
 import { createOpenAI } from "@ai-sdk/openai";
 import type { LanguageModelV1 } from "ai";
 

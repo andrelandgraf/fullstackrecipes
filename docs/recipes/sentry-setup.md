@@ -53,25 +53,36 @@ Create the Sentry config with environment variable validation:
 
 ```typescript
 // src/lib/sentry/config.ts
-import { loadConfig } from "../common/load-config";
+import { configSchema, pub, server } from "better-env/config-schema";
 
-export const sentryConfig = loadConfig({
-  name: "Sentry",
-  flag: process.env.NEXT_PUBLIC_ENABLE_SENTRY,
-  server: {
+export const sentryConfig = configSchema(
+  "Sentry",
+  {
     // SENTRY_AUTH_TOKEN is picked up by the Sentry Build Plugin for source maps upload.
-    // Accessing this on the client will throw ServerConfigClientAccessError.
-    token: process.env.SENTRY_AUTH_TOKEN,
+    token: server({ env: "SENTRY_AUTH_TOKEN" }),
+    dsn: pub({
+      env: "NEXT_PUBLIC_SENTRY_DSN",
+      value: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    }),
+    project: pub({
+      env: "NEXT_PUBLIC_SENTRY_PROJECT",
+      value: process.env.NEXT_PUBLIC_SENTRY_PROJECT,
+    }),
+    org: pub({
+      env: "NEXT_PUBLIC_SENTRY_ORG",
+      value: process.env.NEXT_PUBLIC_SENTRY_ORG,
+    }),
   },
-  public: {
-    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-    project: process.env.NEXT_PUBLIC_SENTRY_PROJECT,
-    org: process.env.NEXT_PUBLIC_SENTRY_ORG,
+  {
+    flag: {
+      env: "NEXT_PUBLIC_ENABLE_SENTRY",
+      value: process.env.NEXT_PUBLIC_ENABLE_SENTRY,
+    },
   },
-});
+);
 ```
 
-We use the `loadConfig` utility to validate the configuration and throw an error if any of the required environment variables are missing. The config separates `server` and `public` sections:
+We use `better-env/config-schema` to validate the configuration and throw an error if any of the required environment variables are missing. The config separates `server` and `public` sections:
 
 - `server.*` values are only accessible on the server - accessing them on the client throws a helpful error
 - `public.*` values work everywhere (Next.js inlines `NEXT_PUBLIC_*` vars at build time)

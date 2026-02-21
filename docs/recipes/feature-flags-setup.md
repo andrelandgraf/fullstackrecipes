@@ -95,21 +95,25 @@ export const stripeFlag = flag({
 
 ### Flags with Validated Config
 
-For flags that depend on validated environment variables, combine with the [loadConfig](/recipes/env-management) pattern. Create a config file that uses the feature flag pattern:
+For flags that depend on validated environment variables, combine with the [config schema](/recipes/config-schema-setup) pattern. Create a config file that uses the feature flag pattern:
 
 ```ts
 // src/lib/stripe/config.ts
-import { loadConfig } from "@/lib/common/load-config";
+import { configSchema, server } from "better-env/config-schema";
 
-export const stripeConfig = loadConfig({
-  name: "Stripe",
-  flag: process.env.ENABLE_STRIPE, // Only validate when flag is set
-  server: {
-    secretKey: process.env.STRIPE_SECRET_KEY,
-    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+export const stripeConfig = configSchema(
+  "Stripe",
+  {
+    secretKey: server({ env: "STRIPE_SECRET_KEY" }),
+    webhookSecret: server({ env: "STRIPE_WEBHOOK_SECRET" }),
   },
-});
-// Type: FeatureConfig<...>
+  {
+    flag: {
+      env: "ENABLE_STRIPE",
+      value: process.env.ENABLE_STRIPE,
+    },
+  },
+);
 ```
 
 Then create a flag that checks the config:

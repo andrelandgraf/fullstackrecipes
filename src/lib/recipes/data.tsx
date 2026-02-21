@@ -269,63 +269,72 @@ function processUser(user: User | null) {
   },
   {
     slug: "config-schema-setup",
-    title: "Type-Safe Environment Configuration",
+    title: "Type-Safe Environment Configuration with better-env",
     description:
-      "Type-safe environment variable validation using Zod with a Drizzle-like schema API. Supports server/public fields, feature flags, either-or constraints, and client-side protection.",
+      "Use better-env config modules for type-safe server/public env access, feature flags, and either-or credential constraints.",
     tags: ["Setup Instructions"],
     icon: Cog,
-    previewCode: `export const databaseConfig = configSchema("Database", {
+    previewCode: `import { configSchema, server } from "better-env/config-schema";
+
+export const databaseConfig = configSchema("Database", {
   url: server({ env: "DATABASE_URL" }),
 });
 
 // Type: { server: { url: string } }`,
-    registryDeps: ["config-schema"],
   },
   {
     slug: "env-workflow-vercel",
-    title: "Environment Variable Management with Vercel",
+    title: "Environment Variable Management with better-env + Vercel",
     description:
-      "Manage environment variables across Vercel environments. Sync with Vercel CLI, handle local overrides, and load env vars in scripts.",
+      "Sync local env files with Vercel environments using better-env pull/load commands while preserving local overrides.",
     tags: ["Setup Instructions"],
     icon: Triangle,
     requires: ["config-schema-setup"],
-    previewCode: `{
+    previewCode: `import { defineBetterEnv, vercelAdapter } from "better-env";
+
+export default defineBetterEnv({
+  adapter: vercelAdapter(),
+});
+
+{
   "scripts": {
-    "env:pull": "vercel env pull .env.development",
-    "env:push": "vercel env push .env.development"
+    "env:pull": "bunx --bun better-env pull --environment=development",
+    "env:push": "bunx --bun better-env load .env.development --environment=development --upsert"
   }
 }`,
   },
   {
     slug: "env-validation",
-    title: "Build-Time Environment Variable Validation",
+    title: "Build-Time Environment Validation with better-env",
     description:
-      "Validate environment variables on server start and before builds. Catch missing or invalid variables early with clear error messages.",
+      "Validate all env-backed config modules with better-env before build and in CI.",
     tags: ["Skills"],
     icon: FlaskConical,
     requires: ["config-schema-setup"],
-    previewCode: `// instrumentation.ts - validate on start
-import "./lib/db/config";
-
-// prebuild validation
-bun run env:validate --environment=production`,
-    registryDeps: ["validate-env"],
+    previewCode: `{
+  "scripts": {
+    "env:validate": "bunx --bun better-env validate --environment=development",
+    "env:validate:prod": "bunx --bun better-env validate --environment=production",
+    "prebuild": "bun run env:validate:prod"
+  }
+}`,
   },
   {
     slug: "env-management",
     title: "Environment Variable Management",
     description:
-      "Complete environment variable management with type-safe validation, Vercel dev workflow, and prebuild validation.",
+      "Complete better-env workflow: typed config schema, Vercel sync, and prebuild validation.",
     tags: ["Cookbooks"],
     icon: Settings,
     isCookbook: true,
     recipes: ["config-schema-setup", "env-workflow-vercel", "env-validation"],
-    previewCode: `export const databaseConfig = configSchema("Database", {
+    previewCode: `import { configSchema, server } from "better-env/config-schema";
+
+export const databaseConfig = configSchema("Database", {
   url: server({ env: "DATABASE_URL" }),
 });
 
-// bun run env:validate --environment=production`,
-    registryDeps: ["config-schema", "validate-env"],
+// bunx --bun better-env validate --environment=production`,
   } satisfies Cookbook,
   {
     slug: "neon-drizzle-setup",
@@ -1158,8 +1167,6 @@ export function getRedirectSlug(slug: string): string | undefined {
 
 // Registry items from registry.json
 const REGISTRY_ICONS: Record<string, typeof Database> = {
-  "config-schema": Cog,
-  "validate-env": FlaskConical,
   assert: Blocks,
   "use-resumable-chat": Package,
   "durable-agent": Cpu,

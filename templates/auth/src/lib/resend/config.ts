@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { configSchema, server } from "@/lib/config/schema";
+import { configSchema, server } from "better-env/config-schema";
 
 export const resendConfig = configSchema("Resend", {
   apiKey: server({ env: "RESEND_API_KEY" }),
