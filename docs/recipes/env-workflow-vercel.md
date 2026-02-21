@@ -1,6 +1,6 @@
 ### Managing Environment Variables with better-env + Vercel
 
-Use `better-env` to sync local `.env` files with Vercel environments instead of maintaining custom pull/push scripts.
+Use `better-env` to sync local `.env` files with Vercel environments.
 
 ### Install and configure
 
