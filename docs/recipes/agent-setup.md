@@ -67,7 +67,7 @@ Core workflow:
 
 Use MCP (Model Context Protocol) servers to enhance your coding agent's capabilities. Add servers with `bunx add-mcp <mcp url> -y` — it updates all detected agents automatically, so no per-agent config files are required.
 
-If no agents are detected, add `-a opencode -a cursor` to the command or prompt the user to specify what agents they want to use for this project.
+If no agents are detected, add `-a cursor -a codex` to the command or prompt the user to specify what agents they want to use for this project.
 
 ```bash
 bunx add-mcp https://mcp.vercel.com
@@ -99,14 +99,14 @@ agent-browser install  # Download Chromium
 Install skills for AI agents:
 
 ```bash
-bunx skills add anthropics/skills -s skill-creator -a opencode -a cursor -y
-bunx skills add anthropics/skills -s frontend-design -a opencode -a cursor -y
-bunx skills add vercel-labs/agent-skills -s web-design-guidelines -a opencode -a cursor -y
-bunx skills add vercel-labs/agent-skills -s vercel-react-best-practices -a opencode -a cursor -y
-bunx skills add vercel-labs/agent-browser -s agent-browser -a opencode -a cursor -y
-bunx skills add vercel/ai -s ai-sdk -a opencode -a cursor -y
-bunx skills add vercel/ai-elements --skill ai-elements -a opencode -a cursor -y
-bunx skills add andrelandgraf/fullstackrecipes/skills -a opencode -a cursor -y
+bunx skills add anthropics/skills -s skill-creator -a cursor -a codex -y
+bunx skills add anthropics/skills -s frontend-design -a cursor -a codex -y
+bunx skills add vercel-labs/agent-skills -s web-design-guidelines -a cursor -a codex -y
+bunx skills add vercel-labs/agent-skills -s vercel-react-best-practices -a cursor -a codex -y
+bunx skills add vercel-labs/agent-browser -s agent-browser -a cursor -a codex -y
+bunx skills add vercel/ai -s ai-sdk -a cursor -a codex -y
+bunx skills add vercel/ai-elements --skill ai-elements -a cursor -a codex -y
+bunx skills add andrelandgraf/fullstackrecipes/skills -a cursor -a codex -y
 bunx skills add neondatabase/agent-skills -a cursor -a codex -y
 bunx skills add neondatabase/better-env -a cursor -a codex -y
 ```
