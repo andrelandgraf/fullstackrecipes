@@ -105,7 +105,3 @@ export const resendConfig = configSchema("Resend", {
   }),
 });
 ```
-
-### Migrate from custom env utilities
-
-If your project previously used a custom env schema utility, replace imports with `better-env/config-schema` and remove the custom schema implementation.
