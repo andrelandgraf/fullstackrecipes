@@ -36,7 +36,7 @@
         "@vercel/functions": "^3.3.4",
         "@xyflow/react": "^12.10.0",
         "ai": "^6.0.26",
-        "better-env": "^0.3.0",
+        "better-env": "^0.3.1",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
@@ -559,7 +559,7 @@
 
     "baseline-browser-mapping": ["baseline-browser-mapping@2.9.11", "", { "bin": { "baseline-browser-mapping": "dist/cli.js" } }, "sha512-Sg0xJUNDU1sJNGdfGWhVHX0kkZ+HWcvmVymJbj6NSgZZmW/8S9Y2HQ5euytnIgakgxN6papOAWiwDo1ctFDcoQ=="],
 
-    "better-env": ["better-env@0.3.0", "", { "dependencies": { "@next/env": "^16.0.10", "commander": "^14.0.3", "zod": "^4" }, "bin": { "better-env": "dist/cli.js" } }, "sha512-yuB0ufbeojUzAiZw9OlPCQOkqDiNKPcbuMG1pTkZzjT+XUmfxf7sN7FpS3tVqHqoAh4lkAu85P1W1EiHbZmssQ=="],
+    "better-env": ["better-env@0.3.1", "", { "dependencies": { "@next/env": "^16.0.10", "commander": "^14.0.3", "jiti": "^2.6.1", "zod": "^4" }, "bin": { "better-env": "dist/cli.js" } }, "sha512-fmJ6stposMd/8TFogxRL0xsI57+QVTywFZnfGNJfSlg7EF2R6ORVA7U1SHrZMIiVIh8JJa9Bk+cMrlTjpt1hDA=="],
 
     "buffer-from": ["buffer-from@1.1.2", "", {}, "sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ=="],
 

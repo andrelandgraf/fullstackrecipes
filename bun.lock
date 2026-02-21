@@ -46,7 +46,7 @@
         "@xyflow/react": "^12.9.3",
         "ai": "^6.0.3",
         "better-auth": "^1.4.3",
-        "better-env": "^0.3.0",
+        "better-env": "^0.3.1",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
@@ -1184,7 +1184,7 @@
 
     "better-call": ["better-call@1.1.0", "", { "dependencies": { "@better-auth/utils": "^0.3.0", "@better-fetch/fetch": "^1.1.4", "rou3": "^0.5.1", "set-cookie-parser": "^2.7.1" } }, "sha512-7CecYG+yN8J1uBJni/Mpjryp8bW/YySYsrGEWgFe048ORASjq17keGjbKI2kHEOSc6u8pi11UxzkJ7jIovQw6w=="],
 
-    "better-env": ["better-env@0.3.0", "", { "dependencies": { "@next/env": "^16.0.10", "commander": "^14.0.3", "zod": "^4" }, "bin": { "better-env": "dist/cli.js" } }, "sha512-yuB0ufbeojUzAiZw9OlPCQOkqDiNKPcbuMG1pTkZzjT+XUmfxf7sN7FpS3tVqHqoAh4lkAu85P1W1EiHbZmssQ=="],
+    "better-env": ["better-env@0.3.1", "", { "dependencies": { "@next/env": "^16.0.10", "commander": "^14.0.3", "jiti": "^2.6.1", "zod": "^4" }, "bin": { "better-env": "dist/cli.js" } }, "sha512-fmJ6stposMd/8TFogxRL0xsI57+QVTywFZnfGNJfSlg7EF2R6ORVA7U1SHrZMIiVIh8JJa9Bk+cMrlTjpt1hDA=="],
 
     "better-sqlite3": ["better-sqlite3@12.5.0", "", { "dependencies": { "bindings": "^1.5.0", "prebuild-install": "^7.1.1" } }, "sha512-WwCZ/5Diz7rsF29o27o0Gcc1Du+l7Zsv7SYtVPG0X3G/uUI1LqdxrQI7c9Hs2FWpqXXERjW9hp6g3/tH7DlVKg=="],
 
