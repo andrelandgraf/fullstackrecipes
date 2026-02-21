@@ -9,12 +9,6 @@ bun add better-env
 bunx skills add neondatabase/better-env -a cursor -a codex -y
 ```
 
-If you also want Neon setup guidance for agents, install:
-
-```bash
-bunx skills add neondatabase/agent-skills -a cursor -a codex -y
-```
-
 ### Define feature-level config modules
 
 Create config modules in `src/lib/*/config.ts`.
