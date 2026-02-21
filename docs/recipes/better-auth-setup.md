@@ -54,13 +54,11 @@ Create the auth config following the [Environment Variable Management](/recipes/
 
 ```typescript
 // src/lib/auth/config.ts
-import { loadConfig } from "../common/load-config";
+import { configSchema, server } from "better-env/config-schema";
 
-export const authConfig = loadConfig({
-  server: {
-    secret: process.env.BETTER_AUTH_SECRET,
-    url: process.env.BETTER_AUTH_URL,
-  },
+export const authConfig = configSchema("Auth", {
+  secret: server({ env: "BETTER_AUTH_SECRET" }),
+  url: server({ env: "BETTER_AUTH_URL" }),
 });
 ```
 
@@ -270,18 +268,13 @@ To add OAuth providers like GitHub, Google, or Vercel, first add them as fields 
 
 ```typescript
 // src/lib/auth/config.ts
-import { loadConfig } from "../common/load-config";
+import { configSchema, server } from "better-env/config-schema";
 
-export const authConfig = loadConfig({
-  server: {
-    secret: process.env.BETTER_AUTH_SECRET,
-    url: process.env.BETTER_AUTH_URL,
-    vercelClientId: { value: process.env.VERCEL_CLIENT_ID, optional: true },
-    vercelClientSecret: {
-      value: process.env.VERCEL_CLIENT_SECRET,
-      optional: true,
-    },
-  },
+export const authConfig = configSchema("Auth", {
+  secret: server({ env: "BETTER_AUTH_SECRET" }),
+  url: server({ env: "BETTER_AUTH_URL" }),
+  vercelClientId: server({ env: "VERCEL_CLIENT_ID", optional: true }),
+  vercelClientSecret: server({ env: "VERCEL_CLIENT_SECRET", optional: true }),
 });
 ```
 
