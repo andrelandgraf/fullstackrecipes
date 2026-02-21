@@ -51,7 +51,7 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/assert
 
 ### Type-Safe Environment Configuration with better-env
 
-Use better-env config modules for type-safe server/public env access, feature flags, and either-or constraints.
+Use better-env config modules for type-safe server/public env access, feature flags, and either-or credential constraints.
 
 ```bash
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/config-schema-setup
@@ -59,7 +59,7 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/config-
 
 ### Build-Time Environment Validation with better-env
 
-Validate env-backed config modules before builds with `better-env validate`.
+Validate all env-backed config modules with better-env before build and in CI.
 
 ```bash
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/env-validation

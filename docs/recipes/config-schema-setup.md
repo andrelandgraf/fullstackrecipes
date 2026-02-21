@@ -104,7 +104,10 @@ export const resendConfig = configSchema("Resend", {
     env: "RESEND_FROM_EMAIL",
     schema: z
       .string()
-      .regex(/^.+\s<.+@.+\..+>$/, 'Must match "Name <email@domain.com>" format.'),
+      .regex(
+        /^.+\s<.+@.+\..+>$/,
+        'Must match "Name <email@domain.com>" format.',
+      ),
   }),
 });
 ```

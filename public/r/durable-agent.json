@@ -3,10 +3,7 @@
   "name": "durable-agent",
   "title": "Durable Agent",
   "description": "AI agent class that executes streamText in a tool loop with workflow compatibility. Supports provider options, streaming control, and step-level durability via 'use step' directive.",
-  "dependencies": [
-    "ai",
-    "@ai-sdk/provider-utils"
-  ],
+  "dependencies": ["ai", "@ai-sdk/provider-utils"],
   "files": [
     {
       "path": "src/lib/ai/agent.ts",

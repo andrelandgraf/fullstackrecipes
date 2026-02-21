@@ -114,7 +114,7 @@ bunx skills add neondatabase/better-env -a cursor -a codex -y
 | Skill                         | Description                                        |
 | ----------------------------- | -------------------------------------------------- |
 | `neon-postgres`               | Neon Postgres setup and operational guidance       |
-| `better-env`                  | better-env setup, sync, and validation workflows  |
+| `better-env`                  | better-env setup, sync, and validation workflows   |
 | `agent-browser`               | Browser automation for web testing and interaction |
 | `web-design-guidelines`       | Web design best practices for UI/UX                |
 | `vercel-react-best-practices` | React patterns and conventions for Vercel apps     |

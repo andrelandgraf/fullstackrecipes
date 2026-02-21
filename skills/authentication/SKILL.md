@@ -11,9 +11,9 @@ Complete authentication system with Better Auth, email verification, password re
 
 Complete these recipes first (in order):
 
-### Type-Safe Environment Configuration
+### Type-Safe Environment Configuration with better-env
 
-Type-safe environment variable validation using Zod with a Drizzle-like schema API. Supports server/public fields, feature flags, either-or constraints, and client-side protection.
+Use better-env config modules for type-safe server/public env access, feature flags, and either-or credential constraints.
 
 ```bash
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/config-schema-setup
