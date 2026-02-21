@@ -1,4 +1,4 @@
-import { configSchema, server } from "@/lib/config/schema";
+import { configSchema, server } from "better-env/config-schema";
 
 export const neonConfig = configSchema("Neon", {
   apiKey: server({ env: "NEON_API_KEY" }),

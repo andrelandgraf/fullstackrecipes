@@ -60,7 +60,7 @@ src/
 └── lib/           # Feature libraries
     ├── ai/        # AI configuration
     ├── common/    # Shared utilities (assert, etc.)
-    ├── config/    # Environment config schema
+    ├── config/    # Environment config modules (better-env)
     └── db/        # Database client and config
 ```
 

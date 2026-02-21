@@ -1,17 +1,17 @@
 ---
 name: env-management
-description: Complete environment variable management with type-safe validation, Vercel dev workflow, and prebuild validation.
+description: Complete better-env workflow with typed config modules, Vercel sync, and prebuild validation.
 ---
 
 # Environment Variable Management
 
-Complete environment variable management with type-safe validation, Vercel dev workflow, and prebuild validation.
+Complete better-env workflow with typed config modules, Vercel sync, and prebuild validation.
 
 ## Cookbook - Complete These Recipes in Order
 
-### Type-Safe Environment Configuration
+### Type-Safe Environment Configuration with better-env
 
-Type-safe environment variable validation using Zod with a Drizzle-like schema API. Supports server/public fields, feature flags, either-or constraints, and client-side protection.
+Use `better-env/config-schema` for typed server/public env access, feature flags, and either-or constraints.
 
 ```bash
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/config-schema-setup
@@ -19,15 +19,15 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/config-
 
 ### Environment Variable Management with Vercel
 
-Manage environment variables across Vercel environments. Sync with Vercel CLI, handle local overrides, and load env vars in scripts.
+Manage environment variables across Vercel environments with better-env pull/load commands, local overrides, and runtime-safe config loading.
 
 ```bash
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/env-workflow-vercel
 ```
 
-### Build-Time Environment Variable Validation
+### Build-Time Environment Validation with better-env
 
-Validate environment variables on server start and before builds. Catch missing or invalid variables early with clear error messages.
+Validate environment variables before builds with `better-env validate` so missing values fail fast in CI and local builds.
 
 ```bash
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/env-validation

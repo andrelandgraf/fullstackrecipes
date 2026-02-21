@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "better-env": {
+      "source": "neondatabase/better-env",
+      "sourceType": "github",
+      "computedHash": "9609c28a4286e38cde27e4f3a7a8e5d410da7823e8c91cfe005dfd8e3a39321f"
+    },
+    "neon-postgres": {
+      "source": "neondatabase/agent-skills",
+      "sourceType": "github",
+      "computedHash": "13624b09c8dde98402647ffa13158f0e66a3fe6c440e74b2110e8b455a11153a"
+    }
+  }
+}

@@ -49,17 +49,17 @@ TypeScript assertion function for runtime type narrowing with descriptive error 
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/assert
 ```
 
-### Type-Safe Environment Configuration
+### Type-Safe Environment Configuration with better-env
 
-Type-safe environment variable validation using Zod with a Drizzle-like schema API. Supports server/public fields, feature flags, either-or constraints, and client-side protection.
+Use better-env config modules for type-safe server/public env access, feature flags, and either-or constraints.
 
 ```bash
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/config-schema-setup
 ```
 
-### Build-Time Environment Variable Validation
+### Build-Time Environment Validation with better-env
 
-Validate environment variables on server start and before builds. Catch missing or invalid variables early with clear error messages.
+Validate env-backed config modules before builds with `better-env validate`.
 
 ```bash
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/env-validation

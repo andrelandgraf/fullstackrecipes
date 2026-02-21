@@ -1,4 +1,4 @@
-import { configSchema, server, pub } from "@/lib/config/schema";
+import { configSchema, pub, server } from "better-env/config-schema";
 
 export const sentryConfig = configSchema(
   "Sentry",

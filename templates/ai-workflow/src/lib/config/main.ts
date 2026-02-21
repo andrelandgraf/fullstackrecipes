@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { configSchema, server } from "./schema";
+import { configSchema, server } from "better-env/config-schema";
 
 export const mainConfig = configSchema("Main", {
   nodeEnv: server({
