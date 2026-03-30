@@ -124,7 +124,7 @@ export const items: (Recipe | Cookbook)[] = [
     githubUrl: `${GITHUB_TEMPLATE_BASE}/base-app`,
     previewCode: `bunx create-next-app@latest my-app
 
-bunx shadcn@latest init`,
+bunx shadcn@latest init --base radix`,
   } satisfies Cookbook,
   {
     slug: "nextjs-on-vercel",
@@ -373,7 +373,7 @@ export const db = drizzle({ client: pool, schema });`,
     tags: ["Setup Instructions"],
     icon: Palette,
     requires: ["nextjs-on-vercel"],
-    previewCode: `bunx --bun shadcn@latest init
+    previewCode: `bunx --bun shadcn@latest init --base radix
 bunx --bun shadcn@latest add --all
 
 // Theme provider with next-themes

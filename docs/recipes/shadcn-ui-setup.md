@@ -1,7 +1,7 @@
 ### Step 1: Initialize Shadcn
 
 ```bash
-bunx --bun shadcn@latest init
+bunx --bun shadcn@latest init --base radix
 ```
 
 Follow the prompts to configure your project. The CLI will create a `components.json` config file and set up your CSS variables in `globals.css`.
