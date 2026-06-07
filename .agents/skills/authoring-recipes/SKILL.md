@@ -20,9 +20,10 @@ One-time setup that installs files, dependencies, and config for a single concer
 
 ### Tier 2 — Skills (`type: "skill"`)
 
-Day-to-day, agent-facing workflow guides for an already-configured tool (e.g. `using-drizzle-queries`, `using-authentication`).
+Day-to-day, agent-facing workflow guides for an already-configured tool (e.g. `drizzle-queries`, `authentication-best-practices`).
 
-- **Skills are authored, not recipe docs.** The source of truth is `.agents/skills/<slug>/SKILL.md` (YAML frontmatter + body). `skills-build.ts` publishes them verbatim into `skills/<slug>/SKILL.md`, and the website/MCP read their body from the authored file. They have no `docs/recipes/<slug>.md`.
+- **Skills are authored, not recipe docs.** The source of truth is the hand-authored `skills/<slug>/SKILL.md` (YAML frontmatter + body). The website/MCP read their body directly from that file, so edits ship as soon as they land — there is no build step. They have no `docs/recipes/<slug>.md`.
+- **Name skills for what they teach, not the tool they wrap.** Use a descriptive slug and title (`drizzle-queries`, `testing-best-practices`, `ralph-loop-workflow`), not a `using-*` prefix. The `name:` frontmatter and the slug (folder name) must match, and the `# Title` H1 must match the `title` in `src/lib/recipes/data.tsx`.
 - **Write for an agent, not a human tutorial.** Lead with the pattern and the code; skip hand-holding prose, "step 1/2/3" walkthroughs, and motivation paragraphs the agent already understands. Imperative, concise, example-first.
 - **Assume the canonical stack. Do not hedge.** Write to the exact world the setup recipes produce. Import from the real paths (`@/lib/db/client`, `@/lib/auth/server`, `@/lib/logging/logger`, `@/components/ui/*`, etc.). Never add "if you set this up differently" caveats — that defensive framing is what dilutes a skill's value.
 - The canonical stack is defined by capability, not by cookbook name: a Postgres database via Drizzle, Better Auth sessions, structured logging, shadcn/ui components, and the test harness. A skill may assume any capability its `requires` chain provides.
@@ -40,11 +41,11 @@ A cookbook is a **setup artifact**, not a reading bundle. Running a cookbook lea
 ### Two-phase model
 
 1. **Setup chain** — the setup recipes, run in order, install files/deps/config.
-2. **Skill install** — the `using-*` skills are installed via `bunx skills add` so the agent retains the day-to-day patterns afterward.
+2. **Skill install** — the skills are installed via `bunx skills add` so the agent retains the day-to-day patterns afterward.
 
 ### Ordering
 
-List each `using-*` skill **right after its setup recipe**, not all skills at the end. The skill follows the thing it teaches you to use.
+List each skill **right after its setup recipe**, not all skills at the end. The skill follows the thing it teaches you to use.
 
 ### Rendering (handled automatically)
 
@@ -53,7 +54,7 @@ When a cookbook is assembled, the loader branches on `type`:
 - **Setup recipes** inline their full content.
 - **Skill recipes** render as a compact section: `## <title>` + motivation (the description) + the `bunx skills add ... -s <slug>` command. Their content is **not** inlined — the cookbook installs them as skills.
 
-So you do not duplicate skill content into a cookbook. Just include the `using-*` slug in `recipes` in the right position; the install section is generated from its metadata.
+So you do not duplicate skill content into a cookbook. Just include the skill slug in `recipes` in the right position; the install section is generated from its metadata.
 
 ## Installable Utilities
 

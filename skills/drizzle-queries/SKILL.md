@@ -1,9 +1,9 @@
 ---
-name: using-drizzle-queries
+name: drizzle-queries
 description: Write type-safe Postgres queries with Drizzle ORM (select/insert/update/delete, relations, new tables). Use when querying or mutating the database or adding a Drizzle table.
 ---
 
-# Working with Drizzle
+# Drizzle Queries
 
 Write type-safe Postgres queries with Drizzle ORM.
 

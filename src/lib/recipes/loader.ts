@@ -38,10 +38,10 @@ export function getCookbookTableOfContents(cookbook: Cookbook): TocItem[] {
 }
 
 const RECIPES_DIR = path.join(process.cwd(), "docs", "recipes");
-const SKILLS_DIR = path.join(process.cwd(), ".agents", "skills");
+const SKILLS_DIR = path.join(process.cwd(), "skills");
 
 /**
- * Read the authored body of a skill from its `.agents/skills/<slug>/SKILL.md`
+ * Read the authored body of a skill from its `skills/<slug>/SKILL.md`
  * file, stripping the YAML frontmatter and the redundant leading title,
  * description, and Prerequisites block (the loader regenerates those from
  * metadata). Returns only the how-to body.
@@ -91,7 +91,7 @@ export async function loadRecipeContent(
     return contents.join("\n\n---\n\n");
   }
 
-  // Skills are authored under .agents/skills and read from there. Setup recipes
+  // Skills are authored under skills/ and read from there. Setup recipes
   // live in docs/recipes.
   if (isSkillRecipe(item)) {
     return loadSkillBody(item.slug);

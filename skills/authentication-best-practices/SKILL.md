@@ -1,9 +1,9 @@
 ---
-name: using-authentication
+name: authentication-best-practices
 description: Read sessions client- and server-side, guard routes, and run sign in/up/out with Better Auth. Use when gating pages/APIs on auth or wiring auth flows.
 ---
 
-# Working with Authentication
+# Authentication Best Practices
 
 Read sessions, protect routes, and run sign in/up/out with Better Auth.
 

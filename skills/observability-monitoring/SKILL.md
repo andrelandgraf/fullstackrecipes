@@ -33,26 +33,26 @@ Add privacy-focused web analytics with Vercel Web Analytics. Track page views, v
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/vercel-analytics-setup
 ```
 
-### Working with Logging
+### Logging Best Practices
 
 Use structured logging with Pino throughout your application. Covers log levels, context, and workflow-safe logging patterns.
 
 ```bash
-bunx skills add andrelandgraf/fullstackrecipes/skills -s using-logging
+bunx skills add andrelandgraf/fullstackrecipes/skills -s logging-best-practices
 ```
 
-### Working with Sentry
+### Sentry Best Practices
 
 Capture exceptions, add context, create performance spans, and use structured logging with Sentry.
 
 ```bash
-bunx skills add andrelandgraf/fullstackrecipes/skills -s using-sentry
+bunx skills add andrelandgraf/fullstackrecipes/skills -s sentry-best-practices
 ```
 
-### Working with Analytics
+### Analytics Best Practices
 
 Track custom events and conversions with Vercel Web Analytics. Covers common events, form tracking, and development testing.
 
 ```bash
-bunx skills add andrelandgraf/fullstackrecipes/skills -s using-analytics
+bunx skills add andrelandgraf/fullstackrecipes/skills -s analytics-best-practices
 ```

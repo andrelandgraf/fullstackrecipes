@@ -1,9 +1,9 @@
 ---
-name: using-ralph-loop
+name: ralph-loop-workflow
 description: Run a coding agent in an autonomous loop via a /ralph command, gated by a preflight check that every CLI is installed, linked, and authenticated. Use when driving long-running autonomous development from a wide, outcome-focused prompt.
 ---
 
-# Working with the Ralph Loop
+# Ralph Loop Workflow
 
 Run a coding agent in an autonomous loop that breaks a wide prompt into tasks and builds, tests, and ships each one.
 

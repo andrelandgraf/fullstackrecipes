@@ -1,9 +1,9 @@
 ---
-name: using-nuqs
+name: url-state-patterns
 description: Sync React state to URL query params with nuqs (Suspense wrapper, parsers, clearing, deep-linkable dialogs). Use when building shareable filters, search, or URL-driven dialogs.
 ---
 
-# Working with nuqs
+# URL State Patterns
 
 Sync React state to URL query params with nuqs.
 

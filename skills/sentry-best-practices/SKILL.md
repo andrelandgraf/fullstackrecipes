@@ -1,9 +1,9 @@
 ---
-name: using-sentry
+name: sentry-best-practices
 description: Capture exceptions, attach user/context, add spans and breadcrumbs, and log via the Sentry SDK. Use when instrumenting errors, performance, or context in app code.
 ---
 
-# Working with Sentry
+# Sentry Best Practices
 
 Capture exceptions, add context, trace performance, and log with Sentry.
 

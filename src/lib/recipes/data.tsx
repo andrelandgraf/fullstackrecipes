@@ -135,7 +135,7 @@ const rawItems: (Omit<Recipe, "type"> | Omit<Cookbook, "type">)[] = [
       "env-validation",
       "neon-drizzle-setup",
       "ai-sdk-setup",
-      "using-drizzle-queries",
+      "drizzle-queries",
     ],
     template: `${TEMPLATE_BASE}/base-app#main`,
     githubUrl: `${GITHUB_TEMPLATE_BASE}/base-app`,
@@ -293,8 +293,8 @@ attachDatabasePool(pool);
 export const db = drizzle({ client: pool, schema });`,
   },
   {
-    slug: "using-drizzle-queries",
-    title: "Working with Drizzle",
+    slug: "drizzle-queries",
+    title: "Drizzle Queries",
     description:
       "Write type-safe database queries with Drizzle ORM. Covers select, insert, update, delete, relational queries, and adding new tables.",
     tags: ["Skills"],
@@ -430,8 +430,8 @@ export default async function Image() {
 }`,
   },
   {
-    slug: "using-logging",
-    title: "Working with Logging",
+    slug: "logging-best-practices",
+    title: "Logging Best Practices",
     description:
       "Use structured logging with Pino throughout your application. Covers log levels, context, and workflow-safe logging patterns.",
     tags: ["Skills"],
@@ -442,8 +442,8 @@ export default async function Image() {
 logger.info({ userId, action: "login" }, "User logged in");`,
   },
   {
-    slug: "using-sentry",
-    title: "Working with Sentry",
+    slug: "sentry-best-practices",
+    title: "Sentry Best Practices",
     description:
       "Capture exceptions, add context, create performance spans, and use structured logging with Sentry.",
     tags: ["Skills"],
@@ -454,8 +454,8 @@ logger.info({ userId, action: "login" }, "User logged in");`,
 Sentry.setUser({ id: session.user.id });`,
   },
   {
-    slug: "using-analytics",
-    title: "Working with Analytics",
+    slug: "analytics-best-practices",
+    title: "Analytics Best Practices",
     description:
       "Track custom events and conversions with Vercel Web Analytics. Covers common events, form tracking, and development testing.",
     tags: ["Skills"],
@@ -477,9 +477,9 @@ track("signup_completed", { method: "email" });`,
       "pino-logging-setup",
       "sentry-setup",
       "vercel-analytics-setup",
-      "using-logging",
-      "using-sentry",
-      "using-analytics",
+      "logging-best-practices",
+      "sentry-best-practices",
+      "analytics-best-practices",
     ],
     previewCode: `// Structured logging with Pino
 logger.info("Request completed", { duration: 45 });
@@ -572,8 +572,8 @@ test("should sign in successfully", async ({ page }) => {
 });`,
   },
   {
-    slug: "using-tests",
-    title: "Working with Tests",
+    slug: "testing-best-practices",
+    title: "Testing Best Practices",
     description:
       "Testing strategy and workflow. Tests run in parallel with isolated data per suite. Prioritize Playwright for UI, integration tests for APIs, unit tests for logic.",
     tags: ["Skills"],
@@ -600,7 +600,7 @@ bun run test:playwright   // Browser tests only`,
       "unit-tests",
       "integration-tests",
       "playwright-tests",
-      "using-tests",
+      "testing-best-practices",
     ],
     requires: ["neon-drizzle-setup"],
     previewCode: `// Isolated Neon branch per test run (auto-cleanup via TTL)
@@ -613,8 +613,8 @@ const testUser = await createTestUser({
 });`,
   } satisfies Omit<Cookbook, "type">,
   {
-    slug: "using-ralph-loop",
-    title: "Working with the Ralph Loop",
+    slug: "ralph-loop-workflow",
+    title: "Ralph Loop Workflow",
     description:
       "Run a coding agent in an autonomous loop via a /ralph slash command. A preflight check confirms every CLI is installed, linked, and authenticated before the agent breaks a wide prompt into tasks and builds, tests, and ships each one.",
     tags: ["Skills"],
@@ -636,7 +636,7 @@ const testUser = await createTestUser({
     tags: ["Cookbooks"],
     icon: RefreshCw,
     isCookbook: true,
-    recipes: ["using-ralph-loop"],
+    recipes: ["ralph-loop-workflow"],
     requires: ["agent-setup", "code-health-setup", "testing"],
     previewCode: `/ralph   // prompts for a wide, outcome-focused prompt
 
@@ -734,8 +734,8 @@ if (!session) {
 return <Dashboard user={session.user} />;`,
   },
   {
-    slug: "using-authentication",
-    title: "Working with Authentication",
+    slug: "authentication-best-practices",
+    title: "Authentication Best Practices",
     description:
       "Use Better Auth for client and server-side authentication. Covers session access, protected routes, sign in/out, and fetching user data.",
     tags: ["Skills"],
@@ -760,7 +760,7 @@ await signIn.email({ email, password, callbackURL });`,
       "better-auth-components",
       "better-auth-profile",
       "better-auth-protected-routes",
-      "using-authentication",
+      "authentication-best-practices",
     ],
     requires: ["neon-drizzle-setup", "shadcn-ui-setup"],
     template: `${TEMPLATE_BASE}/auth#main`,
@@ -809,8 +809,8 @@ const [deleteId, setDeleteId] = useQueryState(
 // Deep link: /chats?q=auth&delete=abc123`,
   },
   {
-    slug: "using-nuqs",
-    title: "Working with nuqs",
+    slug: "url-state-patterns",
+    title: "URL State Patterns",
     description:
       "Manage React state in URL query parameters with nuqs. Covers Suspense boundaries, parsers, clearing state, and deep-linkable dialogs.",
     tags: ["Skills"],
@@ -833,7 +833,7 @@ export function SearchInput(props: Props) {
     tags: ["Cookbooks"],
     icon: Link2,
     isCookbook: true,
-    recipes: ["nuqs-setup", "using-nuqs"],
+    recipes: ["nuqs-setup", "url-state-patterns"],
     requires: ["nextjs-on-vercel"],
     previewCode: `// Wrapper with built-in Suspense boundary
 export function SearchInput(props: Props) {
@@ -971,8 +971,8 @@ transport: new WorkflowChatTransport({
     registryDeps: ["durable-agent"],
   },
   {
-    slug: "using-workflows",
-    title: "Working with Workflows",
+    slug: "workflow-best-practices",
+    title: "Workflow Best Practices",
     description:
       "Create and run durable workflows with steps, streaming, and agent execution. Covers starting, resuming, and persisting workflow results.",
     tags: ["Skills"],
@@ -1034,7 +1034,7 @@ const { text } = await generateText({ prompt });`,
       "workflow-setup",
       "resumable-ai-streams",
       "custom-durable-agent",
-      "using-workflows",
+      "workflow-best-practices",
     ],
     requires: ["ai-chat-persistence", "pino-logging-setup"],
     template: `${TEMPLATE_BASE}/ai-workflow#main`,
@@ -1144,9 +1144,18 @@ export const recipeRedirects: Record<string, string> = {
   "env-config": "env-management",
   "bun-testing": "testing",
   "code-style-setup": "code-health-setup",
-  "ralph-setup": "using-ralph-loop",
+  "ralph-setup": "ralph-loop-workflow",
   "user-stories-setup": "ralph-loop",
-  "using-user-stories": "using-ralph-loop",
+  "using-user-stories": "ralph-loop-workflow",
+  "using-drizzle-queries": "drizzle-queries",
+  "using-logging": "logging-best-practices",
+  "using-sentry": "sentry-best-practices",
+  "using-analytics": "analytics-best-practices",
+  "using-authentication": "authentication-best-practices",
+  "using-nuqs": "url-state-patterns",
+  "using-workflows": "workflow-best-practices",
+  "using-tests": "testing-best-practices",
+  "using-ralph-loop": "ralph-loop-workflow",
 };
 
 /** Get the redirect destination for an old slug, or undefined if no redirect exists */

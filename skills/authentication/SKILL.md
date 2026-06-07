@@ -93,10 +93,10 @@ Add server-side route protection to enforce authentication on specific pages whi
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/better-auth-protected-routes
 ```
 
-### Working with Authentication
+### Authentication Best Practices
 
 Use Better Auth for client and server-side authentication. Covers session access, protected routes, sign in/out, and fetching user data.
 
 ```bash
-bunx skills add andrelandgraf/fullstackrecipes/skills -s using-authentication
+bunx skills add andrelandgraf/fullstackrecipes/skills -s authentication-best-practices
 ```

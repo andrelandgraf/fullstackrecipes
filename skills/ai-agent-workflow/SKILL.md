@@ -77,10 +77,10 @@ Build a custom durable AI agent with full control over streamText options, provi
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/custom-durable-agent
 ```
 
-### Working with Workflows
+### Workflow Best Practices
 
 Create and run durable workflows with steps, streaming, and agent execution. Covers starting, resuming, and persisting workflow results.
 
 ```bash
-bunx skills add andrelandgraf/fullstackrecipes/skills -s using-workflows
+bunx skills add andrelandgraf/fullstackrecipes/skills -s workflow-best-practices
 ```

@@ -37,8 +37,7 @@
     "db:studio": "drizzle-kit studio",
     "db:branch:create": "bun run scripts/tests/create-branch.ts",
     "workflow:dev": "workflow inspect runs --web",
-    "registry:build": "bunx --bun shadcn@latest build",
-    "skills:build": "bun run scripts/skills-build.ts"
+    "registry:build": "bunx --bun shadcn@latest build"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.1",

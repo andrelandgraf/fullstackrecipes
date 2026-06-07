@@ -61,10 +61,10 @@ End-to-end browser testing with Playwright. Test user interactions, form validat
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/playwright-tests
 ```
 
-### Working with Tests
+### Testing Best Practices
 
 Testing strategy and workflow. Tests run in parallel with isolated data per suite. Prioritize Playwright for UI, integration tests for APIs, unit tests for logic.
 
 ```bash
-bunx skills add andrelandgraf/fullstackrecipes/skills -s using-tests
+bunx skills add andrelandgraf/fullstackrecipes/skills -s testing-best-practices
 ```

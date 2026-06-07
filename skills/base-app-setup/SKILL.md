@@ -81,10 +81,10 @@ Install the Vercel AI SDK with AI Elements components. Build a streaming chat in
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/ai-sdk-setup
 ```
 
-### Working with Drizzle
+### Drizzle Queries
 
 Write type-safe database queries with Drizzle ORM. Covers select, insert, update, delete, relational queries, and adding new tables.
 
 ```bash
-bunx skills add andrelandgraf/fullstackrecipes/skills -s using-drizzle-queries
+bunx skills add andrelandgraf/fullstackrecipes/skills -s drizzle-queries
 ```

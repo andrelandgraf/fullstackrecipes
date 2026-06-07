@@ -1,9 +1,9 @@
 ---
-name: using-workflows
+name: workflow-best-practices
 description: Build durable workflows with the Workflow Development Kit — steps, streaming, agent runs, metadata, and persistence. Use when authoring, starting, resuming, or persisting a workflow.
 ---
 
-# Working with Workflows
+# Workflow Best Practices
 
 Build durable workflows with steps, streaming, and agent execution.
 

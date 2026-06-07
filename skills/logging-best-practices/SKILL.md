@@ -1,9 +1,9 @@
 ---
-name: using-logging
+name: logging-best-practices
 description: Emit structured logs with Pino (levels, context-first signature, workflow-safe step wrapper). Use when adding logging to routes, libraries, or workflows.
 ---
 
-# Working with Logging
+# Logging Best Practices
 
 Emit structured logs with Pino throughout the app.
 

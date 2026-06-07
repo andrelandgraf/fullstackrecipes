@@ -53,10 +53,10 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/testing
 
 ## Cookbook - Complete These Recipes in Order
 
-### Working with the Ralph Loop
+### Ralph Loop Workflow
 
 Run a coding agent in an autonomous loop via a /ralph slash command. A preflight check confirms every CLI is installed, linked, and authenticated before the agent breaks a wide prompt into tasks and builds, tests, and ships each one.
 
 ```bash
-bunx skills add andrelandgraf/fullstackrecipes/skills -s using-ralph-loop
+bunx skills add andrelandgraf/fullstackrecipes/skills -s ralph-loop-workflow
 ```

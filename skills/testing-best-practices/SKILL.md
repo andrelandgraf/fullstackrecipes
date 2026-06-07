@@ -1,9 +1,9 @@
 ---
-name: using-tests
+name: testing-best-practices
 description: Choose and write the right test type (Playwright > integration > unit) against isolated Neon branches. Use when adding, running, or debugging tests for a feature.
 ---
 
-# Working with Tests
+# Testing Best Practices
 
 Choose the right test type, isolate data per suite, and run against a disposable Neon branch.
 

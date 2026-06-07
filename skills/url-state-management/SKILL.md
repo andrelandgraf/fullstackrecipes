@@ -29,10 +29,10 @@ Sync React state to URL query parameters for shareable filters, search queries, 
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/nuqs-setup
 ```
 
-### Working with nuqs
+### URL State Patterns
 
 Manage React state in URL query parameters with nuqs. Covers Suspense boundaries, parsers, clearing state, and deep-linkable dialogs.
 
 ```bash
-bunx skills add andrelandgraf/fullstackrecipes/skills -s using-nuqs
+bunx skills add andrelandgraf/fullstackrecipes/skills -s url-state-patterns
 ```
