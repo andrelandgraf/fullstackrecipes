@@ -26,6 +26,18 @@ bunx add-mcp https://fullstackrecipes.com/api/mcp -y
 
 This updates all detected agents automatically. If no agents are detected, add `-a opencode -a cursor` to the command or prompt the user to specify what agents they want to use for this project.
 
+### Install the fullstackrecipes Skill
+
+Install the fullstackrecipes agent skill so your coding agent knows how to discover and follow recipes:
+
+```bash
+bunx skills add andrelandgraf/fullstackrecipes/skills -a cursor -a codex -y
+```
+
+| Skill              | Description                                 |
+| ------------------ | ------------------------------------------- |
+| `fullstackrecipes` | Fullstackrecipes setup guides and workflows |
+
 ### List All Resources
 
 Use the `list_resources` tool to get all available recipes and cookbooks:

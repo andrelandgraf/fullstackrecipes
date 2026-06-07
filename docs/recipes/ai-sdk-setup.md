@@ -4,6 +4,18 @@
 bun add ai @ai-sdk/react
 ```
 
+Install the AI SDK agent skills so your coding agent knows the latest patterns. `bunx skills add` updates all detected agents; if none are detected, add `-a cursor -a codex`.
+
+```bash
+bunx skills add vercel/ai -s ai-sdk -a cursor -a codex -y
+bunx skills add vercel/ai-elements --skill ai-elements -a cursor -a codex -y
+```
+
+| Skill        | Description                                   |
+| ------------ | --------------------------------------------- |
+| `ai-sdk`     | Vercel AI SDK patterns and best practices     |
+| `ai-elements`| Vercel AI Elements UI components and patterns |
+
 ### Step 2: Install AI Elements (optional)
 
 AI Elements are pre-built UI components for AI interfaces:

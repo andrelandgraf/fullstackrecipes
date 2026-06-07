@@ -25,6 +25,20 @@ bunx add-mcp next-devtools-mcp@latest
 
 > **Vercel MCP:** On first connection, Cursor will show a "Needs login" prompt. Click it to authorize access to your Vercel account. For project-specific context, use `https://mcp.vercel.com/<teamSlug>/<projectSlug>` instead.
 
+## Install React & Design Agent Skills
+
+Install skills that teach your coding agent React/Next.js patterns and web design best practices. `bunx skills add` updates all detected agents; if none are detected, add `-a cursor -a codex`.
+
+```bash
+bunx skills add vercel-labs/agent-skills -s web-design-guidelines -a cursor -a codex -y
+bunx skills add vercel-labs/agent-skills -s vercel-react-best-practices -a cursor -a codex -y
+```
+
+| Skill                         | Description                                    |
+| ----------------------------- | ---------------------------------------------- |
+| `web-design-guidelines`       | Web design best practices for UI/UX            |
+| `vercel-react-best-practices` | React patterns and conventions for Vercel apps |
+
 ## Setup Vercel Configuration
 
 Install the Vercel config package to programatically configure the Vercel project:

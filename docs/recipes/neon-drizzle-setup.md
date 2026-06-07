@@ -6,6 +6,18 @@ bunx add-mcp https://mcp.neon.tech/mcp -y
 
 This updates all detected agents automatically. If no agents are detected, add `-a opencode -a cursor` to the command or prompt the user to specify what agents they want to use for this project.
 
+Install the Neon Postgres agent skills so your coding agent knows Neon's operational patterns:
+
+```bash
+bunx skills add neondatabase/agent-skills -s neon-postgres -s neon-postgres-branches -s neon-postgres-egress-optimizer -a cursor -a codex -y
+```
+
+| Skill                            | Description                                     |
+| -------------------------------- | ----------------------------------------------- |
+| `neon-postgres`                  | Neon Postgres setup and operational guidance    |
+| `neon-postgres-branches`         | Create and manage Neon Postgres branches        |
+| `neon-postgres-egress-optimizer` | Optimize Neon Postgres egress and data transfer |
+
 ### Step 2: Create a new Neon project
 
 Use an existing Neon project or create a new one, either through the [Neon Dashboard](https://console.neon.tech/) or by instructing your coding agent to create a new project or retrieve the connection string of an existing project.

@@ -80,15 +80,11 @@ If no agents are detected, add `-a cursor -a codex` to the command or prompt the
 
 ```bash
 bunx add-mcp https://mcp.context7.com/mcp
-bunx add-mcp https://fullstackrecipes.com/api/mcp
 ```
 
-| Server             | Description                                     |
-| ------------------ | ----------------------------------------------- |
-| `context7`         | Up-to-date documentation lookup for any library |
-| `fullstackrecipes` | Fullstackrecipes recipes                        |
-
-> Next.js and Vercel MCP servers (`vercel`, `next-devtools`) are set up as part of the Next.js on Vercel recipe.
+| Server     | Description                                     |
+| ---------- | ----------------------------------------------- |
+| `context7` | Up-to-date documentation lookup for any library |
 
 ### Step 4: Install Browser Automation
 
@@ -106,27 +102,13 @@ Install skills for AI agents:
 ```bash
 bunx skills add anthropics/skills -s skill-creator -a cursor -a codex -y
 bunx skills add anthropics/skills -s frontend-design -a cursor -a codex -y
-bunx skills add vercel-labs/agent-skills -s web-design-guidelines -a cursor -a codex -y
-bunx skills add vercel-labs/agent-skills -s vercel-react-best-practices -a cursor -a codex -y
 bunx skills add vercel-labs/agent-browser -s agent-browser -a cursor -a codex -y
-bunx skills add vercel/ai -s ai-sdk -a cursor -a codex -y
-bunx skills add vercel/ai-elements --skill ai-elements -a cursor -a codex -y
-bunx skills add andrelandgraf/fullstackrecipes/skills -a cursor -a codex -y
-bunx skills add neondatabase/agent-skills -s neon-postgres -s neon-postgres-branches -s neon-postgres-egress-optimizer -a cursor -a codex -y
-bunx skills add neon-solutions/better-env -a cursor -a codex -y
 ```
 
-| Skill                         | Description                                        |
-| ----------------------------- | -------------------------------------------------- |
-| `neon-postgres`               | Neon Postgres setup and operational guidance       |
-| `neon-postgres-branches`      | Create and manage Neon Postgres branches           |
-| `neon-postgres-egress-optimizer` | Optimize Neon Postgres egress and data transfer |
-| `better-env`                  | better-env setup, sync, and validation workflows   |
-| `agent-browser`               | Browser automation for web testing and interaction |
-| `web-design-guidelines`       | Web design best practices for UI/UX                |
-| `vercel-react-best-practices` | React patterns and conventions for Vercel apps     |
-| `skill-creator`               | Anthropic skill creation guidelines                |
-| `frontend-design`             | Anthropic frontend design best practices           |
-| `ai-sdk`                      | Vercel AI SDK patterns and best practices          |
-| `ai-elements`                 | Vercel AI Elements UI components and patterns      |
-| `fullstackrecipes`            | Fullstackrecipes setup guides and workflows        |
+| Skill             | Description                                        |
+| ----------------- | -------------------------------------------------- |
+| `skill-creator`   | Anthropic skill creation guidelines                |
+| `frontend-design` | Anthropic frontend design best practices           |
+| `agent-browser`   | Browser automation for web testing and interaction |
+
+> Tool- and SDK-specific skills are installed by their own recipes: React/web design skills in the Next.js on Vercel recipe, AI SDK skills in the AI SDK setup recipe, Neon Postgres skills in the Neon + Drizzle setup recipe, the better-env skill in the better-env config schema recipe, and the fullstackrecipes skill in the Using fullstackrecipes recipe.
