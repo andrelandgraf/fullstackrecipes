@@ -32,7 +32,7 @@ import {
   type MessageSourceDocument,
 } from "./schema";
 import { v7 as uuidv7 } from "uuid";
-import assert from "@/lib/common/assert";
+import { assert } from "@/lib/common/assert";
 import { eq, and, desc } from "drizzle-orm";
 
 /**

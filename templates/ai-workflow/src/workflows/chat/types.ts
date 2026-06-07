@@ -1,7 +1,7 @@
 import type { UIMessage, UIMessagePart, InferUITools } from "ai";
 import { z } from "zod";
 import { allTools, TOOL_TYPES } from "@/lib/ai/tools";
-import assert from "@/lib/common/assert";
+import { assert } from "@/lib/common/assert";
 
 const metadataSchema = z.object({});
 type ChatMetadata = z.infer<typeof metadataSchema>;

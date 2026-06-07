@@ -309,7 +309,7 @@ Define types that extend AI SDK's base types with your tools and data parts. Pla
 import type { UIMessage, UIMessagePart, InferUITools } from "ai";
 import { z } from "zod";
 import { allTools, TOOL_TYPES } from "@/lib/ai/tools";
-import assert from "@/lib/common/assert";
+import { assert } from "@/lib/common/assert";
 
 const metadataSchema = z.object({});
 type ChatMetadata = z.infer<typeof metadataSchema>;
@@ -524,7 +524,7 @@ import {
   type MessageSourceDocument,
 } from "./schema";
 import { v7 as uuidv7 } from "uuid";
-import assert from "@/lib/common/assert";
+import { assert } from "@/lib/common/assert";
 import { eq, and, desc } from "drizzle-orm";
 
 /**

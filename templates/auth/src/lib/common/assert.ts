@@ -4,7 +4,7 @@ const prefix: string = "Assertion failed";
  * TypeScript assertion function that narrows types when condition is truthy.
  * Throws if condition is falsy. Message can be string or lazy function.
  */
-export default function assert(
+export function assert(
   condition: any,
   message?: string | (() => string),
 ): asserts condition {

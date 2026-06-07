@@ -258,7 +258,7 @@ bun run ralph`,
       "TypeScript assertion function for runtime type narrowing with descriptive error messages. Based on tiny-invariant.",
     tags: ["Setup Instructions"],
     icon: Settings,
-    previewCode: `import assert from "@/lib/common/assert";
+    previewCode: `import { assert } from "@/lib/common/assert";
 
 function processUser(user: User | null) {
   assert(user, "User must exist");

@@ -11,7 +11,7 @@
 The `assert` function throws if the condition is falsy, and narrows the type when it passes:
 
 ```typescript
-import assert from "@/lib/common/assert";
+import { assert } from "@/lib/common/assert";
 
 function processUser(user: User | null) {
   assert(user, "User must exist");

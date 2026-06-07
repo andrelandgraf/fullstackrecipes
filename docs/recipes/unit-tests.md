@@ -67,7 +67,7 @@ Here's a complete test file for an assertion utility at `src/lib/common/assert.t
 
 ```typescript
 import { describe, it, expect, mock } from "bun:test";
-import assert from "./assert";
+import { assert } from "./assert";
 
 describe("assert", () => {
   describe("truthy conditions", () => {
