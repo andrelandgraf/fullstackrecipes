@@ -101,14 +101,10 @@ Install skills for AI agents:
 
 ```bash
 bunx skills add anthropics/skills -s skill-creator -a cursor -a codex -y
-bunx skills add anthropics/skills -s frontend-design -a cursor -a codex -y
 bunx skills add vercel-labs/agent-browser -s agent-browser -a cursor -a codex -y
 ```
 
-| Skill             | Description                                        |
-| ----------------- | -------------------------------------------------- |
-| `skill-creator`   | Anthropic skill creation guidelines                |
-| `frontend-design` | Anthropic frontend design best practices           |
-| `agent-browser`   | Browser automation for web testing and interaction |
-
-> Tool- and SDK-specific skills are installed by their own recipes: React/web design skills in the Next.js on Vercel recipe, AI SDK skills in the AI SDK setup recipe, Neon Postgres skills in the Neon + Drizzle setup recipe, the better-env skill in the better-env config schema recipe, and the fullstackrecipes skill in the Using fullstackrecipes recipe.
+| Skill           | Description                                        |
+| --------------- | -------------------------------------------------- |
+| `skill-creator` | Anthropic skill creation guidelines                |
+| `agent-browser` | Browser automation for web testing and interaction |
