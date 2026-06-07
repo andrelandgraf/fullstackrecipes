@@ -1,10 +1,10 @@
 ### Step 1: Initialize Shadcn
 
 ```bash
-bunx --bun shadcn@latest init --base radix
+bunx --bun shadcn@latest init --base radix --preset nova
 ```
 
-Follow the prompts to configure your project. The CLI will create a `components.json` config file and set up your CSS variables in `globals.css`.
+The `--base` and `--preset` flags make this non-interactive. The CLI creates a `components.json` config file and sets up your CSS variables in `globals.css`. Available presets: `nova`, `vega`, `maia`, `lyra`, `mira`, `luma`, `sera`, `rhea`.
 
 ### Step 2: Add components
 
