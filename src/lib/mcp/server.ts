@@ -8,17 +8,13 @@ import {
   getCookbookRecipes,
   getItemPromptText,
   getItemResourceUri,
-  getRequiredItems,
+  isSkillRecipe,
   type Recipe,
 } from "@/lib/recipes/data";
 import { loadRecipeMarkdown } from "@/lib/recipes/loader";
 
 // Derive the server type directly from createMcpHandler
 type McpServer = Parameters<Parameters<typeof createMcpHandler>[0]>[0];
-
-function isSkillsRecipe(recipe: Recipe): boolean {
-  return recipe.tags.includes("Skills");
-}
 
 function getUsePromptSlug(recipe: Recipe): string {
   if (recipe.slug.startsWith("using-")) {
@@ -87,13 +83,11 @@ function registerBaseResourcesAndPrompts(server: McpServer) {
         mimeType: "text/markdown",
       },
       async (uri) => {
+        // loadRecipeMarkdown already includes the title, description, and a
+        // Prerequisites section derived from the recipe's `requires` metadata.
         const content = await loadRecipeMarkdown(recipe);
-        const requiredItems = getRequiredItems(recipe);
-        const prerequisitesSection =
-          requiredItems.length > 0
-            ? `\n\nThis resource requires the following resources as prerequisites:\n\n${requiredItems.map((r) => `- ${r.title}`).join("\n")}\n\nMake sure these are fulfilled and implemented before continuing.\n`
-            : "";
-        const frontmatter = `# ${recipe.title}\n\n${recipe.description}\n\nTags: ${recipe.tags.length > 0 ? recipe.tags.join(", ") : "None"}${prerequisitesSection}\n\n---\n\n`;
+        const tags = recipe.tags.length > 0 ? recipe.tags.join(", ") : "None";
+        const frontmatter = `Tags: ${tags}\n\n---\n\n`;
         return {
           contents: [
             {
@@ -126,7 +120,7 @@ function registerBaseResourcesAndPrompts(server: McpServer) {
       }),
     );
 
-    if (isSkillsRecipe(recipe)) {
+    if (isSkillRecipe(recipe)) {
       const usePromptSlug = getUsePromptSlug(recipe);
       server.registerPrompt(
         usePromptSlug,
@@ -162,17 +156,16 @@ function registerBaseResourcesAndPrompts(server: McpServer) {
         mimeType: "text/markdown",
       },
       async (uri) => {
+        // loadRecipeMarkdown already includes the title, description, and a
+        // Prerequisites section derived from the cookbook's `requires` metadata.
         const content = await loadRecipeMarkdown(cookbook);
         const includedRecipes = getCookbookRecipes(cookbook);
         const recipesList = includedRecipes
           .map((r) => `- ${r.title}`)
           .join("\n");
-        const requiredItems = getRequiredItems(cookbook);
-        const prerequisitesSection =
-          requiredItems.length > 0
-            ? `\n\nThis resource requires the following resources as prerequisites:\n\n${requiredItems.map((r) => `- ${r.title}`).join("\n")}\n\nMake sure these are fulfilled and implemented before continuing.\n`
-            : "";
-        const frontmatter = `# ${cookbook.title}\n\n${cookbook.description}\n\nTags: ${cookbook.tags.length > 0 ? cookbook.tags.join(", ") : "None"}${prerequisitesSection}\n\n## Included Recipes\n\n${recipesList}\n\n---\n\n`;
+        const tags =
+          cookbook.tags.length > 0 ? cookbook.tags.join(", ") : "None";
+        const frontmatter = `Tags: ${tags}\n\n## Included Recipes\n\n${recipesList}\n\n---\n\n`;
         return {
           contents: [
             {

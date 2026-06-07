@@ -66,5 +66,5 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/playwri
 Testing strategy and workflow. Tests run in parallel with isolated data per suite. Prioritize Playwright for UI, integration tests for APIs, unit tests for logic.
 
 ```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/using-tests
+bunx skills add andrelandgraf/fullstackrecipes/skills -s using-tests
 ```

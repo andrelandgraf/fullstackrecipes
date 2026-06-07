@@ -2,10 +2,10 @@
 
 fullstackrecipes provides setup instructions for building full-stack applications and skills to work with them. Content is organized into two types:
 
-1. **Setup Recipes**: Step-by-step guides to configure tools and services (e.g., setting up authentication, database, payments)
-2. **Skills**: Instructions for working with previously configured tools (e.g., writing queries, using auth, logging)
+1. **Setup Recipes** (`type: "setup"`): One-time guides to configure tools and services (e.g., setting up authentication, database, payments). Atomic installs with declared prerequisites — adoptable on their own.
+2. **Skills** (`type: "skill"`, the `using-*` recipes): Day-to-day patterns for working with already-configured tools (e.g., writing queries, using auth, logging). These assume the canonical assembled stack and are **installed via the skills CLI**, not pasted as content.
 
-**Cookbooks** bundle related recipes together in sequence. For example, "Base App Setup" includes Next.js, Shadcn UI, Neon Postgres, Drizzle ORM, and AI SDK setup recipes and skills.
+**Cookbooks** are ordered, two-phase setup artifacts. Running a cookbook (1) runs its setup recipes in order, then (2) installs the corresponding `using-*` skills. After a cookbook completes, the project has both the configured stack and the installed skills. For example, "Base App Setup" sets up Next.js, Shadcn UI, Neon Postgres, Drizzle ORM, and the AI SDK, and installs the Drizzle querying skill as its final step.
 
 ---
 
@@ -81,11 +81,11 @@ Recipes are tested instructions. Follow them step-by-step without modifications 
 
 ### Complete Dependencies First
 
-Some recipes depend on others. The MCP resource descriptions indicate prerequisites. Complete setup recipes before using their corresponding skills.
+Some recipes depend on others. The MCP resource descriptions indicate prerequisites. Complete setup recipes before installing their corresponding skills.
 
-### Use Skills for Day-to-Day Work
+### Install Skills, Don't Just Read Them
 
-Once a tool is configured, use the skill for ongoing development. Skills contain patterns, code examples, and API references that apply to the configured tools.
+Skills (`using-*`) are installed via `bunx skills add ...` so your agent retains them for ongoing development. When you run a cookbook, installing its skills is the final setup step — not optional reading. Once a tool is configured, the installed skill provides the patterns, code examples, and API references for working with it. Skills assume the canonical stack is present, so install them only after their setup recipes are complete.
 
 ### Check for Updates
 
@@ -94,6 +94,22 @@ Recipes are updated as libraries evolve. When troubleshooting issues or starting
 ---
 
 ## Authoring Recipes
+
+### Recipe Tiers
+
+Every item is one of three tiers. The tier determines what it installs and what its prose may assume.
+
+- **Tier 1 — Setup recipes (`type: "setup"`):** One-time setup for a single concern. Keep the install surface atomic, declare prerequisites in `requires`, and reference (don't re-teach) them. Standalone usability lives here.
+- **Tier 2 — Skills (`type: "skill"`, the `using-*` recipes):** Day-to-day patterns. Assume the canonical stack and do not hedge — write to the real paths the setup recipes produce (`@/lib/db/client`, `@/lib/auth/server`, `@/lib/logging/logger`, `@/components/ui/*`). The canonical stack is defined by capability (Postgres via Drizzle, Better Auth sessions, structured logging, shadcn/ui, the test harness), not by cookbook name. Skills are installed via the skills CLI.
+- **Tier 3 — Cookbooks:** The canonical assembled reference — an ordered, two-phase setup artifact.
+
+### Authoring Cookbooks
+
+A cookbook is a **setup artifact**, not a reading bundle. It runs in two phases: (1) the setup recipes install files/deps/config in order, then (2) the `using-*` skills are installed via `bunx skills add` so the agent retains the patterns.
+
+List each `using-*` skill **right after its setup recipe**, not at the end. When a cookbook is assembled, setup recipes inline their full content while skill recipes render as a compact section (title + motivation + `bunx skills add ... -s <slug>` command) generated from their metadata. Do not duplicate skill content into a cookbook — just include the slug in `recipes` in the right position.
+
+### Installable Utilities
 
 When writing recipes that include installable utilities, use the `{% registry %}` tag to provide both CLI installation and source code viewing.
 

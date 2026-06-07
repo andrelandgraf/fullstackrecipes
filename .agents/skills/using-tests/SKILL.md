@@ -7,6 +7,14 @@ description: Testing strategy and workflow. Tests run in parallel with isolated 
 
 Testing strategy and workflow. Tests run in parallel with isolated data per suite. Prioritize Playwright for UI, integration tests for APIs, unit tests for logic.
 
+## Prerequisites
+
+Complete these setup recipes first:
+
+- Browser Tests with Playwright
+- Integration Tests
+- Unit Tests with Bun
+
 ## Testing Strategy
 
 Follow this hierarchy when deciding what kind of test to write:

@@ -7,16 +7,11 @@ description: Create and run durable workflows with steps, streaming, and agent e
 
 Create and run durable workflows with steps, streaming, and agent execution. Covers starting, resuming, and persisting workflow results.
 
-## Working with Workflows
+## Prerequisites
 
-Create and run durable workflows with steps, streaming, and agent execution. Covers starting, resuming, and persisting workflow results.
+Complete these setup recipes first:
 
-**See:**
-
-- Resource: `using-workflows` in Fullstack Recipes
-- URL: https://fullstackrecipes.com/recipes/using-workflows
-
----
+- Workflow Development Kit Setup
 
 ### Workflow Folder Structure
 

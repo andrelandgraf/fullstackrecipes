@@ -7,16 +7,11 @@ description: Use Better Auth for client and server-side authentication. Covers s
 
 Use Better Auth for client and server-side authentication. Covers session access, protected routes, sign in/out, and fetching user data.
 
-## Implement Working with Authentication
+## Prerequisites
 
-Use Better Auth for client and server-side authentication. Covers session access, protected routes, sign in/out, and fetching user data.
+Complete these setup recipes first:
 
-**See:**
-
-- Resource: `using-authentication` in Fullstack Recipes
-- URL: https://fullstackrecipes.com/recipes/using-authentication
-
----
+- Better Auth Setup
 
 ### Client-Side Authentication
 

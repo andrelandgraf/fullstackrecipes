@@ -34,5 +34,5 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/nuqs-se
 Manage React state in URL query parameters with nuqs. Covers Suspense boundaries, parsers, clearing state, and deep-linkable dialogs.
 
 ```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/using-nuqs
+bunx skills add andrelandgraf/fullstackrecipes/skills -s using-nuqs
 ```

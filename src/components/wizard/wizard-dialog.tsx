@@ -110,6 +110,7 @@ function WizardDialogInner({
     selectedSlugs,
     selectedItems,
     allContentSlugs,
+    skillSlugs,
     promptText,
     recipesIncludedInCookbooks,
     deliveryTab,
@@ -248,7 +249,7 @@ function WizardDialogInner({
     }
   }
 
-  const skillsCommand = getSkillsInstallCommandForSlugs(allContentSlugs);
+  const skillsCommand = getSkillsInstallCommandForSlugs(skillSlugs);
 
   async function copySkills() {
     try {
@@ -783,11 +784,15 @@ function WizardDialogInner({
                           onCopyPrompt={copyPrompt}
                           mcpCommand={MCP_INSTALL_FULLSTACKRECIPES_COMMAND}
                           step2Title="Install selected skills"
-                          step2Description={`Add skills for the ${allContentSlugs.length} selected ${
-                            allContentSlugs.length === 1 ? "recipe" : "recipes"
-                          } to your agent`}
+                          step2Description={
+                            skillSlugs.length > 0
+                              ? `Add the ${skillSlugs.length} day-to-day ${
+                                  skillSlugs.length === 1 ? "skill" : "skills"
+                                } from your selection to your agent`
+                              : "Your selection includes no day-to-day skills to install"
+                          }
                           step2Content={
-                            allContentSlugs.length > 0 ? (
+                            skillSlugs.length > 0 ? (
                               <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-secondary/30 px-3 py-2.5">
                                 <Terminal className="h-4 w-4 shrink-0 text-muted-foreground" />
                                 <code className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-xs text-foreground/90 sm:text-sm">

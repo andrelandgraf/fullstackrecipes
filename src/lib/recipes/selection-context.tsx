@@ -11,6 +11,8 @@ import {
 import {
   getAllItems,
   isCookbook,
+  isSkillRecipe,
+  getItemBySlug,
   getItemPromptText,
   type Recipe,
   type Cookbook,
@@ -74,6 +76,8 @@ type SelectionContextValue = {
   selectedItems: (Recipe | Cookbook)[];
   /** All content slugs including cookbook recipes, in display order */
   allContentSlugs: string[];
+  /** Slugs of skill recipes among the content, for the skills-install command */
+  skillSlugs: string[];
   /** Prompt text for the selected items */
   promptText: string;
   /** Combined registry deps from selected items */
@@ -152,6 +156,15 @@ export function SelectionProvider({
     return Array.from(slugs).sort((a, b) => getItemOrder(a) - getItemOrder(b));
   }, [selectedItems]);
 
+  // Only skill recipes are installed via the skills CLI; setup recipes are
+  // one-time and don't need to persist as agent skills.
+  const skillSlugs = useMemo(() => {
+    return allContentSlugs.filter((slug) => {
+      const item = getItemBySlug(slug);
+      return item ? isSkillRecipe(item) : false;
+    });
+  }, [allContentSlugs]);
+
   const registryDeps = useMemo(
     () => getCombinedRegistryDeps(selectedItems),
     [selectedItems],
@@ -217,6 +230,7 @@ export function SelectionProvider({
     selectedSlugs,
     selectedItems,
     allContentSlugs,
+    skillSlugs,
     promptText,
     registryDeps,
     hasRegistry,

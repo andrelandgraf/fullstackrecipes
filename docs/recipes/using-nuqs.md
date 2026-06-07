@@ -1,14 +1,3 @@
-## Implement Working with nuqs
-
-Manage React state in URL query parameters with nuqs for shareable filters, search, and deep-linkable dialogs.
-
-**See:**
-
-- Resource: `using-nuqs` in Fullstack Recipes
-- URL: https://fullstackrecipes.com/recipes/using-nuqs
-
----
-
 ### Suspense Boundary Pattern
 
 nuqs uses `useSearchParams` behind the scenes, requiring a Suspense boundary. Wrap nuqs-using components with Suspense via a wrapper component to keep the boundary colocated:

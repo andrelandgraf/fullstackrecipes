@@ -62,7 +62,7 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/config-
 Validate all env-backed config modules with better-env before build and in CI.
 
 ```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/env-validation
+bunx skills add andrelandgraf/fullstackrecipes/skills -s env-validation
 ```
 
 ### Neon + Drizzle Setup
@@ -86,5 +86,5 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/ai-sdk-
 Write type-safe database queries with Drizzle ORM. Covers select, insert, update, delete, relational queries, and adding new tables.
 
 ```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/using-drizzle-queries
+bunx skills add andrelandgraf/fullstackrecipes/skills -s using-drizzle-queries
 ```

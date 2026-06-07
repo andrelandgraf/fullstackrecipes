@@ -38,7 +38,7 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/vercel-
 Use structured logging with Pino throughout your application. Covers log levels, context, and workflow-safe logging patterns.
 
 ```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/using-logging
+bunx skills add andrelandgraf/fullstackrecipes/skills -s using-logging
 ```
 
 ### Working with Sentry
@@ -46,7 +46,7 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/using-l
 Capture exceptions, add context, create performance spans, and use structured logging with Sentry.
 
 ```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/using-sentry
+bunx skills add andrelandgraf/fullstackrecipes/skills -s using-sentry
 ```
 
 ### Working with Analytics
@@ -54,5 +54,5 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/using-s
 Track custom events and conversions with Vercel Web Analytics. Covers common events, form tracking, and development testing.
 
 ```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/using-analytics
+bunx skills add andrelandgraf/fullstackrecipes/skills -s using-analytics
 ```

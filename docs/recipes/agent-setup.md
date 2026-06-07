@@ -55,16 +55,15 @@ Create an `AGENTS.md` file in your project root. This file provides coding guide
 Follow these steps for every feature. Do not skip verification steps. Repeat the full verification flow for every additional code change.
 
 1. Start on the latest `main` unless instructed otherwise (`git checkout main && git pull`).
-2. Create a new feature branch.
-3. Make the changes.
-4. Run `bun run typecheck` and `bun run fmt`. Fix all type errors before moving on.
-5. Verify code health with `bun run fallow`. Fix every issue (dead code, duplication, complexity, etc.) or add a `fallow-ignore` suppression if you judge the warning a false positive. Verify the codebase is clean before moving on.
-6. Verify the changes with `agent-browser`. Address all UI/UX concerns before moving on. Confirm everything looks great and works.
-7. Commit and push to the remote.
-8. Check deployment logs. Fix any issues and redeploy via follow-up commits if anything breaks.
-9. Check production with `agent-browser` to verify the changes shipped and look good in production too. Debug any issues via app logs and fix with follow-up commits.
-10. For every additional code change, go through all verification steps again.
-11. Once production looks good, report all changes.
+2. Make the changes.
+3. Run `bun run typecheck` and `bun run fmt`. Fix all type errors before moving on.
+4. Verify code health with `bun run fallow`. Fix every issue (dead code, duplication, complexity, etc.) or add a `fallow-ignore` suppression if you judge the warning a false positive. Verify the codebase is clean before moving on.
+5. Verify the changes with `agent-browser`. Address all UI/UX concerns before moving on. Confirm everything looks great and works.
+6. Commit and push to `main`. Pushing to `main` triggers the production deploy.
+7. Check deployment logs. Fix any issues and redeploy via follow-up commits if anything breaks.
+8. Check production with `agent-browser` to verify the changes shipped and look good in production too. Debug any issues via app logs and fix with follow-up commits.
+9. For every additional code change, go through all verification steps again.
+10. Once production looks good, report all changes.
 ```
 
 > This `AGENTS.md` file is based on [Lee Robinson's](https://x.com/leerob) original [shared here](https://x.com/leerob/status/1993162978410004777).

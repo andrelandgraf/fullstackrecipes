@@ -74,6 +74,7 @@ function HowItWorksInner() {
     selectedSlugs,
     selectedItems,
     allContentSlugs,
+    skillSlugs,
     promptText,
     removeItem,
     deliveryTab,
@@ -153,7 +154,7 @@ function HowItWorksInner() {
     }
   };
 
-  const skillsCommand = getSkillsInstallCommandForSlugs(allContentSlugs);
+  const skillsCommand = getSkillsInstallCommandForSlugs(skillSlugs);
 
   // Display content for preview - show first selected item's content
   const previewSlug = selectedSlugs[0];
@@ -425,14 +426,14 @@ function HowItWorksInner() {
                     onCopyPrompt={() => copyToClipboard(promptText, "prompt")}
                     step1Title="Install selected skills"
                     step1Description={
-                      allContentSlugs.length > 0
-                        ? `Add skills for the ${allContentSlugs.length} selected ${
-                            allContentSlugs.length === 1 ? "recipe" : "recipes"
-                          } to your agent`
-                        : "Select guides to generate the skills command"
+                      skillSlugs.length > 0
+                        ? `Add the ${skillSlugs.length} day-to-day ${
+                            skillSlugs.length === 1 ? "skill" : "skills"
+                          } from your selection to your agent`
+                        : "Select a guide with day-to-day skills to generate the command"
                     }
                     step1Content={
-                      allContentSlugs.length > 0 ? (
+                      skillSlugs.length > 0 ? (
                         <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-secondary/30 px-3 py-2.5">
                           <Terminal className="h-4 w-4 shrink-0 text-muted-foreground" />
                           <code className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-xs text-foreground/90 sm:text-sm">
@@ -455,8 +456,8 @@ function HowItWorksInner() {
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground">
-                          Select at least one guide to generate the skills
-                          install command.
+                          Your selection includes no day-to-day skills to
+                          install.
                         </p>
                       )
                     }

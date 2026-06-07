@@ -82,5 +82,5 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/custom-
 Create and run durable workflows with steps, streaming, and agent execution. Covers starting, resuming, and persisting workflow results.
 
 ```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/using-workflows
+bunx skills add andrelandgraf/fullstackrecipes/skills -s using-workflows
 ```

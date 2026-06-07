@@ -2,8 +2,11 @@ import fs from "fs/promises";
 import path from "path";
 import {
   isCookbook,
+  isSkillRecipe,
   getRecipeBySlug,
   getCookbookRecipes,
+  getRequiredItems,
+  getSkillsInstallCommandForSlugs,
   type Recipe,
   type Cookbook,
 } from "./data";
@@ -41,12 +44,19 @@ export async function loadRecipeContent(
   const recipesDir = path.join(process.cwd(), "docs", "recipes");
 
   if (isCookbook(item)) {
-    // Cookbooks combine content from all their recipes
+    // Cookbooks combine their recipes in order. Setup recipes inline their full
+    // content; skill recipes render as a compact install section (title,
+    // motivation, install command) so the cookbook ends up installing them as
+    // skills rather than re-teaching their content.
     const contents = await Promise.all(
       item.recipes.map(async (slug) => {
         const recipe = getRecipeBySlug(slug);
         if (!recipe) {
           throw new Error(`Recipe not found: ${slug}`);
+        }
+        if (isSkillRecipe(recipe)) {
+          const command = getSkillsInstallCommandForSlugs([slug]);
+          return `## ${recipe.title}\n\n${recipe.description}\n\nInstall this skill so your agent retains these patterns for day-to-day work:\n\n\`\`\`bash\n${command}\n\`\`\``;
         }
         const filePath = path.join(recipesDir, `${slug}.md`);
         const content = await fs.readFile(filePath, "utf-8");
@@ -62,10 +72,23 @@ export async function loadRecipeContent(
 }
 
 /**
+ * Build the prerequisites section from an item's `requires` metadata.
+ * Returns an empty string when the item has no prerequisites.
+ */
+function getPrerequisitesSection(item: Recipe | Cookbook): string {
+  const requiredItems = getRequiredItems(item);
+  if (requiredItems.length === 0) {
+    return "";
+  }
+  const list = requiredItems.map((r) => `- ${r.title}`).join("\n");
+  return `## Prerequisites\n\nComplete these setup recipes first:\n\n${list}\n\n`;
+}
+
+/**
  * Load recipe content transformed to plain markdown.
  * Custom tags are expanded to their full markdown representation.
  * Use this for MCP server, copy buttons, and agent consumption.
- * Prepends title and description for standalone markdown output.
+ * Prepends title, description, and prerequisites for standalone markdown output.
  */
 export async function loadRecipeMarkdown(
   item: Recipe | Cookbook,
@@ -73,8 +96,9 @@ export async function loadRecipeMarkdown(
   const rawContent = await loadRecipeContent(item);
   const expandedContent = await toMarkdown(rawContent);
 
-  // Prepend title and description for markdown output
-  // (not needed for HTML rendering since page displays these separately)
+  // Prepend title, description, and prerequisites for markdown output
+  // (not needed for HTML rendering since the page displays these separately)
   const header = `# ${item.title}\n\n${item.description}\n\n`;
-  return header + expandedContent;
+  const prerequisites = getPrerequisitesSection(item);
+  return header + prerequisites + expandedContent;
 }

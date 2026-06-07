@@ -60,12 +60,29 @@ export function getSkillsInstallCommandForSlugs(slugs: string[]): string {
   return `bunx skills add ${SKILLS_REPO} ${skillFlags}`;
 }
 
+/** Whether a recipe is an installable day-to-day skill (vs a one-time setup recipe) */
+export function isSkillRecipe(item: Recipe | Cookbook): boolean {
+  return item.type === "skill";
+}
+
+/**
+ * Recipe type, governing how the recipe is consumed:
+ * - "setup": a one-time setup recipe that installs files, deps, and config.
+ * - "skill": a `using-*` day-to-day patterns skill, installed via the skills CLI.
+ *
+ * Setup recipes inline their full content when bundled in a cookbook, while
+ * skill recipes render as a compact install section (title, motivation, command).
+ */
+export type RecipeType = "setup" | "skill";
+
 export type Recipe = {
   slug: string;
   title: string;
   description: string;
   tags: string[];
   icon: typeof Database;
+  /** Whether this is a one-time setup recipe or an installable day-to-day skill */
+  type: RecipeType;
   /** Slugs of recipes that should be completed before this one */
   requires?: string[];
   /** Code snippet to display in the OG image preview */
@@ -86,8 +103,9 @@ export type Cookbook = Recipe & {
 };
 
 // All items ordered by setup requirements/prerequisites
-// Cookbooks and recipes are in the same array to enforce display order
-export const items: (Recipe | Cookbook)[] = [
+// Cookbooks and recipes are in the same array to enforce display order.
+// `type` is derived from the "Skills" tag below, keeping a single source of truth.
+const rawItems: (Omit<Recipe, "type"> | Omit<Cookbook, "type">)[] = [
   {
     slug: "use-fullstackrecipes",
     title: "Building with fullstackrecipes",
@@ -124,7 +142,7 @@ export const items: (Recipe | Cookbook)[] = [
     previewCode: `bunx create-next-app@latest my-app
 
 bunx shadcn@latest init --base radix`,
-  } satisfies Cookbook,
+  } satisfies Omit<Cookbook, "type">,
   {
     slug: "nextjs-on-vercel",
     title: "Next.js on Vercel",
@@ -258,7 +276,7 @@ export const databaseConfig = configSchema("Database", {
 });
 
 // bunx --bun better-env validate --environment=production`,
-  } satisfies Cookbook,
+  } satisfies Omit<Cookbook, "type">,
   {
     slug: "neon-drizzle-setup",
     title: "Neon + Drizzle Setup",
@@ -471,7 +489,7 @@ Sentry.captureException(error);
 
 // Web analytics with Vercel
 track("signup_completed", { plan: "pro" });`,
-  } satisfies Cookbook,
+  } satisfies Omit<Cookbook, "type">,
   {
     slug: "resend-setup",
     title: "Resend Setup",
@@ -593,7 +611,7 @@ bun run test:playwright   // Browser tests only
 const testUser = await createTestUser({
   email: \`chat-test-\${uuid}@example.com\`,
 });`,
-  } satisfies Cookbook,
+  } satisfies Omit<Cookbook, "type">,
   {
     slug: "using-ralph-loop",
     title: "Working with the Ralph Loop",
@@ -628,7 +646,7 @@ const testUser = await createTestUser({
 //   -> code + docs + changelog + tests
 //   -> verification (typecheck, fmt, fallow, browser, tests, deploy)
 //   -> iterate`,
-  } satisfies Cookbook,
+  } satisfies Omit<Cookbook, "type">,
   {
     slug: "better-auth-setup",
     title: "Better Auth Setup",
@@ -755,7 +773,7 @@ if (!session) redirect("/sign-in");
 
 <ProfileHeader /> <ChangePassword />
 <Sessions /> <DeleteAccount />`,
-  } satisfies Cookbook,
+  } satisfies Omit<Cookbook, "type">,
   {
     slug: "feature-flags-setup",
     title: "Feature Flags with Flags SDK",
@@ -827,7 +845,7 @@ export function SearchInput(props: Props) {
 }
 
 // Deep link: /items?delete=abc123`,
-  } satisfies Cookbook,
+  } satisfies Omit<Cookbook, "type">,
   {
     slug: "ai-chat-persistence",
     title: "AI Chat Persistence with Neon",
@@ -898,7 +916,7 @@ export const stripeFlag = flag({
 
 // Webhook sync to Postgres
 await syncStripeData(customerId);`,
-  } satisfies Cookbook,
+  } satisfies Omit<Cookbook, "type">,
   {
     slug: "workflow-setup",
     title: "Workflow Development Kit Setup",
@@ -1003,7 +1021,7 @@ const [deleteId] = useQueryState("delete");
 
 // Auto-generate titles from first message
 const { text } = await generateText({ prompt });`,
-  } satisfies Cookbook,
+  } satisfies Omit<Cookbook, "type">,
   {
     slug: "ai-agent-workflow",
     title: "Multi-Agent Workflows",
@@ -1030,8 +1048,17 @@ const { text } = await generateText({ prompt });`,
   });
 }`,
     registryDeps: ["use-resumable-chat"],
-  } satisfies Cookbook,
+  } satisfies Omit<Cookbook, "type">,
 ];
+
+/**
+ * Items with a concrete `type` derived from the "Skills" tag.
+ * Skill recipes are installable day-to-day patterns; everything else is setup.
+ */
+export const items: (Recipe | Cookbook)[] = rawItems.map((item) => {
+  const type: RecipeType = item.tags.includes("Skills") ? "skill" : "setup";
+  return { ...item, type };
+});
 
 /** All items in display order */
 export function getAllItems(): (Recipe | Cookbook)[] {

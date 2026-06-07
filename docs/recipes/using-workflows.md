@@ -1,14 +1,3 @@
-## Working with Workflows
-
-Create and run durable workflows with steps, streaming, and agent execution. Covers starting, resuming, and persisting workflow results.
-
-**See:**
-
-- Resource: `using-workflows` in Fullstack Recipes
-- URL: https://fullstackrecipes.com/recipes/using-workflows
-
----
-
 ### Workflow Folder Structure
 
 Each workflow has its own subfolder in `src/workflows/`:

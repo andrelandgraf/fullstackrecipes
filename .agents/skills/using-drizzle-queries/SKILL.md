@@ -7,16 +7,11 @@ description: Write type-safe database queries with Drizzle ORM. Covers select, i
 
 Write type-safe database queries with Drizzle ORM. Covers select, insert, update, delete, relational queries, and adding new tables.
 
-## Implement Working with Drizzle
+## Prerequisites
 
-Write type-safe database queries with Drizzle ORM. Covers select, insert, update, delete, relational queries, and adding new tables.
+Complete these setup recipes first:
 
-**See:**
-
-- Resource: `using-drizzle-queries` in Fullstack Recipes
-- URL: https://fullstackrecipes.com/recipes/using-drizzle-queries
-
----
+- Neon + Drizzle Setup
 
 ### Writing Queries
 

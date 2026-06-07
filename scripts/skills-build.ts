@@ -13,6 +13,8 @@ import {
   getAllCookbooks,
   getAllRecipes,
   getRequiredItems,
+  getSkillsInstallCommandForSlugs,
+  isSkillRecipe,
   type Cookbook,
   type Recipe,
 } from "../src/lib/recipes/data";
@@ -25,12 +27,18 @@ function getCurlCommand(slug: string): string {
 }
 
 function generateRecipeSection(recipe: Recipe): string {
+  // Skill recipes are installed via the skills CLI so the agent retains their
+  // day-to-day patterns; setup recipes are fetched once as markdown.
+  const command = isSkillRecipe(recipe)
+    ? getSkillsInstallCommandForSlugs([recipe.slug])
+    : getCurlCommand(recipe.slug);
+
   return `### ${recipe.title}
 
 ${recipe.description}
 
 \`\`\`bash
-${getCurlCommand(recipe.slug)}
+${command}
 \`\`\``;
 }
 

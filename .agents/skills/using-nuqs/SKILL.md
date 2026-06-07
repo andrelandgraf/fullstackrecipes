@@ -7,16 +7,11 @@ description: Manage React state in URL query parameters with nuqs. Covers Suspen
 
 Manage React state in URL query parameters with nuqs. Covers Suspense boundaries, parsers, clearing state, and deep-linkable dialogs.
 
-## Implement Working with nuqs
+## Prerequisites
 
-Manage React state in URL query parameters with nuqs for shareable filters, search, and deep-linkable dialogs.
+Complete these setup recipes first:
 
-**See:**
-
-- Resource: `using-nuqs` in Fullstack Recipes
-- URL: https://fullstackrecipes.com/recipes/using-nuqs
-
----
+- URL State with nuqs
 
 ### Suspense Boundary Pattern
 

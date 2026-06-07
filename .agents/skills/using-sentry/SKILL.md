@@ -7,16 +7,11 @@ description: Capture exceptions, add context, create performance spans, and use 
 
 Capture exceptions, add context, create performance spans, and use structured logging with Sentry.
 
-## Implement Working with Sentry
+## Prerequisites
 
-Capture exceptions, add context, create performance spans, and use structured logging with Sentry.
+Complete these setup recipes first:
 
-**See:**
-
-- Resource: `using-sentry` in Fullstack Recipes
-- URL: https://fullstackrecipes.com/recipes/using-sentry
-
----
+- Sentry Setup
 
 ### Capturing Exceptions
 

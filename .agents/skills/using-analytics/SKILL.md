@@ -7,16 +7,11 @@ description: Track custom events and conversions with Vercel Web Analytics. Cove
 
 Track custom events and conversions with Vercel Web Analytics. Covers common events, form tracking, and development testing.
 
-## Implement Working with Analytics
+## Prerequisites
 
-Track custom events and conversions with Vercel Web Analytics. Covers common events, form tracking, and development testing.
+Complete these setup recipes first:
 
-**See:**
-
-- Resource: `using-analytics` in Fullstack Recipes
-- URL: https://fullstackrecipes.com/recipes/using-analytics
-
----
+- Vercel Web Analytics
 
 ### Tracking Custom Events
 

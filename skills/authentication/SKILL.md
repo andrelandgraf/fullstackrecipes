@@ -98,5 +98,5 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/better-
 Use Better Auth for client and server-side authentication. Covers session access, protected routes, sign in/out, and fetching user data.
 
 ```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/using-authentication
+bunx skills add andrelandgraf/fullstackrecipes/skills -s using-authentication
 ```
