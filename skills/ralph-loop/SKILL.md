@@ -1,11 +1,11 @@
 ---
 name: ralph-loop
-description: Complete setup for automated agent-driven development. Define features as user stories with testable acceptance criteria, then run AI agents in a loop until all stories pass.
+description: Run a coding agent in an autonomous loop via a /ralph slash command. A preflight check verifies every CLI is installed, linked, and authenticated, then the agent breaks a wide prompt into tasks with first-principles thinking and builds, tests, and ships each one through the dev workflow.
 ---
 
 # Ralph Loop
 
-Complete setup for automated agent-driven development. Define features as user stories with testable acceptance criteria, then run AI agents in a loop until all stories pass.
+Run a coding agent in an autonomous loop via a /ralph slash command. A preflight check verifies every CLI is installed, linked, and authenticated, then the agent breaks a wide prompt into tasks with first-principles thinking and builds, tests, and ships each one through the dev workflow.
 
 ## Prerequisites
 
@@ -27,28 +27,36 @@ Configure AI coding agents like Cursor, GitHub Copilot, or Claude Code with proj
 curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/agent-setup
 ```
 
+### Type-Safe Environment Configuration with better-env
+
+Use better-env config modules for type-safe server/public env access, feature flags, and either-or credential constraints.
+
+```bash
+curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/config-schema-setup
+```
+
+### Neon + Drizzle Setup
+
+Connect a Next.js app to Neon Postgres using Drizzle ORM with optimized connection pooling for Vercel serverless functions.
+
+```bash
+curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/neon-drizzle-setup
+```
+
+### Testing
+
+Complete testing setup with Neon database branching, Playwright browser tests, integration tests, and unit tests. Isolated branches with automatic TTL cleanup.
+
+```bash
+curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/testing
+```
+
 ## Cookbook - Complete These Recipes in Order
 
-### User Stories Setup
+### Working with the Ralph Loop
 
-Create a structured format for documenting feature requirements as user stories. JSON files with testable acceptance criteria that AI agents can verify and track.
-
-```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/user-stories-setup
-```
-
-### Working with User Stories
-
-Document and track feature implementation with user stories. Workflow for authoring stories, building features, and marking acceptance criteria as passing.
+Run a coding agent in an autonomous loop via a /ralph slash command. A preflight check confirms every CLI is installed, linked, and authenticated before the agent breaks a wide prompt into tasks and builds, tests, and ships each one.
 
 ```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/using-user-stories
-```
-
-### Ralph Agent Loop
-
-Set up automated agent-driven development with Ralph. Run AI agents in a loop to implement features from user stories, verify acceptance criteria, and log progress for the next agent.
-
-```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/ralph-setup
+curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/using-ralph-loop
 ```

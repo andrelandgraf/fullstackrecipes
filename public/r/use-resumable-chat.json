@@ -3,11 +3,7 @@
   "name": "use-resumable-chat",
   "title": "Resumable Chat Hook",
   "description": "React hook wrapping useChat with WorkflowChatTransport for automatic stream resumption. Handles reconnection to interrupted workflow streams.",
-  "dependencies": [
-    "@ai-sdk/react",
-    "@workflow/ai",
-    "uuid"
-  ],
+  "dependencies": ["@ai-sdk/react", "@workflow/ai", "uuid"],
   "files": [
     {
       "path": "templates/ai-workflow/src/hooks/use-resumable-chat.ts",

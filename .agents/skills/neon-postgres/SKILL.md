@@ -192,7 +192,7 @@ Key points:
 
 Link: https://neon.com/docs/introduction/branching.md
 
-For detailed branch creation workflows (normal vs schema-only branches, reset-from-parent, CLI/MCP selection), use the `neon-postgres-branches` skill if available 
+For detailed branch creation workflows (normal vs schema-only branches, reset-from-parent, CLI/MCP selection), use the `neon-postgres-branches` skill if available
 
 Or fetch the full branching skill from the following URL:
 

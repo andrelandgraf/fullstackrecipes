@@ -38,8 +38,6 @@
     "db:branch:create": "bun run scripts/tests/create-branch.ts",
     "workflow:dev": "workflow inspect runs --web",
     "registry:build": "bunx --bun shadcn@latest build",
-    "ralph": "bun run scripts/ralph/runner.ts",
-    "user-stories:verify": "bun run scripts/verify-user-stories.ts",
     "skills:build": "bun run scripts/skills-build.ts"
   },
   "dependencies": {

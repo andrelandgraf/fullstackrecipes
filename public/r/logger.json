@@ -3,12 +3,7 @@
   "name": "logger",
   "title": "Pino Logger",
   "description": "Structured JSON logger with pretty-printing in development. Configurable log level via LOG_LEVEL env var using better-env.",
-  "dependencies": [
-    "better-env",
-    "pino",
-    "pino-pretty",
-    "zod"
-  ],
+  "dependencies": ["better-env", "pino", "pino-pretty", "zod"],
   "files": [
     {
       "path": "templates/base-app/src/lib/logging/config.ts",

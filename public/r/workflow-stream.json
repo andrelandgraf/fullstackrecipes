@@ -3,10 +3,7 @@
   "name": "workflow-stream",
   "title": "Workflow Stream Steps",
   "description": "Step functions for starting and finishing UIMessageChunk streams in workflows. Required when streaming AI responses to clients via WorkflowChatTransport.",
-  "dependencies": [
-    "workflow",
-    "ai"
-  ],
+  "dependencies": ["workflow", "ai"],
   "files": [
     {
       "path": "templates/ai-workflow/src/workflows/steps/stream.ts",

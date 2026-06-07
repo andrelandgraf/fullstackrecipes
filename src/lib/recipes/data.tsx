@@ -34,7 +34,6 @@ import {
   Globe,
   ImagePlus,
   Code,
-  ClipboardList,
 } from "lucide-react";
 import registry from "../../../registry.json";
 
@@ -175,85 +174,6 @@ export const config: VercelConfig = {
   }
 }`,
   },
-  {
-    slug: "ralph-setup",
-    title: "Ralph Agent Loop",
-    description:
-      "Set up automated agent-driven development with Ralph. Run AI agents in a loop to implement features from user stories, verify acceptance criteria, and log progress for the next agent.",
-    tags: ["Setup Instructions"],
-    icon: RefreshCw,
-    requires: ["agent-setup", "user-stories-setup"],
-    previewCode: `// User story with acceptance criteria
-{
-  "description": "User signs in with email",
-  "steps": ["Navigate to /sign-in", "Enter credentials", "Verify redirect"],
-  "passes": false
-}
-
-// Ralph loops until all stories pass
-bun run ralph`,
-    registryDeps: ["ralph"],
-  },
-  {
-    slug: "user-stories-setup",
-    title: "User Stories Setup",
-    description:
-      "Create a structured format for documenting feature requirements as user stories. JSON files with testable acceptance criteria that AI agents can verify and track.",
-    tags: ["Setup Instructions"],
-    icon: ClipboardList,
-    requires: ["agent-setup"],
-    previewCode: `// docs/user-stories/authentication.json
-[
-  {
-    "description": "User signs in with email",
-    "steps": ["Navigate to /sign-in", "Enter credentials", "Verify redirect"],
-    "passes": false
-  }
-]
-
-// Verify all stories have correct format
-bun run user-stories:verify`,
-  },
-  {
-    slug: "using-user-stories",
-    title: "Working with User Stories",
-    description:
-      "Document and track feature implementation with user stories. Workflow for authoring stories, building features, and marking acceptance criteria as passing.",
-    tags: ["Skills"],
-    icon: ClipboardList,
-    requires: ["user-stories-setup"],
-    previewCode: `// Workflow:
-// 1. Author/Update - Create story before building
-// 2. Build & Test - Implement until tests pass
-// 3. Mark Passing - Set passes: true when verified
-
-{
-  "description": "User deletes a chat",
-  "steps": ["Click menu", "Click delete", "Confirm", "Verify removed"],
-  "passes": true
-}`,
-  },
-  {
-    slug: "ralph-loop",
-    title: "Ralph Loop",
-    description:
-      "Complete setup for automated agent-driven development. Define features as user stories with testable acceptance criteria, then run AI agents in a loop until all stories pass.",
-    tags: ["Cookbooks"],
-    icon: RefreshCw,
-    isCookbook: true,
-    recipes: ["user-stories-setup", "using-user-stories", "ralph-setup"],
-    requires: ["agent-setup"],
-    previewCode: `// 1. Define user stories with acceptance criteria
-{
-  "description": "User signs in with email",
-  "steps": ["Navigate to /sign-in", "Enter credentials", "Verify redirect"],
-  "passes": false
-}
-
-// 2. Run Ralph loop until all stories pass
-bun run ralph`,
-    registryDeps: ["ralph"],
-  } satisfies Cookbook,
   {
     slug: "assert",
     title: "Assertion Helper",
@@ -673,6 +593,41 @@ bun run test:playwright   // Browser tests only
 const testUser = await createTestUser({
   email: \`chat-test-\${uuid}@example.com\`,
 });`,
+  } satisfies Cookbook,
+  {
+    slug: "using-ralph-loop",
+    title: "Working with the Ralph Loop",
+    description:
+      "Run a coding agent in an autonomous loop via a /ralph slash command. A preflight check confirms every CLI is installed, linked, and authenticated before the agent breaks a wide prompt into tasks and builds, tests, and ships each one.",
+    tags: ["Skills"],
+    icon: RefreshCw,
+    requires: ["agent-setup", "code-health-setup", "testing"],
+    previewCode: `/ralph   // prompts for a wide, outcome-focused prompt
+
+// preflight check (stops if anything is red)
+//   [ok]   agent-browser   v1.4.2
+//   [fail] neon            not authenticated -> run: neonctl auth
+//
+// then: todo list -> code + docs + tests -> verify -> iterate`,
+  },
+  {
+    slug: "ralph-loop",
+    title: "Ralph Loop",
+    description:
+      "Run a coding agent in an autonomous loop via a /ralph slash command. A preflight check verifies every CLI is installed, linked, and authenticated, then the agent breaks a wide prompt into tasks with first-principles thinking and builds, tests, and ships each one through the dev workflow.",
+    tags: ["Cookbooks"],
+    icon: RefreshCw,
+    isCookbook: true,
+    recipes: ["using-ralph-loop"],
+    requires: ["agent-setup", "code-health-setup", "testing"],
+    previewCode: `/ralph   // prompts for a wide, outcome-focused prompt
+
+// input prompt
+//   -> preflight check (CLIs installed, linked, authenticated)
+//   -> agent harness managed todo list
+//   -> code + docs + changelog + tests
+//   -> verification (typecheck, fmt, fallow, browser, tests, deploy)
+//   -> iterate`,
   } satisfies Cookbook,
   {
     slug: "better-auth-setup",
@@ -1162,6 +1117,9 @@ export const recipeRedirects: Record<string, string> = {
   "env-config": "env-management",
   "bun-testing": "testing",
   "code-style-setup": "code-health-setup",
+  "ralph-setup": "using-ralph-loop",
+  "user-stories-setup": "ralph-loop",
+  "using-user-stories": "using-ralph-loop",
 };
 
 /** Get the redirect destination for an old slug, or undefined if no redirect exists */
@@ -1175,7 +1133,6 @@ const REGISTRY_ICONS: Record<string, typeof Database> = {
   "use-resumable-chat": Package,
   "durable-agent": Cpu,
   logger: ScrollText,
-  ralph: RefreshCw,
   "workflow-stream": Layers,
 };
 
