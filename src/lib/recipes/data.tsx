@@ -249,7 +249,7 @@ export default defineBetterEnv({
     title: "Build-Time Environment Validation with better-env",
     description:
       "Validate all env-backed config modules with better-env before build and in CI.",
-    tags: ["Skills"],
+    tags: ["Setup Instructions"],
     icon: FlaskConical,
     requires: ["config-schema-setup"],
     previewCode: `{

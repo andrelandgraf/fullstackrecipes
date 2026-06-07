@@ -1,6 +1,4 @@
-import { describe, it, expect, beforeAll } from "bun:test";
-import { readdir } from "fs/promises";
-import path from "path";
+import { describe, it, expect } from "bun:test";
 import { GET } from "@/app/api/recipes/[slug]/route";
 import { getAllItems, recipeRedirects } from "@/lib/recipes/data";
 import { loadRecipeMarkdown } from "@/lib/recipes/loader";
@@ -23,17 +21,6 @@ function createMockRequest(slug: string) {
 }
 
 describe("GET /api/recipes/[slug]", () => {
-  let docRecipeSlugs: string[] = [];
-
-  beforeAll(async () => {
-    // Get all markdown files from docs/recipes
-    const recipesDir = path.join(process.cwd(), "docs", "recipes");
-    const files = await readdir(recipesDir);
-    docRecipeSlugs = files
-      .filter((f) => f.endsWith(".md"))
-      .map((f) => f.replace(".md", ""));
-  });
-
   it("should return 404 for non-existent recipe", async () => {
     const { request, params } = createMockRequest("non-existent-recipe");
     const response = await GET(request, { params });

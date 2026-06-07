@@ -20,6 +20,7 @@ import {
 } from "../src/lib/recipes/data";
 
 const SKILLS_DIR = path.join(process.cwd(), "skills");
+const AUTHORED_SKILLS_DIR = path.join(process.cwd(), ".agents", "skills");
 const BASE_URL = "https://fullstackrecipes.com/api/recipes";
 
 function getCurlCommand(slug: string): string {
@@ -119,6 +120,16 @@ ${getCurlCommand(recipe.slug)}
 `;
 }
 
+/**
+ * Read the authored skill content for a skill-type recipe. Skills are authored
+ * under .agents/skills/<slug>/SKILL.md and published verbatim into skills/.
+ */
+async function readAuthoredSkill(slug: string): Promise<string> {
+  const filePath = path.join(AUTHORED_SKILLS_DIR, slug, "SKILL.md");
+  const content = await fs.readFile(filePath, "utf-8");
+  return content.trimEnd() + "\n";
+}
+
 async function buildSkills() {
   const cookbooks = getAllCookbooks();
   const allRecipes = getAllRecipes();
@@ -131,18 +142,23 @@ async function buildSkills() {
     }
   }
 
-  // Standalone recipes are those not part of any cookbook
-  const standaloneRecipes = allRecipes.filter(
-    (recipe) => !recipesInCookbooks.has(recipe.slug),
+  // Skill-type recipes are published verbatim from their authored source,
+  // regardless of cookbook membership, so `bunx skills add -s <slug>` resolves.
+  const skillRecipes = allRecipes.filter(isSkillRecipe);
+
+  // Setup recipes not part of any cookbook get a thin standalone stub.
+  const standaloneSetupRecipes = allRecipes.filter(
+    (recipe) => !recipesInCookbooks.has(recipe.slug) && !isSkillRecipe(recipe),
   );
 
   // Clean and recreate skills directory
   await fs.rm(SKILLS_DIR, { recursive: true, force: true });
   await fs.mkdir(SKILLS_DIR, { recursive: true });
 
-  const totalSkills = cookbooks.length + standaloneRecipes.length;
+  const totalSkills =
+    cookbooks.length + skillRecipes.length + standaloneSetupRecipes.length;
   console.log(
-    `Building ${totalSkills} skills (${cookbooks.length} cookbooks, ${standaloneRecipes.length} standalone recipes)...`,
+    `Building ${totalSkills} skills (${cookbooks.length} cookbooks, ${skillRecipes.length} authored skills, ${standaloneSetupRecipes.length} standalone setup recipes)...`,
   );
 
   // Generate cookbook skills
@@ -164,16 +180,34 @@ async function buildSkills() {
     console.log(`  ${cookbook.slug} (${includedRecipes.length} recipes)`);
   }
 
-  // Generate standalone recipe skills
-  console.log("\nStandalone recipes:");
-  for (const recipe of standaloneRecipes) {
+  // Publish authored skills verbatim from .agents/skills
+  console.log("\nSkills:");
+  for (const recipe of skillRecipes) {
     const skillDir = path.join(SKILLS_DIR, recipe.slug);
     const skillFile = path.join(skillDir, "SKILL.md");
 
     await fs.mkdir(skillDir, { recursive: true });
+    await fs.writeFile(
+      skillFile,
+      await readAuthoredSkill(recipe.slug),
+      "utf-8",
+    );
 
-    const content = generateStandaloneRecipeSkill(recipe);
-    await fs.writeFile(skillFile, content, "utf-8");
+    console.log(`  ${recipe.slug}`);
+  }
+
+  // Generate standalone setup recipe skills (thin curl stubs)
+  console.log("\nStandalone setup recipes:");
+  for (const recipe of standaloneSetupRecipes) {
+    const skillDir = path.join(SKILLS_DIR, recipe.slug);
+    const skillFile = path.join(skillDir, "SKILL.md");
+
+    await fs.mkdir(skillDir, { recursive: true });
+    await fs.writeFile(
+      skillFile,
+      generateStandaloneRecipeSkill(recipe),
+      "utf-8",
+    );
 
     console.log(`  ${recipe.slug}`);
   }

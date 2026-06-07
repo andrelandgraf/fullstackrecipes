@@ -1,15 +1,27 @@
-### Suspense Boundary Pattern
+---
+name: using-nuqs
+description: Sync React state to URL query params with nuqs (Suspense wrapper, parsers, clearing, deep-linkable dialogs). Use when building shareable filters, search, or URL-driven dialogs.
+---
 
-nuqs uses `useSearchParams` behind the scenes, requiring a Suspense boundary. Wrap nuqs-using components with Suspense via a wrapper component to keep the boundary colocated:
+# Working with nuqs
+
+Sync React state to URL query params with nuqs.
+
+## Prerequisites
+
+Complete these setup recipes first:
+
+- URL State with nuqs
+
+### Suspense Wrapper
+
+nuqs reads `useSearchParams`, so it needs a Suspense boundary. Colocate it by exporting a public wrapper that suspends an internal client component — consumers then use the component without adding Suspense themselves.
 
 ```typescript
 import { Suspense } from "react";
 
-type SearchInputProps = {
-  placeholder?: string;
-};
+type SearchInputProps = { placeholder?: string };
 
-// Public component with built-in Suspense
 export function SearchInput(props: SearchInputProps) {
   return (
     <Suspense fallback={<input placeholder={props.placeholder} disabled />}>
@@ -24,7 +36,6 @@ export function SearchInput(props: SearchInputProps) {
 
 import { useQueryState, parseAsString } from "nuqs";
 
-// Internal client component that uses nuqs
 function SearchInputClient({ placeholder = "Search..." }: SearchInputProps) {
   const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""));
 
@@ -38,11 +49,9 @@ function SearchInputClient({ placeholder = "Search..." }: SearchInputProps) {
 }
 ```
 
-This pattern allows consuming components to use `SearchInput` without adding Suspense themselves.
+### Parsers
 
-### State to URL Query Params
-
-Replace `useState` with `useQueryState` to sync state to the URL:
+Replace `useState` with `useQueryState` plus a parser. Use `.withDefault()` to read a fallback while keeping the URL clean.
 
 ```typescript
 "use client";
@@ -54,31 +63,24 @@ import {
   parseAsArrayOf,
 } from "nuqs";
 
-// String state (search, filters)
 const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""));
-
-// Boolean state (toggles)
 const [showArchived, setShowArchived] = useQueryState(
   "archived",
   parseAsBoolean.withDefault(false),
 );
-
-// Array state (multi-select)
 const [tags, setTags] = useQueryState(
   "tags",
   parseAsArrayOf(parseAsString).withDefault([]),
 );
 ```
 
-### Clear State
+### Clearing
 
-Set to `null` to remove from URL:
+Set a value to `null` to remove it from the URL. With `.withDefault()`, the param clears but reads return the default.
 
 ```typescript
-// Clear single param
 setSearch(null);
 
-// Clear all filters
 function clearFilters() {
   setSearch(null);
   setTags(null);
@@ -86,20 +88,15 @@ function clearFilters() {
 }
 ```
 
-When using `.withDefault()`, setting to `null` clears the URL param but returns the default value.
-
 ### Deep-Linkable Dialogs
 
-Control dialog visibility with URL params for shareable links:
+Drive dialog visibility from a URL param so it's shareable and survives back/forward. Wrap in the same Suspense pattern.
 
 ```typescript
 import { Suspense } from "react";
 
-type DeleteDialogProps = {
-  onDelete: (id: string) => Promise<void>;
-};
+type DeleteDialogProps = { onDelete: (id: string) => Promise<void> };
 
-// Public component with built-in Suspense
 export function DeleteDialog(props: DeleteDialogProps) {
   return (
     <Suspense fallback={null}>
@@ -127,7 +124,6 @@ function DeleteDialogClient({ onDelete }: DeleteDialogProps) {
   return (
     <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
       <AlertDialogContent>
-        {/* Confirmation UI */}
         <Button onClick={handleDelete}>Delete</Button>
       </AlertDialogContent>
     </AlertDialog>
@@ -135,23 +131,11 @@ function DeleteDialogClient({ onDelete }: DeleteDialogProps) {
 }
 ```
 
-Open the dialog programmatically:
-
-```typescript
-// Open delete dialog for specific item
-setDeleteId("item-123");
-
-// Deep link: /items?delete=item-123
-```
-
-### Opening Dialogs from Buttons
-
-Use a trigger button to open the dialog:
+Open it from anywhere by setting the param — `setDeleteId("item-123")` yields the deep link `/items?delete=item-123`.
 
 ```typescript
 function ItemRow({ item }: { item: Item }) {
   const [, setDeleteId] = useQueryState("delete", parseAsString);
-
   return (
     <Button variant="ghost" onClick={() => setDeleteId(item.id)}>
       Delete

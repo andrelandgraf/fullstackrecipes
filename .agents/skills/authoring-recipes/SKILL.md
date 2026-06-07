@@ -18,10 +18,12 @@ One-time setup that installs files, dependencies, and config for a single concer
 - **Install surface stays atomic.** A setup recipe installs only its own slice so the dependency graph stays composable and individual recipes can be adopted standalone.
 - **Declare prerequisites in `requires` and state them up front.** Reference the prereq; do not re-teach it. A minimal fallback for one or two missing prereqs is fine. Standalone usability lives here, not in the skill tier.
 
-### Tier 2 — Skills (`type: "skill"`, the `using-*` recipes)
+### Tier 2 — Skills (`type: "skill"`)
 
-Day-to-day patterns for working with an already-configured tool (e.g. `using-drizzle-queries`, `using-authentication`).
+Day-to-day, agent-facing workflow guides for an already-configured tool (e.g. `using-drizzle-queries`, `using-authentication`).
 
+- **Skills are authored, not recipe docs.** The source of truth is `.agents/skills/<slug>/SKILL.md` (YAML frontmatter + body). `skills-build.ts` publishes them verbatim into `skills/<slug>/SKILL.md`, and the website/MCP read their body from the authored file. They have no `docs/recipes/<slug>.md`.
+- **Write for an agent, not a human tutorial.** Lead with the pattern and the code; skip hand-holding prose, "step 1/2/3" walkthroughs, and motivation paragraphs the agent already understands. Imperative, concise, example-first.
 - **Assume the canonical stack. Do not hedge.** Write to the exact world the setup recipes produce. Import from the real paths (`@/lib/db/client`, `@/lib/auth/server`, `@/lib/logging/logger`, `@/components/ui/*`, etc.). Never add "if you set this up differently" caveats — that defensive framing is what dilutes a skill's value.
 - The canonical stack is defined by capability, not by cookbook name: a Postgres database via Drizzle, Better Auth sessions, structured logging, shadcn/ui components, and the test harness. A skill may assume any capability its `requires` chain provides.
 - **Never reference back to how the stack was set up.** A skill only teaches how to _do the thing_ at runtime. Do not name-drop the setup recipe ("set up by the X recipe", "configured in Y", "from the Z setup") — it adds nothing while the skill is running. The `requires` metadata already tracks the setup trail and is surfaced as a Prerequisites section, so the body never needs to.

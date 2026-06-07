@@ -62,7 +62,7 @@ curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/config-
 Validate all env-backed config modules with better-env before build and in CI.
 
 ```bash
-bunx skills add andrelandgraf/fullstackrecipes/skills -s env-validation
+curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/env-validation
 ```
 
 ### Neon + Drizzle Setup

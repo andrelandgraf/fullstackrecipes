@@ -1,11 +1,11 @@
 ---
 name: using-drizzle-queries
-description: Write type-safe database queries with Drizzle ORM. Covers select, insert, update, delete, relational queries, and adding new tables.
+description: Write type-safe Postgres queries with Drizzle ORM (select/insert/update/delete, relations, new tables). Use when querying or mutating the database or adding a Drizzle table.
 ---
 
 # Working with Drizzle
 
-Write type-safe database queries with Drizzle ORM. Covers select, insert, update, delete, relational queries, and adding new tables.
+Write type-safe Postgres queries with Drizzle ORM.
 
 ## Prerequisites
 
@@ -13,26 +13,23 @@ Complete these setup recipes first:
 
 - Neon + Drizzle Setup
 
-### Writing Queries
+### Selecting
 
-Use Drizzle's query API for type-safe database operations:
+Import `db` from `@/lib/db/client` and operators from `drizzle-orm`. For a single row, `.limit(1)` then take `rows[0]`.
 
 ```typescript
 import { db } from "@/lib/db/client";
 import { chats } from "@/lib/chat/schema";
 import { eq, desc } from "drizzle-orm";
 
-// Select all
 const allChats = await db.select().from(chats);
 
-// Select with filter
 const userChats = await db
   .select()
   .from(chats)
   .where(eq(chats.userId, userId))
   .orderBy(desc(chats.createdAt));
 
-// Select single record
 const chat = await db
   .select()
   .from(chats)
@@ -41,58 +38,42 @@ const chat = await db
   .then((rows) => rows[0]);
 ```
 
-### Inserting Data
+### Inserting
+
+Use `.returning()` when the inserted row is needed back.
 
 ```typescript
-import { db } from "@/lib/db/client";
-import { chats } from "@/lib/chat/schema";
-
-// Insert single record
 const [newChat] = await db
   .insert(chats)
-  .values({
-    userId,
-    title: "New Chat",
-  })
+  .values({ userId, title: "New Chat" })
   .returning();
 
-// Insert multiple records
 await db.insert(messages).values([
   { chatId, role: "user", content: "Hello" },
   { chatId, role: "assistant", content: "Hi there!" },
 ]);
 ```
 
-### Updating Data
+### Updating
 
 ```typescript
-import { db } from "@/lib/db/client";
-import { chats } from "@/lib/chat/schema";
-import { eq } from "drizzle-orm";
-
 await db
   .update(chats)
   .set({ title: "Updated Title" })
   .where(eq(chats.id, chatId));
 ```
 
-### Deleting Data
+### Deleting
 
 ```typescript
-import { db } from "@/lib/db/client";
-import { chats } from "@/lib/chat/schema";
-import { eq } from "drizzle-orm";
-
 await db.delete(chats).where(eq(chats.id, chatId));
 ```
 
-### Using Relational Queries
+### Relational Queries
 
-For queries with relations, use the query API:
+Use `db.query.<table>` for relations instead of manual joins.
 
 ```typescript
-import { db } from "@/lib/db/client";
-
 const chatWithMessages = await db.query.chats.findFirst({
   where: eq(chats.id, chatId),
   with: {
@@ -103,9 +84,9 @@ const chatWithMessages = await db.query.chats.findFirst({
 });
 ```
 
-### Adding New Tables
+### Adding a Table
 
-1. Create the schema in the feature's library folder:
+Co-locate the schema in the feature's library folder, register it on the shared client, then migrate.
 
 ```typescript
 // src/lib/feature/schema.ts
@@ -118,19 +99,12 @@ export const items = pgTable("items", {
 });
 ```
 
-1. Import the schema in `src/lib/db/client.ts`:
-
 ```typescript
+// src/lib/db/client.ts
 import * as itemSchema from "@/lib/feature/schema";
 
-const schema = {
-  ...authSchema,
-  ...chatSchema,
-  ...itemSchema,
-};
+const schema = { ...authSchema, ...chatSchema, ...itemSchema };
 ```
-
-1. Generate and run migrations:
 
 ```bash
 bun run db:generate

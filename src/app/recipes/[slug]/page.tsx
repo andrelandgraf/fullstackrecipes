@@ -6,6 +6,8 @@ import {
   getCookbookRecipes,
   getRequiredItems,
   isCookbook,
+  isSkillRecipe,
+  getSkillsInstallCommandForSlugs,
   getRedirectSlug,
   recipeRedirects,
 } from "@/lib/recipes/data";
@@ -15,6 +17,7 @@ import {
 } from "@/lib/recipes/loader";
 import { RecipeHeader } from "@/components/recipes/header";
 import { MarkdownBlock } from "@/components/docs/markdown-block";
+import { CopyableCodeBox } from "@/components/code/copyable-code-box";
 import { RelatedRecipes } from "@/components/recipes/related";
 import { CookbookRecipes } from "@/components/recipes/cookbook-recipes";
 import { serializeRecipes, serializeItems } from "@/lib/recipes/serialize";
@@ -79,8 +82,14 @@ export default async function RecipePage({ params }: Props) {
     ? getCookbookTableOfContents(item)
     : [];
 
+  const isSkill = !isCookbook(item) && isSkillRecipe(item);
+  const skillInstallCommand = isSkill
+    ? getSkillsInstallCommandForSlugs([item.slug])
+    : "";
+
   const hasPreContent =
     requiredItems.length > 0 ||
+    isSkill ||
     (isCookbook(item) && cookbookRecipes.length > 0);
   const hasSidebar = tableOfContents.length > 0;
 
@@ -108,6 +117,18 @@ export default async function RecipePage({ params }: Props) {
                 requiredItems={serializeItems(requiredItems)}
                 isCookbook={isCookbook(item)}
               />
+              {isSkill && (
+                <div className={requiredItems.length > 0 ? "mt-6" : ""}>
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    Install this skill
+                  </p>
+                  <CopyableCodeBox code={skillInstallCommand} />
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Installs the skill so your agent retains these patterns for
+                    day-to-day work.
+                  </p>
+                </div>
+              )}
               {requiredItems.length > 0 &&
                 isCookbook(item) &&
                 cookbookRecipes.length > 0 && <div className="my-6" />}

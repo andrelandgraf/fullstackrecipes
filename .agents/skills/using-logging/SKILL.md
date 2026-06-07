@@ -1,11 +1,11 @@
 ---
 name: using-logging
-description: Use structured logging with Pino throughout your application. Covers log levels, context, and workflow-safe logging patterns.
+description: Emit structured logs with Pino (levels, context-first signature, workflow-safe step wrapper). Use when adding logging to routes, libraries, or workflows.
 ---
 
 # Working with Logging
 
-Use structured logging with Pino throughout your application. Covers log levels, context, and workflow-safe logging patterns.
+Emit structured logs with Pino throughout the app.
 
 ## Prerequisites
 
@@ -13,92 +13,62 @@ Complete these setup recipes first:
 
 - Pino Logging Setup
 
-### Basic Logging
+### Logging
 
-Import the logger and use it throughout your application:
+Import `logger` from `@/lib/logging/logger`. Pass a context object first, message second. For errors, put `err` in the context object.
 
 ```typescript
 import { logger } from "@/lib/logging/logger";
 
-// Info level for normal operations
-logger.info("Server started", { port: 3000 });
-
-// Warn level for recoverable issues
-logger.warn("Rate limit reached", { endpoint: "/api/chat" });
-
-// Error level with Error objects
-logger.error(err, "Failed to process request");
-
-// Debug level for development troubleshooting
-logger.debug("Cache miss", { key: "user:123" });
-```
-
-### Structured Logging
-
-Always include context as the first argument for structured logs:
-
-```typescript
-// Context object first, message second
-logger.info({ userId: "123", action: "login" }, "User logged in");
-
-// For errors, pass the error first
+logger.info({ port: 3000 }, "Server started");
+logger.warn({ endpoint: "/api/chat" }, "Rate limit reached");
+logger.debug({ key: "user:123" }, "Cache miss");
 logger.error({ err, userId: "123", endpoint: "/api/chat" }, "Request failed");
 ```
 
-### Log Levels
+### Levels
 
-Use appropriate levels for different scenarios:
+| Level   | When to Use                              |
+| ------- | ---------------------------------------- |
+| `trace` | Detailed debugging (rarely used)         |
+| `debug` | Development troubleshooting              |
+| `info`  | Normal operations, business events       |
+| `warn`  | Recoverable issues, deprecation warnings |
+| `error` | Failures that need attention             |
+| `fatal` | Critical failures, app cannot continue   |
 
-| Level | When to Use |
-| `trace` | Detailed debugging (rarely used) |
-| `debug` | Development troubleshooting |
-| `info` | Normal operations, business events |
-| `warn` | Recoverable issues, deprecation warnings |
-| `error` | Failures that need attention |
-| `fatal` | Critical failures, app cannot continue |
-
-### Configuring Log Level
-
-Set the `LOG_LEVEL` environment variable:
+Set the active threshold via `LOG_LEVEL` (defaults to `info`). Use `warn` in production.
 
 ```env
-# Show all logs including debug
 LOG_LEVEL="debug"
-
-# Production: only warnings and errors
-LOG_LEVEL="warn"
 ```
 
-Default is `info` if not set. Valid values: `trace`, `debug`, `info`, `warn`, `error`, `fatal`.
+### In API Routes
 
-### Logging in API Routes
+Log on the way out with timing context.
 
 ```typescript
 import { logger } from "@/lib/logging/logger";
 
 export async function POST(request: Request) {
   const start = Date.now();
-
   try {
     const result = await processRequest(request);
-
     logger.info(
       { duration: Date.now() - start, status: 200 },
       "Request completed",
     );
-
     return Response.json(result);
   } catch (err) {
     logger.error({ err, duration: Date.now() - start }, "Request failed");
-
     return Response.json({ error: "Internal error" }, { status: 500 });
   }
 }
 ```
 
-### Logging in Workflows
+### In Workflows
 
-Workflow functions run in a restricted environment. Use the logger step wrapper:
+The workflow runtime can't import Node modules, so the logger can't be called directly. Wrap it in a `"use step"` function.
 
 ```typescript
 // src/workflows/chat/steps/logger.ts
@@ -118,8 +88,6 @@ export async function log(
   }
 }
 ```
-
-Then use it in workflows:
 
 ```typescript
 import { log } from "./steps/logger";

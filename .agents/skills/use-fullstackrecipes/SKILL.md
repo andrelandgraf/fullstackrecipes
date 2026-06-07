@@ -1,69 +1,42 @@
 ---
 name: use-fullstackrecipes
-description: Discover and follow recipes via MCP resources for setup guides, skills, and cookbooks. The meta-skill for using fullstackrecipes effectively.
+description: Discover and follow fullstackrecipes (setup guides, skills, cookbooks) via the MCP server. The meta-skill for finding and applying recipes correctly. Use when planning a build, adding a tool, or deciding which recipe or skill to follow.
 ---
 
 # Building with fullstackrecipes
 
-Discover and follow recipes via MCP resources for setup guides, skills, and cookbooks. The meta-skill for using fullstackrecipes effectively.
+Discover and follow recipes via MCP resources for setup guides, skills, and cookbooks.
 
 ## How fullstackrecipes Works
 
-fullstackrecipes provides setup instructions for building full-stack applications and skills to work with them. Content is organized into two types:
+Content comes in two types:
 
-1. **Setup Recipes** (`type: "setup"`): One-time guides to configure tools and services (e.g., setting up authentication, database, payments). Atomic installs with declared prerequisites — adoptable on their own.
-2. **Skills** (`type: "skill"`, the `using-*` recipes): Day-to-day patterns for working with already-configured tools (e.g., writing queries, using auth, logging). These assume the canonical assembled stack and are **installed via the skills CLI**, not pasted as content.
+1. **Setup Recipes** (`type: "setup"`): one-time guides to configure a tool or service (auth, database, payments). Atomic installs with declared prerequisites — adoptable on their own.
+2. **Skills** (`type: "skill"`): day-to-day patterns for an already-configured tool (querying, auth, logging). They assume the canonical assembled stack and are **installed via the skills CLI**, not pasted as content.
 
-**Cookbooks** are ordered, two-phase setup artifacts. Running a cookbook (1) runs its setup recipes in order, then (2) installs the corresponding `using-*` skills. After a cookbook completes, the project has both the configured stack and the installed skills. For example, "Base App Setup" sets up Next.js, Shadcn UI, Neon Postgres, Drizzle ORM, and the AI SDK, and installs the Drizzle querying skill as its final step.
-
----
+**Cookbooks** are ordered, two-phase setups: they run their setup recipes in order, then install the matching skills. After a cookbook completes, the project has both the configured stack and the installed skills. For example, "Base App Setup" configures Next.js, Shadcn UI, Neon Postgres, Drizzle ORM, and the AI SDK, then installs the Drizzle querying skill as its final step.
 
 ## Accessing Recipes via MCP
 
-The fullstackrecipes MCP server exposes all recipes and cookbooks as resources. Resources are organized by type:
+The MCP server exposes every recipe and cookbook as a resource:
 
-- `recipe://` - Individual setup guides and skills
-- `cookbook://` - Bundled recipe sequences
+- `recipe://` - individual setup guides and skills
+- `cookbook://` - bundled recipe sequences
 
-### Set up MCP Server
-
-If the MCP server is not already set up, add it with:
+Add the server if it isn't configured:
 
 ```bash
 bunx add-mcp https://fullstackrecipes.com/api/mcp -y
 ```
 
-### Read a Specific Recipe
+Fetch full content by resource — e.g. read the `neon-drizzle-setup` resource — to get every step, code example, and file path.
 
-Fetch the full content of any recipe by its resource URI:
+## Best Practices
 
-```
-Read the "neon-drizzle-setup" resource from fullstackrecipes
-```
-
-The recipe content includes all steps, code examples, and file paths needed to complete the setup.
-
----
-
-## Best Practices for Following Recipes
-
-### Follow Recipes Exactly
-
-Recipes are tested instructions. Follow them step-by-step without modifications unless you have a specific reason to deviate.
-
-### Complete Dependencies First
-
-Some recipes depend on others. The MCP resource descriptions indicate prerequisites. Complete setup recipes before using their corresponding skills.
-
-### Install Skills, Don't Just Read Them
-
-Skills (`using-*`) are installed via `bunx skills add ...` so your agent retains them for ongoing development. When you run a cookbook, installing its skills is the final setup step — not optional reading. Once a tool is configured, the installed skill provides the patterns, code examples, and API references for working with it. Skills assume the canonical stack is present, so install them only after their setup recipes are complete.
-
-### Check for Updates
-
-Recipes are updated as libraries evolve. When troubleshooting issues or starting new features, fetch the latest recipe content from the MCP server rather than relying on cached instructions.
-
----
+- **Follow recipes exactly.** They are tested instructions; don't deviate without a specific reason.
+- **Complete dependencies first.** Resource descriptions list prerequisites — finish a setup recipe before its matching skill.
+- **Install skills, don't just read them.** Skills are installed with `bunx skills add ...` so the agent retains the patterns for ongoing work. Installing them is the final step of a cookbook, not optional reading. Install only after their setup recipes are complete.
+- **Check for updates.** Recipes evolve with their libraries. When troubleshooting or starting a feature, fetch the latest content from the MCP server instead of relying on cached instructions.
 
 ## References
 
