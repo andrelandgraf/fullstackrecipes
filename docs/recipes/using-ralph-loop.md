@@ -27,15 +27,15 @@ A wide, generic prompt is the input. The agent's own harness manages the todo li
 
 ## What the Agent Needs
 
-The prerequisites already provide everything the loop depends on. There is nothing Ralph-specific to install.
+The loop depends on three things being in place. There is nothing Ralph-specific to install.
 
 ### Context
 
-The agent needs to know how to work in this codebase: patterns, the dev workflow, and conventions. This is set up by the **AI Coding Agent Configuration** recipe (`AGENTS.md`, MCP servers, skills).
+The agent needs to know how to work in this codebase: patterns, the dev workflow, and conventions. These live in `AGENTS.md`, the configured MCP servers, and the installed skills.
 
 ### Tools
 
-The agent needs to interact with infrastructure: provision resources, run migrations, pull logs, and inspect deployments. MCP servers and CLIs from the agent setup cover this. Give the agent the same tools you use.
+The agent needs to interact with infrastructure: provision resources, run migrations, pull logs, and inspect deployments. The MCP servers and CLIs available in the project cover this. Give the agent the same tools you use.
 
 ### Verification
 

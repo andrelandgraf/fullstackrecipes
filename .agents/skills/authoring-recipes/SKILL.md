@@ -24,6 +24,7 @@ Day-to-day patterns for working with an already-configured tool (e.g. `using-dri
 
 - **Assume the canonical stack. Do not hedge.** Write to the exact world the setup recipes produce. Import from the real paths (`@/lib/db/client`, `@/lib/auth/server`, `@/lib/logging/logger`, `@/components/ui/*`, etc.). Never add "if you set this up differently" caveats — that defensive framing is what dilutes a skill's value.
 - The canonical stack is defined by capability, not by cookbook name: a Postgres database via Drizzle, Better Auth sessions, structured logging, shadcn/ui components, and the test harness. A skill may assume any capability its `requires` chain provides.
+- **Never reference back to how the stack was set up.** A skill only teaches how to _do the thing_ at runtime. Do not name-drop the setup recipe ("set up by the X recipe", "configured in Y", "from the Z setup") — it adds nothing while the skill is running. The `requires` metadata already tracks the setup trail and is surfaced as a Prerequisites section, so the body never needs to.
 - Skills are **installed via the skills CLI**, not pasted as content. They persist as agent skills for ongoing work.
 
 ### Tier 3 — Cookbooks (`isCookbook: true`)

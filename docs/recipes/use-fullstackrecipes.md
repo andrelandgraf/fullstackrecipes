@@ -100,7 +100,7 @@ Recipes are updated as libraries evolve. When troubleshooting issues or starting
 Every item is one of three tiers. The tier determines what it installs and what its prose may assume.
 
 - **Tier 1 — Setup recipes (`type: "setup"`):** One-time setup for a single concern. Keep the install surface atomic, declare prerequisites in `requires`, and reference (don't re-teach) them. Standalone usability lives here.
-- **Tier 2 — Skills (`type: "skill"`, the `using-*` recipes):** Day-to-day patterns. Assume the canonical stack and do not hedge — write to the real paths the setup recipes produce (`@/lib/db/client`, `@/lib/auth/server`, `@/lib/logging/logger`, `@/components/ui/*`). The canonical stack is defined by capability (Postgres via Drizzle, Better Auth sessions, structured logging, shadcn/ui, the test harness), not by cookbook name. Skills are installed via the skills CLI.
+- **Tier 2 — Skills (`type: "skill"`, the `using-*` recipes):** Day-to-day patterns. Assume the canonical stack and do not hedge — write to the real paths the setup recipes produce (`@/lib/db/client`, `@/lib/auth/server`, `@/lib/logging/logger`, `@/components/ui/*`). The canonical stack is defined by capability (Postgres via Drizzle, Better Auth sessions, structured logging, shadcn/ui, the test harness), not by cookbook name. A skill only teaches how to _do the thing_ at runtime — never reference back to how the stack was set up (no "set up by the X recipe" name-drops); the `requires` metadata already tracks that and is surfaced as a Prerequisites section. Skills are installed via the skills CLI.
 - **Tier 3 — Cookbooks:** The canonical assembled reference — an ordered, two-phase setup artifact.
 
 ### Authoring Cookbooks
