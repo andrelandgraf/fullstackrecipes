@@ -4,7 +4,15 @@
 bun add -D prettier
 ```
 
-### Step 2: Add scripts
+### Step 2: Install Fallow
+
+Fallow is codebase intelligence for TypeScript and JavaScript. Use it to catch dead code (unused files, exports, types, dependencies), duplication, circular dependencies, complexity hotspots, and architecture drift. It is Rust-native, sub-second, and zero-config thanks to its framework plugins.
+
+```bash
+bun add -D fallow
+```
+
+### Step 3: Add scripts
 
 Add these scripts to your `package.json`:
 
@@ -12,12 +20,27 @@ Add these scripts to your `package.json`:
 {
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "fmt": "prettier --write ."
+    "fmt": "prettier --write .",
+    "fallow": "fallow"
   }
 }
 ```
 
-### Step 3: Install VSCode Extension (Optional)
+Run `bun run fallow` to analyze the whole project (dead code + duplication + health in one pass). Most projects need no configuration.
+
+### Step 4: Install the Fallow Skill
+
+Install the Fallow agent skill so your coding agent knows how to run and interpret Fallow:
+
+```bash
+bunx skills add fallow-rs/fallow-skills -s fallow -a cursor -a codex -y
+```
+
+| Skill    | Description                                                      |
+| -------- | ---------------------------------------------------------------- |
+| `fallow` | Codebase intelligence: dead code, duplication, complexity, audit |
+
+### Step 5: Install VSCode Extension (Optional)
 
 Install the Prettier VSCode extension for automatic formatting:
 
@@ -26,7 +49,7 @@ Install the Prettier VSCode extension for automatic formatting:
 
 Note: The extension may be marked as deprecated (replaced by `prettier.prettier-vscode`), however I've found that at least in Cursor `esbenp.prettier-vscode` works without issues while `prettier.prettier-vscode` has issues formatting .tsx files.
 
-### Step 4: Add .vscode Configuration (Optional)
+### Step 6: Add .vscode Configuration (Optional)
 
 Create a `.vscode` folder in your project root with the following files:
 
@@ -56,7 +79,7 @@ Enable format on save with Prettier as the default formatter:
 }
 ```
 
-### Step 5: Add .editorconfig (Optional)
+### Step 7: Add .editorconfig (Optional)
 
 Create a `.editorconfig` file in your project root. This is optional since Prettier already enforces these rules by default, but it ensures consistency when contributors use editors without setting up Prettier:
 
@@ -80,3 +103,4 @@ max_line_length = 80
 
 - [Prettier Philosophy](https://prettier.io/docs/option-philosophy)
 - [EditorConfig](https://editorconfig.org/)
+- [Fallow](https://docs.fallow.tools/)

@@ -11,6 +11,14 @@ Complete setup for automated agent-driven development. Define features as user s
 
 Complete these recipes first (in order):
 
+### Code Health, Linting & Formatting
+
+Configure Prettier for formatting, TypeScript for typechecking, and Fallow for code health (dead code, duplication, complexity, architecture drift). Skips ESLint/Biome to avoid config complexity.
+
+```bash
+curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/code-health-setup
+```
+
 ### AI Coding Agent Configuration
 
 Configure AI coding agents like Cursor, GitHub Copilot, or Claude Code with project-specific patterns, coding guidelines, and MCP servers for consistent AI-assisted development.

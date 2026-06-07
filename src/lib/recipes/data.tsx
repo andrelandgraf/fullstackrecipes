@@ -110,7 +110,7 @@ export const items: (Recipe | Cookbook)[] = [
     isCookbook: true,
     recipes: [
       "nextjs-on-vercel",
-      "code-style-setup",
+      "code-health-setup",
       "agent-setup",
       "shadcn-ui-setup",
       "assert",
@@ -140,16 +140,18 @@ export const config: VercelConfig = {
 };`,
   },
   {
-    slug: "code-style-setup",
-    title: "Editor and Linting Setup",
+    slug: "code-health-setup",
+    title: "Code Health, Linting & Formatting",
     description:
-      "Configure Prettier for code formatting and TypeScript for typechecking. Includes VSCode settings and EditorConfig for consistent code style. Skips ESLint/Biome to avoid config complexity.",
+      "Configure Prettier for formatting, TypeScript for typechecking, and Fallow for code health (dead code, duplication, complexity, architecture drift). Skips ESLint/Biome to avoid config complexity.",
     tags: ["Setup Instructions"],
     icon: Paintbrush,
-    previewCode: `{
-  "editor.formatOnSave": true,
-  "[typescript][javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    previewCode: `// Prettier + TypeScript + Fallow
+{
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "fmt": "prettier --write .",
+    "fallow": "fallow"
   }
 }`,
   },
@@ -160,6 +162,7 @@ export const config: VercelConfig = {
       "Configure AI coding agents like Cursor, GitHub Copilot, or Claude Code with project-specific patterns, coding guidelines, and MCP servers for consistent AI-assisted development.",
     tags: ["Setup Instructions"],
     icon: Bot,
+    requires: ["code-health-setup"],
     previewCode: `{
   "mcpServers": {
     "next-devtools": {
@@ -1158,6 +1161,7 @@ export function getCursorPromptDeeplink(promptText: string): string {
 export const recipeRedirects: Record<string, string> = {
   "env-config": "env-management",
   "bun-testing": "testing",
+  "code-style-setup": "code-health-setup",
 };
 
 /** Get the redirect destination for an old slug, or undefined if no redirect exists */

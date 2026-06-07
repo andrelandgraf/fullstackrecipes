@@ -13,6 +13,12 @@
       "skillPath": "skills/claimable-postgres/SKILL.md",
       "computedHash": "eaa1fd143497000a65a74263c6aedd63a060bcb1aa7077bbd5049e2d60e42cdb"
     },
+    "fallow": {
+      "source": "fallow-rs/fallow-skills",
+      "sourceType": "github",
+      "skillPath": "fallow/skills/fallow/SKILL.md",
+      "computedHash": "1629eca857064d90c37c3fecf445cc9f15feabcdfd0a841f239950259787ea9b"
+    },
     "neon-postgres": {
       "source": "neondatabase/agent-skills",
       "sourceType": "github",
