@@ -9,6 +9,22 @@ cd my-app
 
 This command uses the following recommended options: TypeScript and Tailwind CSS for type safety and utility-first styling, enables the React Compiler for automatic optimizations, skips linter configuration (can be added later if needed), organizes code inside a `src/` directory for cleaner project structure, uses the App Router, and bootstraps with Bun as the package manager.
 
+## Add Next.js & Vercel MCP Servers
+
+Add MCP (Model Context Protocol) servers so your coding agent can debug Next.js and manage Vercel. `bunx add-mcp` updates all detected agents automatically; if none are detected, add `-a cursor -a codex`.
+
+```bash
+bunx add-mcp https://mcp.vercel.com
+bunx add-mcp next-devtools-mcp@latest
+```
+
+| Server          | Description                                                      |
+| --------------- | ---------------------------------------------------------------- |
+| `vercel`        | Manage Vercel projects, deployments, and search Vercel docs      |
+| `next-devtools` | Next.js development tools for debugging, routing, and build info |
+
+> **Vercel MCP:** On first connection, Cursor will show a "Needs login" prompt. Click it to authorize access to your Vercel account. For project-specific context, use `https://mcp.vercel.com/<teamSlug>/<projectSlug>` instead.
+
 ## Setup Vercel Configuration
 
 Install the Vercel config package to programatically configure the Vercel project:
