@@ -30,6 +30,7 @@ Create an `AGENTS.md` file in your project root. This file provides coding guide
 - No type.ts files, just inline types or co-locate them with their related code
 - Don't unnecessarily add `try`/`catch`
 - Don't cast to `any`
+- Avoid `enum` and other TypeScript features that fail type stripping (e.g. namespaces, parameter properties); prefer `as const` objects/unions instead
 
 ## React
 
