@@ -38,7 +38,22 @@ input prompt
   -> iterate
 ```
 
-A wide, generic prompt is the input. The agent's own harness manages the todo list, so there is no separate user-story file to author or check off. The durable record of intent lives in the artifacts the agent produces: tests (executable acceptance criteria), user-facing docs, and a changelog for publishable libraries.
+Give your agent a wide, outcome-focused prompt. The agent's own harness manages the todo list, so there is no separate user-story file to author or check off. The durable record of intent lives in the artifacts the agent produces: tests (executable acceptance criteria), user-facing docs, and a changelog for publishable libraries.
+
+If no prompt is given, STOP and ask the user: "What outcome do you want the Ralph loop to drive toward? Give me a wide, outcome-focused prompt and I'll break it into tasks." Wait for their answer before continuing.
+
+The agent runs the preflight check once. If anything is missing or unauthenticated, it reports the exact fix commands and STOPS — the loop does not start until everything is green. Once preflight passes, each iteration:
+
+1. Reads the current state of the codebase and any prior progress.
+2. Breaks the remaining work into tasks using first-principles thinking.
+3. Picks the highest-priority task.
+4. Implements it through the dev workflow: write tests, build, generate and migrate DB schema if needed, format.
+5. Verifies: typecheck, build, tests, and browser interaction at `http://localhost:3000`.
+6. Debugs and fixes until verification passes.
+7. Updates user-facing docs and the changelog for any published artifacts.
+8. Commits with a descriptive message and moves to the next task.
+
+The dev server should be running (`bun run dev`). The agent works against a test database, so it can migrate freely. The loop ends when no tasks remain and all verification passes.
 
 ---
 
@@ -67,38 +82,6 @@ If verification is trustworthy and self-serve, the agent can catch and fix its o
 
 ---
 
-## As a Slash Command
-
-Run the loop as a `/ralph` slash command. Invoking it with no argument prompts you for the wide prompt, then runs the preflight check before any work begins.
-
-Create `.cursor/commands/ralph.md` (or your agent's equivalent command directory):
-
-```markdown
----
-description: Run the autonomous Ralph loop with a preflight infra check
-argument-hint: [wide outcome-focused prompt]
----
-
-The user's prompt is: $ARGUMENTS
-
-If the prompt above is empty, STOP and ask the user:
-"What outcome do you want the Ralph loop to drive toward? Give me a wide,
-outcome-focused prompt and I'll break it into tasks."
-Wait for their answer before continuing.
-
-Then follow the **Working with the Ralph Loop** recipe:
-
-1. Run the Preflight Check. If anything is missing or unauthenticated, report
-   it with the exact fix commands and STOP. Do not start the loop until the
-   user confirms everything is green.
-2. Once preflight passes, run the loop until no tasks remain and all
-   verification passes.
-```
-
-Claude Code and other agents use `.claude/commands/` or `commands/`; mirror the same file there. The body is plain instructions, so it ports across agents unchanged.
-
----
-
 ## Preflight Check
 
 Before the first iteration, the agent confirms it actually has everything it needs. This avoids burning iterations only to discover halfway through that it can't reach the database or deploy.
@@ -118,12 +101,11 @@ agent-browser -v
 # Vercel: installed + linked + authenticated
 vercel --version && vercel whoami && vercel project ls
 
-# Neon: CLI authenticated, and the DB is reachable
-neonctl me && psql "$DATABASE_URL" -c "select 1"
+# Neon: CLI authenticated
+neonctl me
 
 # Resend / Sentry / Stripe: token present and valid
-test -n "$RESEND_API_KEY" && echo "resend token set"
-test -n "$SENTRY_AUTH_TOKEN" && sentry-cli info
+sentry-cli info
 
 # GitHub CLI (for PRs, logs)
 gh auth status
@@ -151,25 +133,6 @@ Preflight check
 For anything that needs interactive OAuth (Vercel, Neon, GitHub), the agent gives you the exact command to run yourself — it does not try to complete a browser login on your behalf. For anything fixable non-interactively (pulling env vars, setting a token), it offers to run the command for you.
 
 Only once every item is green does the loop start. At that point the agent knows it can build, migrate, test, deploy, and read logs without getting stuck on a missing credential.
-
----
-
-## Running the Loop
-
-Give your agent a wide prompt. It runs the preflight check once, then works through the loop. Each iteration:
-
-1. Reads the current state of the codebase and any prior progress.
-2. Breaks the remaining work into tasks using first-principles thinking.
-3. Picks the highest-priority task.
-4. Implements it through the dev workflow: write tests, build, generate and migrate DB schema if needed, format.
-5. Verifies: typecheck, build, tests, and browser interaction at `http://localhost:3000`.
-6. Debugs and fixes until verification passes.
-7. Updates user-facing docs and the changelog for any published artifacts.
-8. Commits with a descriptive message and moves to the next task.
-
-The dev server should be running (`bun run dev`). The agent works against a test database, so it can migrate freely.
-
-The loop ends when no tasks remain and all verification passes.
 
 ---
 
