@@ -6,7 +6,7 @@ Use `better-env/config-schema` for typed environment configuration instead of ma
 
 ```bash
 bun add better-env
-bunx skills add neondatabase/better-env -a cursor -a codex -y
+bunx skills add neon-solutions/better-env -a cursor -a codex -y
 ```
 
 ### Define feature-level config modules

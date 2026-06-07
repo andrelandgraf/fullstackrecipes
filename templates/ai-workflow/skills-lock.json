@@ -2,7 +2,7 @@
   "version": 1,
   "skills": {
     "better-env": {
-      "source": "neondatabase/better-env",
+      "source": "neon-solutions/better-env",
       "sourceType": "github",
       "computedHash": "b82c5a3527e61165f06acdad2b71e049b58ecb0e5d0ed1e0026e5e05f8f1d125"
     }

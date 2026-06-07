@@ -113,7 +113,7 @@ bunx skills add vercel/ai -s ai-sdk -a cursor -a codex -y
 bunx skills add vercel/ai-elements --skill ai-elements -a cursor -a codex -y
 bunx skills add andrelandgraf/fullstackrecipes/skills -a cursor -a codex -y
 bunx skills add neondatabase/agent-skills -s neon-postgres -s neon-postgres-branches -s neon-postgres-egress-optimizer -a cursor -a codex -y
-bunx skills add neondatabase/better-env -a cursor -a codex -y
+bunx skills add neon-solutions/better-env -a cursor -a codex -y
 ```
 
 | Skill                         | Description                                        |
