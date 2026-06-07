@@ -1,9 +1,9 @@
-### Step 1: Create an agents.md file
+### Step 1: Create an AGENTS.md file
 
-Create an `agents.md` file in your project root. This file provides coding guidelines and patterns for AI assistants to follow.
+Create an `AGENTS.md` file in your project root. This file provides coding guidelines and patterns for AI assistants to follow.
 
 ```markdown
-// agents.md
+// AGENTS.md
 
 # Patterns
 
@@ -61,9 +61,17 @@ Core workflow:
 4. Re-snapshot after page changes
 ```
 
-> This `agents.md` file is based on [Lee Robinson's](https://x.com/leerob) original [shared here](https://x.com/leerob/status/1993162978410004777).
+> This `AGENTS.md` file is based on [Lee Robinson's](https://x.com/leerob) original [shared here](https://x.com/leerob/status/1993162978410004777).
 
-### Step 2: Add MCP Servers
+### Step 2: Symlink CLAUDE.md to AGENTS.md
+
+Claude Code reads its instructions from `CLAUDE.md`. Create a symlink so it picks up the same guidelines from `AGENTS.md`, keeping a single source of truth:
+
+```bash
+ln -s AGENTS.md CLAUDE.md
+```
+
+### Step 3: Add MCP Servers
 
 Use MCP (Model Context Protocol) servers to enhance your coding agent's capabilities. Add servers with `bunx add-mcp <mcp url> -y` — it updates all detected agents automatically, so no per-agent config files are required.
 
@@ -85,7 +93,7 @@ bunx add-mcp https://fullstackrecipes.com/api/mcp
 
 > **Vercel MCP:** On first connection, Cursor will show a "Needs login" prompt. Click it to authorize access to your Vercel account. For project-specific context, use `https://mcp.vercel.com/<teamSlug>/<projectSlug>` instead.
 
-### Step 3: Install Browser Automation
+### Step 4: Install Browser Automation
 
 Install the `agent-browser` package globally for web automation:
 
@@ -94,7 +102,7 @@ bun install -g agent-browser
 agent-browser install  # Download Chromium
 ```
 
-### Step 4: Install Agent Skills
+### Step 5: Install Agent Skills
 
 Install skills for AI agents:
 
