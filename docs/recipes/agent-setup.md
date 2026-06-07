@@ -100,7 +100,7 @@ Install the `agent-browser` package globally for web automation:
 
 ```bash
 bun install -g agent-browser
-agent-browser install  # Download Chromium
+agent-browser install  # Download Chrome (first time only)
 ```
 
 ### Step 5: Install Agent Skills
