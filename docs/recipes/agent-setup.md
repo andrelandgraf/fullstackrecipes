@@ -116,13 +116,15 @@ bunx skills add vercel-labs/agent-browser -s agent-browser -a cursor -a codex -y
 bunx skills add vercel/ai -s ai-sdk -a cursor -a codex -y
 bunx skills add vercel/ai-elements --skill ai-elements -a cursor -a codex -y
 bunx skills add andrelandgraf/fullstackrecipes/skills -a cursor -a codex -y
-bunx skills add neondatabase/agent-skills -a cursor -a codex -y
+bunx skills add neondatabase/agent-skills -s neon-postgres -s neon-postgres-branches -s neon-postgres-egress-optimizer -a cursor -a codex -y
 bunx skills add neondatabase/better-env -a cursor -a codex -y
 ```
 
 | Skill                         | Description                                        |
 | ----------------------------- | -------------------------------------------------- |
 | `neon-postgres`               | Neon Postgres setup and operational guidance       |
+| `neon-postgres-branches`      | Create and manage Neon Postgres branches           |
+| `neon-postgres-egress-optimizer` | Optimize Neon Postgres egress and data transfer |
 | `better-env`                  | better-env setup, sync, and validation workflows   |
 | `agent-browser`               | Browser automation for web testing and interaction |
 | `web-design-guidelines`       | Web design best practices for UI/UX                |
