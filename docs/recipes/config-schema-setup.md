@@ -4,16 +4,12 @@ Use `better-env/config-schema` for typed environment configuration instead of ma
 
 ### Install better-env
 
+Install the package and the `better-env` agent skill, which teaches your coding agent better-env setup, sync, and validation workflows. The skill install updates all detected agents; if none are detected, add `-a cursor -a codex`.
+
 ```bash
 bun add better-env
 bunx skills add neon-solutions/better-env -a cursor -a codex -y
 ```
-
-The skill install updates all detected agents; if none are detected, add `-a cursor -a codex`.
-
-| Skill        | Description                                      |
-| ------------ | ------------------------------------------------ |
-| `better-env` | better-env setup, sync, and validation workflows |
 
 ### Define feature-level config modules
 

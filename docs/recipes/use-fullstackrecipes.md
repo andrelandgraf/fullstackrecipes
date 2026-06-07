@@ -28,15 +28,11 @@ This updates all detected agents automatically. If no agents are detected, add `
 
 ### Install the fullstackrecipes Skill
 
-Install the fullstackrecipes agent skill so your coding agent knows how to discover and follow recipes:
+Install the `fullstackrecipes` agent skill so your coding agent knows how to discover and follow recipes (setup guides and workflows):
 
 ```bash
 bunx skills add andrelandgraf/fullstackrecipes/skills -a cursor -a codex -y
 ```
-
-| Skill              | Description                                 |
-| ------------------ | ------------------------------------------- |
-| `fullstackrecipes` | Fullstackrecipes setup guides and workflows |
 
 ### List All Resources
 

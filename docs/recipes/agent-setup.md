@@ -50,16 +50,21 @@ Create an `AGENTS.md` file in your project root. This file provides coding guide
 - next/image above the fold should have `sync` / `eager` / use `priority` sparingly
 - Be mindful of serialized prop size for RSC → child components
 
-## Browser Automation
+# Dev Workflow
 
-Use `agent-browser` for web automation. Run `agent-browser --help` for all commands.
+Follow these steps for every feature. Do not skip verification steps. Repeat the full verification flow for every additional code change.
 
-Core workflow:
-
-1. `agent-browser open <url>` - Navigate to page
-2. `agent-browser snapshot -i` - Get interactive elements with refs (@e1, @e2)
-3. `agent-browser click @e1` / `fill @e2 "text"` - Interact using refs
-4. Re-snapshot after page changes
+1. Start on the latest `main` unless instructed otherwise (`git checkout main && git pull`).
+2. Create a new feature branch.
+3. Make the changes.
+4. Run `bun run typecheck` and `bun run fmt`. Fix all type errors before moving on.
+5. Verify code health with `bun run fallow`. Fix every issue (dead code, duplication, complexity, etc.) or add a `fallow-ignore` suppression if you judge the warning a false positive. Verify the codebase is clean before moving on.
+6. Verify the changes with `agent-browser`. Address all UI/UX concerns before moving on. Confirm everything looks great and works.
+7. Commit and push to the remote.
+8. Check deployment logs. Fix any issues and redeploy via follow-up commits if anything breaks.
+9. Check production with `agent-browser` to verify the changes shipped and look good in production too. Debug any issues via app logs and fix with follow-up commits.
+10. For every additional code change, go through all verification steps again.
+11. Once production looks good, report all changes.
 ```
 
 > This `AGENTS.md` file is based on [Lee Robinson's](https://x.com/leerob) original [shared here](https://x.com/leerob/status/1993162978410004777).
@@ -78,13 +83,11 @@ Use MCP (Model Context Protocol) servers to enhance your coding agent's capabili
 
 If no agents are detected, add `-a cursor -a codex` to the command or prompt the user to specify what agents they want to use for this project.
 
+Add the `context7` MCP server for up-to-date documentation lookup for any library:
+
 ```bash
 bunx add-mcp https://mcp.context7.com/mcp
 ```
-
-| Server     | Description                                     |
-| ---------- | ----------------------------------------------- |
-| `context7` | Up-to-date documentation lookup for any library |
 
 ### Step 4: Install Browser Automation
 

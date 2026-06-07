@@ -30,15 +30,11 @@ Run `bun run fallow` to analyze the whole project (dead code + duplication + hea
 
 ### Step 4: Install the Fallow Skill
 
-Install the Fallow agent skill so your coding agent knows how to run and interpret Fallow:
+Install the `fallow` agent skill so your coding agent knows how to run and interpret Fallow's codebase intelligence (dead code, duplication, complexity, audit):
 
 ```bash
 bunx skills add fallow-rs/fallow-skills -s fallow -a cursor -a codex -y
 ```
-
-| Skill    | Description                                                      |
-| -------- | ---------------------------------------------------------------- |
-| `fallow` | Codebase intelligence: dead code, duplication, complexity, audit |
 
 ### Step 5: Install VSCode Extension (Optional)
 
