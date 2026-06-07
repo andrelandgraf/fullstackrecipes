@@ -37,7 +37,14 @@ Learn more:
 
 Use runtime configuration to keep local dotenv targets aligned with provider environments while preserving safe defaults.
 
-Create `better-env.ts` with `defineBetterEnv(...)` and an adapter (`vercelAdapter`, `netlifyAdapter`, `railwayAdapter`, or `cloudflareAdapter`), then define environment mappings, env-file targets, and gitignore behavior.
+Create `better-env.ts` with `defineBetterEnv(...)` and an adapter (`vercelAdapter`, `netlifyAdapter`, `railwayAdapter`, or `cloudflareAdapter`).
+
+For a standard Vercel setup, prefer the minimal config:
+
+`export default defineBetterEnv({ adapter: vercelAdapter() });`
+
+Do not add an `environments` block when it only duplicates adapter defaults.
+Add `environments` only when you intentionally need custom mappings, custom env files, or per-environment `ignoreUnused` behavior.
 
 Learn more:
 
@@ -47,6 +54,12 @@ Learn more:
 ## Use the CLI for day-to-day environment operations
 
 The CLI gives a consistent workflow for initialization, sync, validation, and remote variable management, which is great for local development and CI automation.
+
+Choose the command runner to match the repo:
+
+- Use `npx` in npm/pnpm-based repos (for example lockfiles like `package-lock.json` or `pnpm-lock.yaml` and scripts run via `npm`/`pnpm`).
+- Use `bunx` in Bun-based repos (for example `bun.lock` and scripts run via `bun`).
+- Keep commands aligned with the project's existing package manager/runtime conventions; do not mix runners unless the repo already does.
 
 Recommended flow in a repo:
 
