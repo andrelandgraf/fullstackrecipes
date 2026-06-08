@@ -32,7 +32,7 @@ export default async function SettingsPage() {
       <header className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold text-lg">
-            My App
+            Fullstack Recipe
           </Link>
           <div className="flex items-center gap-2">
             <ThemeSelector />
