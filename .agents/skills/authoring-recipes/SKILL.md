@@ -1,15 +1,26 @@
 ---
 name: authoring-recipes
-description: Guidelines for writing fullstackrecipes recipes and cookbooks. Use when creating or editing recipe content, including installable utilities with the registry tag. For maintainers authoring recipes, not developers consuming them.
+description: Guidelines for authoring fullstackrecipes content - setup recipes, exposed skills (in ./skills/), cookbooks, templates, and installable registry utilities. Use when creating or editing any catalog content. For maintainers building the fullstackrecipes project, not developers consuming the stack.
 ---
 
 # Authoring Recipes
 
-Guidelines for writing fullstackrecipes recipes and cookbooks. This skill is for maintainers writing recipes, not for developers consuming the stack (see `use-fullstackrecipes` for that).
+Guidelines for writing fullstackrecipes content. This skill is for maintainers building out the fullstackrecipes project itself, not for developers consuming the stack (see `use-fullstackrecipes` for that).
+
+fullstackrecipes is a site that helps developers and agents build better full stack apps by shipping an opinionated stack with setup instructions, best practices, and ready-to-clone starting points. It exposes four kinds of resources: **setup recipes**, **skills**, **cookbooks**, and **templates**.
+
+## Two Skill Directories — Don't Confuse Them
+
+This repo contains two separate `skills/` trees. They serve opposite audiences:
+
+- **`./skills/`** — the skills this repo **exposes/ships** to consumers. These are the day-to-day, agent-facing workflow guides (`drizzle-queries`, `authentication-best-practices`, `workflow-best-practices`, etc.) that the website and MCP server read and that consumers install via `bunx skills add`. When this skill says "a skill," it means one of these.
+- **`./.agents/skills/`** — the skills used **internally by this workspace** to build the fullstackrecipes project. This very `authoring-recipes` skill lives here. These are not exposed to consumers and are not part of the resource catalog.
+
+When authoring or editing an exposed skill, you edit it under `./skills/<slug>/SKILL.md`. Never put consumer-facing skill content in `.agents/skills/`.
 
 ## Recipe Tiers
 
-Every item is one of three tiers. The tier determines what it installs and what its prose may assume.
+Every catalog item is one of three tiers, plus an optional template attached to a cookbook. The tier determines what it installs and what its prose may assume. The single source of truth for the catalog (slugs, titles, descriptions, tags, `requires`, and template links) is `src/lib/recipes/data.tsx`.
 
 ### Tier 1 — Setup recipes (`type: "setup"`)
 
@@ -20,10 +31,12 @@ One-time setup that installs files, dependencies, and config for a single concer
 
 ### Tier 2 — Skills (`type: "skill"`)
 
-Day-to-day, agent-facing workflow guides for an already-configured tool (e.g. `drizzle-queries`, `authentication-best-practices`).
+Day-to-day, agent-facing workflow guides for an already-configured tool (e.g. `drizzle-queries`, `authentication-best-practices`). These are the skills this repo exposes; they live under `./skills/` (not `.agents/skills/` — see above).
 
-- **Skills are authored, not recipe docs.** The source of truth is the hand-authored `skills/<slug>/SKILL.md` (YAML frontmatter + body). The website/MCP read their body directly from that file, so edits ship as soon as they land — there is no build step. They have no `docs/recipes/<slug>.md`.
-- **Name skills for what they teach, not the tool they wrap.** Use a descriptive slug and title (`drizzle-queries`, `testing-best-practices`, `ralph-loop-workflow`), not a `using-*` prefix. The `name:` frontmatter and the slug (folder name) must match, and the `# Title` H1 must match the `title` in `src/lib/recipes/data.tsx`.
+- **Skills are authored, not recipe docs.** The source of truth is the hand-authored `./skills/<slug>/SKILL.md` (YAML frontmatter + body). The website/MCP read their body directly from that file, so edits ship as soon as they land — there is no build step. They have no `docs/recipes/<slug>.md`.
+- **Lead with `### ` body sections.** The loader (`src/lib/recipes/loader.ts`) strips the YAML frontmatter and everything up to the first `### ` heading, then re-derives the `# Title`, description, and a `## Prerequisites` list from `data.tsx` metadata. So the authored file leads with `# Title` + description + prereqs for standalone reading, but the shipped body starts at the first `### ` section. Use `### ` for your top-level body sections.
+- **Name skills for what they teach, not the tool they wrap.** Use a descriptive slug and title (`drizzle-queries`, `testing-best-practices`, `ralph-loop-workflow`), not a `using-*` prefix. The `name:` frontmatter and the slug (folder name) must match, and the `# Title` H1 must match the `title` in `src/lib/recipes/data.tsx`. When renaming a slug, add the old slug to `recipeRedirects` in `data.tsx`.
+- **The `type` is derived from the `Skills` tag.** An item becomes a skill (`type: "skill"`) when its `tags` include `"Skills"` in `data.tsx`; everything else is a setup recipe. There is no separate `type` field to set.
 - **Write for an agent, not a human tutorial.** Lead with the pattern and the code; skip hand-holding prose, "step 1/2/3" walkthroughs, and motivation paragraphs the agent already understands. Imperative, concise, example-first.
 - **Assume the canonical stack. Do not hedge.** Write to the exact world the setup recipes produce. Import from the real paths (`@/lib/db/client`, `@/lib/auth/server`, `@/lib/logging/logger`, `@/components/ui/*`, etc.). Never add "if you set this up differently" caveats — that defensive framing is what dilutes a skill's value.
 - The canonical stack is defined by capability, not by cookbook name: a Postgres database via Drizzle, Better Auth sessions, structured logging, shadcn/ui components, and the test harness. A skill may assume any capability its `requires` chain provides.
@@ -55,6 +68,21 @@ When a cookbook is assembled, the loader branches on `type`:
 - **Skill recipes** render as a compact section: `## <title>` + motivation (the description) + the `bunx skills add ... -s <slug>` command. Their content is **not** inlined — the cookbook installs them as skills.
 
 So you do not duplicate skill content into a cookbook. Just include the skill slug in `recipes` in the right position; the install section is generated from its metadata.
+
+## Templates
+
+Templates are clone-and-go starting points that ship the fully-assembled output of a cookbook, so a consumer can begin from working code instead of running every setup step by hand. They are not a separate catalog tier — a template is **attached to a cookbook** via two fields in `data.tsx`:
+
+- `template` — the git clone path, built from `TEMPLATE_BASE` (e.g. `` `${TEMPLATE_BASE}/base-app#main` ``).
+- `githubUrl` — the GitHub URL for browsing the template source, built from `GITHUB_TEMPLATE_BASE`.
+
+The template source lives under `templates/<name>/` at the repo root and is a real, runnable project. A cookbook that surfaces a clonable starter also carries the `"Starter template"` tag (see `getStarterTemplates`); `base-app`, `auth`, `stripe-sync`, and `ai-workflow` are the current ones.
+
+Authoring rules:
+
+- **Keep the template in sync with its cookbook.** A template must reflect the exact output of running its cookbook's recipes in order. When you change a setup recipe, update the matching template directory too, or the clone-and-go path drifts from the documented one.
+- **Templates are the assembled stack, not docs.** Don't add tutorial prose or recipe markdown into a template — it ships as a working app (with its own `agents.md`, `.agents/skills/`, etc.), and the prose lives in the recipes/cookbook.
+- **Point at templates from the cookbook, don't duplicate them.** Only set `template` / `githubUrl` on the cookbook; the website renders the clone command from that metadata.
 
 ## Installable Utilities
 
