@@ -4,10 +4,8 @@ import { useState } from "react";
 import { Copy, Check, Terminal, ArrowRight, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WizardTrigger } from "@/components/wizard/wizard-trigger";
-import { CommandBox } from "@/components/recipes/fetch-markdown-steps";
+import { TemplateCta } from "@/components/home/template-cta";
 import { getSkillsInstallCommand } from "@/lib/recipes/data";
-
-const FETCH_INDEX_COMMAND = "curl https://fullstackrecipes.com/llms.txt";
 
 export function InstallSection() {
   const [copied, setCopied] = useState(false);
@@ -51,15 +49,18 @@ export function InstallSection() {
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-border/50" />
         <span className="text-xs text-muted-foreground">
-          or install all recipes and skills
+          or start with the template &amp; skills
         </span>
         <div className="h-px flex-1 bg-border/50" />
       </div>
 
+      {/* Start with the template */}
+      <TemplateCta />
+
       {/* Skills Section */}
       <div className="rounded-xl border border-border/60 bg-secondary/20 p-6 text-left backdrop-blur-sm">
         <div className="mb-4 flex items-start gap-3">
-          <h3 className="text-sm font-medium">Add all skills to your agent</h3>
+          <h3 className="text-sm font-medium">Add skills to your agent</h3>
         </div>
 
         <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-background px-3 py-2.5">
@@ -80,16 +81,6 @@ export function InstallSection() {
             )}
           </Button>
         </div>
-      </div>
-
-      {/* Fetch Markdown Section */}
-      <div className="rounded-xl border border-border/60 bg-secondary/20 p-6 text-left backdrop-blur-sm">
-        <h3 className="mb-1 text-sm font-medium">Fetch recipes as Markdown</h3>
-        <p className="mb-4 text-xs text-muted-foreground">
-          Append <code className="font-mono">.md</code> to any URL. Start with
-          the index, then fetch any recipe.
-        </p>
-        <CommandBox command={FETCH_INDEX_COMMAND} />
       </div>
     </div>
   );

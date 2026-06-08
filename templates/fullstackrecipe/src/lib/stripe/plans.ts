@@ -15,7 +15,9 @@ const plans: Plan[] = [
   },
   {
     id: "PRO",
-    priceId: stripeConfig.isEnabled ? stripeConfig.server.proPriceId : undefined,
+    priceId: stripeConfig.isEnabled
+      ? stripeConfig.server.proPriceId
+      : undefined,
     chatLimit: 1000,
   },
 ];

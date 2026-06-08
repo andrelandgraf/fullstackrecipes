@@ -44,6 +44,28 @@ export const TEMPLATE_BASE = "andrelandgraf/fullstackrecipes/templates";
 export const GITHUB_TEMPLATE_BASE =
   "https://github.com/andrelandgraf/fullstackrecipes/tree/main/templates";
 
+/**
+ * The fullstackrecipe template — a single starter that bundles every setup
+ * recipe (auth, AI chat, durable workflows, Stripe, observability, testing,
+ * and more). Hosted as a subdirectory of this monorepo.
+ */
+export const fullstackTemplate = {
+  /** Live demo deployment */
+  liveUrl: "https://fullstackrecipe.vercel.app",
+  /** tiged source for `npx tiged <source> my-app` (clones the subdirectory) */
+  tigedSource: `${TEMPLATE_BASE}/fullstackrecipe#main`,
+  /** GitHub source for browsing the template files */
+  githubUrl: `${GITHUB_TEMPLATE_BASE}/fullstackrecipe`,
+  /** One-click Vercel clone+deploy (monorepo subdirectory) */
+  deployUrl:
+    "https://vercel.com/new/clone?repository-url=" +
+    encodeURIComponent(
+      "https://github.com/andrelandgraf/fullstackrecipes/tree/main/templates/fullstackrecipe",
+    ) +
+    "&root-directory=templates%2Ffullstackrecipe" +
+    "&project-name=fullstackrecipe&repository-name=fullstackrecipe",
+} as const;
+
 /** Base path for skills repository */
 export const SKILLS_REPO = "andrelandgraf/fullstackrecipes/skills";
 
@@ -96,10 +118,6 @@ export type Cookbook = Recipe & {
   isCookbook: true;
   /** Ordered list of recipe slugs included in this cookbook */
   recipes: string[];
-  /** Git path for cloning the template (e.g., "andrelandgraf/fullstackrecipes/templates/base-app#main") */
-  template?: string;
-  /** GitHub URL for viewing the template source code */
-  githubUrl?: string;
 };
 
 // All items ordered by setup requirements/prerequisites
@@ -139,8 +157,6 @@ curl https://fullstackrecipes.com/recipes/neon-drizzle-setup.md`,
       "ai-sdk-setup",
       "drizzle-queries",
     ],
-    template: `${TEMPLATE_BASE}/base-app#main`,
-    githubUrl: `${GITHUB_TEMPLATE_BASE}/base-app`,
     previewCode: `bunx create-next-app@latest my-app
 
 bunx shadcn@latest init --base radix`,
@@ -765,8 +781,6 @@ await signIn.email({ email, password, callbackURL });`,
       "authentication-best-practices",
     ],
     requires: ["neon-drizzle-setup", "shadcn-ui-setup"],
-    template: `${TEMPLATE_BASE}/auth#main`,
-    githubUrl: `${GITHUB_TEMPLATE_BASE}/auth`,
     previewCode: `// Protected route pattern
 const session = await auth.api.getSession({
   headers: await headers(),
@@ -908,8 +922,6 @@ const [renameId, setRenameId] = useQueryState("rename");
     isCookbook: true,
     recipes: ["feature-flags-setup", "stripe-sync"],
     requires: ["neon-drizzle-setup", "pino-logging-setup"],
-    template: `${TEMPLATE_BASE}/stripe-sync#main`,
-    githubUrl: `${GITHUB_TEMPLATE_BASE}/stripe-sync`,
     previewCode: `// Feature flag for plan gating
 export const stripeFlag = flag({
   key: "stripe-enabled",
@@ -1039,8 +1051,6 @@ const { text } = await generateText({ prompt });`,
       "workflow-best-practices",
     ],
     requires: ["ai-chat-persistence", "pino-logging-setup"],
-    template: `${TEMPLATE_BASE}/ai-workflow#main`,
-    githubUrl: `${GITHUB_TEMPLATE_BASE}/ai-workflow`,
     previewCode: `export async function chatWorkflow({ chatId, userMessage }) {
   "use workflow";
   const { workflowRunId } = getWorkflowMetadata();

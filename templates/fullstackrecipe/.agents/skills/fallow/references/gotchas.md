@@ -635,7 +635,6 @@ The official GitLab CI template automatically sets `--changed-since origin/$CI_M
 # UNNECESSARY: changed-since is auto-detected in MR pipelines
 variables:
   FALLOW_CHANGED_SINCE: "origin/main"
-
 # CORRECT: let the template auto-detect
 # (no FALLOW_CHANGED_SINCE needed — it reads the MR target branch)
 ```

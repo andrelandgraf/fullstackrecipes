@@ -1,0 +1,3 @@
+# The fullstackrecipe template is a self-contained app with its own
+# prettier/fallow tooling. Format it from inside templates/fullstackrecipe.
+templates/

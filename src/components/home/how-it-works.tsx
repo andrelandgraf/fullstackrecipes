@@ -14,7 +14,6 @@ import {
   BookOpen,
   Plus,
   X,
-  FolderGit2,
   Terminal,
 } from "lucide-react";
 import {
@@ -33,7 +32,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useSelection } from "@/lib/recipes/selection-context";
-import { TemplateCloneContent } from "@/components/recipes/template-clone-content";
 
 // Simple inline code highlighting for previews (no container/header)
 function InlineHighlightedCode({
@@ -79,22 +77,6 @@ function HowItWorksInner() {
     deliveryTab,
     setDeliveryTab,
   } = useSelection();
-
-  // Check if single cookbook with template is selected
-  const singleCookbookTemplate = useMemo(() => {
-    const selectedCookbooks = selectedItems.filter(isCookbook);
-    if (
-      selectedCookbooks.length === 1 &&
-      selectedCookbooks[0].template &&
-      selectedCookbooks[0].githubUrl
-    ) {
-      return {
-        template: selectedCookbooks[0].template,
-        githubUrl: selectedCookbooks[0].githubUrl,
-      };
-    }
-    return null;
-  }, [selectedItems]);
 
   const [recipeContents, setRecipeContents] = useState<
     Record<string, string | null>
@@ -334,12 +316,6 @@ function HowItWorksInner() {
                   <span className="hidden sm:inline">Fetch & Skills</span>
                   <span className="sm:hidden">Fetch</span>
                 </TabsTrigger>
-                {singleCookbookTemplate && (
-                  <TabsTrigger value="template">
-                    <FolderGit2 className="h-4 w-4" />
-                    <span>Template</span>
-                  </TabsTrigger>
-                )}
               </TabsList>
 
               {/* Copy Markdown Tab */}
@@ -483,22 +459,6 @@ function HowItWorksInner() {
                   />
                 </Card>
               </TabsContent>
-
-              {/* Template Tab */}
-              {singleCookbookTemplate && (
-                <TabsContent value="template">
-                  <Card className="rounded-t-none border-t-0 border-border/50 p-6">
-                    <p className="mb-4 text-sm text-muted-foreground">
-                      Get started instantly by cloning this cookbook as a
-                      template.
-                    </p>
-                    <TemplateCloneContent
-                      template={singleCookbookTemplate.template}
-                      githubUrl={singleCookbookTemplate.githubUrl}
-                    />
-                  </Card>
-                </TabsContent>
-              )}
             </Tabs>
           </div>
         </div>
