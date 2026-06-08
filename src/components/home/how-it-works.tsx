@@ -7,11 +7,10 @@ import { Button } from "@/components/ui/button";
 import {
   Copy,
   Check,
-  Server,
+  Bot,
   FileCode,
   FileText,
   ArrowRight,
-  Bot,
   BookOpen,
   Plus,
   X,
@@ -25,12 +24,11 @@ import {
   type Cookbook,
 } from "@/lib/recipes/data";
 import type { BundledLanguage } from "shiki";
+import { useHighlightedCode } from "@/components/code/use-highlighted-code";
 import {
-  useHighlightedCode,
-  McpSetupSteps,
-  McpConfigSection,
-  MCP_INSTALL_FULLSTACKRECIPES_COMMAND,
-} from "@/components/mcp/config";
+  FetchMarkdownSteps,
+  CommandBox,
+} from "@/components/recipes/fetch-markdown-steps";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -75,6 +73,7 @@ function HowItWorksInner() {
     selectedItems,
     allContentSlugs,
     skillSlugs,
+    markdownCurlCommand,
     promptText,
     removeItem,
     deliveryTab,
@@ -198,8 +197,9 @@ function HowItWorksInner() {
           <p className="text-muted-foreground">
             <i>
               Follow recipes step by step—or let's be real, paste the markdown
-              into your coding agent. Even better: use our MCP server or Claude
-              Code plugins to access recipes directly.
+              into your coding agent. Even better: have your agent fetch recipes
+              directly by appending <code className="font-mono">.md</code> to
+              any URL.
             </i>
           </p>
         </div>
@@ -330,9 +330,9 @@ function HowItWorksInner() {
                   <span>Markdown</span>
                 </TabsTrigger>
                 <TabsTrigger value="mcp">
-                  <Server className="h-4 w-4" />
-                  <span className="hidden sm:inline">MCP & Skills</span>
-                  <span className="sm:hidden">MCP</span>
+                  <Terminal className="h-4 w-4" />
+                  <span className="hidden sm:inline">Fetch & Skills</span>
+                  <span className="sm:hidden">Fetch</span>
                 </TabsTrigger>
                 {singleCookbookTemplate && (
                   <TabsTrigger value="template">
@@ -417,57 +417,69 @@ function HowItWorksInner() {
                 </Card>
               </TabsContent>
 
-              {/* MCP & Skills Tab */}
+              {/* Fetch & Skills Tab */}
               <TabsContent value="mcp">
                 <Card className="rounded-t-none border-t-0 border-border/50 p-6">
-                  <McpSetupSteps
-                    promptText={promptText}
-                    copiedPrompt={copiedState === "prompt"}
-                    onCopyPrompt={() => copyToClipboard(promptText, "prompt")}
-                    step1Title="Install selected skills"
-                    step1Description={
-                      skillSlugs.length > 0
-                        ? `Add the ${skillSlugs.length} day-to-day ${
-                            skillSlugs.length === 1 ? "skill" : "skills"
-                          } from your selection to your agent`
-                        : "Select a guide with day-to-day skills to generate the command"
-                    }
-                    step1Content={
-                      skillSlugs.length > 0 ? (
-                        <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-secondary/30 px-3 py-2.5">
-                          <Terminal className="h-4 w-4 shrink-0 text-muted-foreground" />
-                          <code className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-xs text-foreground/90 sm:text-sm">
-                            {skillsCommand}
-                          </code>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              copyToClipboard(skillsCommand, "skills")
-                            }
-                            className="h-7 w-7 shrink-0 p-0"
-                          >
-                            {copiedState === "skills" ? (
-                              <Check className="h-3.5 w-3.5 text-green-500" />
-                            ) : (
-                              <Copy className="h-3.5 w-3.5" />
-                            )}
-                          </Button>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-muted-foreground">
-                          Your selection includes no day-to-day skills to
-                          install.
-                        </p>
-                      )
-                    }
-                    step2Title="Add fullstackrecipes MCP server"
-                    step2Description="Run once to update all detected agents"
-                    step2Content={
-                      <McpConfigSection
-                        command={MCP_INSTALL_FULLSTACKRECIPES_COMMAND}
-                      />
-                    }
+                  <FetchMarkdownSteps
+                    steps={[
+                      {
+                        title: "Fetch recipes as Markdown",
+                        description: markdownCurlCommand
+                          ? "Your agent can curl each selected recipe (append .md to any URL)"
+                          : "Select a setup recipe or cookbook to generate the command",
+                        content: markdownCurlCommand ? (
+                          <CommandBox command={markdownCurlCommand} />
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            Your selection includes no setup recipes to fetch.
+                          </p>
+                        ),
+                      },
+                      {
+                        title: "Install selected skills",
+                        description:
+                          skillSlugs.length > 0
+                            ? `Add the ${skillSlugs.length} day-to-day ${
+                                skillSlugs.length === 1 ? "skill" : "skills"
+                              } from your selection to your agent`
+                            : "Your selection includes no day-to-day skills to install",
+                        content:
+                          skillSlugs.length > 0 ? (
+                            <CommandBox command={skillsCommand} />
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              Skills are installed once and retained by your
+                              agent.
+                            </p>
+                          ),
+                      },
+                      {
+                        title: "Ask your coding agent to follow the recipe",
+                        description:
+                          "Paste this prompt after fetching the Markdown",
+                        content: (
+                          <div className="flex items-start gap-2 rounded-lg border border-dashed border-border bg-secondary/30 px-3 py-2.5">
+                            <span className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-xs text-muted-foreground sm:text-sm">
+                              {promptText}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                copyToClipboard(promptText, "prompt")
+                              }
+                              className="h-7 w-7 shrink-0 p-0"
+                            >
+                              {copiedState === "prompt" ? (
+                                <Check className="h-3.5 w-3.5 text-green-500" />
+                              ) : (
+                                <Copy className="h-3.5 w-3.5" />
+                              )}
+                            </Button>
+                          </div>
+                        ),
+                      },
+                    ]}
                   />
                 </Card>
               </TabsContent>
@@ -527,8 +539,9 @@ function HowItWorksFallback() {
           <p className="text-muted-foreground">
             <i>
               Follow recipes step by step—or let's be real, paste the markdown
-              into your coding agent. Even better: use our MCP server or Claude
-              Code plugins to access recipes directly.
+              into your coding agent. Even better: have your agent fetch recipes
+              directly by appending <code className="font-mono">.md</code> to
+              any URL.
             </i>
           </p>
         </div>

@@ -7,6 +7,16 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   // Externalize pino to prevent Turbopack from bundling thread-stream test files
   serverExternalPackages: ["pino"],
+  // Serve a Markdown twin of any page: appending `.md` to a URL routes to the
+  // `/md/[[...path]]` handler (e.g. `/recipes/neon-drizzle-setup.md`). The
+  // landing page is reachable via `/index.md` and `/.md`.
+  async rewrites() {
+    return [
+      { source: "/index.md", destination: "/md" },
+      { source: "/.md", destination: "/md" },
+      { source: "/:path*.md", destination: "/md/:path*" },
+    ];
+  },
 };
 
 export default withSentryConfig(withWorkflow(nextConfig), {

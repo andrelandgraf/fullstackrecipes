@@ -14,6 +14,7 @@ import {
   isSkillRecipe,
   getItemBySlug,
   getItemPromptText,
+  getMarkdownCurlCommand,
   type Recipe,
   type Cookbook,
 } from "@/lib/recipes/data";
@@ -78,6 +79,10 @@ type SelectionContextValue = {
   allContentSlugs: string[];
   /** Slugs of skill recipes among the content, for the skills-install command */
   skillSlugs: string[];
+  /** Top-level selected slugs whose Markdown should be fetched (cookbooks + setup recipes) */
+  markdownSlugs: string[];
+  /** curl command that fetches the Markdown for the selected setup recipes/cookbooks */
+  markdownCurlCommand: string;
   /** Prompt text for the selected items */
   promptText: string;
   /** Combined registry deps from selected items */
@@ -165,6 +170,20 @@ export function SelectionProvider({
     });
   }, [allContentSlugs]);
 
+  // Top-level selected items whose Markdown should be fetched via curl.
+  // Cookbooks expose a single `.md` that inlines their recipes, so we fetch the
+  // selected cookbooks/setup recipes directly and leave skills to the CLI.
+  const markdownSlugs = useMemo(() => {
+    return selectedItems
+      .filter((item) => isCookbook(item) || !isSkillRecipe(item))
+      .map((item) => item.slug);
+  }, [selectedItems]);
+
+  const markdownCurlCommand = useMemo(
+    () => getMarkdownCurlCommand(markdownSlugs),
+    [markdownSlugs],
+  );
+
   const registryDeps = useMemo(
     () => getCombinedRegistryDeps(selectedItems),
     [selectedItems],
@@ -231,6 +250,8 @@ export function SelectionProvider({
     selectedItems,
     allContentSlugs,
     skillSlugs,
+    markdownSlugs,
+    markdownCurlCommand,
     promptText,
     registryDeps,
     hasRegistry,

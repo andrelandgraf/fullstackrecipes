@@ -4,11 +4,10 @@ import { useState } from "react";
 import { Copy, Check, Terminal, ArrowRight, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WizardTrigger } from "@/components/wizard/wizard-trigger";
-import {
-  McpConfigSection,
-  MCP_INSTALL_FULLSTACKRECIPES_COMMAND,
-} from "@/components/mcp/config";
+import { CommandBox } from "@/components/recipes/fetch-markdown-steps";
 import { getSkillsInstallCommand } from "@/lib/recipes/data";
+
+const FETCH_INDEX_COMMAND = "curl https://fullstackrecipes.com/llms.txt";
 
 export function InstallSection() {
   const [copied, setCopied] = useState(false);
@@ -83,12 +82,14 @@ export function InstallSection() {
         </div>
       </div>
 
-      {/* MCP Servers Section */}
+      {/* Fetch Markdown Section */}
       <div className="rounded-xl border border-border/60 bg-secondary/20 p-6 text-left backdrop-blur-sm">
-        <h3 className="mb-4 text-sm font-medium">
-          Add fullstackrecipes MCP server
-        </h3>
-        <McpConfigSection command={MCP_INSTALL_FULLSTACKRECIPES_COMMAND} />
+        <h3 className="mb-1 text-sm font-medium">Fetch recipes as Markdown</h3>
+        <p className="mb-4 text-xs text-muted-foreground">
+          Append <code className="font-mono">.md</code> to any URL. Start with
+          the index, then fetch any recipe.
+        </p>
+        <CommandBox command={FETCH_INDEX_COMMAND} />
       </div>
     </div>
   );

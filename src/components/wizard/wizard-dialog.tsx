@@ -24,7 +24,6 @@ import {
   Check,
   ChevronRight,
   Copy,
-  Server,
   Loader2,
   FolderGit2,
   Terminal,
@@ -34,9 +33,9 @@ import {
   type DeliveryTab,
 } from "@/lib/recipes/selection-context";
 import {
-  McpSetupSteps,
-  MCP_INSTALL_FULLSTACKRECIPES_COMMAND,
-} from "@/components/mcp/config";
+  FetchMarkdownSteps,
+  CommandBox,
+} from "@/components/recipes/fetch-markdown-steps";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -98,7 +97,6 @@ function WizardDialogInner({
   );
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [copiedMarkdown, setCopiedMarkdown] = useState(false);
-  const [copiedSkills, setCopiedSkills] = useState(false);
   const [recipeContents, setRecipeContents] = useState<
     Record<string, string | null>
   >({});
@@ -111,6 +109,7 @@ function WizardDialogInner({
     selectedItems,
     allContentSlugs,
     skillSlugs,
+    markdownCurlCommand,
     promptText,
     recipesIncludedInCookbooks,
     deliveryTab,
@@ -250,16 +249,6 @@ function WizardDialogInner({
   }
 
   const skillsCommand = getSkillsInstallCommandForSlugs(skillSlugs);
-
-  async function copySkills() {
-    try {
-      await navigator.clipboard.writeText(skillsCommand);
-      setCopiedSkills(true);
-      setTimeout(() => setCopiedSkills(false), 2000);
-    } catch {
-      // Silently fail
-    }
-  }
 
   const isMobile = useIsMobile();
   const showNavigation = mode === "full";
@@ -683,9 +672,9 @@ function WizardDialogInner({
                         <span>Markdown</span>
                       </TabsTrigger>
                       <TabsTrigger value="mcp">
-                        <Server className="h-4 w-4" />
-                        <span className="hidden sm:inline">MCP & Skills</span>
-                        <span className="sm:hidden">MCP</span>
+                        <Terminal className="h-4 w-4" />
+                        <span className="hidden sm:inline">Fetch & Skills</span>
+                        <span className="sm:hidden">Fetch</span>
                       </TabsTrigger>
                       {singleCookbookTemplate && (
                         <TabsTrigger value="template">
@@ -775,44 +764,71 @@ function WizardDialogInner({
                       </div>
                     </TabsContent>
 
-                    {/* MCP & Skills Tab */}
+                    {/* Fetch & Skills Tab */}
                     <TabsContent value="mcp">
                       <div className="border-t border-border/50 bg-card p-4 sm:p-6">
-                        <McpSetupSteps
-                          promptText={promptText}
-                          copiedPrompt={copiedPrompt}
-                          onCopyPrompt={copyPrompt}
-                          mcpCommand={MCP_INSTALL_FULLSTACKRECIPES_COMMAND}
-                          step2Title="Install selected skills"
-                          step2Description={
-                            skillSlugs.length > 0
-                              ? `Add the ${skillSlugs.length} day-to-day ${
-                                  skillSlugs.length === 1 ? "skill" : "skills"
-                                } from your selection to your agent`
-                              : "Your selection includes no day-to-day skills to install"
-                          }
-                          step2Content={
-                            skillSlugs.length > 0 ? (
-                              <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-secondary/30 px-3 py-2.5">
-                                <Terminal className="h-4 w-4 shrink-0 text-muted-foreground" />
-                                <code className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-xs text-foreground/90 sm:text-sm">
-                                  {skillsCommand}
-                                </code>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={copySkills}
-                                  className="h-7 w-7 shrink-0 p-0"
-                                >
-                                  {copiedSkills ? (
-                                    <Check className="h-3.5 w-3.5 text-green-500" />
-                                  ) : (
-                                    <Copy className="h-3.5 w-3.5" />
-                                  )}
-                                </Button>
-                              </div>
-                            ) : undefined
-                          }
+                        <FetchMarkdownSteps
+                          steps={[
+                            {
+                              title: "Fetch recipes as Markdown",
+                              description: markdownCurlCommand
+                                ? "Your agent can curl each selected recipe (append .md to any URL)"
+                                : "Select a setup recipe or cookbook to generate the command",
+                              content: markdownCurlCommand ? (
+                                <CommandBox command={markdownCurlCommand} />
+                              ) : (
+                                <p className="text-sm text-muted-foreground">
+                                  Your selection includes no setup recipes to
+                                  fetch.
+                                </p>
+                              ),
+                            },
+                            {
+                              title: "Install selected skills",
+                              description:
+                                skillSlugs.length > 0
+                                  ? `Add the ${skillSlugs.length} day-to-day ${
+                                      skillSlugs.length === 1
+                                        ? "skill"
+                                        : "skills"
+                                    } from your selection to your agent`
+                                  : "Your selection includes no day-to-day skills to install",
+                              content:
+                                skillSlugs.length > 0 ? (
+                                  <CommandBox command={skillsCommand} />
+                                ) : (
+                                  <p className="text-sm text-muted-foreground">
+                                    Skills are installed once and retained by
+                                    your agent.
+                                  </p>
+                                ),
+                            },
+                            {
+                              title:
+                                "Ask your coding agent to follow the recipe",
+                              description:
+                                "Paste this prompt after fetching the Markdown",
+                              content: (
+                                <div className="flex items-start gap-2 rounded-lg border border-dashed border-border bg-secondary/30 px-3 py-2.5">
+                                  <span className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-xs text-muted-foreground sm:text-sm">
+                                    {promptText}
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={copyPrompt}
+                                    className="h-7 w-7 shrink-0 p-0"
+                                  >
+                                    {copiedPrompt ? (
+                                      <Check className="h-3.5 w-3.5 text-green-500" />
+                                    ) : (
+                                      <Copy className="h-3.5 w-3.5" />
+                                    )}
+                                  </Button>
+                                </div>
+                              ),
+                            },
+                          ]}
                         />
                       </div>
                     </TabsContent>

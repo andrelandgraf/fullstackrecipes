@@ -5,12 +5,8 @@ description: Add email verification, password reset, and account management emai
 
 # Better Auth Emails
 
-To set up Better Auth Emails, refer to the fullstackrecipes MCP server resource:
-
-**Resource URI:** `recipe://fullstackrecipes.com/better-auth-emails`
-
-If the MCP server is not configured, fetch the recipe directly:
+To set up Better Auth Emails, fetch the recipe Markdown:
 
 ```bash
-curl -H "Accept: text/plain" https://fullstackrecipes.com/api/recipes/better-auth-emails
+curl https://fullstackrecipes.com/recipes/better-auth-emails.md
 ```

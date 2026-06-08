@@ -13,7 +13,7 @@ fullstackrecipes is a site that helps developers and agents build better full st
 
 This repo contains two separate `skills/` trees. They serve opposite audiences:
 
-- **`./skills/`** — the skills this repo **exposes/ships** to consumers. These are the day-to-day, agent-facing workflow guides (`drizzle-queries`, `authentication-best-practices`, `workflow-best-practices`, etc.) that the website and MCP server read and that consumers install via `bunx skills add`. When this skill says "a skill," it means one of these.
+- **`./skills/`** — the skills this repo **exposes/ships** to consumers. These are the day-to-day, agent-facing workflow guides (`drizzle-queries`, `authentication-best-practices`, `workflow-best-practices`, etc.) that the website reads (and serves as Markdown via the `.md` endpoints) and that consumers install via `bunx skills add`. When this skill says "a skill," it means one of these.
 - **`./.agents/skills/`** — the skills used **internally by this workspace** to build the fullstackrecipes project. This very `authoring-recipes` skill lives here. These are not exposed to consumers and are not part of the resource catalog.
 
 When authoring or editing an exposed skill, you edit it under `./skills/<slug>/SKILL.md`. Never put consumer-facing skill content in `.agents/skills/`.
@@ -33,7 +33,7 @@ One-time setup that installs files, dependencies, and config for a single concer
 
 Day-to-day, agent-facing workflow guides for an already-configured tool (e.g. `drizzle-queries`, `authentication-best-practices`). These are the skills this repo exposes; they live under `./skills/` (not `.agents/skills/` — see above).
 
-- **Skills are authored, not recipe docs.** The source of truth is the hand-authored `./skills/<slug>/SKILL.md` (YAML frontmatter + body). The website/MCP read their body directly from that file, so edits ship as soon as they land — there is no build step. They have no `docs/recipes/<slug>.md`.
+- **Skills are authored, not recipe docs.** The source of truth is the hand-authored `./skills/<slug>/SKILL.md` (YAML frontmatter + body). The website reads their body directly from that file (and serves it via the `.md` endpoints), so edits ship as soon as they land — there is no build step. They have no `docs/recipes/<slug>.md`.
 - **Lead with `### ` body sections.** The loader (`src/lib/recipes/loader.ts`) strips the YAML frontmatter and everything up to the first `### ` heading, then re-derives the `# Title`, description, and a `## Prerequisites` list from `data.tsx` metadata. So the authored file leads with `# Title` + description + prereqs for standalone reading, but the shipped body starts at the first `### ` section. Use `### ` for your top-level body sections.
 - **Name skills for what they teach, not the tool they wrap.** Use a descriptive slug and title (`drizzle-queries`, `testing-best-practices`, `ralph-loop-workflow`), not a `using-*` prefix. The `name:` frontmatter and the slug (folder name) must match, and the `# Title` H1 must match the `title` in `src/lib/recipes/data.tsx`. When renaming a slug, add the old slug to `recipeRedirects` in `data.tsx`.
 - **The `type` is derived from the `Skills` tag.** An item becomes a skill (`type: "skill"`) when its `tags` include `"Skills"` in `data.tsx`; everything else is a setup recipe. There is no separate `type` field to set.
@@ -139,4 +139,4 @@ The registry tag already provides the installation command and source code. Only
 ## References
 
 - [fullstackrecipes.com](https://fullstackrecipes.com) - Browse all recipes and cookbooks
-- [MCP Resources](https://fullstackrecipes.com/api/mcp) - Direct MCP server endpoint
+- [Index](https://fullstackrecipes.com/llms.txt) - Every recipe and cookbook with its slug (append `.md` to any page URL for its Markdown)

@@ -91,11 +91,11 @@ test.describe("Add to Agent Wizard", () => {
       .getByRole("button", { name: "Next", exact: true });
     await nextButton.click();
 
-    // Should show agent configuration tabs - use first() since both Markdown and MCP tabs exist
+    // Should show agent configuration tabs - use first() since both Markdown and Fetch tabs exist
     await expect(
       page
         .getByRole("dialog")
-        .getByRole("tab", { name: /Markdown|MCP/i })
+        .getByRole("tab", { name: /Markdown|Fetch/i })
         .first(),
     ).toBeVisible();
   });
@@ -121,7 +121,7 @@ test.describe("Add to Agent Wizard", () => {
     }
   });
 
-  test("should show MCP/Plugin configuration tab", async ({ page }) => {
+  test("should show Fetch & Skills configuration tab", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("button", { name: /Add to Agent/i }).click();
     await page
@@ -129,18 +129,18 @@ test.describe("Add to Agent Wizard", () => {
       .getByRole("button", { name: "Next", exact: true })
       .click();
 
-    const mcpTab = page
+    const fetchTab = page
       .getByRole("dialog")
-      .getByRole("tab", { name: /MCP|Plugin/i })
+      .getByRole("tab", { name: /Fetch/i })
       .first();
-    if ((await mcpTab.count()) > 0) {
-      await mcpTab.click();
+    if ((await fetchTab.count()) > 0) {
+      await fetchTab.click();
 
-      // Should show editor tabs (Cursor, VS Code, Claude Code)
+      // Should show the curl-based fetch instructions
       await expect(
         page
           .getByRole("dialog")
-          .getByText(/Cursor|VS Code|Claude/i)
+          .getByText(/curl|Fetch recipes as Markdown/i)
           .first(),
       ).toBeVisible();
     }

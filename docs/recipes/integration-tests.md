@@ -21,7 +21,7 @@ tests/
 Use integration tests for:
 
 - API routes and endpoints that don't require authentication
-- Public endpoints (e.g., /llms.txt, /api/mcp, /api/recipes/[slug])
+- Public endpoints (e.g., /llms.txt, /recipes/[slug].md, /api/recipes/[slug])
 - Testing JSON-RPC or other protocol-level interactions
 
 **Use Playwright tests** for:

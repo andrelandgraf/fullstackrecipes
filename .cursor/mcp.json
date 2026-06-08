@@ -20,9 +20,6 @@
     "resend": {
       "url": "https://resend.com/docs/mcp"
     },
-    "fullstackrecipes": {
-      "url": "http://localhost:3000/api/mcp"
-    },
     "sentry": {
       "url": "https://mcp.sentry.dev/mcp/andre-landgraf/fullstackrecipes"
     }

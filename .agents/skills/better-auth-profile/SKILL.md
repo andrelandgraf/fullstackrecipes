@@ -5,12 +5,8 @@ description: Add a complete account settings page with profile editing, password
 
 # Better Auth Profile & Account
 
-To set up Better Auth Profile & Account, refer to the fullstackrecipes MCP server resource:
-
-**Resource URI:** `recipe://fullstackrecipes.com/better-auth-profile`
-
-If the MCP server is not configured, fetch the recipe directly:
+To set up Better Auth Profile & Account, fetch the recipe Markdown:
 
 ```bash
-curl -H "Accept: text/plain" https://fullstackrecipes.com/api/recipes/better-auth-profile
+curl https://fullstackrecipes.com/recipes/better-auth-profile.md
 ```

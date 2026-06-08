@@ -8,5 +8,5 @@ description: Syntax highlight code blocks with Shiki. Supports server-side rende
 Syntax highlight code blocks with Shiki. Supports server-side rendering in RSC and automatic light/dark theme switching.
 
 ```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/shiki-code-blocks
+curl https://fullstackrecipes.com/recipes/shiki-code-blocks.md
 ```

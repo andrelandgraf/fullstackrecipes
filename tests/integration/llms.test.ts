@@ -14,7 +14,7 @@ import {
  * 2. All cookbooks are listed
  * 3. All recipes are listed
  * 4. All registry items are listed
- * 5. MCP server configuration is included
+ * 5. The curl-based Markdown fetch instructions are included
  */
 
 describe("GET /llms.txt", () => {
@@ -32,7 +32,7 @@ describe("GET /llms.txt", () => {
     const content = await response.text();
 
     expect(content.length).toBeGreaterThan(0);
-    expect(content).toContain("# Fullstack Recipes");
+    expect(content).toContain("# fullstackrecipes");
   });
 
   describe("content includes all cookbooks", () => {
@@ -99,21 +99,30 @@ describe("GET /llms.txt", () => {
     }
   });
 
-  describe("content includes MCP server configuration", () => {
-    it("should have MCP server section", async () => {
+  describe("content includes Markdown fetch instructions", () => {
+    it("should have a Markdown fetch section", async () => {
       const response = await GET();
       const content = await response.text();
 
-      expect(content).toContain("## MCP Server");
-      expect(content).toContain("https://fullstackrecipes.com/api/mcp");
+      expect(content).toContain("## Fetch recipes as Markdown");
     });
 
-    it("should include JSON configuration example", async () => {
+    it("should include curl commands for the index and recipes", async () => {
       const response = await GET();
       const content = await response.text();
 
-      expect(content).toContain("mcpServers");
-      expect(content).toContain("fullstackrecipes");
+      expect(content).toContain("curl https://fullstackrecipes.com/llms.txt");
+      expect(content).toContain(
+        "curl https://fullstackrecipes.com/recipes/<slug>.md",
+      );
+    });
+
+    it("should not mention the removed MCP server", async () => {
+      const response = await GET();
+      const content = await response.text();
+
+      expect(content).not.toContain("/api/mcp");
+      expect(content).not.toContain("mcpServers");
     });
   });
 });

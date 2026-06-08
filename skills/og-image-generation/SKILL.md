@@ -8,5 +8,5 @@ description: Generate dynamic social preview images using Next.js file conventio
 Generate dynamic social preview images using Next.js file conventions and the next/og library. Server-rendered JSX images cached at build time.
 
 ```bash
-curl -H "Accept: text/markdown" https://fullstackrecipes.com/api/recipes/og-image-generation
+curl https://fullstackrecipes.com/recipes/og-image-generation.md
 ```

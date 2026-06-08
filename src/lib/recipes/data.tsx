@@ -110,12 +110,14 @@ const rawItems: (Omit<Recipe, "type"> | Omit<Cookbook, "type">)[] = [
     slug: "use-fullstackrecipes",
     title: "Building with fullstackrecipes",
     description:
-      "Discover and follow recipes via MCP resources for setup guides, skills, and cookbooks. The meta-skill for using fullstackrecipes effectively.",
+      "Discover and follow recipes by fetching their Markdown for setup guides, skills, and cookbooks. The meta-skill for using fullstackrecipes effectively.",
     tags: ["Skills"],
     icon: Compass,
-    previewCode: `// List MCP resources from fullstackrecipes
+    previewCode: `# List every recipe with its slug
+curl https://fullstackrecipes.com/llms.txt
 
-// Read the "neon-drizzle-setup" recipe`,
+# Fetch a recipe as Markdown
+curl https://fullstackrecipes.com/recipes/neon-drizzle-setup.md`,
   },
   {
     slug: "base-app-setup",
@@ -1116,24 +1118,21 @@ export function isCookbook(item: Recipe | Cookbook): item is Cookbook {
   return "isCookbook" in item && item.isCookbook === true;
 }
 
-/** Get the MCP resource URI for a recipe or cookbook */
-export function getItemResourceUri(item: Recipe | Cookbook): string {
-  const type = isCookbook(item) ? "cookbook" : "recipe";
-  return `${type}://fullstackrecipes.com/${item.slug}`;
+/** Public URL serving the Markdown twin of a recipe or cookbook page */
+function getMarkdownUrl(slug: string): string {
+  return `https://fullstackrecipes.com/recipes/${slug}.md`;
+}
+
+/** Build a curl command that fetches the Markdown for one or more slugs */
+export function getMarkdownCurlCommand(slugs: string[]): string {
+  if (slugs.length === 0) return "";
+  return slugs.map((slug) => `curl ${getMarkdownUrl(slug)}`).join("\n");
 }
 
 /** Get the prompt text for implementing a recipe or cookbook */
 export function getItemPromptText(item: Recipe | Cookbook): string {
   const type = isCookbook(item) ? "cookbook" : "recipe";
   return `Follow the "${item.title}" ${type} from fullstackrecipes`;
-}
-
-/** Generate a Cursor deeplink for a prompt */
-export function getCursorPromptDeeplink(promptText: string): string {
-  const baseUrl = "cursor://anysphere.cursor-deeplink/prompt";
-  const url = new URL(baseUrl);
-  url.searchParams.set("text", promptText);
-  return url.toString();
 }
 
 /**
