@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "skills": {
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "computedHash": "228f87d57035100d9dc6efcfc05aafd4b6e3962adacaa04b8217ab2fadb15dc8"
+    },
+    "analytics-best-practices": {
+      "source": "andrelandgraf/fullstackrecipes",
+      "sourceType": "github",
+      "skillPath": "skills/analytics-best-practices/SKILL.md",
+      "computedHash": "98fcc662e158d09142e22579ee1fc5e8fdf766859c3ff524ce3b7761013802cd"
+    },
+    "authentication-best-practices": {
+      "source": "andrelandgraf/fullstackrecipes",
+      "sourceType": "github",
+      "skillPath": "skills/authentication-best-practices/SKILL.md",
+      "computedHash": "4f8f50f6fe1b03750e6124076e1b92d8d70207fd3b5292eabe2e4396c1ff2364"
+    },
+    "drizzle-queries": {
+      "source": "andrelandgraf/fullstackrecipes",
+      "sourceType": "github",
+      "skillPath": "skills/drizzle-queries/SKILL.md",
+      "computedHash": "2b451584e3a05f4c554d44dc962384d359a91f05f52ce152e4b8d4ff4e7da59d"
+    },
+    "fallow": {
+      "source": "fallow-rs/fallow-skills",
+      "sourceType": "github",
+      "skillPath": "fallow/skills/fallow/SKILL.md",
+      "computedHash": "e08db6e5ec639ea7fde90a8649279bbced1c11fbbf12c028816a561a5093214a"
+    },
+    "logging-best-practices": {
+      "source": "andrelandgraf/fullstackrecipes",
+      "sourceType": "github",
+      "skillPath": "skills/logging-best-practices/SKILL.md",
+      "computedHash": "b0cb93c6ec2500b0c3938e47e1bc84f200d4e11b1e6e8f735a98d6feb1d4f231"
+    },
+    "og-image-generation": {
+      "source": "andrelandgraf/fullstackrecipes",
+      "sourceType": "github",
+      "skillPath": "skills/og-image-generation/SKILL.md",
+      "computedHash": "1d9949e8ab9cd93d20f4dbd6e5c7add41732d1e1d4f15dbe9acff6ac36091eec"
+    },
+    "ralph-loop-workflow": {
+      "source": "andrelandgraf/fullstackrecipes",
+      "sourceType": "github",
+      "skillPath": "skills/ralph-loop-workflow/SKILL.md",
+      "computedHash": "3a63550641b698a708cef86354c3a7b5c319895cfe1bc7aa1049dba12fc1e2c9"
+    },
+    "sentry-best-practices": {
+      "source": "andrelandgraf/fullstackrecipes",
+      "sourceType": "github",
+      "skillPath": "skills/sentry-best-practices/SKILL.md",
+      "computedHash": "efe8d2ab98af27c44a12620e23643b8f3603a4f24f66ff39fcba7c006aaaed5d"
+    },
+    "shiki-code-blocks": {
+      "source": "andrelandgraf/fullstackrecipes",
+      "sourceType": "github",
+      "skillPath": "skills/shiki-code-blocks/SKILL.md",
+      "computedHash": "141e80e40c2fbcbc1b911d848ca5eb8fc5cca18f4c8fda4ed5b74e3e6496b60b"
+    },
+    "testing-best-practices": {
+      "source": "andrelandgraf/fullstackrecipes",
+      "sourceType": "github",
+      "skillPath": "skills/testing-best-practices/SKILL.md",
+      "computedHash": "cf918e597f9dc8363e190af5b4ed8b5a17fc83809026290b2a35061a3610ecfb"
+    },
+    "url-state-patterns": {
+      "source": "andrelandgraf/fullstackrecipes",
+      "sourceType": "github",
+      "skillPath": "skills/url-state-patterns/SKILL.md",
+      "computedHash": "d0a63646bcde9ed9568d406e387d62546e294f9375133a23463fbf53ad2c3d93"
+    },
+    "use-fullstackrecipes": {
+      "source": "andrelandgraf/fullstackrecipes",
+      "sourceType": "github",
+      "skillPath": "skills/use-fullstackrecipes/SKILL.md",
+      "computedHash": "32aec9122bd1a0ed9a2e57bb19456439622a78488989a65736e771f506d44953"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "computedHash": "ca7b0c0c6e5f2750043f7f0cd72d16ac4e2abc48f9b5500d047a4b77a2506212"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "f3bc47f890f42a44db1007ab390709ec368e4b8c089baee6b0007182236ac474"
+    },
+    "workflow-best-practices": {
+      "source": "andrelandgraf/fullstackrecipes",
+      "sourceType": "github",
+      "skillPath": "skills/workflow-best-practices/SKILL.md",
+      "computedHash": "49152f99856b8927ff3d1b4abc8b3e1340ec8663dd8f0e9959b2d030b2893c3a"
+    }
+  }
+}

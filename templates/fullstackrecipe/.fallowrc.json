@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "ignoreExportsUsedInFile": true,
+  "entry": ["better-env.ts", "vercel.ts"],
+  "dynamicallyLoaded": [
+    "src/components/ui/**",
+    "src/components/ai-elements/**",
+    "src/lib/*/flags.ts"
+  ],
+  "ignoreDependencies": [
+    "babel-plugin-react-compiler",
+    "@hookform/resolvers",
+    "@react-email/components"
+  ],
+  "rules": {
+    "unused-files": "warn",
+    "unused-exports": "warn",
+    "unused-types": "warn"
+  }
+}
