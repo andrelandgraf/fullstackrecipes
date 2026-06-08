@@ -1,8 +1,12 @@
 import { configSchema, server, oneOf } from "better-env/config-schema";
-import { createOpenAI } from "@ai-sdk/openai";
-import type { LanguageModel } from "ai";
 
-const config = configSchema(
+/**
+ * AI provider config. Uses the Vercel AI Gateway: pass a plain
+ * "provider/model" string (e.g. "openai/gpt-4o") to streamText/generateText
+ * and the AI SDK routes it through the gateway using AI_GATEWAY_API_KEY (local)
+ * or VERCEL_OIDC_TOKEN (injected automatically on Vercel).
+ */
+export const aiConfig = configSchema(
   "AI",
   {
     oidcToken: server({ env: "VERCEL_OIDC_TOKEN" }),
@@ -12,29 +16,3 @@ const config = configSchema(
     constraints: (s) => [oneOf([s.oidcToken, s.gatewayApiKey])],
   },
 );
-
-function createProvider() {
-  const { oidcToken, gatewayApiKey } = config.server;
-
-  if (gatewayApiKey) {
-    return createOpenAI({
-      apiKey: gatewayApiKey,
-      baseURL: "https://api.openai.com/v1",
-    });
-  }
-
-  return createOpenAI({
-    apiKey: oidcToken,
-    baseURL: "https://api.vercel.ai/v1",
-  });
-}
-
-function getModel(model: string): LanguageModel {
-  const provider = createProvider();
-  return provider(model);
-}
-
-export const aiConfig = {
-  ...config,
-  getModel,
-};

@@ -2,7 +2,7 @@ import { Agent } from "./agent";
 
 export const chatAgent = new Agent({
   stepOptions: {
-    model: "gpt-4o",
+    model: "openai/gpt-4o",
     system: `You are a helpful AI assistant. You can help users with a variety of tasks including research and drafting content.
 
 When users ask you to research something, use your available tools to search for information.

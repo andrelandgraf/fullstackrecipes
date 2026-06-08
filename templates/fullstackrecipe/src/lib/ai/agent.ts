@@ -8,7 +8,6 @@ import {
 } from "ai";
 import type { ProviderOptions } from "@ai-sdk/provider-utils";
 import { researchTools, draftingTools } from "./tools";
-import { aiConfig } from "./config";
 
 type MessagePart = UIMessage["parts"][number];
 
@@ -82,7 +81,7 @@ interface StepExecutorConfig {
  * ```ts
  * const draftingAgent = new Agent({
  *   stepOptions: {
- *     model: "gpt-4o",
+ *     model: "openai/gpt-4o",
  *     system: "You are a drafting agent...",
  *     tools: "drafting",
  *   },
@@ -146,7 +145,8 @@ async function executeAgentStep(
   const tools = toolSets[config.stepOptions.tools];
 
   const resultStream = streamText({
-    model: aiConfig.getModel(config.stepOptions.model),
+    // Plain "provider/model" string routes through the Vercel AI Gateway.
+    model: config.stepOptions.model,
     system: config.stepOptions.system,
     tools,
     messages,
